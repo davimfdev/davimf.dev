@@ -91,7 +91,7 @@ const Contact = () => {
               type="submit"
               className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
             >
-              Send Message
+              {translations.sendMessage}
               <Send size={20} className="ml-2" />
             </button>
           </form>

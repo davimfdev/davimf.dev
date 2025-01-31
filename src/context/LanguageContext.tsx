@@ -27,6 +27,7 @@ const translations = {
     productsAndServices: "Produtos e Serviços",
     learnMore: "Saiba Mais",
     buyNow: "Comprar",
+    sendMessage: "Enviar Mensagem",
     viewProject: "Ver projeto",
     projectsList: [
       {
@@ -121,6 +122,7 @@ const translations = {
     productsAndServices: "Product & Services",
     learnMore: "Learn More",
     buyNow: "Buy Now",
+    sendMessage: "Send Message",
     viewProject: "View project",
     projectsList: [
       {

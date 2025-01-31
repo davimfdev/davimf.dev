@@ -49,7 +49,6 @@ const translations = {
     downloadPDF: "Baixar PDF",
 
     personalInfo: "Dados Pessoais",
-    address: "Rua 1, Quadra 9, Lote 22, Casa 2, Goiânia, Goiás, 74853-130",
     phone: "(62) 98608-9609",
     email: "davimf9702@gmail.com",
 
@@ -145,7 +144,6 @@ const translations = {
     downloadPDF: "Download PDF",
 
     personalInfo: "Personal Information",
-    address: "Rua 1, Quadra 9, Lote 22, Casa 2, Goiânia, Goiás, 74853-130",
     phone: "(62) 98608-9609",
     email: "davimf9702@gmail.com",
 

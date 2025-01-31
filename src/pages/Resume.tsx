@@ -15,7 +15,6 @@ const Resume = () => {
           <section>
             <h2 className="text-2xl font-semibold mb-4">{translations.personalInfo}</h2>
             <div className="bg-gray-800 p-6 rounded-lg text-gray-300">
-              <p><strong>📍 {translations.address}</strong></p>
               <p>📞 {translations.phone}</p>
               <p>📧 {translations.email}</p>
             </div>

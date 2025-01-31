@@ -28,10 +28,12 @@ const Products = () => {
                 >
                   {translations.learnMore} <ExternalLink size={16} className="ml-1" />
                 </a>
-                <button className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                  <a href={"/contact"}>
+                  <button className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
                   <ShoppingCart size={16} className="mr-2" />
                   {translations.buyNow}
                 </button>
+                  </a>
               </div>
             </div>
           </div>

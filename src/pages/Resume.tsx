@@ -1,4 +1,3 @@
-import { Download } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext.tsx";
 
 const Resume = () => {
@@ -9,14 +8,6 @@ const Resume = () => {
         {/* Título e Download */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">{translations.resume}</h1>
-          <a
-              href="\Currículo de Davi Monteiro Fonseca.pdf"
-              download
-              className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-          >
-            {translations.downloadPDF}
-            <Download size={20} className="ml-2" />
-          </a>
         </div>
 
         <div className="space-y-8">

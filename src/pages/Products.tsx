@@ -1,5 +1,6 @@
 import { ExternalLink, ShoppingCart } from 'lucide-react';
 import {useLanguage} from "../context/LanguageContext.tsx";
+import {Link} from "react-router-dom";
 
 const Products = () => {
   const { translations } = useLanguage();
@@ -28,12 +29,12 @@ const Products = () => {
                 >
                   {translations.learnMore} <ExternalLink size={16} className="ml-1" />
                 </a>
-                  <a href={"/contact"}>
+                  <Link to="/contact">
                   <button className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
                   <ShoppingCart size={16} className="mr-2" />
                   {translations.buyNow}
                 </button>
-                  </a>
+                  </Link>
               </div>
             </div>
           </div>

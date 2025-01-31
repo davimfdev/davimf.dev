@@ -27,6 +27,7 @@ const translations = {
     productsAndServices: "Produtos e Serviços",
     learnMore: "Saiba Mais",
     buyNow: "Comprar",
+    viewProject: "Ver projeto",
     projectsList: [
       {
         id: 1,
@@ -40,7 +41,7 @@ const translations = {
       {
         id: 1,
         name: "Discord bot",
-        description: "Um bot completamente personalizavel, focado em moderação e segurança.",
+        description: "Um bot completamente personálizavel, focado em moderação e segurança.",
         image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png",
         link: "https://discord.gg/NTNhBhGxeQ"
       }
@@ -121,10 +122,11 @@ const translations = {
     productsAndServices: "Product & Services",
     learnMore: "Learn More",
     buyNow: "Buy Now",
+    viewProject: "View projetc",
     projectsList: [
       {
         id: 1,
-        name: "Discord Bot",
+        title: "Discord Bot",
         description: "A fully customizable bot focused on moderation and security.",
         image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png",
         link: "https://discord.gg/NTNhBhGxeQ"
@@ -133,18 +135,12 @@ const translations = {
     productList: [
       {
         id: 1,
-        name: "Product One",
-        description: "Description of your first product or service offering.",
-        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
-        link: "https://example.com/product1"
-      },
-      {
-        id: 2,
-        name: "Product Two",
-        description: "Description of your second product or service offering.",
-        image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800",
-        link: "https://example.com/product2"
+        name: "Discord bot",
+        description: "A fully customizable bot focused on moderation and security.",
+        image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png",
+        link: "https://discord.gg/NTNhBhGxeQ"
       }
+
     ],
     downloadPDF: "Download PDF",
 

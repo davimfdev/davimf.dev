@@ -26,7 +26,7 @@ const Portfolio = () => {
                   rel="noopener noreferrer"
                   className="inline-flex items-center text-blue-400 hover:text-blue-300"
                 >
-                  View Project <ExternalLink size={16} className="ml-1" />
+                   <ExternalLink size={16} className="ml-1" />
                 </a>
               )}
             </div>

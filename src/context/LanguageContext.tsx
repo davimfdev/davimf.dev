@@ -122,7 +122,7 @@ const translations = {
     productsAndServices: "Product & Services",
     learnMore: "Learn More",
     buyNow: "Buy Now",
-    viewProject: "View projetc",
+    viewProject: "View project",
     projectsList: [
       {
         id: 1,

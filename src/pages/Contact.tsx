@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { Send, Github, Linkedin, Mail, MessageCircle } from 'lucide-react';
+import {
+  Send,
+  Github,
+  Linkedin,
+  Mail,
+  MessageCircle,
+  Phone
+} from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const Contact = () => {
@@ -134,10 +141,16 @@ const Contact = () => {
               <MessageCircle className="mr-3" size={24} />
               Discord
             </a>
-            <div className="flex items-center text-gray-300">
-              <Mail className="mr-3" size={24} />
+            <a
+                href="https://api.whatsapp.com/send?phone=%205562986089609&text=Ol%C3%A1%2C+vim+do+seu+site."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-gray-300 hover:text-white transition-colors"
+            >
+              <Phone className="mr-3" size={24} />
               +55 62 98608-9609
-            </div>
+            </a>
+
           </div>
         </div>
       </div>

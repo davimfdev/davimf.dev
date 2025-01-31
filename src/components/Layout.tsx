@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Github, Linkedin, Mail, Globe, MessageCircle } from 'lucide-react';
+import {Menu, X, Github, Linkedin, Mail, Globe, MessageCircle, Phone} from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -121,6 +121,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </a>
               <a href="https://discord.com/users/344214477069221888" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                 <MessageCircle size={24} />
+              </a>
+              <a href="https://api.whatsapp.com/send?phone=%205562986089609&text=Ol%C3%A1%2C+vim+do+seu+site." target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                <Phone size={24} />
               </a>
             </div>
           </div>

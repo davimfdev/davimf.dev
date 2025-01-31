@@ -1,10 +1,9 @@
 import { ExternalLink } from 'lucide-react';
-import { Project } from '../types';
+import {useLanguage} from "../context/LanguageContext.tsx";
 
 const Portfolio = () => {
-  const projects: Project[] = [
-
-  ];
+    const { translations } = useLanguage();
+    const projects = translations.projectsList;
 
   return (
     <div>

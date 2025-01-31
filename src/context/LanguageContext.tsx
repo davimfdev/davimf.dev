@@ -27,6 +27,15 @@ const translations = {
     productsAndServices: "Produtos e Serviços",
     learnMore: "Saiba Mais",
     buyNow: "Comprar",
+    projectsList: [
+      {
+        id: 1,
+        title: "Discord Bot",
+        description: "Um bot completamente personalizavel, focado em moderação e segurança.",
+        image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png",
+        link: "https://discord.gg/NTNhBhGxeQ"
+      }
+    ],
     productList: [
       {
         id: 1,
@@ -112,6 +121,15 @@ const translations = {
     productsAndServices: "Product & Services",
     learnMore: "Learn More",
     buyNow: "Buy Now",
+    projectsList: [
+      {
+        id: 1,
+        name: "Discord Bot",
+        description: "A fully customizable bot focused on moderation and security.",
+        image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png",
+        link: "https://discord.gg/NTNhBhGxeQ"
+      }
+    ],
     productList: [
       {
         id: 1,
@@ -200,6 +218,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (context === undefined) {

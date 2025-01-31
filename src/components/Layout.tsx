@@ -30,7 +30,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <Link to="/" className="text-xl font-bold">Davi Monteiro Fonseca</Link>
+              <Link to="/" className="text-xl font-bold">Davimf Dev</Link>
             </div>
             
             <div className="hidden md:flex md:items-center">

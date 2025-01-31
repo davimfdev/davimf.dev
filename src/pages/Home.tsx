@@ -9,7 +9,7 @@ const Home = () => {
     <div className="min-h-[calc(100vh-16rem)] flex flex-col justify-center">
       <div className="max-w-3xl mx-auto text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
-          {translations.greeting} Davi Monteiro Fonseca
+          {translations.greeting} Davi
         </h1>
         <p className="text-xl text-gray-400 mb-8">
           {translations.description}

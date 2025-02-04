@@ -15,8 +15,8 @@ const Resume = () => {
             <h2 className="text-2xl font-semibold mb-4">{translations.personalInfo}</h2>
             <div className="bg-gray-800 p-6 rounded-lg text-gray-300">
               <p><strong>👤 Davi Monteiro Fonseca</strong></p>
-              <p>📞 {translations.phone}</p>
-              <p>📧 {translations.email}</p>
+              <p>📞 <a href="tel:5562986089609">{translations.phone}</a></p>
+              <p>📧 <a href="mailto:davimf9702@gmail.com">{translations.email}</a></p>
             </div>
           </section>
 

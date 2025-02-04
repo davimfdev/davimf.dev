@@ -148,7 +148,7 @@ const Contact = () => {
                 className="flex items-center text-gray-300 hover:text-white transition-colors"
             >
               <Phone className="mr-3" size={24} />
-              +55 62 98608-9609
+              WhatsApp
             </a>
 
           </div>

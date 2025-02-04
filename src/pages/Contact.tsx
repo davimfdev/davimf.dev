@@ -19,11 +19,11 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    const response = await fetch("https://formspree.io/f/meoekelg", {
+
+    const response = await fetch("https://seu-backend-na-railway.app/send-message", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
+      body: JSON.stringify({ message: formData.message })
     });
 
     if (response.ok) {
@@ -32,8 +32,8 @@ const Contact = () => {
     } else {
       alert("Erro ao enviar a mensagem.");
     }
-
   };
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({

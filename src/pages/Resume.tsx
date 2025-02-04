@@ -30,11 +30,16 @@ const Resume = () => {
                     <h3 className="text-xl font-medium">{job.title}</h3>
                     <span className="text-gray-400">{job.period}</span>
                   </div>
-                  <h4 className="text-blue-400 mb-2">{job.company}</h4>
+                  <h4 className="text-blue-400 mb-2">
+                    <a href={job.link} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                      {job.company}
+                    </a>
+                  </h4>
                   <p className="text-gray-300">{job.description}</p>
                 </div>
             ))}
           </section>
+
 
           {/* Formação Acadêmica */}
           <section>

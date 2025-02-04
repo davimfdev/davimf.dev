@@ -73,6 +73,7 @@ const translations = {
       {
         title: "Newline",
         company: "New Line Tecnologia Em Seguranca Ltda",
+        link: "https://newlineseguranca.com.br/",
         period: "Agosto 2023 - Atualmente",
         description: "Estagiário de T.I."
       },
@@ -80,6 +81,7 @@ const translations = {
       {
         title: "Monitor de Alarmes e Câmeras de Segurança",
         company: "Safety House - Serviços de Segurança LTDA",
+        link: "https://safetyhouse.com.br/",
         period: "Outubro de 2021 - Março de 2022",
         description: "Monitoramento de alarmes e câmeras de segurança durante o período noturno."
       }
@@ -170,6 +172,7 @@ const translations = {
       {
         title: "Newline",
         company: "New Line Tecnologia Em Seguranca Ltda",
+        link: "https://newlineseguranca.com.br/",
         period: "August 2023 - Today",
         description: "Worked as an I.T trainee."
       },
@@ -177,6 +180,7 @@ const translations = {
       {
         title: "Security Alarm and Camera Monitor",
         company: "Safety House - Security Services LTDA",
+        link: "https://safetyhouse.com.br/",
         period: "October 2021 - March 2022",
         description: "Monitored security alarms and cameras during night shifts."
       }

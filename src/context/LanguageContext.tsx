@@ -94,6 +94,7 @@ const translations = {
       {
         course: "Ciências da Computação (Superior)",
         institution: "Instituto Federal de Goiás, Anápolis",
+        link: "https://www.ifg.edu.br/",
         period: "Fevereiro de 2020 - Atualmente",
         description:
             "Curso avaliado pelo e-MEC com 5 pontos (nota máxima). Com ênfase em Desenvolvimento de Software, Pesquisa Operacional e Aprendizado de Máquina."
@@ -101,6 +102,7 @@ const translations = {
       {
         course: "Ensino Médio",
         institution: "Colégio Protágoras, Goiânia",
+        link: "http://www.colegioprotagoras.com.br/",
         period: "Janeiro de 2017 - Dezembro de 2019",
         description: "Aluno sem reprovações ou dependências. Colégio entre os 3 primeiros colocados de Goiás no ENEM."
       }
@@ -191,6 +193,7 @@ const translations = {
       {
         course: "Computer Science (Bachelor's)",
         institution: "Federal Institute of Goiás, Anápolis",
+        link: "https://www.ifg.edu.br/",
         period: "February 2020 - Present",
         description:
             "Rated 5 stars by e-MEC. Focuses on Software Development, Operational Research, and Machine Learning."
@@ -198,6 +201,7 @@ const translations = {
       {
         course: "High School",
         institution: "Colégio Protágoras, Goiânia",
+        link: "http://www.colegioprotagoras.com.br/",
         period: "January 2017 - December 2019",
         description: "Graduated without failures. School ranked among the top 3 in Goiás on ENEM."
       }

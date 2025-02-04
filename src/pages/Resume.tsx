@@ -49,7 +49,11 @@ const Resume = () => {
                     <h3 className="text-xl font-medium">{edu.course}</h3>
                     <span className="text-gray-400">{edu.period}</span>
                   </div>
-                  <h4 className="text-blue-400 mb-2">{edu.institution}</h4>
+                  <h4 className="text-blue-400 mb-2">
+                    <a href={edu.link} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                      {edu.institution}
+                    </a>
+                  </h4>
                   <p className="text-gray-300">{edu.description}</p>
                 </div>
             ))}

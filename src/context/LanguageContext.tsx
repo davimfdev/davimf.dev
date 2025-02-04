@@ -71,11 +71,11 @@ const translations = {
     experience: "Experiência",
     experienceList: [
       {
-        "title": "IT Intern",
-        "company": "New Line Tecnologia Em Segurança Ltda",
-        "link": "https://newlineseguranca.com.br/",
-        "period": "August 2023 - Present",
-        "description": "Experience with networks, infrastructure maintenance, Active Directory, and other monitoring technologies."
+        title: "Estagiário de T.I.",
+        company: "New Line Tecnologia Em Seguranca Ltda",
+        link: "https://newlineseguranca.com.br/",
+        period: "Agosto 2023 - Atualmente",
+        description: "Experiência com redes, manutenção de infraestrutura, ActiveDirectory e outras tecnologias de monitoramento."
       },
 
       {
@@ -168,13 +168,12 @@ const translations = {
 
     experience: "Experience",
     experienceList: [
-
       {
-        title: "Newline",
-        company: "New Line Tecnologia Em Seguranca Ltda",
+        title: "IT Intern",
+        company: "New Line Tecnologia Em Segurança Ltda",
         link: "https://newlineseguranca.com.br/",
-        period: "August 2023 - Today",
-        description: "Worked as an I.T trainee."
+        period: "August 2023 - Present",
+        description: "Experience with networks, infrastructure maintenance, Active Directory, and other monitoring technologies."
       },
 
       {

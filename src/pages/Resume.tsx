@@ -5,7 +5,6 @@ const Resume = () => {
 
   return (
       <div className="max-w-4xl mx-auto">
-        {/* Título e Download */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">{translations.resume}</h1>
         </div>

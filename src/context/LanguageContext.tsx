@@ -71,11 +71,11 @@ const translations = {
     experience: "Experiência",
     experienceList: [
       {
-        title: "Newline",
-        company: "New Line Tecnologia Em Seguranca Ltda",
-        link: "https://newlineseguranca.com.br/",
-        period: "Agosto 2023 - Atualmente",
-        description: "Estagiário de T.I."
+        "title": "IT Intern",
+        "company": "New Line Tecnologia Em Segurança Ltda",
+        "link": "https://newlineseguranca.com.br/",
+        "period": "August 2023 - Present",
+        "description": "Experience with networks, infrastructure maintenance, Active Directory, and other monitoring technologies."
       },
 
       {

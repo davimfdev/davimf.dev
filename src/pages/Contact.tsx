@@ -117,7 +117,7 @@ const Contact = () => {
               GitHub
             </a>
             <a
-              href="https://www.linkedin.com/in/davi-fonseca-345b14148/"
+              href="https://www.linkedin.com/in/davimfdev"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center text-gray-300 hover:text-white transition-colors"

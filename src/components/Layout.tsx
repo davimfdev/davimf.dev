@@ -113,7 +113,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <a href="https://github.com/D4emonF" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                 <Github size={24} />
               </a>
-              <a href="https://www.linkedin.com/in/davi-fonseca-345b14148/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+              <a href="https://www.linkedin.com/in/davimfdev" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                 <Linkedin size={24} />
               </a>
               <a href="mailto:davimf9702@gmail.com" className="text-gray-400 hover:text-white transition-colors">

@@ -224,9 +224,16 @@ const Calculator = () => {
     const isComissaoDisabled = isServicos;
     const isQuantidadeDisabled = isServicos;
 
+    const formatCurrency = (value: number) => {
+        return value.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+    };
+
     return (
         <div className="bg-gray-800 rounded-lg p-8 w-full max-w-lg mx-auto my-8 border border-yellow-500 shadow-xl">
-            <h1 className="text-3xl font-bold mb-6 text-yellow-500 text-center">Calculadora de Vendas - Facção</h1>
+            <h1 className="text-3xl font-bold mb-6 text-yellow-500 text-center">Calculadora de Vendas - Yakuza</h1>
 
             <div className="mb-4">
                 <label htmlFor="vendedor" className="block text-sm font-medium text-gray-400 mb-1">{translations.sellerType}</label>
@@ -330,15 +337,15 @@ const Calculator = () => {
             <div className="p-4 bg-gray-700 rounded-lg border border-gray-600">
                 <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-400">{translations.totalValue}:</span>
-                    <span className="font-bold text-lg text-white">R$ {valorTotal.toFixed(2).replace('.', ',')}</span>
+                    <span className="font-bold text-lg text-white">R$ {formatCurrency(valorTotal)}</span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-400">{translations.sellerValue}:</span>
-                    <span className="font-bold text-lg text-white">R$ {valorMembro.toFixed(2).replace('.', ',')}</span>
+                    <span className="font-bold text-lg text-white">R$ {formatCurrency(valorMembro)}</span>
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t border-gray-600">
                     <span className="text-gray-400">{translations.factionValue}:</span>
-                    <span className="font-bold text-lg text-yellow-500">R$ {valorFac.toFixed(2).replace('.', ',')}</span>
+                    <span className="font-bold text-lg text-yellow-500">R$ {formatCurrency(valorFac)}</span>
                 </div>
             </div>
         </div>

@@ -6,6 +6,7 @@ import Portfolio from './pages/Portfolio';
 import Resume from './pages/Resume';
 import Products from './pages/Products';
 import Contact from './pages/Contact';
+import Calculator from "./pages/Calculator.tsx";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/resume" element={<Resume />} />
             <Route path="/products" element={<Products />} />
             <Route path="/contact" element={<Contact />} />
+              <Route path="/calc" element={<Calculator />} />
           </Routes>
         </Layout>
       </Router>

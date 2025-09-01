@@ -106,7 +106,28 @@ const translations = {
         period: "Janeiro de 2017 - Dezembro de 2019",
         description: "Aluno sem reprovações ou dependências. Colégio entre os 3 primeiros colocados de Goiás no ENEM."
       }
-    ]
+    ],
+    manager: "Gerente",
+
+    // Calculator
+    sellerType: "Tipo de Vendedor",
+    authorizedSeller: "Vendedor Autorizado",
+    itemCategory: "Categoria do Item",
+    selectCategory: "Selecione uma Categoria",
+    farm: "Farm",
+    weapons: "Armas",
+    ammunition: "Munições",
+    drugs: "Drogas",
+    contraband: "Contrabando",
+    illegalServices: "Serviços Ilegais",
+    item: "Item",
+    selectItem: "Selecione um Item",
+    quantity: "Quantidade",
+    partnership: "Parceria",
+    getCommission: "Receber Comissão",
+    totalValue: "Valor Total",
+    sellerValue: "Valor do Vendedor",
+    factionValue: "Valor da Facção"
   },
   en: {
     greeting: "Hello, I'm",
@@ -205,7 +226,28 @@ const translations = {
         period: "January 2017 - December 2019",
         description: "Graduated without failures. School ranked among the top 3 in Goiás on ENEM."
       }
-    ]
+    ],
+    manager: "Manager",
+
+    // Calculator
+    sellerType: "Seller Type",
+    authorizedSeller: "Authorized Seller",
+    itemCategory: "Item Category",
+    selectCategory: "Select a Category",
+    farm: "Farm",
+    weapons: "Weapons",
+    ammunition: "Ammunition",
+    drugs: "Drugs",
+    contraband: "Contraband",
+    illegalServices: "Illegal Services",
+    item: "Item",
+    selectItem: "Select an Item",
+    quantity: "Quantity",
+    partnership: "Partnership",
+    getCommission: "Get Commission",
+    totalValue: "Total Value",
+    sellerValue: "Seller Value",
+    factionValue: "Faction Value"
   }
 };
 

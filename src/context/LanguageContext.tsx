@@ -110,6 +110,7 @@ const translations = {
     manager: "Gerente",
 
     // Calculator
+    calculatorTitle: "YKZ CALC",
     sellerType: "Tipo de Vendedor",
     authorizedSeller: "Vendedor Autorizado",
     itemCategory: "Categoria do Item",
@@ -230,6 +231,7 @@ const translations = {
     manager: "Manager",
 
     // Calculator
+    calculatorTitle: "YKZ CALC",
     sellerType: "Seller Type",
     authorizedSeller: "Authorized Seller",
     itemCategory: "Item Category",

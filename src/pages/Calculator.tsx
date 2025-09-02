@@ -9,6 +9,10 @@ const normalizeKey = (key: string) =>
 const Calculator = () => {
     const { translations } = useLanguage();
 
+    useEffect(() => {
+        document.title = translations.calculatorTitle || "YKZ CALC";
+    }, [translations.calculatorTitle]);
+
     const [vendedor, setVendedor] = useState<Vendedor>('gerente');
     const [categoria, setCategoria] = useState<Categoria>('');
     const [item, setItem] = useState('');
@@ -233,7 +237,7 @@ const Calculator = () => {
 
     return (
         <div className="bg-gray-800 rounded-lg p-8 w-full max-w-lg mx-auto my-8 border border-yellow-500 shadow-xl">
-            <h1 className="text-3xl font-bold mb-6 text-yellow-500 text-center">Calculadora de Vendas - Yakuza</h1>
+            <h1 className="text-3xl font-bold mb-6 text-yellow-500 text-center">{translations.calculatorTitle || 'YKZ CALC'}</h1>
 
             <div className="mb-4">
                 <label htmlFor="vendedor" className="block text-sm font-medium text-gray-400 mb-1">{translations.sellerType}</label>

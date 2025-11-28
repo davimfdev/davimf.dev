@@ -35,16 +35,16 @@ const translations = {
         title: "Discord Bot",
         description: "Um bot completamente personalizavel, focado em moderação e segurança.",
         image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png",
-        link: "https://discord.gg/NTNhBhGxeQ"
+        link: "/plans"
       }
     ],
     productList: [
       {
         id: 1,
-        name: "Discord bot",
+        name: "Conhecer os bots do discord",
         description: "Um bot completamente personálizavel, focado em moderação e segurança.",
         image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png",
-        link: "https://discord.gg/NTNhBhGxeQ"
+        link: "/plans"
       }
     ],
     downloadPDF: "Baixar PDF",
@@ -128,7 +128,108 @@ const translations = {
     getCommission: "Receber Comissão",
     totalValue: "Valor Total",
     sellerValue: "Valor do Vendedor",
-    factionValue: "Valor da Facção"
+    factionValue: "Valor da Facção",
+    plans: "Planos",
+    discordBotPlans: "Planos de Bot para Discord",
+    fivemFactionPlans: "Planos de Facção para FiveM",
+    monthly: "Mensal",
+    annually: "Anual",
+    subscribe: "Assinar",
+    month: "mês",
+    year: "ano",
+    annualDiscount: "Economize 16% com o plano anual!",
+    discordPlans: [
+      {
+        title: "Básico",
+        price: 35,
+        features: ["logs", "verification", "security", "moderation", "limited_customization", "paid_features"],
+        paymentLinks: {
+          monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=01bac1298ea84b9ea952483a553811ec",
+          annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=52e56a46d88345418fe1472f0c443e1d"
+        }
+      },
+      {
+        title: "Intermediário",
+        price: 50,
+        features: ["all_basic", "vip", "five_new_features", "advanced_security", "hour_counting"],
+        paymentLinks: {
+          monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=59aab9185a0e4ca4be5334bfabd8dd6d",
+          annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=352c67ff541b492fb3126d3164928057"
+        }
+      },
+      {
+        title: "Avançado",
+        price: 70,
+        features: ["all_intermediate", "unlimited_features", "full_customization", "large_servers", "priority_support", "proactive_monitoring"],
+        paymentLinks: {
+          monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=47804a73dbed428bb9cec0852384e45c",
+          annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=60abafc09b384dee87ea6a0504bdd8cc"
+        }
+      }
+    ],
+    fivemPlans: [
+      {
+        title: "Base",
+        price: 35,
+        features: ["basic_features", "sell_logs", "production_logs", "sets"],
+        paymentLinks: {
+          monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=01bac1298ea84b9ea952483a553811ec",
+          annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=52e56a46d88345418fe1472f0c443e1d"
+        }
+      },
+      {
+        title: "Intermediário",
+        price: 50,
+        features: ["all_base", "financial_panel", "report_system"],
+        paymentLinks: {
+          monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=59aab9185a0e4ca4be5334bfabd8dd6d",
+          annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=352c67ff541b492fb3126d3164928057"
+        }
+      },
+      {
+        title: "Avançado",
+        price: 70,
+        features: ["all_intermediate_fivem", "full_customization_fivem", "free_new_features", "priority_support_fivem"],
+        paymentLinks: {
+          monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=47804a73dbed428bb9cec0852384e45c",
+          annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=60abafc09b384dee87ea6a0504bdd8cc"
+        }
+      }
+    ],
+    planFeatures: {
+      discord: {
+        logs: "Módulos de log",
+        verification: "Verificação de entrada",
+        security: "Módulos de segurança",
+        moderation: "Moderação",
+        limited_customization: "Customização limitada",
+        paid_features: "Novas funcionalidades pagas à parte",
+        all_basic: "Tudo do plano Básico",
+        vip: "Sistemas de VIP",
+        five_new_features: "Até 5 funcionalidades novas inclusas",
+        advanced_security: "Sistemas de segurança mais avançados",
+        hour_counting: "Sistema de contagem de horas",
+        all_intermediate: "Tudo do plano Intermediário",
+        unlimited_features: "Funcionalidades novas ilimitadas",
+        full_customization: "Bot totalmente customizável",
+        large_servers: "Preparado para GRANDES servidores",
+        priority_support: "Suporte prioritário",
+        proactive_monitoring: "Monitoramento proativo do desempenho"
+      },
+      fivem: {
+        basic_features: "Funcionalidades do plano Base",
+        sell_logs: "Logs de venda",
+        production_logs: "Logs de produção",
+        sets: "Sets",
+        all_base: "Tudo do plano Base",
+        financial_panel: "Painel financeiro",
+        report_system: "Sistema de relatórios",
+        all_intermediate_fivem: "Tudo do plano Intermediário",
+        full_customization_fivem: "100% de personalização",
+        free_new_features: "Novas funcionalidades gratuitas",
+        priority_support_fivem: "Suporte prioritário"
+      }
+    }
   },
   en: {
     greeting: "Hello, I'm",
@@ -156,16 +257,16 @@ const translations = {
         title: "Discord Bot",
         description: "A fully customizable bot focused on moderation and security.",
         image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png",
-        link: "https://discord.gg/NTNhBhGxeQ"
+        link: "/plans"
       }
     ],
     productList: [
       {
         id: 1,
-        name: "Discord bot",
+        name: "Discover the discord bots",
         description: "A fully customizable bot focused on moderation and security.",
         image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png",
-        link: "https://discord.gg/NTNhBhGxeQ"
+        link: "/plans"
       }
 
     ],
@@ -249,7 +350,108 @@ const translations = {
     getCommission: "Get Commission",
     totalValue: "Total Value",
     sellerValue: "Seller Value",
-    factionValue: "Faction Value"
+    factionValue: "Faction Value",
+    plans: "Plans",
+    discordBotPlans: "Discord Bot Plans",
+    fivemFactionPlans: "FiveM Faction Plans",
+    monthly: "Monthly",
+    annually: "Annually",
+    subscribe: "Subscribe",
+    month: "month",
+    year: "year",
+    annualDiscount: "Save 16% with the annual plan!",
+    discordPlans: [
+      {
+        title: "Basic",
+        price: 35,
+        features: ["logs", "verification", "security", "moderation", "limited_customization", "paid_features"],
+        paymentLinks: {
+          monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=01bac1298ea84b9ea952483a553811ec",
+          annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=52e56a46d88345418fe1472f0c443e1d"
+        }
+      },
+      {
+        title: "Intermediate",
+        price: 50,
+        features: ["all_basic", "vip", "five_new_features", "advanced_security", "hour_counting"],
+        paymentLinks: {
+          monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=59aab9185a0e4ca4be5334bfabd8dd6d",
+          annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=352c67ff541b492fb3126d3164928057"
+        }
+      },
+      {
+        title: "Advanced",
+        price: 70,
+        features: ["all_intermediate", "unlimited_features", "full_customization", "large_servers", "priority_support", "proactive_monitoring"],
+        paymentLinks: {
+          monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=47804a73dbed428bb9cec0852384e45c",
+          annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=60abafc09b384dee87ea6a0504bdd8cc"
+        }
+      }
+    ],
+    fivemPlans: [
+      {
+        title: "Base",
+        price: 35,
+        features: ["basic_features", "sell_logs", "production_logs", "sets"],
+        paymentLinks: {
+          monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=01bac1298ea84b9ea952483a553811ec",
+          annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=52e56a46d88345418fe1472f0c443e1d"
+        }
+      },
+      {
+        title: "Intermediate",
+        price: 50,
+        features: ["all_base", "financial_panel", "report_system"],
+        paymentLinks: {
+          monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=59aab9185a0e4ca4be5334bfabd8dd6d",
+          annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=352c67ff541b492fb3126d3164928057"
+        }
+      },
+      {
+        title: "Advanced",
+        price: 70,
+        features: ["all_intermediate_fivem", "full_customization_fivem", "free_new_features", "priority_support_fivem"],
+        paymentLinks: {
+          monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=47804a73dbed428bb9cec0852384e45c",
+          annually: "https://www.mercadopag.com.br/subscriptions/checkout?preapproval_plan_id=60abafc09b384dee87ea6a0504bdd8cc"
+        }
+      }
+    ],
+    planFeatures: {
+      discord: {
+        logs: "Log modules",
+        verification: "Entry verification",
+        security: "Security modules",
+        moderation: "Moderation",
+        limited_customization: "Limited customization",
+        paid_features: "New features paid separately",
+        all_basic: "Everything from the Basic plan",
+        vip: "VIP systems",
+        five_new_features: "Up to 5 new features included",
+        advanced_security: "Advanced security systems",
+        hour_counting: "Hour counting system",
+        all_intermediate: "Everything from the Intermediate plan",
+        unlimited_features: "Unlimited new features",
+        full_customization: "Fully customizable bot",
+        large_servers: "Prepared for LARGE servers",
+        priority_support: "Priority support",
+        proactive_monitoring: "Proactive performance monitoring"
+      },
+      fivem: {
+        basic_features: "Base plan features",
+        sell_logs: "Sell logs",
+        production_logs: "Production logs",
+        sets: "Sets",
+        all_base: "Everything from the Base plan",
+        financial_panel: "Financial panel",
+        report_system: "Reporting system",
+        all_intermediate_fivem: "Everything from the Intermediate plan",
+        full_customization_fivem: "100% customization",
+        free_new_features: "Free new features",
+        priority_support_fivem: "Priority support"
+      }
+    }
   }
 };
 

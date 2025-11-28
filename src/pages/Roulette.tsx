@@ -21,9 +21,6 @@ const Roulette = () => {
       const endAngle = (index + 1) * segmentAngle;
       return `${color} ${startAngle}deg ${endAngle}deg`;
     });
-    // The CSS conic-gradient starts at the top (12 o'clock) by default.
-    // The trigonometric functions (sin, cos) start from the right (3 o'clock).
-    // 'from 90deg' aligns the gradient's start with the math functions, ensuring names are centered in their color segments.
     return `conic-gradient(from 90deg, ${gradientParts.join(', ')})`;
   }, [nameList, segmentAngle]);
 
@@ -56,13 +53,12 @@ const Roulette = () => {
       const targetSegmentCenterAngle = (winnerIndexInOriginal * segmentAngle) + (segmentAngle / 2);
       const randomOffset = (Math.random() - 0.5) * segmentAngle * 0.8;
       
-      // The pointer is at the top. In a coordinate system where 0 is to the right, the top is at 270 degrees.
-      const pointerAngle = 270;
+      const pointerAngle = 360;
       const targetRotation = pointerAngle - targetSegmentCenterAngle - randomOffset;
 
       const finalRotation = currentRotation - (currentRotation % 360) + revolutions + targetRotation;
       
-      const duration = i === 0 ? 5000 : 2000;
+      const duration = i === 0 ? 5000 : 1500; // Subsequent spins are faster
       await spinTo(finalRotation, duration);
       currentRotation = finalRotation;
 
@@ -72,7 +68,7 @@ const Roulette = () => {
       availableNames = availableNames.filter(name => name !== winner);
 
       if (i < Math.min(numberOfWinners, nameList.length) - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500)); // Pause between spins is shorter
       }
     }
 
@@ -116,46 +112,51 @@ const Roulette = () => {
           </button>
         </div>
 
-        <div className="md:col-span-2 flex flex-col items-center relative">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10" style={{top: '-8px'}}>
-                <div className="w-0 h-0" style={{
-                    borderLeft: '10px solid transparent',
-                    borderRight: '10px solid transparent',
-                    borderTop: '20px solid #EF4444',
-                }}></div>
-            </div>
-            <div className="relative w-96 h-96">
-                <div 
-                    id="roulette-wheel" 
-                    className="relative w-full h-full rounded-full overflow-hidden"
-                    style={{ background: conicGradient, transform: `rotate(${rotation}deg)` }}
-                >
-                    {nameList.length > 0 && nameList.map((name, index) => {
-                        const angle = (index * segmentAngle) + (segmentAngle / 2);
-                        const radius = 0.6; // 60% of radius
-                        const x = Math.cos(angle * Math.PI / 180) * radius * 50 + 50;
-                        const y = Math.sin(angle * Math.PI / 180) * radius * 50 + 50;
-                        return (
-                            <div 
-                                key={index} 
-                                className="absolute"
-                                style={{
-                                    left: `${x}%`,
-                                    top: `${y}%`,
-                                    transform: `translate(-50%, -50%) rotate(${angle + 90}deg)`
-                                }}
-                            >
-                                <span className="text-white font-bold text-center block max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap">
-                                    {name}
-                                </span>
-                            </div>
-                        )
-                    })}
+        <div className="md:col-span-2 flex flex-col items-center justify-center">
+            <div className="relative w-fit h-fit">
+                {/* Pointer */}
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10" style={{ right: '4px' }}>
+                    <div className="w-0 h-0" style={{
+                        borderTop: '10px solid transparent',
+                        borderBottom: '10px solid transparent',
+                        borderRight: '20px solid #EF4444',
+                    }}></div>
+                </div>
+
+                {/* Roulette Container with Border */}
+                <div className="relative w-96 h-96 bg-gray-700 rounded-full p-4 shadow-lg">
+                    <div 
+                        id="roulette-wheel" 
+                        className="relative w-full h-full rounded-full overflow-hidden"
+                        style={{ background: conicGradient, transform: `rotate(${rotation}deg)` }}
+                    >
+                        {nameList.length > 0 && nameList.map((name, index) => {
+                            const angle = (index * segmentAngle) + (segmentAngle / 2);
+                            const radius = 0.6;
+                            const x = Math.cos(angle * Math.PI / 180) * radius * 50 + 50;
+                            const y = Math.sin(angle * Math.PI / 180) * radius * 50 + 50;
+                            return (
+                                <div 
+                                    key={index} 
+                                    className="absolute"
+                                    style={{
+                                        left: `${x}%`,
+                                        top: `${y}%`,
+                                        transform: `translate(-50%, -50%) rotate(${angle}deg)`
+                                    }}
+                                >
+                                    <span className="text-white font-bold text-center block max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                        {name}
+                                    </span>
+                                </div>
+                            )
+                        })}
+                    </div>
                 </div>
             </div>
             {winners.length > 0 && !isSpinning && (
                 <div className="mt-8 w-full text-center">
-                    <h2 className="text-3xl font-bold mb-4">Sorteado(s):</h2>
+                    <h2 className="text-3xl font-bold mb-4">Vencedor(es):</h2>
                     <ul className="text-2xl text-green-400">
                     {winners.map((winner, index) => (
                         <li key={index} className="fade-in">{winner}</li>

@@ -8,6 +8,7 @@ import Products from './pages/Products';
 import Contact from './pages/Contact';
 import Calculator from "./pages/Calculator.tsx";
 import Plans from "./pages/Plans.tsx";
+import Roulette from "./pages/Roulette.tsx";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/calc" element={<Calculator />} />
             <Route path="/plans" element={<Plans />} />
+            <Route path="/roulette" element={<Roulette />} />
           </Routes>
         </Layout>
       </Router>

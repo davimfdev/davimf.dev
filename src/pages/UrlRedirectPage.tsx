@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Assuming you use react-router-dom
-import { neon } from '@netlify/neon';
-
-const sql = neon();
+import { useParams } from 'react-router-dom';
 
 const UrlRedirectPage = () => {
   const { shortCode } = useParams(); // from the URL, e.g., /r/:shortCode
-  const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -19,35 +15,35 @@ const UrlRedirectPage = () => {
       }
 
       try {
-        const result = await sql`SELECT original_url FROM urls WHERE id = ${shortCode}`;
+        // Call our new API endpoint
+        const response = await fetch(`/api/get-url?code=${shortCode}`);
+        const data = await response.json();
 
-        if (result.length > 0) {
-          const originalUrl = result[0].original_url;
-          // It's safer to replace the current entry in the history stack
-          window.location.replace(originalUrl);
-        } else {
-          setError('URL not found.');
+        if (!response.ok) {
+          throw new Error(data.error || 'URL not found.');
         }
-      } catch (err) {
+
+        // Redirect to the original URL
+        window.location.replace(data.originalUrl);
+
+      } catch (err: any) {
         console.error(err);
-        setError('An error occurred while fetching the URL.');
-      } finally {
+        setError(err.message);
         setLoading(false);
       }
     };
 
     fetchUrl();
-  }, [shortCode, navigate]);
+  }, [shortCode]);
 
   if (loading) {
     return <p>Redirecting...</p>;
   }
 
   if (error) {
-    return <p style={{ color: 'red' }}>{error}</p>;
+    return <p style={{ color: 'red' }}>Error: {error}</p>;
   }
 
-  // This will likely not be seen by the user unless the redirect fails instantly.
   return null;
 };
 

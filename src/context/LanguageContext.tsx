@@ -229,7 +229,15 @@ const translations = {
         free_new_features: "Novas funcionalidades gratuitas",
         priority_support_fivem: "Suporte prioritário"
       }
-    }
+    },
+    // URL Shortener
+    urlShortenerTitle: "Encurtador de URL",
+    urlShortenerPlaceholder: "Digite a URL para encurtar",
+    urlShortenerButton: "Encurtar",
+    urlShortenerLoading: "Encurtando...",
+    urlShortenerResult: "URL Encurtada:",
+    urlShortenerError: "Ocorreu um erro. Por favor, tente novamente.",
+    urlShortenerEnterUrl: "Por favor, digite uma URL."
   },
   en: {
     greeting: "Hello, I'm",
@@ -451,7 +459,15 @@ const translations = {
         free_new_features: "Free new features",
         priority_support_fivem: "Priority support"
       }
-    }
+    },
+    // URL Shortener
+    urlShortenerTitle: "URL Shortener",
+    urlShortenerPlaceholder: "Enter URL to shorten",
+    urlShortenerButton: "Shorten",
+    urlShortenerLoading: "Shortening...",
+    urlShortenerResult: "Shortened URL:",
+    urlShortenerError: "An error occurred. Please try again.",
+    urlShortenerEnterUrl: "Please enter a URL."
   }
 };
 

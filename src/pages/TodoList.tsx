@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Trash2, Edit, Plus, Calendar as CalendarIcon, Repeat, Clock, Check } from 'lucide-react';
 
 // --- Types ---
@@ -49,7 +50,23 @@ const CalendarModal: React.FC<{
   tasks: Task[];
   onDateSelect: (date: string) => void;
 }> = ({ isOpen, onClose, tasks, onDateSelect }) => {
+  const { translations } = useLanguage();
   const [currentDate, setCurrentDate] = useState(new Date());
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   const days = useMemo(() => {
     const year = currentDate.getFullYear();
@@ -100,7 +117,7 @@ const CalendarModal: React.FC<{
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-      <div className="bg-gray-800 p-6 rounded-lg w-full max-w-lg shadow-lg text-white">
+      <div ref={modalRef} className="bg-gray-800 p-6 rounded-lg w-full max-w-lg shadow-lg text-white">
         <div className="flex justify-between items-center mb-4">
           <button onClick={prevMonth} className="p-2 rounded-full hover:bg-gray-700">&lt;</button>
           <h2 className="text-xl font-semibold">
@@ -136,7 +153,7 @@ const CalendarModal: React.FC<{
             );
           })}
         </div>
-        <button onClick={onClose} className="mt-6 w-full bg-gray-600 hover:bg-gray-500 py-2 rounded-md">Fechar</button>
+        <button onClick={onClose} className="mt-6 w-full bg-gray-600 hover:bg-gray-500 py-2 rounded-md">{translations.close}</button>
       </div>
     </div>
   );
@@ -144,6 +161,7 @@ const CalendarModal: React.FC<{
 
 // --- Main Component ---
 const TodoList: React.FC = () => {
+  const { translations, language } = useLanguage();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskText, setNewTaskText] = useState('');
   const [dueDate, setDueDate] = useState<string>('');
@@ -327,9 +345,9 @@ const TodoList: React.FC = () => {
         <div className="flex-grow">
             <p className={task.completed ? 'line-through' : ''}>{task.text}</p>
             <div className="flex items-center text-xs text-gray-400 gap-4 mt-1">
-                {task.due_date && <span className="flex items-center gap-1"><CalendarIcon size={12} /> {new Date(task.due_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>}
+                {task.due_date && <span className="flex items-center gap-1"><CalendarIcon size={12} /> {new Date(task.due_date).toLocaleDateString(language, { timeZone: 'UTC' })}</span>}
                 {!task.is_all_day && task.due_time && <span className="flex items-center gap-1"><Clock size={12} /> {task.due_time.substring(0, 5)}</span>}
-                {task.recurrence !== 'None' && <span className="flex items-center gap-1"><Repeat size={12} /> {task.recurrence}</span>}
+                {task.recurrence !== 'None' && <span className="flex items-center gap-1"><Repeat size={12} /> {translations[`recurrence${task.recurrence}` as keyof typeof translations]}</span>}
             </div>
         </div>
         <div className="flex items-center gap-2">
@@ -370,45 +388,53 @@ const TodoList: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-4">
       <div className="flex justify-center items-center gap-4 mb-8">
-        <h1 className="text-4xl font-bold text-center">To-Do List</h1>
-        <button onClick={() => setIsCalendarOpen(true)} className="p-2 bg-gray-700 rounded-full hover:bg-gray-600" title="Ver Calendário">
+        <h1 className="text-4xl font-bold text-center">{translations.todoListTitle}</h1>
+        <button onClick={() => setIsCalendarOpen(true)} className="p-2 bg-gray-700 rounded-full hover:bg-gray-600" title={translations.viewCalendar}>
             <CalendarIcon size={24} />
         </button>
       </div>
       
       <div className="bg-gray-800 p-4 rounded-lg mb-6">
         <form onSubmit={handleUpsertTask}>
-            <input ref={taskInputRef} type="text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Adicionar ou editar uma tarefa..." className="w-full px-4 py-2 bg-gray-700 rounded-md mb-4" required />
+            <input ref={taskInputRef} type="text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder={translations.addOrEditTask} className="w-full px-4 py-2 bg-gray-700 rounded-md mb-4" required />
             <div className="flex flex-wrap justify-between items-center gap-4">
                 <div className="flex items-center flex-wrap gap-4">
                     <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="bg-gray-700 p-2 rounded-md" />
+                    
+                    <div className="flex items-center bg-gray-700 rounded-md">
+                        <button type="button" onClick={() => setIsAllDay(true)} className={`px-3 py-2 rounded-l-md text-sm ${isAllDay ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>{translations.allDay}</button>
+                        <button type="button" onClick={() => setIsAllDay(false)} className={`px-3 py-2 rounded-r-md text-sm ${!isAllDay ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>{translations.specificTime}</button>
+                    </div>
+
                     {!isAllDay && <input type="time" value={dueTime} onChange={e => setDueTime(e.target.value)} className="bg-gray-700 p-2 rounded-md" />}
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={isAllDay} onChange={e => setIsAllDay(e.target.checked)} className="h-4 w-4 rounded bg-gray-600 border-gray-500" />
-                        Dia inteiro
-                    </label>
+                    
                     <select value={priority} onChange={e => setPriority(e.target.value as Priority)} className="bg-gray-700 p-2 rounded-md">
-                        <option>Low</option><option>Medium</option><option>High</option>
+                        <option value="Low">{translations.priorityLow}</option>
+                        <option value="Medium">{translations.priorityMedium}</option>
+                        <option value="High">{translations.priorityHigh}</option>
                     </select>
                     <select value={recurrence} onChange={e => setRecurrence(e.target.value as Recurrence)} className="bg-gray-700 p-2 rounded-md">
-                        <option>None</option><option>Daily</option><option>Weekly</option><option>Monthly</option>
+                        <option value="None">{translations.recurrenceNone}</option>
+                        <option value="Daily">{translations.recurrenceDaily}</option>
+                        <option value="Weekly">{translations.recurrenceWeekly}</option>
+                        <option value="Monthly">{translations.recurrenceMonthly}</option>
                     </select>
                 </div>
                 <div className="flex gap-2">
-                    {editingTask && <button type="button" onClick={resetForm} className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md">Cancelar</button>}
-                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center gap-2"><Plus size={18}/> {editingTask ? 'Atualizar Tarefa' : 'Adicionar Tarefa'}</button>
+                    {editingTask && <button type="button" onClick={resetForm} className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md">{translations.cancel}</button>}
+                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center gap-2"><Plus size={18}/> {editingTask ? translations.updateTask : translations.addTodo}</button>
                 </div>
             </div>
         </form>
       </div>
 
-      {renderTaskGroup('Atrasadas', overdue)}
-      {renderTaskGroup('Hoje', today)}
-      {renderTaskGroup('Essa Semana', thisWeek)}
-      {renderTaskGroup('Próximas', upcoming)}
-      {renderTaskGroup('Concluídas', completed)}
+      {renderTaskGroup(translations.overdue, overdue)}
+      {renderTaskGroup(translations.today, today)}
+      {renderTaskGroup(translations.thisWeek, thisWeek)}
+      {renderTaskGroup(translations.upcoming, upcoming)}
+      {renderTaskGroup(translations.completed, completed)}
 
-      {tasks.length === 0 && !loading && <p className="text-center text-gray-400 py-8">Nenhuma tarefa ainda. Adicione uma para começar!</p>}
+      {tasks.length === 0 && !loading && <p className="text-center text-gray-400 py-8">{translations.noTasks}</p>}
       
       <CalendarModal 
         isOpen={isCalendarOpen} 

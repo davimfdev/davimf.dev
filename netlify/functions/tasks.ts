@@ -37,8 +37,7 @@ const syncTaskWithGoogle = async (userId: number, task: any) => {
 
   const googleId = task.google_event_id?.replace('google_', '');
 
-  // Decide se é um Evento ou uma Tarefa com base na presença de due_time
-  if (task.due_time && !task.is_all_day) { // É um Evento com horário
+  if (task.due_time && !task.is_all_day) {
     const event = formatTaskAsGoogleEvent(task);
     if (!event) return null;
 
@@ -55,11 +54,9 @@ const syncTaskWithGoogle = async (userId: number, task: any) => {
       console.error(`Erro ao sincronizar evento do Google para o usuário ${userId}:`, error.message);
       return null;
     }
-  } else { // É uma Tarefa (sem horário ou dia inteiro)
+  } else {
     try {
       if (googleId) {
-        // Lógica para atualizar tarefa existente no Google Tasks (mais complexa, omitida por enquanto)
-        // Por enquanto, se já tem ID, não faz nada ou tenta atualizar o título
         const tasksApi = google.tasks({ version: 'v1', auth });
         const taskLists = await tasksApi.tasklists.list();
         if (!taskLists.data.items) return null;
@@ -75,7 +72,7 @@ const syncTaskWithGoogle = async (userId: number, task: any) => {
             if (taskError.code !== 404) throw taskError;
           }
         }
-        return null; // Não encontrou a tarefa para atualizar
+        return null;
       } else {
         const createdTaskId = await createGoogleTask(auth, task);
         return createdTaskId ? `google_${createdTaskId}` : null;
@@ -93,7 +90,6 @@ const completeGoogleItem = async (userId: number, task: any) => {
 
     const googleId = task.google_event_id.replace('google_', '');
 
-    // Tenta primeiro como um Evento do Calendar
     try {
         const calendar = google.calendar({ version: 'v3', auth });
         const event = await calendar.events.get({ calendarId: 'primary', eventId: googleId });
@@ -102,15 +98,11 @@ const completeGoogleItem = async (userId: number, task: any) => {
 
         const updatedEvent = { ...event.data, summary: `[Concluído] ${task.text}` };
         await calendar.events.update({ calendarId: 'primary', eventId: googleId, requestBody: updatedEvent });
-        console.log(`Evento ${googleId} marcado como concluído no Google Calendar.`);
         return;
     } catch (error: any) {
-        if (error.code !== 404) {
-            console.error(`Erro ao tentar completar item como Evento:`, error.message);
-        }
+        if (error.code !== 404) console.error(`Erro ao tentar completar item como Evento:`, error.message);
     }
 
-    // Se falhou como evento, tenta como uma Tarefa do Tasks
     try {
         const tasksApi = google.tasks({ version: 'v1', auth });
         const taskLists = await tasksApi.tasklists.list();
@@ -125,12 +117,9 @@ const completeGoogleItem = async (userId: number, task: any) => {
                         status: 'completed',
                     }
                 });
-                console.log(`Tarefa ${googleId} marcada como concluída na lista ${taskList.id}.`);
                 return;
             } catch (taskError: any) {
-                if (taskError.code !== 404) {
-                    throw taskError;
-                }
+                if (taskError.code !== 404) throw taskError;
             }
         }
     } catch (error) {
@@ -147,7 +136,6 @@ const deleteGoogleItem = async (userId: number, googleEventId: string) => {
     try {
         const calendar = google.calendar({ version: 'v3', auth });
         await calendar.events.delete({ calendarId: 'primary', eventId: googleId });
-        console.log(`Evento ${googleId} deletado do Google Calendar.`);
         return;
     } catch (error: any) {
         if (error.code !== 404) console.error(`Falha ao deletar evento do Google:`, error.message);
@@ -160,7 +148,6 @@ const deleteGoogleItem = async (userId: number, googleEventId: string) => {
         for (const taskList of taskLists.data.items) {
             try {
                 await tasksApi.tasks.delete({ tasklist: taskList.id!, task: googleId });
-                console.log(`Tarefa ${googleId} deletada da lista ${taskList.id}.`);
                 return;
             } catch (taskError: any) {
                 if (taskError.code !== 404) throw taskError;
@@ -268,5 +255,3 @@ export const handler: Handler = async (event, context) => {
     return { statusCode: 500, body: JSON.stringify({ error: 'An internal server error occurred.' }) };
   }
 };
-
-export { handler };

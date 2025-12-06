@@ -36,7 +36,7 @@ const Calculator = () => {
 
     return (
         <div className="bg-gray-800 rounded-lg p-8 w-full max-w-6xl mx-auto my-8 border border-yellow-500 shadow-xl">
-            <h1 className="text-3xl font-bold mb-6 text-yellow-500 text-center">{translations.calculatorTitle}</h1>
+            <h1 className="text-3xl font-bold mb-6 text-yellow-500 text-center">{translations.calculatorTitle} (FIVEM)</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="md:col-span-2">

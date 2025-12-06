@@ -6,6 +6,7 @@ import { Trash2, Edit, Plus, Calendar as CalendarIcon, Repeat, Clock, Check } fr
 // --- Types ---
 type Priority = 'Low' | 'Medium' | 'High';
 type Recurrence = 'None' | 'Daily' | 'Weekly' | 'Monthly';
+type CalendarView = 'days' | 'months' | 'years';
 
 interface Task {
   id: number;
@@ -50,8 +51,9 @@ const CalendarModal: React.FC<{
   tasks: Task[];
   onDateSelect: (date: string) => void;
 }> = ({ isOpen, onClose, tasks, onDateSelect }) => {
-  const { translations } = useLanguage();
+  const { translations, language } = useLanguage();
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [view, setView] = useState<CalendarView>('days');
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -62,6 +64,9 @@ const CalendarModal: React.FC<{
     };
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      // Reset view when closing
+      setTimeout(() => setView('days'), 300); 
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -112,48 +117,119 @@ const CalendarModal: React.FC<{
     onClose();
   };
 
-  const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
-  const nextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  const changeYear = (amount: number) => {
+    setCurrentDate(new Date(currentDate.setFullYear(currentDate.getFullYear() + amount)));
+  };
+
+  const changeMonth = (amount: number) => {
+      const newDate = new Date(currentDate);
+      newDate.setMonth(newDate.getMonth() + amount);
+      setCurrentDate(newDate);
+  };
+
+  const getDecadeStart = (year: number) => Math.floor(year / 10) * 10;
+
+  const renderHeader = () => {
+    const year = currentDate.getFullYear();
+    const monthName = currentDate.toLocaleString(language, { month: 'long' });
+    const decadeStart = getDecadeStart(year);
+
+    return (
+      <div className="flex justify-between items-center mb-4">
+        <button onClick={() => view === 'days' ? changeMonth(-1) : view === 'months' ? changeYear(-1) : changeYear(-10)} className="p-2 rounded-full hover:bg-gray-700 transition-colors">&lt;</button>
+        <div className="flex gap-2">
+            {view === 'days' && <button onClick={() => setView('months')} className="text-xl font-semibold hover:bg-gray-700 px-3 py-1 rounded-md transition-colors">{monthName}</button>}
+            <button onClick={() => setView('years')} className="text-xl font-semibold hover:bg-gray-700 px-3 py-1 rounded-md transition-colors">
+                {view === 'years' ? `${decadeStart} - ${decadeStart + 9}` : year}
+            </button>
+        </div>
+        <button onClick={() => view === 'days' ? changeMonth(1) : view === 'months' ? changeYear(1) : changeYear(10)} className="p-2 rounded-full hover:bg-gray-700 transition-colors">&gt;</button>
+      </div>
+    );
+  };
+
+  const renderDaysView = () => (
+    <div className="grid grid-cols-7 gap-1 text-center">
+      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <div key={d} className="font-bold text-sm text-gray-400">{d}</div>)}
+      {days.map((d, i) => {
+        const dateStr = d.toISOString().split('T')[0];
+        const priorities = tasksByDate.get(dateStr);
+        const isCurrentMonth = d.getMonth() === currentDate.getMonth();
+        const isToday = dateStr === new Date().toISOString().split('T')[0];
+
+        return (
+          <div
+            key={i}
+            onClick={() => handleDateClick(d)}
+            className={`p-2 h-10 rounded-full cursor-pointer relative flex items-center justify-center transition-colors ${
+              isCurrentMonth ? 'text-white' : 'text-gray-500'
+            } ${isToday ? 'bg-blue-600' : ''} hover:bg-gray-700`}
+          >
+            <span>{d.getDate()}</span>
+            {priorities && (
+                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
+                    {Array.from(priorities).sort().map(p => (
+                        <div key={p} className={`h-1.5 w-1.5 rounded-full ${priorityColors[p]}`}></div>
+                    ))}
+                </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const renderMonthsView = () => (
+    <div className="grid grid-cols-3 gap-2">
+        {Array.from({ length: 12 }).map((_, i) => (
+            <button 
+                key={i} 
+                onClick={() => {
+                    setCurrentDate(new Date(currentDate.setMonth(i)));
+                    setView('days');
+                }}
+                className="p-4 rounded-md hover:bg-gray-700 transition-colors text-center"
+            >
+                {new Date(0, i).toLocaleString(language, { month: 'long' })}
+            </button>
+        ))}
+    </div>
+  );
+
+  const renderYearsView = () => {
+    const decadeStart = getDecadeStart(currentDate.getFullYear());
+    const years = Array.from({ length: 12 }, (_, i) => decadeStart - 1 + i); // Show a bit of overlap
+
+    return (
+        <div className="grid grid-cols-4 gap-2">
+            {years.map(year => (
+                <button 
+                    key={year} 
+                    onClick={() => {
+                        setCurrentDate(new Date(currentDate.setFullYear(year)));
+                        setView('months');
+                    }}
+                    className={`p-3 rounded-md hover:bg-gray-700 transition-colors text-center ${
+                        year < decadeStart || year > decadeStart + 9 ? 'text-gray-500' : ''
+                    }`}
+                >
+                    {year}
+                </button>
+            ))}
+        </div>
+    );
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-      <div ref={modalRef} className="bg-gray-800 p-6 rounded-lg w-full max-w-lg shadow-lg text-white">
-        <div className="flex justify-between items-center mb-4">
-          <button onClick={prevMonth} className="p-2 rounded-full hover:bg-gray-700">&lt;</button>
-          <h2 className="text-xl font-semibold">
-            {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
-          </h2>
-          <button onClick={nextMonth} className="p-2 rounded-full hover:bg-gray-700">&gt;</button>
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 transition-opacity duration-300">
+      <div ref={modalRef} className="bg-gray-800 p-6 rounded-lg w-full max-w-sm shadow-lg text-white">
+        {renderHeader()}
+        <div className="transition-all duration-300">
+            {view === 'days' && renderDaysView()}
+            {view === 'months' && renderMonthsView()}
+            {view === 'years' && renderYearsView()}
         </div>
-        <div className="grid grid-cols-7 gap-1 text-center">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <div key={d} className="font-bold text-sm text-gray-400">{d}</div>)}
-          {days.map((d, i) => {
-            const dateStr = d.toISOString().split('T')[0];
-            const priorities = tasksByDate.get(dateStr);
-            const isCurrentMonth = d.getMonth() === currentDate.getMonth();
-            const isToday = dateStr === new Date().toISOString().split('T')[0];
-
-            return (
-              <div
-                key={i}
-                onClick={() => handleDateClick(d)}
-                className={`p-2 rounded-full cursor-pointer relative flex items-center justify-center ${
-                  isCurrentMonth ? 'text-white' : 'text-gray-500'
-                } ${isToday ? 'bg-blue-600' : ''} hover:bg-gray-700`}
-              >
-                <span>{d.getDate()}</span>
-                {priorities && (
-                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-                        {Array.from(priorities).sort().map(p => (
-                            <div key={p} className={`h-1.5 w-1.5 rounded-full ${priorityColors[p]}`}></div>
-                        ))}
-                    </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <button onClick={onClose} className="mt-6 w-full bg-gray-600 hover:bg-gray-500 py-2 rounded-md">{translations.close}</button>
+        <button onClick={onClose} className="mt-6 w-full bg-gray-600 hover:bg-gray-500 py-2 rounded-md transition-colors">{translations.close}</button>
       </div>
     </div>
   );

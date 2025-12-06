@@ -12,9 +12,11 @@ import Calculator from "./pages/Calculator.tsx";
 import Plans from "./pages/Plans.tsx";
 import Roulette from "./pages/Roulette.tsx";
 import TodoList from "./pages/TodoList.tsx";
-import FinanceManager from "./pages/FinanceManager.tsx"; // Importando a nova página
+import FinanceManager from "./pages/FinanceManager.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
+import RequestPasswordResetPage from './pages/RequestPasswordResetPage.tsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.tsx';
 import UrlShortener from "./components/UrlShortener.tsx";
 import UrlRedirectPage from "./pages/UrlRedirectPage.tsx";
 
@@ -42,7 +44,7 @@ function App() {
                 }
               />
               <Route
-                path="/finances" // Rota atualizada
+                path="/finances"
                 element={
                   <ProtectedRoute>
                     <FinanceManager />
@@ -51,6 +53,8 @@ function App() {
               />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/request-password-reset" element={<RequestPasswordResetPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/shortener" element={<UrlShortener />} />
               <Route path="/r/:shortCode" element={<UrlRedirectPage />} />
             </Routes>

@@ -5,34 +5,53 @@ import jwt from 'jsonwebtoken';
 interface UserPayload {
   userId: number;
   email: string;
+  jti: string;
+  exp: number;
 }
 
-// Helper para extrair o ID do usuário do token
-const getUserIdFromToken = (req: Request): number | null => {
-  const authHeader = req.headers.get('Authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
-  }
-  const token = authHeader.split(' ')[1];
-  const JWT_SECRET = process.env.JWT_SECRET;
+const sql = neon(process.env.NETLIFY_DATABASE_URL!);
 
-  if (!JWT_SECRET) {
-    console.error('JWT_SECRET is not set');
-    return null;
-  }
+const getUserIdFromToken = async (req: Request): Promise<number | null> => {
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+  
+  const token = authHeader.split(' ')[1];
+  const JWT_SECRET = process.env.JWT_SECRET!;
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as UserPayload;
-    return decoded.userId;
+    const payload = jwt.verify(token, JWT_SECRET) as UserPayload;
+
+    const blacklisted = await sql`SELECT 1 FROM token_blacklist WHERE jti = ${payload.jti}`;
+    if (blacklisted.length > 0) {
+      console.warn('Attempted to use a blacklisted token.');
+      return null;
+    }
+
+    return payload.userId;
   } catch (error) {
-    console.error('Invalid token', error);
+    console.error('Invalid token:', error);
     return null;
   }
 };
 
-export default async (req: Request, context: Context) => {
-  const userId = getUserIdFromToken(req);
+const getNextDueDate = (currentDueDate: string, recurrence: 'Daily' | 'Weekly' | 'Monthly'): string => {
+    const date = new Date(currentDueDate);
+    // Adjust for timezone offset to prevent date shifts
+    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+    const correctedDate = new Date(date.getTime() + userTimezoneOffset);
 
+    if (recurrence === 'Daily') {
+        correctedDate.setDate(correctedDate.getDate() + 1);
+    } else if (recurrence === 'Weekly') {
+        correctedDate.setDate(correctedDate.getDate() + 7);
+    } else if (recurrence === 'Monthly') {
+        correctedDate.setMonth(correctedDate.getMonth() + 1);
+    }
+    return correctedDate.toISOString().split('T')[0];
+};
+
+export default async (req: Request, context: Context) => {
+  const userId = await getUserIdFromToken(req);
   if (!userId) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
@@ -40,54 +59,83 @@ export default async (req: Request, context: Context) => {
     });
   }
 
-  const sql = neon(process.env.NETLIFY_DATABASE_URL!);
-
   try {
     switch (req.method) {
-      // LER todas as tarefas do usuário
       case 'GET': {
-        const tasks = await sql`SELECT id, text, completed FROM tasks WHERE user_id = ${userId} ORDER BY created_at DESC`;
+        const tasks = await sql`
+          SELECT id, text, completed, due_date, priority, recurrence, is_all_day, due_time 
+          FROM tasks 
+          WHERE user_id = ${userId} 
+          ORDER BY due_date ASC, due_time ASC, created_at DESC
+        `;
         return new Response(JSON.stringify(tasks), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         });
       }
 
-      // CRIAR uma nova tarefa
       case 'POST': {
-        const { text } = await req.json();
+        const { text, due_date, priority, recurrence, is_all_day, due_time } = await req.json();
         if (!text) {
-          return new Response(JSON.stringify({ error: 'Task text is required.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+          return new Response(JSON.stringify({ error: 'Task text is required.' }), { status: 400 });
         }
-        const result = await sql`INSERT INTO tasks (text, user_id) VALUES (${text}, ${userId}) RETURNING id, text, completed`;
+        const result = await sql`
+          INSERT INTO tasks (text, user_id, due_date, priority, recurrence, is_all_day, due_time) 
+          VALUES (${text}, ${userId}, ${due_date || null}, ${priority || 'Medium'}, ${recurrence || 'None'}, ${is_all_day}, ${is_all_day ? null : due_time}) 
+          RETURNING *
+        `;
         return new Response(JSON.stringify(result[0]), {
           status: 201,
           headers: { 'Content-Type': 'application/json' },
         });
       }
 
-      // ATUALIZAR uma tarefa (marcar como completa/incompleta)
       case 'PUT': {
-        const { id, completed } = await req.json();
-        if (id === undefined || typeof completed !== 'boolean') {
-          return new Response(JSON.stringify({ error: 'Task ID and completed status are required.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+        const { id, text, completed, due_date, priority, recurrence, is_all_day, due_time } = await req.json();
+        if (id === undefined) {
+          return new Response(JSON.stringify({ error: 'Task ID is required.' }), { status: 400 });
         }
-        const result = await sql`UPDATE tasks SET completed = ${completed} WHERE id = ${id} AND user_id = ${userId} RETURNING id, text, completed`;
-        if (result.length === 0) {
-          return new Response(JSON.stringify({ error: 'Task not found or permission denied.' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
+
+        const [existingTask] = await sql`SELECT * FROM tasks WHERE id = ${id} AND user_id = ${userId}`;
+        if (!existingTask) {
+          return new Response(JSON.stringify({ error: 'Task not found or permission denied.' }), { status: 404 });
         }
-        return new Response(JSON.stringify(result[0]), { status: 200, headers: { 'Content-Type': 'application/json' } });
+
+        let newRecurringTask = null;
+        if (completed && !existingTask.completed && existingTask.recurrence !== 'None' && existingTask.due_date) {
+            const nextDate = getNextDueDate(existingTask.due_date, existingTask.recurrence);
+            [newRecurringTask] = await sql`
+                INSERT INTO tasks (text, user_id, due_date, priority, recurrence, is_all_day, due_time)
+                VALUES (${existingTask.text}, ${userId}, ${nextDate}, ${existingTask.priority}, ${existingTask.recurrence}, ${existingTask.is_all_day}, ${existingTask.due_time})
+                RETURNING *
+            `;
+        }
+        
+        const updatedTaskResult = await sql`
+            UPDATE tasks 
+            SET 
+                text = ${text !== undefined ? text : existingTask.text},
+                completed = ${completed !== undefined ? completed : existingTask.completed},
+                due_date = ${due_date !== undefined ? due_date : existingTask.due_date},
+                priority = ${priority !== undefined ? priority : existingTask.priority},
+                recurrence = ${recurrence !== undefined ? recurrence : existingTask.recurrence},
+                is_all_day = ${is_all_day !== undefined ? is_all_day : existingTask.is_all_day},
+                due_time = ${is_all_day ? null : (due_time !== undefined ? due_time : existingTask.due_time)}
+            WHERE id = ${id} AND user_id = ${userId}
+            RETURNING *
+        `;
+
+        return new Response(JSON.stringify({ updatedTask: updatedTaskResult[0], newRecurringTask }), { status: 200 });
       }
 
-      // DELETAR uma tarefa
       case 'DELETE': {
         const { id } = await req.json();
         if (id === undefined) {
-          return new Response(JSON.stringify({ error: 'Task ID is required.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+          return new Response(JSON.stringify({ error: 'Task ID is required.' }), { status: 400 });
         }
         const result = await sql`DELETE FROM tasks WHERE id = ${id} AND user_id = ${userId} RETURNING id`;
         if (result.length === 0) {
-          return new Response(JSON.stringify({ error: 'Task not found or permission denied.' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
+          return new Response(JSON.stringify({ error: 'Task not found or permission denied.' }), { status: 404 });
         }
         return new Response(JSON.stringify({ message: 'Task deleted successfully.' }), { status: 200 });
       }
@@ -97,7 +145,7 @@ export default async (req: Request, context: Context) => {
     }
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify({ error: 'An internal error occurred.' }), {
+    return new Response(JSON.stringify({ error: 'An internal server error occurred.' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

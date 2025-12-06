@@ -4,30 +4,38 @@ import jwt from 'jsonwebtoken';
 
 interface UserPayload {
   userId: number;
+  email: string;
+  jti: string;
+  exp: number;
 }
 
-const getUserIdFromToken = (req: Request): number | null => {
+const sql = neon(process.env.NETLIFY_DATABASE_URL!);
+
+const getUserIdFromToken = async (req: Request): Promise<number | null> => {
   const authHeader = req.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
   
   const token = authHeader.split(' ')[1];
-  const JWT_SECRET = process.env.JWT_SECRET;
-
-  if (!JWT_SECRET) {
-    console.error('JWT_SECRET is not set');
-    return null;
-  }
+  const JWT_SECRET = process.env.JWT_SECRET!;
 
   try {
-    return (jwt.verify(token, JWT_SECRET) as UserPayload).userId;
+    const payload = jwt.verify(token, JWT_SECRET) as UserPayload;
+
+    const blacklisted = await sql`SELECT 1 FROM token_blacklist WHERE jti = ${payload.jti}`;
+    if (blacklisted.length > 0) {
+      console.warn('Attempted to use a blacklisted token.');
+      return null;
+    }
+
+    return payload.userId;
   } catch (error) {
-    console.error('Invalid token', error);
+    console.error('Invalid token:', error);
     return null;
   }
 };
 
 export default async (req: Request, context: Context) => {
-  const userId = getUserIdFromToken(req);
+  const userId = await getUserIdFromToken(req);
 
   if (!userId) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -36,14 +44,11 @@ export default async (req: Request, context: Context) => {
     });
   }
 
-  const sql = neon(process.env.NETLIFY_DATABASE_URL!);
-
   try {
     switch (req.method) {
-      // LISTAR todas as transações do usuário
       case 'GET': {
         const transactions = await sql`
-          SELECT t.id, t.description, t.amount, t.category, t.date, t.account_id, a.name as account_name
+          SELECT t.id, t.description, t.amount, t.category, t.date, t.account_id, a.name as account_name, t.payment_type, t.is_paid
           FROM transactions t
           JOIN accounts a ON t.account_id = a.id
           WHERE t.user_id = ${userId} 
@@ -55,16 +60,15 @@ export default async (req: Request, context: Context) => {
         });
       }
 
-      // CRIAR uma nova transação
       case 'POST': {
-        const { description, amount, category, date, account_id } = await req.json();
-        if (!description || amount === undefined || !category || !date || !account_id) {
+        const { description, amount, category, date, account_id, payment_type, is_paid } = await req.json();
+        if (!description || amount === undefined || !category || !date || !account_id || !payment_type) {
           return new Response(JSON.stringify({ error: 'All fields are required.' }), { status: 400 });
         }
         const result = await sql`
-          INSERT INTO transactions (description, amount, category, date, user_id, account_id) 
-          VALUES (${description}, ${amount}, ${category}, ${date}, ${userId}, ${account_id}) 
-          RETURNING id, description, amount, category, date, account_id
+          INSERT INTO transactions (description, amount, category, date, user_id, account_id, payment_type, is_paid) 
+          VALUES (${description}, ${amount}, ${category}, ${date}, ${userId}, ${account_id}, ${payment_type}, ${is_paid}) 
+          RETURNING *
         `;
         return new Response(JSON.stringify(result[0]), {
           status: 201,
@@ -72,7 +76,6 @@ export default async (req: Request, context: Context) => {
         });
       }
 
-      // DELETAR uma transação
       case 'DELETE': {
         const { id } = await req.json();
         if (id === undefined) {

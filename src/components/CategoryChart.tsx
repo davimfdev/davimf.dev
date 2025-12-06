@@ -17,7 +17,6 @@ const CategoryChart: React.FC<CategoryChartProps> = ({ transactions }) => {
   const expenseData = React.useMemo(() => {
     const categoryTotals: { [key: string]: number } = {};
 
-    // Filtra apenas despesas (valores negativos) e agrupa por categoria
     transactions
       .filter(t => parseFloat(t.amount) < 0)
       .forEach(t => {
@@ -42,7 +41,7 @@ const CategoryChart: React.FC<CategoryChartProps> = ({ transactions }) => {
             '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
             '#E7E9ED', '#8DDF3C', '#F67019', '#F53794', '#537BC4', '#ACC236'
           ],
-          borderColor: '#1F2937', // Cor de fundo do seu app
+          borderColor: '#1F2937',
           borderWidth: 2,
         },
       ],
@@ -54,7 +53,7 @@ const CategoryChart: React.FC<CategoryChartProps> = ({ transactions }) => {
       legend: {
         position: 'top' as const,
         labels: {
-          color: '#E5E7EB', // Cor do texto da legenda
+          color: '#E5E7EB',
         }
       },
       tooltip: {
@@ -77,12 +76,14 @@ const CategoryChart: React.FC<CategoryChartProps> = ({ transactions }) => {
   };
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg" style={{ position: 'relative', height: '400px' }}>
-      <h2 className="text-xl font-semibold mb-4 text-white">Despesas por Categoria</h2>
+    <div className="relative h-96 w-full">
+      <h2 className="text-xl font-semibold mb-4 text-white text-center">Despesas por Categoria</h2>
       {expenseData.labels.length > 0 ? (
         <Pie data={expenseData} options={options} />
       ) : (
-        <p className="text-center text-gray-400 mt-16">Não há dados de despesas para exibir o gráfico.</p>
+        <div className="flex items-center justify-center h-full">
+          <p className="text-center text-gray-400">Não há dados de despesas para exibir o gráfico.</p>
+        </div>
       )}
     </div>
   );

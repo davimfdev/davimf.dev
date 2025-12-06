@@ -1,5 +1,5 @@
-import { Config, Context } from '@netlify/functions';
-import { neon } from '@netlify/neon';
+import { Context } from '@netlify/functions';
+import { neon } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { randomBytes, createHash } from 'crypto';
@@ -25,38 +25,36 @@ export default async (req: Request, context: Context) => {
     }
     const user = userResult[0];
 
-    // FIX: Check if user.password_hash exists before comparing
     if (!user.password_hash || typeof user.password_hash !== 'string') {
-      console.error(`User with email ${email} has no password set.`);
       return new Response(JSON.stringify({ error: 'Invalid credentials.' }), { status: 401 });
     }
 
-    // FIX: Compare with the correct password_hash column
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
     if (!isPasswordValid) {
       return new Response(JSON.stringify({ error: 'Invalid credentials.' }), { status: 401 });
     }
 
-    // 1. Create a short-lived Access Token
+    const googleIntegrationResult = await sql`
+      SELECT 1 FROM google_calendar_integrations WHERE user_id = ${user.id}
+    `;
+    const isGoogleConnected = googleIntegrationResult.length > 0;
+
     const accessToken = jwt.sign(
-      { userId: user.id, email: user.email, jti: randomBytes(16).toString('hex') },
+      { userId: user.id, email: user.email, jti: randomBytes(16).toString('hex'), isGoogleConnected },
       JWT_SECRET,
-      { expiresIn: '15m' } // Expires in 15 minutes
+      { expiresIn: '15m' }
     );
 
-    // 2. Create a long-lived Refresh Token
     const refreshToken = randomBytes(64).toString('hex');
     const refreshTokenHash = createHash('sha256').update(refreshToken).digest('hex');
     const refreshTokenExpiry = new Date();
-    refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); // Expires in 7 days
+    refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7);
 
-    // 3. Store the hashed refresh token in the database
     await sql`
       INSERT INTO refresh_tokens (user_id, token_hash, expires_at) 
       VALUES (${user.id}, ${refreshTokenHash}, ${refreshTokenExpiry.toISOString()})
     `;
 
-    // 4. Set the refresh token in a secure, HttpOnly cookie
     const refreshTokenCookie = cookie.serialize('refresh_token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'development',
@@ -65,7 +63,8 @@ export default async (req: Request, context: Context) => {
       expires: refreshTokenExpiry,
     });
 
-    return new Response(JSON.stringify({ accessToken }), {
+    const responseBody = JSON.stringify({ accessToken, isGoogleConnected });
+    return new Response(responseBody, {
       status: 200,
       headers: { 
         'Set-Cookie': refreshTokenCookie,
@@ -77,8 +76,4 @@ export default async (req: Request, context: Context) => {
     console.error('Login API Error:', err);
     return new Response(JSON.stringify({ error: 'An internal error occurred.' }), { status: 500 });
   }
-};
-
-export const config: Config = {
-  path: "/api/login",
 };

@@ -1,3 +1,22 @@
+# Configuração para o Netlify.
+
+# Define o diretório onde as funções serverless estão localizadas.
+# O Netlify irá procurar e fazer o deploy de todas as funções neste diretório.
+[functions]
+  directory = "netlify/functions"
+
+# Regra de redirecionamento para a API.
+# Isso permite que você chame suas funções usando um caminho mais limpo (/api/nome-da-funcao)
+# em vez do caminho padrão do Netlify (/.netlify/functions/nome-da-funcao).
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Regra de fallback para Single Page Applications (SPA) como o React.
+# Deve ser a última regra do arquivo.
+# Ela captura qualquer rota que não seja um arquivo físico ou a API 
+# e serve o index.html, permitindo que o React Router controle a navegação.
 [[redirects]]
   from = "/*"
   to = "/index.html"

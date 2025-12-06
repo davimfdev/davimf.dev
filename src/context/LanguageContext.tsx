@@ -180,7 +180,8 @@ const translations = {
     recurrenceNone: "Nenhuma",
     recurrenceDaily: "Diária",
     recurrenceWeekly: "Semanal",
-    recurrenceMonthly: "Mensal"
+    recurrenceMonthly: "Mensal",
+    connectGoogleCalendar: "Conectar com Google Calendar"
   },
   en: {
     greeting: "Hello, I'm",
@@ -486,7 +487,8 @@ const translations = {
       recurrenceNone: "None",
       recurrenceDaily: "Daily",
       recurrenceWeekly: "Weekly",
-      recurrenceMonthly: "Monthly"
+      recurrenceMonthly: "Monthly",
+      connectGoogleCalendar: "Connect with Google Calendar"
   }
 };
 

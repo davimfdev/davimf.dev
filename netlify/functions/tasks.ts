@@ -1,7 +1,7 @@
 import { Handler } from '@netlify/functions';
 import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
-import { getGoogleAuthClient, formatTaskAsGoogleEvent } from './google-calendar-helpers';
+import { getGoogleAuthClient, formatTaskAsGoogleEvent, createGoogleTask, formatTaskAsGoogleTask } from './google-calendar-helpers';
 import { google } from 'googleapis';
 
 interface UserPayload {
@@ -35,23 +35,55 @@ const syncTaskWithGoogle = async (userId: number, task: any) => {
   const auth = await getGoogleAuthClient(userId);
   if (!auth) return null;
 
-  const event = formatTaskAsGoogleEvent(task);
-  if (!event) return null;
-
-  const calendar = google.calendar({ version: 'v3', auth });
   const googleId = task.google_event_id?.replace('google_', '');
 
-  try {
-    if (googleId) {
-      const updatedEvent = await calendar.events.update({ calendarId: 'primary', eventId: googleId, requestBody: event });
-      return `google_${updatedEvent.data.id}`;
-    } else {
-      const createdEvent = await calendar.events.insert({ calendarId: 'primary', requestBody: event });
-      return `google_${createdEvent.data.id}`;
+  // Decide se é um Evento ou uma Tarefa com base na presença de due_time
+  if (task.due_time && !task.is_all_day) { // É um Evento com horário
+    const event = formatTaskAsGoogleEvent(task);
+    if (!event) return null;
+
+    const calendar = google.calendar({ version: 'v3', auth });
+    try {
+      if (googleId) {
+        const updatedEvent = await calendar.events.update({ calendarId: 'primary', eventId: googleId, requestBody: event });
+        return `google_${updatedEvent.data.id}`;
+      } else {
+        const createdEvent = await calendar.events.insert({ calendarId: 'primary', requestBody: event });
+        return `google_${createdEvent.data.id}`;
+      }
+    } catch (error: any) {
+      console.error(`Erro ao sincronizar evento do Google para o usuário ${userId}:`, error.message);
+      return null;
     }
-  } catch (error: any) {
-    console.error(`Erro ao sincronizar evento do Google para o usuário ${userId}:`, error.message);
-    return null;
+  } else { // É uma Tarefa (sem horário ou dia inteiro)
+    try {
+      if (googleId) {
+        // Lógica para atualizar tarefa existente no Google Tasks (mais complexa, omitida por enquanto)
+        // Por enquanto, se já tem ID, não faz nada ou tenta atualizar o título
+        const tasksApi = google.tasks({ version: 'v1', auth });
+        const taskLists = await tasksApi.tasklists.list();
+        if (!taskLists.data.items) return null;
+        for (const taskList of taskLists.data.items) {
+          try {
+            await tasksApi.tasks.patch({
+              tasklist: taskList.id!,
+              task: googleId,
+              requestBody: formatTaskAsGoogleTask(task),
+            });
+            return `google_${googleId}`;
+          } catch (taskError: any) {
+            if (taskError.code !== 404) throw taskError;
+          }
+        }
+        return null; // Não encontrou a tarefa para atualizar
+      } else {
+        const createdTaskId = await createGoogleTask(auth, task);
+        return createdTaskId ? `google_${createdTaskId}` : null;
+      }
+    } catch (error: any) {
+      console.error(`Erro ao sincronizar tarefa do Google Tasks para o usuário ${userId}:`, error.message);
+      return null;
+    }
   }
 };
 
@@ -61,27 +93,44 @@ const completeGoogleItem = async (userId: number, task: any) => {
 
     const googleId = task.google_event_id.replace('google_', '');
 
+    // Tenta primeiro como um Evento do Calendar
     try {
         const calendar = google.calendar({ version: 'v3', auth });
         const event = await calendar.events.get({ calendarId: 'primary', eventId: googleId });
+        
         if (event.data.summary?.startsWith('[Concluído]')) return;
+
         const updatedEvent = { ...event.data, summary: `[Concluído] ${task.text}` };
         await calendar.events.update({ calendarId: 'primary', eventId: googleId, requestBody: updatedEvent });
+        console.log(`Evento ${googleId} marcado como concluído no Google Calendar.`);
         return;
     } catch (error: any) {
-        if (error.code !== 404) console.error(`Erro ao tentar completar item como Evento:`, error.message);
+        if (error.code !== 404) {
+            console.error(`Erro ao tentar completar item como Evento:`, error.message);
+        }
     }
 
+    // Se falhou como evento, tenta como uma Tarefa do Tasks
     try {
         const tasksApi = google.tasks({ version: 'v1', auth });
         const taskLists = await tasksApi.tasklists.list();
         if (!taskLists.data.items) return;
         for (const taskList of taskLists.data.items) {
             try {
-                await tasksApi.tasks.patch({ tasklist: taskList.id!, task: googleId, requestBody: { id: googleId, status: 'completed' } });
+                await tasksApi.tasks.patch({
+                    tasklist: taskList.id!,
+                    task: googleId,
+                    requestBody: {
+                        id: googleId,
+                        status: 'completed',
+                    }
+                });
+                console.log(`Tarefa ${googleId} marcada como concluída na lista ${taskList.id}.`);
                 return;
             } catch (taskError: any) {
-                if (taskError.code !== 404) throw taskError;
+                if (taskError.code !== 404) {
+                    throw taskError;
+                }
             }
         }
     } catch (error) {
@@ -219,3 +268,5 @@ export const handler: Handler = async (event, context) => {
     return { statusCode: 500, body: JSON.stringify({ error: 'An internal server error occurred.' }) };
   }
 };
+
+export { handler };

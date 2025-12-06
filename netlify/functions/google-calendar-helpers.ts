@@ -3,7 +3,6 @@ import { neon } from '@neondatabase/serverless';
 import CryptoJS from 'crypto-js';
 import { Auth } from 'googleapis';
 
-// **CORREÇÃO APLICADA AQUI:** Usando NETLIFY_DATABASE_URL
 const sql = neon(process.env.NETLIFY_DATABASE_URL!);
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY!;
 
@@ -63,6 +62,40 @@ export const formatTaskAsGoogleEvent = (task: any) => {
   }
   return { summary: text, start, end };
 };
+
+// --- NOVA FUNÇÃO: Formatar tarefa para Google Tasks ---
+export const formatTaskAsGoogleTask = (task: any) => {
+  const { text, due_date } = task;
+  if (!text) return null;
+
+  const googleTask: any = {
+    title: text,
+  };
+
+  if (due_date && !isNaN(new Date(due_date).getTime())) {
+    // Google Tasks espera 'due' no formato RFC3339 (ISO string)
+    googleTask.due = new Date(due_date).toISOString();
+  }
+
+  return googleTask;
+};
+
+// --- NOVA FUNÇÃO: Criar tarefa no Google Tasks ---
+export const createGoogleTask = async (auth: Auth.OAuth2Client, task: any) => {
+  const tasksApi = google.tasks({ version: 'v1', auth });
+  try {
+    // Por padrão, cria na lista de tarefas principal do usuário ('@default')
+    const createdTask = await tasksApi.tasks.insert({
+      tasklist: '@default',
+      requestBody: formatTaskAsGoogleTask(task),
+    });
+    return createdTask.data.id;
+  } catch (error) {
+    console.error('Erro ao criar tarefa no Google Tasks:', error);
+    return null;
+  }
+};
+
 
 const fetchGoogleEvents = async (auth: Auth.OAuth2Client) => {
   const calendar = google.calendar({ version: 'v3', auth });

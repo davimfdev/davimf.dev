@@ -5,7 +5,8 @@ import { neon } from '@neondatabase/serverless';
 import CryptoJS from 'crypto-js';
 import { fetchInitialGoogleData, formatTaskAsGoogleEvent, getGoogleAuthClient } from './google-calendar-helpers';
 
-const sql = neon(process.env.DATABASE_URL!);
+// **CORREÇÃO APLICADA AQUI:** Usando NETLIFY_DATABASE_URL
+const sql = neon(process.env.NETLIFY_DATABASE_URL!);
 
 interface TokenPayload {
   userId: string;
@@ -38,7 +39,6 @@ export default async (req: Request, context: Context) => {
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
 
-  // Parte 1: Gerar URL de autenticação
   if (req.method === 'GET' && !code) {
     const userAuthToken = req.headers.get('Authorization')?.split(' ')[1];
     if (!userAuthToken) {
@@ -54,7 +54,6 @@ export default async (req: Request, context: Context) => {
     return new Response(JSON.stringify({ url: authUrl }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
 
-  // Parte 2: Lidar com o callback
   if (req.method === 'GET' && code) {
     if (!state) {
       return new Response('Invalid request: missing state.', { status: 400 });
@@ -105,7 +104,10 @@ export default async (req: Request, context: Context) => {
         const event = formatTaskAsGoogleEvent(task);
         if (event) {
           try {
-            const createdEvent = await calendar.events.insert({ calendarId: 'primary', requestBody: event });
+            const createdEvent = await calendar.events.insert({
+              calendarId: 'primary',
+              requestBody: event,
+            });
             const googleEventId = `google_${createdEvent.data.id}`;
             await sql`UPDATE tasks SET google_event_id = ${googleEventId} WHERE id = ${task.id}`;
           } catch (e) {

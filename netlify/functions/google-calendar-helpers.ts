@@ -3,7 +3,8 @@ import { neon } from '@neondatabase/serverless';
 import CryptoJS from 'crypto-js';
 import { Auth } from 'googleapis';
 
-const sql = neon(process.env.DATABASE_URL!);
+// **CORREÇÃO APLICADA AQUI:** Usando NETLIFY_DATABASE_URL
+const sql = neon(process.env.NETLIFY_DATABASE_URL!);
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY!;
 
 const decrypt = (ciphertext: string): string => {

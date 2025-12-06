@@ -19,6 +19,7 @@ import RequestPasswordResetPage from './pages/RequestPasswordResetPage.tsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.tsx';
 import UrlShortener from "./components/UrlShortener.tsx";
 import UrlRedirectPage from "./pages/UrlRedirectPage.tsx";
+import PrivacyPolicy from './pages/PrivacyPolicy.tsx'; // Importa a nova página
 
 function App() {
   return (
@@ -57,6 +58,8 @@ function App() {
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/shortener" element={<UrlShortener />} />
               <Route path="/r/:shortCode" element={<UrlRedirectPage />} />
+              {/* Rota para a Política de Privacidade */}
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             </Routes>
           </Layout>
         </Router>

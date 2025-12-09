@@ -422,18 +422,19 @@ const FinanceManager: React.FC = () => {
     e.preventDefault();
     if (!description || !amount || !accountId || !token) return;
 
-    const isCardExpense = paymentType === 'Card';
-    const finalAmount = transactionType === 'expense' ? -Math.abs(parseFloat(amount)) : Math.abs(parseFloat(amount));
+    const isExpense = transactionType === 'expense';
+    const isCard = isExpense && paymentType === 'Card';
+    const finalAmount = isExpense ? -Math.abs(parseFloat(amount)) : Math.abs(parseFloat(amount));
 
     try {
         const body = {
-            description: isCardExpense ? `${description} (Fatura)` : description,
+            description: isCard ? `${description} (Fatura)` : description,
             amount: finalAmount,
             category,
             date,
             account_id: parseInt(accountId),
-            payment_type: paymentType,
-            is_paid: !isCardExpense
+            payment_type: isExpense ? paymentType : 'PIX', // Default to PIX for income
+            is_paid: !isCard
         };
 
         const response = await fetch('/api/transactions', {
@@ -553,8 +554,14 @@ const FinanceManager: React.FC = () => {
         <div className="lg:col-span-1 bg-gray-800 p-6 rounded-lg h-fit">
           <h2 className="text-xl font-semibold mb-4">{translations.addTransaction}</h2>
           <form onSubmit={handleAddTransaction} className="space-y-4">
-            <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={translations.description} className="w-full px-4 py-2 bg-gray-700 rounded-md" required />
-            <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={translations.amount} step="0.01" className="w-full px-4 py-2 bg-gray-700 rounded-md" required />
+            <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={translations.transactionDescription} className="w-full px-4 py-2 bg-gray-700 rounded-md" required />
+            <div className="grid grid-cols-2 gap-4">
+                <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={translations.amount} step="0.01" className="px-4 py-2 bg-gray-700 rounded-md" required />
+                <select value={transactionType} onChange={e => setTransactionType(e.target.value as 'income' | 'expense')} className="px-4 py-2 bg-gray-700 rounded-md">
+                    <option value="income">{translations.income}</option>
+                    <option value="expense">{translations.expense}</option>
+                </select>
+            </div>
             <select value={accountId} onChange={e => setAccountId(e.target.value)} className="w-full px-4 py-2 bg-gray-700 rounded-md" required>
               <option value="">Selecione um banco</option>
               {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
@@ -564,10 +571,12 @@ const FinanceManager: React.FC = () => {
               <option>Alimentação</option> <option>Salário</option> <option>Transporte</option> <option>Moradia</option>
               <option>Lazer</option> <option>Saúde</option> <option>Outros</option>
             </select>
-            <div className="flex gap-2">
-                <button type="button" onClick={() => setPaymentType('PIX')} className={`w-full py-2 rounded-md ${paymentType === 'PIX' ? 'bg-sky-600' : 'bg-gray-700'}`}>{translations.pix}</button>
-                <button type="button" onClick={() => setPaymentType('Card')} className={`w-full py-2 rounded-md ${paymentType === 'Card' ? 'bg-purple-600' : 'bg-gray-700'}`}>{translations.card}</button>
-            </div>
+            {transactionType === 'expense' && (
+                <div className="flex gap-2">
+                    <button type="button" onClick={() => setPaymentType('PIX')} className={`w-full py-2 rounded-md ${paymentType === 'PIX' ? 'bg-sky-600' : 'bg-gray-700'}`}>{translations.pix}</button>
+                    <button type="button" onClick={() => setPaymentType('Card')} className={`w-full py-2 rounded-md ${paymentType === 'Card' ? 'bg-purple-600' : 'bg-gray-700'}`}>{translations.card}</button>
+                </div>
+            )}
             <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">{translations.addTransaction}</button>
           </form>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Trash2, PlusCircle } from 'lucide-react';
 
 // --- Tipos ---
@@ -90,10 +91,12 @@ const ExpenseTracker: React.FC = () => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [accountId, setAccountId] = useState<string>('');
   const [paymentType, setPaymentType] = useState('Débito');
+  const [transactionType, setTransactionType] = useState('expense');
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth();
+  const { translations } = useLanguage();
 
   const fetchData = useCallback(async () => {
     if (!token) { setLoading(false); return; }
@@ -129,13 +132,16 @@ const ExpenseTracker: React.FC = () => {
   const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description || !amount || !accountId || !token) return;
+    
+    const finalAmount = transactionType === 'expense' ? -Math.abs(parseFloat(amount)) : Math.abs(parseFloat(amount));
+
     try {
       const response = await fetch('/api/expenses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ description, amount: parseFloat(amount), category, date, account_id: parseInt(accountId), payment_type: paymentType }),
+        body: JSON.stringify({ description, amount: finalAmount, category, date, account_id: parseInt(accountId), payment_type: paymentType }),
       });
-      if (!response.ok) throw new Error('Falha ao adicionar despesa.');
+      if (!response.ok) throw new Error('Falha ao adicionar transação.');
       fetchData(); 
       setDescription('');
       setAmount('');
@@ -167,7 +173,7 @@ const ExpenseTracker: React.FC = () => {
         .filter(exp => exp.account_id === acc.id)
         .reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
       
-      const currentBalance = parseFloat(acc.initial_balance) - totalExpenses;
+      const currentBalance = parseFloat(acc.initial_balance) + totalExpenses;
       balances.set(acc.id, currentBalance);
 
       const rateToBRL = rates.BRL / rates[acc.currency];
@@ -208,10 +214,16 @@ const ExpenseTracker: React.FC = () => {
       </div>
 
       <div className="bg-gray-800 p-6 rounded-lg mb-8">
-        <h2 className="text-xl font-semibold mb-4">Adicionar Nova Despesa</h2>
+        <h2 className="text-xl font-semibold mb-4">Adicionar Nova Transação</h2>
         <form onSubmit={handleAddExpense} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrição" className="md:col-span-3 px-4 py-2 bg-gray-700 rounded-md" required />
-          <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Valor" step="0.01" className="px-4 py-2 bg-gray-700 rounded-md" required />
+          <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={translations.transactionDescription} className="md:col-span-3 px-4 py-2 bg-gray-700 rounded-md" required />
+          <div className="grid grid-cols-2 gap-4">
+            <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={translations.amount} step="0.01" className="px-4 py-2 bg-gray-700 rounded-md" required />
+            <select value={transactionType} onChange={e => setTransactionType(e.target.value)} className="px-4 py-2 bg-gray-700 rounded-md">
+                <option value="income">{translations.income}</option>
+                <option value="expense">{translations.expense}</option>
+            </select>
+          </div>
           <select value={accountId} onChange={e => setAccountId(e.target.value)} className="px-4 py-2 bg-gray-700 rounded-md" required>
             <option value="">Selecione a Conta</option>
             {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
@@ -224,21 +236,21 @@ const ExpenseTracker: React.FC = () => {
           <select value={paymentType} onChange={e => setPaymentType(e.target.value)} className="px-4 py-2 bg-gray-700 rounded-md">
             <option>Débito</option> <option>Crédito</option> <option>PIX</option> <option>Dinheiro</option>
           </select>
-          <button type="submit" className="md:col-span-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">Adicionar Despesa</button>
+          <button type="submit" className="md:col-span-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">Adicionar Transação</button>
         </form>
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold mb-4">Histórico de Despesas</h2>
+        <h2 className="text-xl font-semibold mb-4">Histórico de Transações</h2>
         <div className="bg-gray-800 p-4 rounded-lg">
           {expenses.length > 0 ? expenses.map((expense) => (
             <div key={expense.id} className="grid grid-cols-5 gap-4 items-center border-b border-gray-700 py-3 last:border-b-0">
-              <div className="col-span-2"><p className="font-semibold">{expense.description}</p><p className="text-sm text-gray-400">{new Date(expense.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p></div>
+              <div className="col-span-2"><p className="font-semibold">{expense.description}</p><p className="text-sm text-gray-400">{new Date(expense.date).toLocaleDateS tring('pt-BR', { timeZone: 'UTC' })}</p></div>
               <div className="text-center"><span className="px-2 py-1 bg-gray-700 text-xs rounded-full">{expense.category}</span></div>
-              <div className="text-right font-mono"><p>{parseFloat(expense.amount).toFixed(2)}</p><p className="text-xs text-gray-400">{expense.account_name}</p></div>
+              <div className={`text-right font-mono ${parseFloat(expense.amount) < 0 ? 'text-red-400' : 'text-green-400'}`}><p>{parseFloat(expense.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p><p className="text-xs text-gray-400">{expense.account_name}</p></div>
               <div className="text-right"><button onClick={() => handleDeleteExpense(expense.id)} className="text-gray-500 hover:text-red-500 p-1"><Trash2 size={18} /></button></div>
             </div>
-          )) : <p className="text-center text-gray-400 py-4">Nenhuma despesa registrada ainda.</p>}
+          )) : <p className="text-center text-gray-400 py-4">Nenhuma transação registrada ainda.</p>}
         </div>
       </div>
     </div>

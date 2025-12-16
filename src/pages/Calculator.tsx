@@ -1,100 +1,158 @@
 import { useState, useMemo } from 'react';
-import { useLanguage } from "../context/LanguageContext.tsx";
-import { Categoria, Dados, ItemData } from "../types/calculator.types.ts";
+import { Produto, ItemCalculo } from '../types/calculator.types';
+
+const PRODUTOS: Produto[] = [
+    { nome: "Five-Seven", valorComParceria: 60000.00, valorSemParceria: 66000.00, aco: 131, dinheiro: 4000 },
+    { nome: "G36-MK2", valorComParceria: 150000.00, valorSemParceria: 164000.00, aco: 365, dinheiro: 10000 },
+    { nome: "AK-47", valorComParceria: 135000.00, valorSemParceria: 146000.00, aco: 292, dinheiro: 8000 },
+    { nome: "Mtar", valorComParceria: 100000.00, valorSemParceria: 120000.00, aco: 256, dinheiro: 8000 },
+    { nome: "Ramington", valorComParceria: 100000.00, valorSemParceria: 103000.00, aco: 197, dinheiro: 8000 },
+];
 
 const Calculator = () => {
-    const { translations } = useLanguage();
-    const [categoria, setCategoria] = useState<Categoria>('armas');
+    const [itens, setItens] = useState<ItemCalculo[]>([]);
+    const [produtoSelecionado, setProdutoSelecionado] = useState<Produto>(PRODUTOS[0]);
     const [quantidade, setQuantidade] = useState(1);
+    const [comParceria, setComParceria] = useState(true);
 
-    const dadosBase: Dados = {
-        'farm': { 'Aço': { preco: 300 }, 'Metal': { preco: 300 }, 'Pólvora': { preco: 300 }, 'Papel': { preco: 100 }, 'Agentes de Drogas': { preco: 75 } },
-        'armas': { 'Five-Seven': { min: 59805, max: 66450 }, 'MP5': { min: 89910, max: 99900 }, 'AKS': { min: 99225, max: 110250 }, 'TEC-9': { min: 93285, max: 103650 }, 'M60': { min: 89910, max: 99900 }, 'M4A1': { min: 99225, max: 110250 }, 'Micro Uzi': { min: 93285, max: 103650 }, 'MTAR-21': { min: 95100, max: 120000 }, 'MPH': { min: 146745, max: 163050 }, 'AK-47': { min: 131760, max: 146400 }, 'G3-MK2': { min: 147841, max: 164268 }, 'Parafal': { min: 147841, max: 164268 }, 'Remington': { min: 93285, max: 103650 } },
-        'municoes': { 'Five-Seven': { min: 5467, max: 6075 }, 'MP5': { min: 4950, max: 5250 }, 'AKS': { min: 6142, max: 6825 }, 'TEC-9': { min: 5332, max: 5925 }, 'M60': { min: 6142, max: 6825 }, 'M4A1': { min: 6142, max: 6825 }, 'Micro Uzi': { min: 5332, max: 5925 }, 'MTAR-21': { min: 6547, max: 7275 }, 'MPH': { min: 6547, max: 7275 }, 'AK-47': { min: 6547, max: 7275 }, 'G3-MK2': { min: 8100, max: 9000 }, 'Parafal': { min: 8100, max: 9000 }, 'Sniper': { min: 215325, max: 239250 }, 'Remington': { min: 6547, max: 7275 }, 'Glock': { min: 4522, max: 5025 } },
-        'drogas': { 'Metafetamina': { min: 300, max: 350 }, 'Cocaína': { min: 300, max: 350 }, 'Maconha': { min: 300, max: 350 }, 'LSD': { min: 300, max: 350 } },
-        'contrabando': { 'Algemas': { min: 6075, max: 6750 }, 'Capuz': { min: 6075, max: 6750 }, 'Colete': { min: 7290, max: 8100 }, 'Gás Lacrimogênio': { min: 10125, max: 11250 }, 'Lockpick': { min: 6075, max: 6750 }, 'Mochila Reforçada': { min: 10125, max: 11250 }, 'Pendrive': { min: 8100, max: 9000 }, 'Rastreador': { min: 20250, max: 22500 }, 'Silenciador': { min: 20250, max: 22500 }, 'Ticket': { min: 3240, max: 3600 }, 'Masterpick': { min: 8100, max: 9000 }, 'Energético': { min: 900, max: 1000 } },
-        'servicos': {}
+    const handleAddProduto = () => {
+        if (!produtoSelecionado || quantidade <= 0) return;
+
+        const itemExistenteIndex = itens.findIndex(item => item.produto.nome === produtoSelecionado.nome);
+
+        if (itemExistenteIndex > -1) {
+            const novosItens = [...itens];
+            novosItens[itemExistenteIndex].quantidade += quantidade;
+            setItens(novosItens);
+        } else {
+            setItens([...itens, { produto: produtoSelecionado, quantidade }]);
+        }
+        setQuantidade(1);
+    };
+    
+    const handleRemoveItem = (nomeProduto: string) => {
+        setItens(itens.filter(item => item.produto.nome !== nomeProduto));
     };
 
-    const dadosProcessados = useMemo(() => {
-        const newDados = JSON.parse(JSON.stringify(dadosBase)) as Dados;
-        for (const key in newDados.municoes) {
-            newDados.municoes[key].min /= 20;
-            newDados.municoes[key].max /= 20;
-        }
-        return newDados;
-    }, [dadosBase]);
+    const calculos = useMemo(() => {
+        const totalAco = itens.reduce((acc, item) => acc + (item.produto.aco * item.quantidade), 0);
+        const totalDinheiro = itens.reduce((acc, item) => acc + (item.produto.dinheiro * item.quantidade), 0);
+        const totalVenda = itens.reduce((acc, item) => {
+            const valor = comParceria ? item.produto.valorComParceria : item.produto.valorSemParceria;
+            return acc + (valor * item.quantidade);
+        }, 0);
+        const totalComissao = totalVenda * 0.25;
+
+        return { totalAco, totalDinheiro, totalVenda, totalComissao };
+    }, [itens, comParceria]);
 
     const formatCurrency = (value: number) => {
         return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     };
-
-    const itensDaCategoria = useMemo(() => {
-        if (!categoria) return [];
-        return Object.entries(dadosProcessados[categoria] as Record<string, ItemData>);
-    }, [categoria, dadosProcessados]);
+    
+    const formatNumber = (value: number) => {
+        return value.toLocaleString('pt-BR');
+    };
 
     return (
-        <div className="bg-gray-800 rounded-lg p-8 w-full max-w-6xl mx-auto my-8 border border-yellow-500 shadow-xl">
-            <h1 className="text-3xl font-bold mb-6 text-yellow-500 text-center">{translations.calculatorTitle} (FIVEM)</h1>
+        <div className="bg-gray-800 rounded-lg p-8 w-full max-w-4xl mx-auto my-8 border border-yellow-500 shadow-xl text-white">
+            <h1 className="text-3xl font-bold mb-6 text-yellow-500 text-center">Calculadora de Produção</h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-700 rounded-lg">
                 <div className="md:col-span-2">
-                    <label htmlFor="categoria" className="block text-sm font-medium text-gray-400 mb-1">{translations.itemCategory}</label>
+                    <label htmlFor="produto" className="block text-sm font-medium text-gray-300 mb-1">Produto</label>
                     <select
-                        id="categoria"
-                        value={categoria}
-                        onChange={(e) => setCategoria(e.target.value as Categoria)}
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                        id="produto"
+                        value={produtoSelecionado.nome}
+                        onChange={(e) => setProdutoSelecionado(PRODUTOS.find(p => p.nome === e.target.value) || PRODUTOS[0])}
+                        className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-md focus:outline-none focus:ring-1 focus:ring-yellow-500"
                     >
-                        <option value="armas">{translations.weapons}</option>
-                        <option value="municoes">{translations.ammunition}</option>
-                        <option value="drogas">{translations.drugs}</option>
-                        <option value="contrabando">{translations.contraband}</option>
-                        <option value="farm">{translations.farm}</option>
+                        {PRODUTOS.map(p => <option key={p.nome} value={p.nome}>{p.nome}</option>)}
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="quantidade" className="block text-sm font-medium text-gray-400 mb-1">{translations.quantity}</label>
+                    <label htmlFor="quantidade" className="block text-sm font-medium text-gray-300 mb-1">Quantidade</label>
                     <input
                         type="number"
                         id="quantidade"
                         value={quantidade}
                         onChange={(e) => setQuantidade(Math.max(1, parseInt(e.target.value) || 1))}
                         min="1"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                        className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-md focus:outline-none focus:ring-1 focus:ring-yellow-500"
                     />
+                </div>
+                <div className="md:col-span-3 text-center">
+                    <button
+                        onClick={handleAddProduto}
+                        className="w-full md:w-auto bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-6 rounded-lg transition-colors"
+                    >
+                        Adicionar Produto
+                    </button>
                 </div>
             </div>
 
-            <div className="overflow-x-auto">
-                <table className="min-w-full bg-gray-700 rounded-lg">
-                    <thead>
-                        <tr className="bg-gray-900">
-                            <th className="text-left py-3 px-4 uppercase font-semibold text-sm text-yellow-500">{translations.item}</th>
-                            <th className="text-right py-3 px-4 uppercase font-semibold text-sm text-yellow-500">{translations.unitPriceWithPartnership}</th>
-                            <th className="text-right py-3 px-4 uppercase font-semibold text-sm text-yellow-500">{translations.unitPriceWithoutPartnership}</th>
-                            <th className="text-right py-3 px-4 uppercase font-semibold text-sm text-yellow-500">{translations.totalWithPartnership}</th>
-                            <th className="text-right py-3 px-4 uppercase font-semibold text-sm text-yellow-500">{translations.totalWithoutPartnership}</th>
-                        </tr>
-                    </thead>
-                    <tbody className="text-gray-300">
-                        {itensDaCategoria.map(([nome, dados]) => {
-                            const precoComParceria = 'min' in dados ? dados.min : null;
-                            const precoSemParceria = 'max' in dados ? dados.max : ('preco' in dados ? dados.preco : null);
+            <div className="mb-6">
+                <h2 className="text-xl font-semibold mb-3 text-yellow-400">Itens Adicionados</h2>
+                {itens.length === 0 ? (
+                    <p className="text-gray-400 text-center py-4">Nenhum item adicionado ainda.</p>
+                ) : (
+                    <ul className="space-y-2">
+                        {itens.map(item => (
+                            <li key={item.produto.nome} className="flex justify-between items-center bg-gray-700 p-3 rounded-md">
+                                <div>
+                                    <span className="font-bold">{item.produto.nome}</span>
+                                    <span className="text-gray-400"> x {item.quantidade}</span>
+                                </div>
+                                <button onClick={() => handleRemoveItem(item.produto.nome)} className="text-red-500 hover:text-red-400 font-bold">
+                                    Remover
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
 
-                            return (
-                                <tr key={nome} className="border-b border-gray-800 hover:bg-gray-600">
-                                    <td className="text-left py-3 px-4">{nome}</td>
-                                    <td className="text-right py-3 px-4 font-mono">{precoComParceria ? formatCurrency(precoComParceria) : 'N/A'}</td>
-                                    <td className="text-right py-3 px-4 font-mono">{precoSemParceria ? formatCurrency(precoSemParceria) : 'N/A'}</td>
-                                    <td className="text-right py-3 px-4 font-mono font-bold text-yellow-400">{precoComParceria ? formatCurrency(precoComParceria * quantidade) : 'N/A'}</td>
-                                    <td className="text-right py-3 px-4 font-mono font-bold text-yellow-400">{precoSemParceria ? formatCurrency(precoSemParceria * quantidade) : 'N/A'}</td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+            <div>
+                <h2 className="text-xl font-semibold mb-4 text-yellow-400">Resumo do Cálculo</h2>
+                <div className="bg-gray-700 p-4 rounded-lg space-y-4">
+                    <div className="flex items-center justify-center space-x-4 mb-4">
+                        <span className={`font-bold ${!comParceria ? 'text-yellow-400' : 'text-gray-400'}`}>Sem Parceria</span>
+                        <label htmlFor="parceria-toggle" className="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="parceria-toggle" className="sr-only peer" checked={comParceria} onChange={() => setComParceria(!comParceria)} />
+                            <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-yellow-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
+                        </label>
+                        <span className={`font-bold ${comParceria ? 'text-yellow-400' : 'text-gray-400'}`}>Com Parceria</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-lg">
+                        <div className="bg-gray-800 p-4 rounded-md">
+                            <p className="text-gray-400">Total de Aços Usados:</p>
+                            <p className="font-bold text-xl">{formatNumber(calculos.totalAco)}</p>
+                        </div>
+                        <div className="bg-gray-800 p-4 rounded-md">
+                            <p className="text-gray-400">Total de Dinheiro Usado:</p>
+                            <p className="font-bold text-xl">{formatCurrency(calculos.totalDinheiro)}</p>
+                        </div>
+                        <div className="bg-gray-800 p-4 rounded-md">
+                            <p className="text-gray-400">Total a Cobrar do Cliente:</p>
+                            <p className="font-bold text-xl text-green-400">{formatCurrency(calculos.totalVenda)}</p>
+                        </div>
+                        <div className="bg-gray-800 p-4 rounded-md">
+                            <p className="text-gray-400">Comissão (25%):</p>
+                            <p className="font-bold text-xl text-blue-400">{formatCurrency(calculos.totalComissao)}</p>
+                        </div>
+                    </div>
+                     {itens.length > 0 && (
+                        <div className="text-center mt-4">
+                            <button
+                                onClick={() => setItens([])}
+                                className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+                            >
+                                Limpar Tudo
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

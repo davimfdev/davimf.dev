@@ -2,7 +2,7 @@ export interface Produto {
   nome: string;
   valorComParceria: number;
   valorSemParceria: number;
-  aco: number;
+  polvora: number;
   dinheiro: number;
 }
 

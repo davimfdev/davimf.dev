@@ -2,11 +2,18 @@ import { useState, useMemo } from 'react';
 import { Produto, ItemCalculo } from '../types/calculator.types';
 
 const PRODUTOS: Produto[] = [
-    { nome: "Five-Seven", valorComParceria: 60000.00, valorSemParceria: 66000.00, aco: 131, dinheiro: 4000 },
-    { nome: "G36-MK2", valorComParceria: 150000.00, valorSemParceria: 164000.00, aco: 365, dinheiro: 10000 },
-    { nome: "AK-47", valorComParceria: 135000.00, valorSemParceria: 146000.00, aco: 292, dinheiro: 8000 },
-    { nome: "Mtar", valorComParceria: 100000.00, valorSemParceria: 120000.00, aco: 256, dinheiro: 8000 },
-    { nome: "Ramington", valorComParceria: 100000.00, valorSemParceria: 103000.00, aco: 197, dinheiro: 8000 },
+    { nome: "Five-Seven", valorComParceria: 60000.00, valorSemParceria: 66000.00, polvora: 131, dinheiro: 4000 },
+    { nome: "G36-MK2", valorComParceria: 150000.00, valorSemParceria: 164000.00, polvora: 365, dinheiro: 10000 },
+    { nome: "AK-47", valorComParceria: 135000.00, valorSemParceria: 146000.00, polvora: 292, dinheiro: 8000 },
+    { nome: "Mtar", valorComParceria: 100000.00, valorSemParceria: 120000.00, polvora: 256, dinheiro: 8000 },
+    { nome: "Ramington", valorComParceria: 100000.00, valorSemParceria: 103000.00, polvora: 197, dinheiro: 8000 },
+    { nome: "Munição Five", valorComParceria: 278.35 * 20, valorSemParceria: 303.08 * 20, polvora: 11, dinheiro: 600 },
+    { nome: "Munição AKS", valorComParceria: 307.10 * 20, valorSemParceria: 341.25 * 20, polvora: 11, dinheiro: 1000 },
+    { nome: "Munição M4A1", valorComParceria: 307.1 * 20, valorSemParceria: 341.25 * 20, polvora: 11, dinheiro: 1000 },
+    { nome: "Munição Remington", valorComParceria: 327.35 * 20, valorSemParceria: 363.75 * 20, polvora: 12, dinheiro: 1000 },
+    { nome: "Munição Glock", valorComParceria: 226.1 * 20, valorSemParceria: 251.25 * 20, polvora: 7, dinheiro: 1000 },
+    { nome: "Munição Sniper", valorComParceria: 10776.00 * 20, valorSemParceria: 11962.00 * 20, polvora: 365, dinheiro: 40000 },
+    { nome: "Maconha", valorComParceria: 320.00, valorSemParceria: 350.00, polvora: 2, dinheiro: 0 },
 ];
 
 const Calculator = () => {
@@ -35,7 +42,7 @@ const Calculator = () => {
     };
 
     const calculos = useMemo(() => {
-        const totalAco = itens.reduce((acc, item) => acc + (item.produto.aco * item.quantidade), 0);
+        const totalPolvora = itens.reduce((acc, item) => acc + (item.produto.polvora * item.quantidade), 0);
         const totalDinheiro = itens.reduce((acc, item) => acc + (item.produto.dinheiro * item.quantidade), 0);
         const totalVenda = itens.reduce((acc, item) => {
             const valor = comParceria ? item.produto.valorComParceria : item.produto.valorSemParceria;
@@ -43,7 +50,7 @@ const Calculator = () => {
         }, 0);
         const totalComissao = totalVenda * 0.25;
 
-        return { totalAco, totalDinheiro, totalVenda, totalComissao };
+        return { totalPolvora, totalDinheiro, totalVenda, totalComissao };
     }, [itens, comParceria]);
 
     const formatCurrency = (value: number) => {
@@ -126,8 +133,8 @@ const Calculator = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-lg">
                         <div className="bg-gray-800 p-4 rounded-md">
-                            <p className="text-gray-400">Total de Aços Usados:</p>
-                            <p className="font-bold text-xl">{formatNumber(calculos.totalAco)}</p>
+                            <p className="text-gray-400">Total de Pólvora Usada:</p>
+                            <p className="font-bold text-xl">{formatNumber(calculos.totalPolvora)}</p>
                         </div>
                         <div className="bg-gray-800 p-4 rounded-md">
                             <p className="text-gray-400">Total de Dinheiro Usado:</p>

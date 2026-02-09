@@ -2,17 +2,12 @@ import { useState, useMemo } from 'react';
 import { Produto, ItemCalculo } from '../types/calculator.types';
 
 const PRODUTOS: Produto[] = [
-    { nome: "Five-Seven", valorComParceria: 60000.00, valorSemParceria: 66000.00, polvora: 131, dinheiro: 4000 },
-    { nome: "G36-MK2", valorComParceria: 150000.00, valorSemParceria: 164000.00, polvora: 365, dinheiro: 10000 },
-    { nome: "AK-47", valorComParceria: 135000.00, valorSemParceria: 146000.00, polvora: 292, dinheiro: 8000 },
-    { nome: "Mtar", valorComParceria: 100000.00, valorSemParceria: 120000.00, polvora: 256, dinheiro: 8000 },
-    { nome: "Ramington", valorComParceria: 100000.00, valorSemParceria: 103000.00, polvora: 197, dinheiro: 8000 },
-    { nome: "Munição Five", valorComParceria: 278.35 * 20, valorSemParceria: 303.08 * 20, polvora: 11, dinheiro: 600 },
-    { nome: "Munição AKS", valorComParceria: 307.10 * 20, valorSemParceria: 341.25 * 20, polvora: 11, dinheiro: 1000 },
-    { nome: "Munição M4A1", valorComParceria: 307.1 * 20, valorSemParceria: 341.25 * 20, polvora: 11, dinheiro: 1000 },
-    { nome: "Munição Remington", valorComParceria: 327.35 * 20, valorSemParceria: 363.75 * 20, polvora: 12, dinheiro: 1000 },
-    { nome: "Munição Glock", valorComParceria: 226.1 * 20, valorSemParceria: 251.25 * 20, polvora: 7, dinheiro: 1000 },
-    { nome: "Munição Sniper", valorComParceria: 10776.00 * 20, valorSemParceria: 11962.00 * 20, polvora: 365, dinheiro: 40000 },
+    { nome: "Five-Seven", valorComParceria: 278.35, valorSemParceria: 303.08, polvora: 11 / 20, dinheiro: 600 / 20 },
+    { nome: "AKS", valorComParceria: 307.10, valorSemParceria: 341.25, polvora: 11 / 20, dinheiro: 1000 / 20 },
+    { nome: "M4A1", valorComParceria: 307.1, valorSemParceria: 341.25, polvora: 11 / 20, dinheiro: 1000 / 20 },
+    { nome: "Remington", valorComParceria: 327.35, valorSemParceria: 363.75, polvora: 12 / 20, dinheiro: 1000 / 20 },
+    { nome: "Glock", valorComParceria: 226.1, valorSemParceria: 251.25, polvora: 7 / 20, dinheiro: 1000 / 20 },
+    { nome: "Sniper", valorComParceria: 10776.00, valorSemParceria: 11962.00, polvora: 365 / 20, dinheiro: 40000 / 20 },
     { nome: "Maconha", valorComParceria: 320.00, valorSemParceria: 350.00, polvora: 2, dinheiro: 0 },
 ];
 
@@ -58,7 +53,7 @@ const Calculator = () => {
     };
     
     const formatNumber = (value: number) => {
-        return value.toLocaleString('pt-BR');
+        return value.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
     };
 
     return (

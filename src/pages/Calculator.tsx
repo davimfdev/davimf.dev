@@ -44,8 +44,9 @@ const Calculator = () => {
             return acc + (valor * item.quantidade);
         }, 0);
         const totalComissao = totalVenda * 0.20;
+        const totalFaccao = totalVenda - totalComissao;
 
-        return { totalPolvora, totalDinheiro, totalVenda, totalComissao };
+        return { totalPolvora, totalDinheiro, totalVenda, totalComissao, totalFaccao };
     }, [itens, comParceria]);
 
     const formatCurrency = (value: number) => {
@@ -142,6 +143,10 @@ const Calculator = () => {
                         <div className="bg-gray-800 p-4 rounded-md">
                             <p className="text-gray-400">Comissão (20%):</p>
                             <p className="font-bold text-xl text-blue-400">{formatCurrency(calculos.totalComissao)}</p>
+                        </div>
+                        <div className="bg-gray-800 p-4 rounded-md sm:col-span-2">
+                            <p className="text-gray-400">Total para Facção:</p>
+                            <p className="font-bold text-xl text-purple-400">{formatCurrency(calculos.totalFaccao)}</p>
                         </div>
                     </div>
                      {itens.length > 0 && (

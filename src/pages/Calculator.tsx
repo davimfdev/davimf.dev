@@ -3,10 +3,11 @@ import { Produto, ItemCalculo } from '../types/calculator.types';
 
 const PRODUTOS: Produto[] = [
     { nome: "Five-Seven", valorComParceria: 278.35, valorSemParceria: 303.08, polvora: 11 / 20, dinheiro: 600 / 20 },
+    { nome: "Glock", valorComParceria: 226.1, valorSemParceria: 251.25, polvora: 7 / 20, dinheiro: 1000 / 20 },
     { nome: "AKS", valorComParceria: 307.10, valorSemParceria: 341.25, polvora: 11 / 20, dinheiro: 1000 / 20 },
     { nome: "M4A1", valorComParceria: 307.1, valorSemParceria: 341.25, polvora: 11 / 20, dinheiro: 1000 / 20 },
     { nome: "Remington", valorComParceria: 327.35, valorSemParceria: 363.75, polvora: 12 / 20, dinheiro: 1000 / 20 },
-    { nome: "Glock", valorComParceria: 226.1, valorSemParceria: 251.25, polvora: 7 / 20, dinheiro: 1000 / 20 },
+    { nome: "G36", valorComParceria: 405.00, valorSemParceria: 450.00, polvora: 15 / 20, dinheiro: 1200},
     { nome: "Sniper", valorComParceria: 10776.00, valorSemParceria: 11962.00, polvora: 365 / 20, dinheiro: 40000 / 20 },
     { nome: "Maconha", valorComParceria: 320.00, valorSemParceria: 350.00, polvora: 2, dinheiro: 0 },
 ];

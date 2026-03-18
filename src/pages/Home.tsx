@@ -20,7 +20,7 @@ const Home = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
             </span>
-            Available for new opportunities
+            {translations.availableForWork}
           </div>
           
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
@@ -48,9 +48,9 @@ const Home = () => {
         {/* Feature Cards Showcase (Glassmorphism) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-16 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           {[
-            { icon: Code, title: 'Clean Code', desc: 'Writing maintainable, scalable, and efficient solutions.' },
-            { icon: Layout, title: 'Modern UI/UX', desc: 'Crafting beautiful and intuitive user experiences.' },
-            { icon: Smartphone, title: 'Responsive', desc: 'Perfect execution across all devices and screen sizes.' },
+            { icon: Code, title: translations.cleanCode, desc: translations.cleanCodeDesc },
+            { icon: Layout, title: translations.modernUI, desc: translations.modernUIDesc },
+            { icon: Smartphone, title: translations.responsive, desc: translations.responsiveDesc },
           ].map((feature, index) => {
             const Icon = feature.icon;
             return (

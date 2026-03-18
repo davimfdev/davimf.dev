@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import { Loader2, AlertCircle } from 'lucide-react';
 
 const UrlRedirectPage = () => {
   const { shortCode } = useParams(); // from the URL, e.g., /r/:shortCode
@@ -9,7 +10,7 @@ const UrlRedirectPage = () => {
   useEffect(() => {
     const fetchUrl = async () => {
       if (!shortCode) {
-        setError('No short code provided.');
+        setError('Nenhum código fornecido.');
         setLoading(false);
         return;
       }
@@ -20,7 +21,7 @@ const UrlRedirectPage = () => {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || 'URL not found.');
+          throw new Error(data.error || 'URL não encontrada.');
         }
 
         // Redirect to the original URL
@@ -37,11 +38,31 @@ const UrlRedirectPage = () => {
   }, [shortCode]);
 
   if (loading) {
-    return <p>Redirecting...</p>;
+    return (
+      <div className="min-h-[50vh] flex flex-col items-center justify-center animate-fade-in">
+        <Loader2 size={48} className="text-blue-500 animate-spin mb-4" />
+        <p className="text-xl text-gray-300 font-medium">Redirecionando...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <p style={{ color: 'red' }}>Error: {error}</p>;
+    return (
+      <div className="min-h-[50vh] flex flex-col items-center justify-center animate-fade-in p-4">
+        <div className="glass-panel p-8 max-w-md w-full text-center border border-red-500/20">
+          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
+            <AlertCircle size={32} className="text-red-400" />
+          </div>
+          <h2 className="text-2xl font-bold mb-4 text-gray-100">Erro de Redirecionamento</h2>
+          <p className="text-red-400 font-medium mb-8 bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+            {error}
+          </p>
+          <Link to="/" className="btn-secondary w-full text-center">
+            Voltar para o Início
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return null;

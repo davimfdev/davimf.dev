@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Mail, ArrowRight } from 'lucide-react';
 
 const RequestPasswordResetPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -41,46 +42,60 @@ const RequestPasswordResetPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-gray-800 rounded-lg shadow-xl">
-      <h1 className="text-3xl font-bold mb-6 text-center text-white">Forgot Password</h1>
+    <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-white/10 shadow-2xl">
+      <div className="flex justify-center mb-6">
+        <div className="p-4 bg-blue-500/20 rounded-full border border-blue-500/30">
+          <Mail size={32} className="text-blue-400" />
+        </div>
+      </div>
+      <h1 className="text-4xl font-extrabold mb-8 text-center text-gradient">Recuperar Senha</h1>
       
-      {message && !resetLink && <div className="bg-blue-900 border border-blue-700 text-blue-200 px-4 py-3 rounded-md mb-4">{message}</div>}
+      {message && !resetLink && <div className="bg-blue-500/20 border border-blue-500/30 text-blue-300 px-4 py-3 rounded-lg mb-6 text-sm">{message}</div>}
       {resetLink && (
-        <div className="bg-green-900 border border-green-700 text-green-200 px-4 py-3 rounded-md mb-4 break-words">
-          <p>{message}</p>
-          <p className="mt-2">Click the link below to reset your password:</p>
-          <Link to={resetLink} className="font-bold text-white hover:underline break-all">{resetLink}</Link>
+        <div className="bg-green-500/20 border border-green-500/30 text-green-300 px-5 py-4 rounded-lg mb-6 break-words animate-slide-up shadow-inner">
+          <p className="font-medium mb-3">{message}</p>
+          <p className="text-sm text-green-400/80 mb-2">Para redefinir sua senha no ambiente de desenvolvimento, clique no link abaixo:</p>
+          <Link to={resetLink} className="inline-block bg-green-500/30 hover:bg-green-500/50 text-green-200 px-4 py-2 rounded-lg font-bold transition-colors break-all border border-green-500/40">
+            {resetLink}
+          </Link>
         </div>
       )}
-      {error && <div className="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-md mb-4">{error}</div>}
+      {error && <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-6 text-sm">{error}</div>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email</label>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">Email</label>
           <input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email address"
-            className="w-full p-2 bg-gray-700 rounded-md border border-gray-600"
+            placeholder="seu@email.com"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
             required
+            disabled={loading}
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md disabled:bg-blue-400"
+          className="w-full btn-primary py-3 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed mt-4 group"
         >
-          {loading ? 'Sending...' : 'Send Password Reset Link'}
+          {loading ? 'Enviando...' : (
+            <span className="flex items-center justify-center">
+              Enviar Link <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+            </span>
+          )}
         </button>
       </form>
-      <p className="text-center text-gray-400 mt-6">
-        Remembered your password?{' '}
-        <Link to="/login" className="text-blue-400 hover:underline">
-          Login
-        </Link>
-      </p>
+      <div className="mt-8 pt-6 border-t border-white/10 text-center">
+        <p className="text-gray-400">
+          Lembrou sua senha?{' '}
+          <Link to="/login" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+            Fazer Login
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

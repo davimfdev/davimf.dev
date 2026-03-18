@@ -4,18 +4,15 @@ import { jwtDecode } from 'jwt-decode';
 interface AuthContextType {
   isAuthenticated: boolean;
   token: string | null;
-  login: (accessToken: string, isGoogleConnected: boolean) => void;
+  login: (accessToken: string) => void;
   logout: () => void;
   isAuthLoading: boolean;
-  isGoogleConnected: boolean;
-  setIsGoogleConnected: (status: boolean) => void;
   refreshToken: () => Promise<void>;
 }
 
 interface JwtPayload {
   userId: number;
   email: string;
-  isGoogleConnected?: boolean;
   exp: number;
 }
 
@@ -23,12 +20,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
-  const [isGoogleConnected, setIsGoogleConnected] = useState<boolean>(false);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
 
-  const login = useCallback((accessToken: string, googleStatus: boolean) => {
+  const login = useCallback((accessToken: string) => {
     setToken(accessToken);
-    setIsGoogleConnected(googleStatus);
     localStorage.setItem('accessToken', accessToken);
   }, []);
 
@@ -41,7 +36,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }).catch(error => console.error("Logout API call failed:", error));
     }
     setToken(null);
-    setIsGoogleConnected(false);
     localStorage.removeItem('accessToken');
   }, []);
 
@@ -51,8 +45,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!response.ok) {
         throw new Error('Failed to refresh token');
       }
-      const { accessToken, isGoogleConnected: googleStatus } = await response.json();
-      login(accessToken, googleStatus);
+      const { accessToken } = await response.json();
+      login(accessToken);
     } catch (error) {
       console.error("Token refresh failed:", error);
       logout();
@@ -67,7 +61,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const payload: JwtPayload = jwtDecode(initialToken);
         if (payload.exp * 1000 > Date.now()) {
           setToken(initialToken);
-          setIsGoogleConnected(payload.isGoogleConnected || false);
         } else {
           // Token expirado
           localStorage.removeItem('accessToken');
@@ -100,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [token, refreshToken, logout]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated: !!token, token, login, logout, isAuthLoading, isGoogleConnected, setIsGoogleConnected, refreshToken }}>
+    <AuthContext.Provider value={{ isAuthenticated: !!token, token, login, logout, isAuthLoading, refreshToken }}>
       {isAuthLoading ? null : children}
     </AuthContext.Provider>
   );

@@ -13,10 +13,10 @@ const Roulette = () => {
 
   const conicGradient = useMemo(() => {
     if (nameList.length === 0) {
-      return 'radial-gradient(#4A5568, #2D3748)';
+      return 'radial-gradient(rgba(74, 85, 104, 0.5), rgba(45, 55, 72, 0.5))';
     }
     const gradientParts = nameList.map((_, index) => {
-      const color = index % 2 === 0 ? '#2D3748' : '#4A5568';
+      const color = index % 2 === 0 ? 'rgba(59, 130, 246, 0.2)' : 'rgba(147, 51, 234, 0.2)';
       const startAngle = index * segmentAngle;
       const endAngle = (index + 1) * segmentAngle;
       return `${color} ${startAngle}deg ${endAngle}deg`;
@@ -77,34 +77,38 @@ const Roulette = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold text-center mb-8">Roleta</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-1">
-          <h2 className="text-2xl font-bold mb-4">Participantes</h2>
+    <div className="container mx-auto px-4 py-12 animate-fade-in relative z-10">
+      <h1 className="text-5xl font-extrabold text-center mb-12 text-gradient">Roleta</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="lg:col-span-1 glass-panel p-8 animate-slide-up">
+          <h2 className="text-2xl font-bold mb-6 text-gray-100">Participantes</h2>
           <textarea
-            className="w-full h-40 p-4 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-48 p-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-200 resize-none transition-all placeholder-gray-500"
             placeholder="Digite os nomes, um por linha..."
             value={names}
             onChange={(e) => setNames(e.target.value)}
             disabled={isSpinning}
           />
-          <div className="mt-6 flex items-center">
-            <label htmlFor="numberOfWinners" className="mr-4 text-lg">Sortear:</label>
-            <input
-              id="numberOfWinners"
-              type="number"
-              min="1"
-              max={nameList.length || 1}
-              className="w-24 p-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={numberOfWinners}
-              onChange={(e) => setNumberOfWinners(Math.max(1, parseInt(e.target.value, 10) || 1))}
-              disabled={isSpinning}
-            />
-            <span className="ml-2 text-lg">nome(s)</span>
+          <div className="mt-8 flex flex-col space-y-4">
+            <div className="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/10">
+              <label htmlFor="numberOfWinners" className="text-lg font-medium text-gray-300">Sortear:</label>
+              <div className="flex items-center">
+                <input
+                  id="numberOfWinners"
+                  type="number"
+                  min="1"
+                  max={nameList.length || 1}
+                  className="w-20 p-2 bg-gray-900 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center font-bold"
+                  value={numberOfWinners}
+                  onChange={(e) => setNumberOfWinners(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                  disabled={isSpinning}
+                />
+                <span className="ml-3 text-gray-400">nome(s)</span>
+              </div>
+            </div>
           </div>
           <button
-            className={`w-full mt-6 px-8 py-4 text-xl font-bold rounded-lg transition-all duration-300 ${isSpinning || nameList.length === 0 ? 'bg-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+            className={`w-full mt-8 py-4 text-xl font-bold rounded-xl transition-all duration-300 transform ${isSpinning || nameList.length === 0 ? 'bg-white/10 text-gray-500 cursor-not-allowed border border-white/5' : 'btn-primary'}`}
             onClick={handleSpin}
             disabled={isSpinning || nameList.length === 0}
           >
@@ -112,22 +116,22 @@ const Roulette = () => {
           </button>
         </div>
 
-        <div className="md:col-span-2 flex flex-col items-center justify-center">
-            <div className="relative w-fit h-fit">
+        <div className="lg:col-span-2 flex flex-col items-center justify-center glass-panel p-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className="relative w-fit h-fit my-8">
                 {/* Pointer */}
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10" style={{ right: '4px' }}>
-                    <div className="w-0 h-0" style={{
-                        borderTop: '10px solid transparent',
-                        borderBottom: '10px solid transparent',
-                        borderRight: '20px solid #EF4444',
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10" style={{ right: '-10px' }}>
+                    <div className="w-0 h-0 filter drop-shadow-lg" style={{
+                        borderTop: '15px solid transparent',
+                        borderBottom: '15px solid transparent',
+                        borderRight: '30px solid #3B82F6',
                     }}></div>
                 </div>
 
                 {/* Roulette Container with Border */}
-                <div className="relative w-96 h-96 bg-gray-700 rounded-full p-4 shadow-lg">
+                <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px] bg-white/5 rounded-full p-4 border-4 border-white/10 shadow-[0_0_50px_rgba(59,130,246,0.15)]">
                     <div 
                         id="roulette-wheel" 
-                        className="relative w-full h-full rounded-full overflow-hidden"
+                        className="relative w-full h-full rounded-full overflow-hidden border-2 border-white/20 shadow-inner"
                         style={{ background: conicGradient, transform: `rotate(${rotation}deg)` }}
                     >
                         {nameList.length > 0 && nameList.map((name, index) => {
@@ -138,14 +142,14 @@ const Roulette = () => {
                             return (
                                 <div 
                                     key={index} 
-                                    className="absolute"
+                                    className="absolute drop-shadow-md"
                                     style={{
                                         left: `${x}%`,
                                         top: `${y}%`,
                                         transform: `translate(-50%, -50%) rotate(${angle}deg)`
                                     }}
                                 >
-                                    <span className="text-white font-bold text-center block max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                    <span className="text-gray-100 font-bold text-center block max-w-[80px] md:max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap text-sm md:text-base">
                                         {name}
                                     </span>
                                 </div>
@@ -155,11 +159,13 @@ const Roulette = () => {
                 </div>
             </div>
             {winners.length > 0 && !isSpinning && (
-                <div className="mt-8 w-full text-center">
-                    <h2 className="text-3xl font-bold mb-4">Vencedor(es):</h2>
-                    <ul className="text-2xl text-green-400">
+                <div className="mt-8 w-full text-center bg-white/5 p-6 rounded-xl border border-white/10 animate-fade-in">
+                    <h2 className="text-2xl font-bold mb-4 text-gray-300">Vencedor(es):</h2>
+                    <ul className="flex flex-wrap justify-center gap-3">
                     {winners.map((winner, index) => (
-                        <li key={index} className="fade-in">{winner}</li>
+                        <li key={index} className="px-4 py-2 bg-blue-500/20 border border-blue-500/30 text-blue-400 rounded-lg text-xl font-bold animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
+                          {winner}
+                        </li>
                     ))}
                     </ul>
                 </div>

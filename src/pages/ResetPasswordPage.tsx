@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { KeyRound } from 'lucide-react';
 
 const ResetPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -17,7 +18,7 @@ const ResetPasswordPage: React.FC = () => {
     if (tokenFromUrl) {
       setToken(tokenFromUrl);
     } else {
-      setError('No reset token found. Please request a new password reset link.');
+      setError('Nenhum token encontrado. Solicite um novo link.');
     }
   }, [searchParams]);
 
@@ -27,11 +28,11 @@ const ResetPasswordPage: React.FC = () => {
     setMessage('');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError('As senhas não coincidem.');
       return;
     }
     if (!token) {
-      setError('Reset token is missing. Please request a new password reset link.');
+      setError('Token ausente. Solicite um novo link.');
       return;
     }
 
@@ -46,10 +47,10 @@ const ResetPasswordPage: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to reset password.');
+        throw new Error(data.error || 'Falha ao redefinir a senha.');
       }
 
-      setMessage(`${data.message} You will be redirected to the login page shortly.`);
+      setMessage(`${data.message} Você será redirecionado para o login.`);
       setTimeout(() => navigate('/login'), 3000);
 
     } catch (err: any) {
@@ -60,51 +61,62 @@ const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-gray-800 rounded-lg shadow-xl">
-      <h1 className="text-3xl font-bold mb-6 text-center text-white">Reset Password</h1>
+    <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-white/10 shadow-2xl">
+      <div className="flex justify-center mb-6">
+        <div className="p-4 bg-purple-500/20 rounded-full border border-purple-500/30">
+          <KeyRound size={32} className="text-purple-400" />
+        </div>
+      </div>
+      <h1 className="text-4xl font-extrabold mb-8 text-center text-gradient">Redefinir Senha</h1>
       
-      {message && <div className="bg-green-900 border border-green-700 text-green-200 px-4 py-3 rounded-md mb-4">{message}</div>}
+      {message && <div className="bg-green-500/20 border border-green-500/30 text-green-300 px-4 py-3 rounded-lg mb-6 text-sm">{message}</div>}
       {error && (
-        <div className="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-md mb-4">
+        <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-6 text-sm">
             <p>{error}</p>
             {error.includes('token') && (
-                <p className="mt-2">
-                    <Link to="/request-password-reset" className="text-blue-300 hover:underline">Request a new link here.</Link>
+                <p className="mt-3">
+                    <Link to="/request-password-reset" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">Solicite um novo link aqui.</Link>
                 </p>
             )}
         </div>
       )}
 
       {token && !message && (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">New Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">Nova Senha</label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 bg-gray-700 rounded-md border border-gray-600"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-500 transition-all"
               required
+              placeholder="••••••••"
             />
           </div>
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-1">Confirm New Password</label>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">Confirmar Nova Senha</label>
             <input
               id="confirmPassword"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-2 bg-gray-700 rounded-md border border-gray-600"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-500 transition-all"
               required
+              placeholder="••••••••"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md disabled:bg-blue-400"
+            className="w-full btn-primary py-3 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-purple-500/30 hover:shadow-purple-500/50 group"
           >
-            {loading ? 'Resetting...' : 'Reset Password'}
+            {loading ? 'Redefinindo...' : (
+              <span className="flex items-center justify-center">
+                Redefinir Senha <KeyRound size={20} className="ml-2 group-hover:rotate-12 transition-transform" />
+              </span>
+            )}
           </button>
         </form>
       )}

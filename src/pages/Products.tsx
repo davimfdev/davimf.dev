@@ -7,29 +7,40 @@ const Products = () => {
   const products = translations.productList;
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-8">{translations.productsAndServices}</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <div key={product.id} className="bg-gray-800 rounded-lg overflow-hidden">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
-              <p className="text-gray-400 mb-4">{product.description}</p>
-              <div className="flex justify-between items-center">
+    <div className="animate-fade-in relative z-10 py-8">
+      <h1 className="text-4xl font-bold mb-12 text-gradient inline-block">{translations.productsAndServices}</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {products.map((product, index) => (
+          <div 
+            key={product.id} 
+            className="glass-panel group overflow-hidden flex flex-col animate-slide-up"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
+            <div className="relative overflow-hidden">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-80"></div>
+            </div>
+            
+            <div className="p-6 flex flex-col flex-grow relative z-10">
+              <h3 className="text-2xl font-bold mb-3 text-gray-100 group-hover:text-blue-400 transition-colors">{product.name}</h3>
+              <p className="text-gray-400 mb-6 flex-grow leading-relaxed line-clamp-3">{product.description}</p>
+              
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-auto pt-4 border-t border-white/10">
                 <Link
                   to="/contact"
-                  className="inline-flex items-center text-blue-400 hover:text-blue-300"
+                  className="inline-flex items-center text-blue-400 hover:text-blue-300 font-medium transition-colors group/link"
                 >
-                  {translations.learnMore} <ExternalLink size={16} className="ml-1" />
+                  {translations.learnMore} 
+                  <ExternalLink size={18} className="ml-2 transform group-hover/link:-translate-y-1 group-hover/link:translate-x-1 transition-transform" />
                 </Link>
-                <Link to={product.link}>
-                  <button className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-                    <ShoppingCart size={16} className="mr-2" />
+                
+                <Link to={product.link} className="w-full sm:w-auto">
+                  <button className="btn-primary w-full group/btn py-2 px-5 text-sm">
+                    <ShoppingCart size={18} className="mr-2 group-hover/btn:-rotate-12 transition-transform" />
                     {translations.buyNow}
                   </button>
                 </Link>

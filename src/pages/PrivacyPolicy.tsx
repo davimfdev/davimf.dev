@@ -1,81 +1,88 @@
 import React from 'react';
+import { Shield } from 'lucide-react';
 
 const PrivacyPolicy: React.FC = () => {
   return (
-    <div className="max-w-4xl mx-auto p-8 text-gray-300">
-      <h1 className="text-4xl font-bold mb-6 text-white">Política de Privacidade</h1>
+    <div className="max-w-4xl mx-auto p-8 text-gray-300 animate-fade-in relative z-10">
+      <div className="flex items-center gap-4 mb-10">
+        <div className="p-3 bg-blue-500/20 rounded-xl border border-blue-500/30">
+          <Shield size={32} className="text-blue-400" />
+        </div>
+        <h1 className="text-4xl font-extrabold text-gradient">Política de Privacidade</h1>
+      </div>
       
-      <div className="space-y-6">
+      <div className="space-y-8 glass-panel p-8 sm:p-10 border border-white/10 animate-slide-up">
         <section>
-          <h2 className="text-2xl font-semibold mb-2 text-white">1. Introdução</h2>
-          <p>
-            Bem-vindo à nossa Política de Privacidade. Sua privacidade é importante para nós. Esta política explica como coletamos, usamos e protegemos suas informações quando você utiliza nosso site e, especificamente, a funcionalidade de integração com o Google Calendar.
+          <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
+            <span className="bg-blue-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">1</span>
+            Introdução
+          </h2>
+          <p className="leading-relaxed pl-9">
+            Bem-vindo à nossa Política de Privacidade. Sua privacidade é importante para nós. Esta política explica como coletamos, usamos e protegemos suas informações quando você utiliza nosso site.
           </p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-2 text-white">2. Coleta de Dados</h2>
-          <p>
-            Ao conectar sua conta do Google para sincronizar sua agenda, solicitamos sua permissão para acessar seu Google Calendar e Google Tasks. Os únicos dados que armazenamos em nossos servidores são:
-          </p>
-          <ul className="list-disc list-inside mt-2 space-y-1 pl-4">
-            <li>
-              <strong>Token de Atualização (Refresh Token) do Google:</strong> Este é um token seguro que nos permite solicitar novos tokens de acesso para interagir com a API do Google em seu nome, sem que você precise fazer login repetidamente. Este token é armazenado de forma criptografada em nosso banco de dados.
-            </li>
-          </ul>
-          <p className="mt-2">
-            Nós <strong>não</strong> armazenamos seus eventos, tarefas, detalhes de agenda, ou sua senha do Google.
+          <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
+            <span className="bg-blue-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">2</span>
+            Coleta de Dados
+          </h2>
+          <div className="pl-9">
+            <p className="leading-relaxed mb-4">
+              Nós coletamos apenas as informações estritamente necessárias para o funcionamento dos recursos que você decide utilizar em nosso sistema, como e-mail e dados de sessão de usuário criptografados. Não vendemos ou usamos seus dados para rastreamento de anúncios de terceiros.
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
+            <span className="bg-blue-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">3</span>
+            Uso dos Dados
+          </h2>
+          <div className="pl-9">
+            <p className="leading-relaxed mb-4">
+              Utilizamos suas informações de conta exclusivamente para os seguintes propósitos:
+            </p>
+            <ul className="space-y-3 bg-white/5 p-4 rounded-lg border border-white/10 text-gray-300">
+              <li className="flex items-start">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 mr-3 flex-shrink-0"></div>
+                <span><strong className="text-gray-200">Personalização:</strong> Fornecer painéis de acesso pessoal como a lista de tarefas e gestão financeira.</span>
+              </li>
+              <li className="flex items-start">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 mr-3 flex-shrink-0"></div>
+                <span><strong className="text-gray-200">Autenticação:</strong> Garantir que você faça login em sua conta com segurança para manter seus dados privados longe de terceiros.</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
+            <span className="bg-blue-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">4</span>
+            Compartilhamento de Dados
+          </h2>
+          <p className="leading-relaxed pl-9">
+            Nós não compartilhamos, vendemos ou alugamos suas informações pessoais com terceiros sob nenhuma circunstância.
           </p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-2 text-white">3. Uso dos Dados</h2>
-          <p>
-            Utilizamos o acesso concedido e o token de atualização exclusivamente para as seguintes finalidades:
-          </p>
-          <ul className="list-disc list-inside mt-2 space-y-1 pl-4">
-            <li><strong>Importar eventos e tarefas:</strong> Ler os itens da sua agenda do Google para exibi-los em sua lista de tarefas no nosso site.</li>
-            <li><strong>Criar e atualizar eventos:</strong> Criar, editar ou marcar eventos como concluídos no seu Google Calendar quando você realiza essas ações no nosso site.</li>
-            <li><strong>Excluir eventos e tarefas:</strong> Remover itens do seu Google Calendar quando você os exclui no nosso site.</li>
-          </ul>
-          <p className="mt-2">
-            O uso das informações recebidas das APIs do Google seguirá a <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Política de Dados do Usuário dos Serviços de API do Google</a>, incluindo os requisitos de Uso Limitado.
+          <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
+            <span className="bg-blue-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">5</span>
+            Segurança
+          </h2>
+          <p className="leading-relaxed pl-9">
+            Tomamos medidas de segurança rigorosas para proteger suas informações. Todos os acessos são feitos através de tokens de autenticação temporários (JWT), que são transmitidos por um canal seguro e validados pelo nosso servidor. Senhas são armazenadas com algoritmos de Hash irreversíveis.
           </p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-2 text-white">4. Compartilhamento de Dados</h2>
-          <p>
-            Nós não compartilhamos, vendemos ou alugamos suas informações pessoais ou dados do Google com terceiros.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-2xl font-semibold mb-2 text-white">5. Segurança</h2>
-          <p>
-            Tomamos medidas de segurança para proteger suas informações. O token de atualização do Google é criptografado antes de ser armazenado em nosso banco de dados, adicionando uma camada extra de proteção.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-2xl font-semibold mb-2 text-white">6. Revogando o Acesso</h2>
-          <p>
-            Você pode revogar o acesso do nosso aplicativo à sua conta do Google a qualquer momento através da página de segurança do Google:
-          </p>
-          <p className="mt-2">
-            <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
-              https://myaccount.google.com/permissions
-            </a>
-          </p>
-          <p className="mt-2">
-            Ao revogar o acesso, excluiremos o token de atualização associado à sua conta de nossos sistemas.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-2xl font-semibold mb-2 text-white">7. Contato</h2>
-          <p>
-            Se você tiver alguma dúvida sobre esta Política de Privacidade, entre em contato conosco através do formulário de contato do site.
+          <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
+            <span className="bg-blue-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">6</span>
+            Contato
+          </h2>
+          <p className="leading-relaxed pl-9">
+            Se você tiver alguma dúvida sobre esta Política de Privacidade ou precisar solicitar a exclusão total da sua conta e dados do sistema, entre em contato conosco através da aba de contato disponível no site.
           </p>
         </section>
       </div>

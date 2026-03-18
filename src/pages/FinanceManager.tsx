@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { Trash2, PlusCircle, ArrowRightLeft } from 'lucide-react';
+import { Trash2, PlusCircle, ArrowRightLeft, DollarSign, Wallet, CreditCard, PiggyBank } from 'lucide-react';
 import CategoryChart from '../components/CategoryChart';
 
 // --- Types ---
@@ -32,52 +32,41 @@ interface Rates {
 // --- Skeleton Components ---
 const SkeletonLoader: React.FC = () => (
   <div className="max-w-7xl mx-auto p-4 animate-pulse">
-    <div className="h-8 bg-gray-700 rounded-md w-1/3 mx-auto mb-6"></div>
+    <div className="h-10 bg-white/10 rounded-md w-1/3 mx-auto mb-8"></div>
 
     {/* Overview Skeleton */}
-    <div className="mb-8 p-6 bg-gray-800 rounded-lg">
-      <div className="flex justify-between items-center mb-4">
-        <div className="h-6 bg-gray-700 rounded-md w-1/4"></div>
-        <div className="flex gap-2">
-          <div className="h-10 bg-gray-700 rounded-md w-28"></div>
-          <div className="h-10 bg-gray-700 rounded-md w-36"></div>
+    <div className="mb-10 p-8 glass-panel border border-white/5">
+      <div className="flex justify-between items-center mb-6">
+        <div className="h-8 bg-white/10 rounded-md w-1/4"></div>
+        <div className="flex gap-3">
+          <div className="h-12 bg-white/10 rounded-lg w-32"></div>
+          <div className="h-12 bg-white/10 rounded-lg w-40"></div>
         </div>
       </div>
-      <div className="text-center mb-4">
-        <div className="h-10 bg-gray-700 rounded-md w-1/2 mx-auto"></div>
+      <div className="text-center mb-8">
+        <div className="h-16 bg-white/10 rounded-md w-1/2 mx-auto"></div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gray-700 p-4 rounded-lg h-20"></div>
-        <div className="bg-gray-700 p-4 rounded-lg h-20"></div>
-        <div className="bg-gray-700 p-4 rounded-lg h-20"></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white/5 p-6 rounded-xl h-24 border border-white/5"></div>
+        <div className="bg-white/5 p-6 rounded-xl h-24 border border-white/5"></div>
+        <div className="bg-white/5 p-6 rounded-xl h-24 border border-white/5"></div>
       </div>
     </div>
 
     {/* Add Transaction & Charts Skeleton */}
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-      <div className="lg:col-span-1 bg-gray-800 p-6 rounded-lg h-fit space-y-4">
-        <div className="h-6 bg-gray-700 rounded-md w-3/4"></div>
-        <div className="h-10 bg-gray-700 rounded-md w-full"></div>
-        <div className="h-10 bg-gray-700 rounded-md w-full"></div>
-        <div className="h-10 bg-gray-700 rounded-md w-full"></div>
-        <div className="h-10 bg-gray-700 rounded-md w-full"></div>
-        <div className="h-10 bg-gray-700 rounded-md w-full"></div>
-        <div className="h-10 bg-gray-700 rounded-md w-full"></div>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+      <div className="lg:col-span-1 glass-panel p-8 h-fit space-y-5 border border-white/5">
+        <div className="h-8 bg-white/10 rounded-md w-3/4 mb-2"></div>
+        <div className="h-12 bg-white/5 rounded-lg w-full"></div>
+        <div className="h-12 bg-white/5 rounded-lg w-full"></div>
+        <div className="h-12 bg-white/5 rounded-lg w-full"></div>
+        <div className="h-12 bg-white/5 rounded-lg w-full"></div>
+        <div className="h-12 bg-white/5 rounded-lg w-full"></div>
+        <div className="h-12 bg-white/10 rounded-lg w-full mt-4"></div>
       </div>
       <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-gray-800 p-6 rounded-lg h-64"></div>
-        <div className="bg-gray-800 p-6 rounded-lg h-64"></div>
-      </div>
-    </div>
-
-    {/* Transaction History Skeleton */}
-    <div>
-      <div className="h-6 bg-gray-700 rounded-md w-1/4 mb-4"></div>
-      <div className="bg-gray-800 p-4 rounded-lg space-y-3">
-        <div className="h-12 bg-gray-700 rounded-md w-full"></div>
-        <div className="h-12 bg-gray-700 rounded-md w-full"></div>
-        <div className="h-12 bg-gray-700 rounded-md w-full"></div>
-        <div className="h-12 bg-gray-700 rounded-md w-full"></div>
+        <div className="glass-panel p-8 h-72 border border-white/5"></div>
+        <div className="glass-panel p-8 h-72 border border-white/5"></div>
       </div>
     </div>
   </div>
@@ -148,34 +137,41 @@ const TransferModal: React.FC<{
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-      <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md shadow-lg">
-        <h2 className="text-xl font-semibold mb-4">{translations.makeTransfer}</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 animate-fade-in p-4">
+      <div className="glass-panel p-8 w-full max-w-md shadow-2xl border border-white/20 animate-slide-up">
+        <h2 className="text-2xl font-bold mb-6 text-gray-100 flex items-center">
+          <ArrowRightLeft className="mr-3 text-purple-400" /> {translations.makeTransfer}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="fromAccount" className="block text-sm font-medium text-gray-300 mb-1">{translations.from}</label>
-            <select id="fromAccount" value={fromAccountId} onChange={e => setFromAccountId(e.target.value)} className="w-full p-2 bg-gray-700 rounded-md border border-gray-600">
+            <label htmlFor="fromAccount" className="block text-sm font-medium text-gray-300 mb-2">{translations.from}</label>
+            <select id="fromAccount" value={fromAccountId} onChange={e => setFromAccountId(e.target.value)} className="w-full p-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-purple-500 text-white outline-none">
               {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} ({acc.currency})</option>)}
             </select>
           </div>
           <div>
-            <label htmlFor="toAccount" className="block text-sm font-medium text-gray-300 mb-1">{translations.to}</label>
-            <select id="toAccount" value={toAccountId} onChange={e => setToAccountId(e.target.value)} className="w-full p-2 bg-gray-700 rounded-md border border-gray-600">
+            <label htmlFor="toAccount" className="block text-sm font-medium text-gray-300 mb-2">{translations.to}</label>
+            <select id="toAccount" value={toAccountId} onChange={e => setToAccountId(e.target.value)} className="w-full p-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-purple-500 text-white outline-none">
               {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} ({acc.currency})</option>)}
             </select>
           </div>
           <div>
-            <label htmlFor="transferAmount" className="block text-sm font-medium text-gray-300 mb-1">{translations.amount}</label>
-            <input id="transferAmount" type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" required className="w-full p-2 bg-gray-700 rounded-md border border-gray-600" />
+            <label htmlFor="transferAmount" className="block text-sm font-medium text-gray-300 mb-2">{translations.amount}</label>
+            <div className="relative">
+              <span className="absolute left-3 top-3 text-gray-500">R$</span>
+              <input id="transferAmount" type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" required className="w-full p-3 pl-10 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-purple-500 text-white outline-none" />
+            </div>
           </div>
           <div>
-            <label htmlFor="transferDescription" className="block text-sm font-medium text-gray-300 mb-1">{translations.description}</label>
-            <input id="transferDescription" type="text" value={description} onChange={e => setDescription(e.target.value)} placeholder={translations.transferDescriptionPlaceholder} className="w-full p-2 bg-gray-700 rounded-md border border-gray-600" />
+            <label htmlFor="transferDescription" className="block text-sm font-medium text-gray-300 mb-2">{translations.description}</label>
+            <input id="transferDescription" type="text" value={description} onChange={e => setDescription(e.target.value)} placeholder={translations.transferDescriptionPlaceholder} className="w-full p-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-purple-500 text-white outline-none" />
           </div>
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-          <div className="flex justify-end gap-4 pt-4">
-            <button type="button" onClick={onClose} className="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-md">{translations.cancel}</button>
-            <button type="submit" disabled={loading} className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md disabled:bg-purple-400">{loading ? translations.transferring : translations.transfer}</button>
+          {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">{error}</p>}
+          <div className="flex justify-end gap-4 pt-6 border-t border-white/10">
+            <button type="button" onClick={onClose} className="btn-secondary">{translations.cancel}</button>
+            <button type="submit" disabled={loading} className="btn-primary bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-purple-500/30">
+              {loading ? translations.transferring : translations.transfer}
+            </button>
           </div>
         </form>
       </div>
@@ -248,15 +244,19 @@ const PayExpenseModal: React.FC<{
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-      <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md shadow-lg">
-        <h2 className="text-xl font-semibold mb-4">{translations.pay} {expense.description}</h2>
-        <div className="space-y-4">
-          <p>{translations.selectBankToPay}:</p>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 animate-fade-in p-4">
+      <div className="glass-panel p-8 w-full max-w-md shadow-2xl border border-white/20 animate-slide-up">
+        <h2 className="text-2xl font-bold mb-2 text-gray-100 flex items-center">
+          <CreditCard className="mr-3 text-green-400" /> {translations.pay}
+        </h2>
+        <p className="text-lg text-gray-300 font-medium mb-6 pb-4 border-b border-white/10">{expense.description}</p>
+        
+        <div className="space-y-4 mb-6">
+          <label className="block text-sm font-medium text-gray-300">{translations.selectBankToPay}</label>
           <select
             value={selectedAccountId}
             onChange={(e) => setSelectedAccountId(e.target.value)}
-            className="w-full p-2 bg-gray-700 rounded-md border border-gray-600"
+            className="w-full p-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-green-500 text-white outline-none"
           >
             {accounts.map((acc) => (
               <option key={acc.id} value={acc.id}>
@@ -264,12 +264,12 @@ const PayExpenseModal: React.FC<{
               </option>
             ))}
           </select>
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">{error}</p>}
         </div>
-        <div className="flex justify-end gap-4 pt-4">
-          <button type="button" onClick={onClose} className="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-md">{translations.cancel}</button>
-          <button onClick={handlePay} disabled={loading} className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md disabled:bg-green-400">
-            {loading ? 'Pagando...' : translations.pay}
+        <div className="flex justify-end gap-4 pt-4 border-t border-white/10">
+          <button type="button" onClick={onClose} className="btn-secondary">{translations.cancel}</button>
+          <button onClick={handlePay} disabled={loading} className="btn-primary bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 shadow-green-500/30">
+            {loading ? 'Processando...' : translations.pay}
           </button>
         </div>
       </div>
@@ -325,34 +325,38 @@ const AddAccountModal: React.FC<{
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-      <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md shadow-lg">
-        <h2 className="text-xl font-semibold mb-4">{translations.addBank}</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 animate-fade-in p-4">
+      <div className="glass-panel p-8 w-full max-w-md shadow-2xl border border-white/20 animate-slide-up">
+        <h2 className="text-2xl font-bold mb-6 text-gray-100 flex items-center">
+          <Wallet className="mr-3 text-blue-400" /> {translations.addBank}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="accountName" className="block text-sm font-medium text-gray-300 mb-1">{translations.bankName}</label>
-            <input id="accountName" type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Itaú, Wise, Reserva" required className="w-full p-2 bg-gray-700 rounded-md border border-gray-600" />
+            <label htmlFor="accountName" className="block text-sm font-medium text-gray-300 mb-2">{translations.bankName}</label>
+            <input id="accountName" type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Itaú, Nubank" required className="w-full p-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-blue-500 text-white outline-none transition-all" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-5">
             <div>
-              <label htmlFor="accountCurrency" className="block text-sm font-medium text-gray-300 mb-1">{translations.category}</label>
-              <input id="accountCurrency" type="text" value={currency} onChange={e => setCurrency(e.target.value)} placeholder="Ex: BRL, USD" required className="w-full p-2 bg-gray-700 rounded-md border border-gray-600" />
+              <label htmlFor="accountCurrency" className="block text-sm font-medium text-gray-300 mb-2">{translations.category}</label>
+              <input id="accountCurrency" type="text" value={currency} onChange={e => setCurrency(e.target.value)} placeholder="BRL" required className="w-full p-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-blue-500 text-white outline-none uppercase" />
             </div>
             <div>
-              <label htmlFor="accountType" className="block text-sm font-medium text-gray-300 mb-1">{translations.type}</label>
-              <select id="accountType" value={type} onChange={e => setType(e.target.value)} className="w-full p-2 bg-gray-700 rounded-md border border-gray-600">
+              <label htmlFor="accountType" className="block text-sm font-medium text-gray-300 mb-2">{translations.type}</label>
+              <select id="accountType" value={type} onChange={e => setType(e.target.value)} className="w-full p-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-blue-500 text-white outline-none">
                 <option>Corrente</option> <option>Investimento</option> <option>Caixa</option>
               </select>
             </div>
           </div>
           <div>
-            <label htmlFor="initialBalance" className="block text-sm font-medium text-gray-300 mb-1">{translations.initialBalance}</label>
-            <input id="initialBalance" type="number" value={initialBalance} onChange={e => setInitialBalance(e.target.value)} placeholder="0.00" required className="w-full p-2 bg-gray-700 rounded-md border border-gray-600" />
+            <label htmlFor="initialBalance" className="block text-sm font-medium text-gray-300 mb-2">{translations.initialBalance}</label>
+            <input id="initialBalance" type="number" value={initialBalance} onChange={e => setInitialBalance(e.target.value)} placeholder="0.00" step="0.01" required className="w-full p-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-blue-500 text-white outline-none" />
           </div>
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-          <div className="flex justify-end gap-4 pt-4">
-            <button type="button" onClick={onClose} className="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-md">{translations.cancel}</button>
-            <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md disabled:bg-blue-400">{loading ? 'Salvando...' : translations.add}</button>
+          {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">{error}</p>}
+          <div className="flex justify-end gap-4 pt-6 border-t border-white/10">
+            <button type="button" onClick={onClose} className="btn-secondary">{translations.cancel}</button>
+            <button type="submit" disabled={loading} className="btn-primary">
+              {loading ? 'Salvando...' : translations.add}
+            </button>
           </div>
         </form>
       </div>
@@ -517,119 +521,271 @@ const FinanceManager: React.FC = () => {
   const cardExpenses = useMemo(() => futureExpenses.filter(t => t.payment_type === 'Card' && parseFloat(t.amount) < 0), [futureExpenses]);
 
   if (loading || isAuthLoading) return <SkeletonLoader />;
-  if (error) return <div className="text-center text-red-500">Erro: {error}</div>;
+  
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+        <div className="glass-panel p-12 max-w-2xl mx-auto border border-white/5 animate-fade-in">
+          <PiggyBank size={64} className="mx-auto text-blue-400 mb-6" />
+          <h2 className="text-3xl font-bold mb-4 text-gray-100">Gerenciador Financeiro</h2>
+          <p className="text-lg text-gray-400">Você precisa estar logado para acessar e gerenciar suas finanças.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) return <div className="text-center p-6 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl max-w-2xl mx-auto mt-10 shadow-lg">Erro: {error}</div>;
 
   return (
-    <div className="max-w-7xl mx-auto p-4">
+    <div className="max-w-7xl mx-auto p-4 animate-fade-in relative z-10">
       {token && <AddAccountModal isOpen={isAccountModalOpen} token={token} onClose={() => setIsAccountModalOpen(false)} onAccountAdded={handleAccountAdded} />}
       {token && <TransferModal isOpen={isTransferModalOpen} token={token} accounts={accounts} onClose={() => setIsTransferModalOpen(false)} onTransferCompleted={handleTransferCompleted} />}
       {token && selectedExpense && <PayExpenseModal isOpen={isPayExpenseModalOpen} onClose={() => setIsPayExpenseModalOpen(false)} accounts={accounts} expense={selectedExpense} onExpensePaid={handleExpensePaid} token={token} />}
 
-      <h1 className="text-3xl font-bold mb-6 text-center">{translations.financeManagerTitle}</h1>
+      <div className="flex items-center justify-center gap-4 mb-10">
+        <h1 className="text-4xl font-extrabold text-center text-gradient">{translations.financeManagerTitle}</h1>
+      </div>
 
       {/* Overview Section */}
-      <div className="mb-8 p-6 bg-gray-800 rounded-lg">
-        <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">{translations.totalBalance}</h2>
-            <div className="flex gap-2">
-              <button onClick={() => setIsTransferModalOpen(true)} disabled={accounts.length < 2} className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md disabled:bg-gray-500 disabled:cursor-not-allowed"><ArrowRightLeft size={20} /> {translations.transfer}</button>
-              <button onClick={() => setIsAccountModalOpen(true)} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md"><PlusCircle size={20} /> {translations.addBank}</button>
+      <div className="mb-10 p-8 glass-panel border border-white/5 shadow-xl animate-slide-up">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-white/10 pb-6">
+            <h2 className="text-2xl font-bold text-gray-100 flex items-center">
+              <DollarSign className="text-green-400 mr-2" /> {translations.totalBalance}
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              <button onClick={() => setIsTransferModalOpen(true)} disabled={accounts.length < 2} className="btn-secondary flex items-center gap-2 group border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <ArrowRightLeft size={18} className="text-purple-400 group-hover:scale-110 transition-transform" /> 
+                <span className="font-medium">{translations.transfer}</span>
+              </button>
+              <button onClick={() => setIsAccountModalOpen(true)} className="btn-primary flex items-center gap-2">
+                <PlusCircle size={18} /> 
+                <span>{translations.addBank}</span>
+              </button>
             </div>
         </div>
-        <div className="text-center mb-4">
-            <p className="text-4xl font-bold text-green-400">{totalBalanceBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+        
+        <div className="text-center mb-10 bg-gray-900/40 py-8 rounded-2xl border border-white/5 shadow-inner">
+            <p className="text-sm text-gray-400 font-medium uppercase tracking-wider mb-2">Saldo Geral Consolidado</p>
+            <p className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">
+              {totalBalanceBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {accounts.map(acc => (
-                <div key={acc.id} className="bg-gray-700 p-4 rounded-lg flex justify-between items-center">
-                    <div><p className="font-bold">{acc.name}</p><p className="text-lg">{(accountBalances.get(acc.id) ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: acc.currency })}</p></div>
-                    <button onClick={() => handleDelete(acc.id)} className="text-gray-500 hover:text-red-500 p-1" title={translations.delete}><Trash2 size={18} /></button>
-                </div>
-            ))}
-        </div>
+        
+        {accounts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {accounts.map(acc => (
+                  <div key={acc.id} className="bg-white/5 border border-white/10 p-5 rounded-xl flex justify-between items-center hover:bg-white/10 transition-colors group">
+                      <div>
+                        <p className="font-bold text-gray-200 mb-1 flex items-center gap-2">
+                          <Wallet size={16} className="text-blue-400" /> {acc.name}
+                        </p>
+                        <p className="text-xl font-mono text-gray-100">{(accountBalances.get(acc.id) ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: acc.currency })}</p>
+                      </div>
+                      <button onClick={() => handleDelete(acc.id)} className="text-gray-500 hover:text-red-400 p-2 rounded-lg hover:bg-white/5 transition-colors opacity-0 group-hover:opacity-100" title={translations.delete}>
+                        <Trash2 size={20} />
+                      </button>
+                  </div>
+              ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-400 italic">Adicione uma conta para começar a gerenciar suas finanças.</p>
+        )}
       </div>
 
       {/* Add Transaction & Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        <div className="lg:col-span-1 bg-gray-800 p-6 rounded-lg h-fit">
-          <h2 className="text-xl font-semibold mb-4">{translations.addTransaction}</h2>
-          <form onSubmit={handleAddTransaction} className="space-y-4">
-            <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={translations.transactionDescription} className="w-full px-4 py-2 bg-gray-700 rounded-md" required />
-            <div className="grid grid-cols-2 gap-4">
-                <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={translations.amount} step="0.01" className="px-4 py-2 bg-gray-700 rounded-md" required />
-                <select value={transactionType} onChange={e => setTransactionType(e.target.value as 'income' | 'expense')} className="px-4 py-2 bg-gray-700 rounded-md">
-                    <option value="income">{translations.income}</option>
-                    <option value="expense">{translations.expense}</option>
-                </select>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+        <div className="lg:col-span-1 glass-panel p-6 sm:p-8 h-fit border border-white/5 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+          <h2 className="text-2xl font-bold mb-6 text-gray-100 border-b border-white/10 pb-4 flex items-center">
+            <PlusCircle className="mr-2 text-blue-400" size={24} />
+            {translations.addTransaction}
+          </h2>
+          <form onSubmit={handleAddTransaction} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Descrição</label>
+              <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={translations.transactionDescription} className="w-full px-4 py-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-blue-500 outline-none text-white transition-all" required />
             </div>
-            <select value={accountId} onChange={e => setAccountId(e.target.value)} className="w-full px-4 py-2 bg-gray-700 rounded-md" required>
-              <option value="">Selecione um banco</option>
-              {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
-            </select>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-4 py-2 bg-gray-700 rounded-md" required />
-            <select value={category} onChange={e => setCategory(e.target.value)} className="w-full px-4 py-2 bg-gray-700 rounded-md">
-              <option>Alimentação</option> <option>Salário</option> <option>Transporte</option> <option>Moradia</option>
-              <option>Lazer</option> <option>Saúde</option> <option>Outros</option>
-            </select>
+            
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Valor</label>
+                  <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" step="0.01" className="w-full px-4 py-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-blue-500 outline-none text-white transition-all font-mono" required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Tipo</label>
+                  <select value={transactionType} onChange={e => setTransactionType(e.target.value as 'income' | 'expense')} className={`w-full px-4 py-3 bg-gray-900/50 rounded-lg border focus:ring-2 outline-none text-white font-medium transition-all ${transactionType === 'income' ? 'border-green-500/50 focus:ring-green-500 text-green-400' : 'border-red-500/50 focus:ring-red-500 text-red-400'}`}>
+                      <option value="income" className="text-green-400">{translations.income} (+)</option>
+                      <option value="expense" className="text-red-400">{translations.expense} (-)</option>
+                  </select>
+                </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Conta</label>
+              <select value={accountId} onChange={e => setAccountId(e.target.value)} className="w-full px-4 py-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-blue-500 outline-none text-white transition-all" required>
+                <option value="" disabled>Selecione um banco</option>
+                {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
+              </select>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Data</label>
+                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-4 py-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-blue-500 outline-none text-gray-300 transition-all" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Categoria</label>
+                <select value={category} onChange={e => setCategory(e.target.value)} className="w-full px-4 py-3 bg-gray-900/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-blue-500 outline-none text-white transition-all">
+                  <option>Alimentação</option> <option>Salário</option> <option>Transporte</option> <option>Moradia</option>
+                  <option>Lazer</option> <option>Saúde</option> <option>Outros</option>
+                </select>
+              </div>
+            </div>
+
             {transactionType === 'expense' && (
-                <div className="flex gap-2">
-                    <button type="button" onClick={() => setPaymentType('PIX')} className={`w-full py-2 rounded-md ${paymentType === 'PIX' ? 'bg-sky-600' : 'bg-gray-700'}`}>{translations.pix}</button>
-                    <button type="button" onClick={() => setPaymentType('Card')} className={`w-full py-2 rounded-md ${paymentType === 'Card' ? 'bg-purple-600' : 'bg-gray-700'}`}>{translations.card}</button>
+                <div className="pt-2">
+                    <label className="block text-sm font-medium text-gray-400 mb-2">Forma de Pagamento</label>
+                    <div className="flex gap-3 bg-gray-900/50 p-1 rounded-lg border border-white/10">
+                        <button type="button" onClick={() => setPaymentType('PIX')} className={`flex-1 py-2.5 rounded-md font-medium text-sm transition-all ${paymentType === 'PIX' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-400 hover:text-gray-200'}`}>PIX / Débito</button>
+                        <button type="button" onClick={() => setPaymentType('Card')} className={`flex-1 py-2.5 rounded-md font-medium text-sm transition-all ${paymentType === 'Card' ? 'bg-purple-500 text-white shadow-md' : 'text-gray-400 hover:text-gray-200'}`}>Cartão de Crédito</button>
+                    </div>
                 </div>
             )}
-            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">{translations.addTransaction}</button>
+            
+            <button type="submit" className="w-full btn-primary py-3.5 text-lg mt-4 shadow-blue-500/20">
+              {translations.addTransaction}
+            </button>
           </form>
         </div>
-        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-gray-800 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">{translations.expenseByType} - {translations.pix}</h3>
-                <CategoryChart transactions={pixExpenses} />
+
+        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className="glass-panel p-6 border border-white/5 flex flex-col h-full">
+                <h3 className="text-xl font-bold mb-6 text-gray-100 flex items-center border-b border-white/10 pb-4">
+                  <span className="w-3 h-3 rounded-full bg-blue-500 mr-3"></span>
+                  Despesas: {translations.pix}
+                </h3>
+                <div className="flex-grow flex items-center justify-center">
+                  {pixExpenses.length > 0 ? <CategoryChart transactions={pixExpenses} /> : <p className="text-gray-500 italic text-sm">Sem dados no período</p>}
+                </div>
             </div>
-            <div className="bg-gray-800 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">{translations.expenseByType} - {translations.card}</h3>
-                <CategoryChart transactions={cardExpenses} />
+            <div className="glass-panel p-6 border border-white/5 flex flex-col h-full">
+                <h3 className="text-xl font-bold mb-6 text-gray-100 flex items-center border-b border-white/10 pb-4">
+                  <span className="w-3 h-3 rounded-full bg-purple-500 mr-3"></span>
+                  Despesas: {translations.card}
+                </h3>
+                <div className="flex-grow flex items-center justify-center">
+                  {cardExpenses.length > 0 ? <CategoryChart transactions={cardExpenses} /> : <p className="text-gray-500 italic text-sm">Sem dados no período</p>}
+                </div>
             </div>
         </div>
       </div>
 
       {/* Future Expenses */}
       {futureExpenses.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">{translations.futureExpenses}</h2>
-          <div className="bg-gray-800 p-4 rounded-lg">
-            {futureExpenses.map(expense => (
-              <div key={expense.id} className="grid grid-cols-6 gap-4 items-center border-b border-gray-700 py-3 last:border-b-0">
-                <div className="col-span-2"><p className="font-semibold">{expense.description}</p><p className="text-sm text-gray-400">{new Date(expense.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p></div>
-                <div className="text-center"><span className="px-2 py-1 bg-purple-700 text-xs rounded-full">{expense.category}</span></div>
-                <div className="text-right font-mono text-red-400"><p>{parseFloat(expense.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p></div>
-                <div className="text-center">
-                  <button onClick={() => openPayModal(expense)} className="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded-md">{translations.pay}</button>
-                </div>
-                <div className="text-right"><button onClick={() => handleDelete(expense.id)} className="text-gray-500 hover:text-red-500 p-1"><Trash2 size={18} /></button></div>
-              </div>
-            ))}
+        <div className="mb-10 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          <h2 className="text-2xl font-bold mb-6 text-gray-100 flex items-center">
+            <CreditCard className="mr-3 text-yellow-500" /> {translations.futureExpenses} 
+            <span className="ml-3 text-sm bg-yellow-500/20 text-yellow-400 py-1 px-3 rounded-full font-medium border border-yellow-500/30">Faturas de Cartão</span>
+          </h2>
+          <div className="glass-panel border border-white/5 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-white/5 text-gray-400 text-sm uppercase tracking-wider">
+                    <th className="p-4 font-medium">Descrição</th>
+                    <th className="p-4 font-medium">Categoria</th>
+                    <th className="p-4 font-medium text-right">Valor</th>
+                    <th className="p-4 font-medium text-center">Ação</th>
+                    <th className="p-4 font-medium"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {futureExpenses.map(expense => (
+                    <tr key={expense.id} className="hover:bg-white/5 transition-colors group">
+                      <td className="p-4">
+                        <p className="font-semibold text-gray-200">{expense.description}</p>
+                        <p className="text-xs text-gray-500 mt-1">{new Date(expense.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
+                      </td>
+                      <td className="p-4">
+                        <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs rounded-full font-medium">{expense.category}</span>
+                      </td>
+                      <td className="p-4 text-right font-mono text-red-400 font-medium">
+                        {parseFloat(expense.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      </td>
+                      <td className="p-4 text-center">
+                        <button onClick={() => openPayModal(expense)} className="bg-green-500/20 hover:bg-green-500/40 text-green-400 border border-green-500/30 hover:border-green-500/50 font-bold py-1.5 px-4 rounded-lg transition-colors text-sm">
+                          {translations.pay}
+                        </button>
+                      </td>
+                      <td className="p-4 text-right">
+                        <button onClick={() => handleDelete(expense.id)} className="text-gray-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100">
+                          <Trash2 size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
 
       {/* Transaction History */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">{translations.recentTransactions}</h2>
-        <div className="bg-gray-800 p-4 rounded-lg">
-          {currentTransactions.length > 0 ?
-            currentTransactions.map(t => (
-              <div key={t.id} className="grid grid-cols-5 gap-4 items-center border-b border-gray-700 py-3 last:border-b-0">
-                <div className="col-span-2"><p className="font-semibold">{t.description}</p><p className="text-sm text-gray-400">{new Date(t.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p></div>
-                <div className="text-center"><span className={`px-2 py-1 text-xs rounded-full ${t.payment_type === 'PIX' ? 'bg-sky-700' : 'bg-purple-700'}`}>{t.category}</span></div>
-                <div className={`text-right font-mono ${parseFloat(t.amount) < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                  <p>{parseFloat(t.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
-                  <p className="text-xs text-gray-400">{t.account_name}</p>
-                </div>
-                <div className="text-right"><button onClick={() => handleDelete(t.id)} className="text-gray-500 hover:text-red-500 p-1"><Trash2 size={18} /></button></div>
-              </div>
-            )) :
-            <p className="text-center text-gray-400 py-4">Nenhuma transação registrada.</p>
-          }
+      <div className="animate-slide-up" style={{ animationDelay: '0.4s' }}>
+        <h2 className="text-2xl font-bold mb-6 text-gray-100 flex items-center">
+          <ArrowRightLeft className="mr-3 text-blue-400" /> {translations.recentTransactions}
+        </h2>
+        <div className="glass-panel border border-white/5 overflow-hidden">
+          {currentTransactions.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-white/5 text-gray-400 text-sm uppercase tracking-wider">
+                    <th className="p-4 font-medium">Descrição</th>
+                    <th className="p-4 font-medium text-center">Categoria</th>
+                    <th className="p-4 font-medium text-right">Valor / Conta</th>
+                    <th className="p-4 font-medium text-right"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {currentTransactions.map(t => {
+                    const isExpense = parseFloat(t.amount) < 0;
+                    return (
+                      <tr key={t.id} className="hover:bg-white/5 transition-colors group">
+                        <td className="p-4">
+                          <p className="font-semibold text-gray-200">{t.description}</p>
+                          <p className="text-xs text-gray-500 mt-1">{new Date(t.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
+                        </td>
+                        <td className="p-4 text-center">
+                          <span className={`px-3 py-1 text-xs rounded-full font-medium border ${t.payment_type === 'PIX' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : 'bg-purple-500/20 text-purple-300 border-purple-500/30'}`}>
+                            {t.category}
+                          </span>
+                        </td>
+                        <td className="p-4 text-right">
+                          <p className={`font-mono font-bold text-lg ${isExpense ? 'text-red-400' : 'text-green-400'}`}>
+                            {isExpense ? '' : '+'}{parseFloat(t.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1 flex justify-end items-center gap-1">
+                            <Wallet size={12} /> {t.account_name}
+                          </p>
+                        </td>
+                        <td className="p-4 text-right">
+                          <button onClick={() => handleDelete(t.id)} className="text-gray-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100">
+                            <Trash2 size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="p-12 text-center text-gray-400">
+              <ArrowRightLeft size={48} className="mx-auto mb-4 opacity-20" />
+              <p className="text-lg">Nenhuma transação registrada.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

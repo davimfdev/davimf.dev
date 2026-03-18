@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { UserPlus } from 'lucide-react';
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -65,11 +66,17 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Registrar</h1>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block text-gray-300 mb-2" htmlFor="email">
+    <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-white/10 shadow-2xl">
+      <div className="flex justify-center mb-6">
+        <div className="p-4 bg-green-500/20 rounded-full border border-green-500/30">
+          <UserPlus size={32} className="text-green-400" />
+        </div>
+      </div>
+      <h1 className="text-4xl font-extrabold mb-8 text-center text-gradient">Registrar</h1>
+      {error && <p className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-6 text-sm">{error}</p>}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-gray-300 mb-2 font-medium" htmlFor="email">
             Email
           </label>
           <input
@@ -77,13 +84,14 @@ const RegisterPage: React.FC = () => {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
             required
             disabled={loading}
+            placeholder="seu@email.com"
           />
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-300 mb-2" htmlFor="password">
+        <div>
+          <label className="block text-gray-300 mb-2 font-medium" htmlFor="password">
             Senha
           </label>
           <input
@@ -91,13 +99,14 @@ const RegisterPage: React.FC = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
             required
             disabled={loading}
+            placeholder="••••••••"
           />
         </div>
-        <div className="mb-6">
-          <label className="block text-gray-300 mb-2" htmlFor="confirm-password">
+        <div>
+          <label className="block text-gray-300 mb-2 font-medium" htmlFor="confirm-password">
             Confirmar Senha
           </label>
           <input
@@ -105,20 +114,32 @@ const RegisterPage: React.FC = () => {
             id="confirm-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
             required
             disabled={loading}
+            placeholder="••••••••"
           />
         </div>
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition-colors disabled:bg-blue-400"
+          className="w-full btn-primary py-3 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed group mt-4 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-500 hover:to-teal-500 shadow-green-500/30 hover:shadow-green-500/50"
           disabled={loading}
         >
-          {loading ? 'Registrando...' : 'Registrar'}
+          {loading ? 'Registrando...' : (
+            <span className="flex items-center justify-center">
+              Criar Conta <UserPlus size={20} className="ml-2 group-hover:scale-110 transition-transform" />
+            </span>
+          )}
         </button>
       </form>
+      <div className="mt-8 pt-6 border-t border-white/10 text-center">
+        <p className="text-gray-400">
+          Já tem uma conta?{' '}
+          <Link to="/login" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+            Fazer Login
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

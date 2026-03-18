@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { LogIn } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -43,26 +44,32 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-gray-800 rounded-lg shadow-xl">
-      <h1 className="text-3xl font-bold mb-6 text-center text-white">Login</h1>
-      {error && <p className="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-md mb-4">{error}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-white/10 shadow-2xl">
+      <div className="flex justify-center mb-6">
+        <div className="p-4 bg-blue-500/20 rounded-full border border-blue-500/30">
+          <LogIn size={32} className="text-blue-400" />
+        </div>
+      </div>
+      <h1 className="text-4xl font-extrabold mb-8 text-center text-gradient">Login</h1>
+      {error && <p className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-6 text-sm">{error}</p>}
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-gray-300 mb-2" htmlFor="email">Email</label>
+          <label className="block text-gray-300 mb-2 font-medium" htmlFor="email">Email</label>
           <input
             type="email"
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
             required
             disabled={loading}
+            placeholder="seu@email.com"
           />
         </div>
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label className="block text-gray-300" htmlFor="password">Senha</label>
-            <Link to="/request-password-reset" className="text-sm text-blue-400 hover:underline">
+            <label className="block text-gray-300 font-medium" htmlFor="password">Senha</label>
+            <Link to="/request-password-reset" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
               Esqueceu a senha?
             </Link>
           </div>
@@ -71,25 +78,32 @@ const LoginPage: React.FC = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
             required
             disabled={loading}
+            placeholder="••••••••"
           />
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition-colors disabled:bg-blue-400"
+          className="w-full btn-primary py-3 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed group mt-2"
           disabled={loading}
         >
-          {loading ? 'Entrando...' : 'Login'}
+          {loading ? 'Entrando...' : (
+            <span className="flex items-center justify-center">
+              Entrar <LogIn size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+            </span>
+          )}
         </button>
       </form>
-      <p className="text-center text-gray-400 mt-6">
-        Não tem uma conta?{' '}
-        <Link to="/register" className="text-blue-400 hover:underline">
-          Registre-se
-        </Link>
-      </p>
+      <div className="mt-8 pt-6 border-t border-white/10 text-center">
+        <p className="text-gray-400">
+          Não tem uma conta?{' '}
+          <Link to="/register" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+            Registre-se
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

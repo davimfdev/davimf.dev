@@ -19,7 +19,6 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
     const response = await fetch("https://formspree.io/f/meoekelg", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -32,7 +31,6 @@ const Contact = () => {
     } else {
       alert("Erro ao enviar a mensagem.");
     }
-
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -43,14 +41,14 @@ const Contact = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">{translations.contactP}</h1>
+    <div className="max-w-4xl mx-auto animate-fade-in relative z-10">
+      <h1 className="text-4xl font-bold mb-12 text-gradient inline-block">{translations.contactP}</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+        <div className="md:col-span-3 glass-panel p-8 animate-slide-up">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-2">
+              <label htmlFor="name" className="block text-sm font-medium mb-2 text-gray-300">
                 {translations.name}
               </label>
               <input
@@ -59,13 +57,14 @@ const Contact = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-white placeholder-gray-500"
+                placeholder="John Doe"
                 required
               />
             </div>
             
             <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
+              <label htmlFor="email" className="block text-sm font-medium mb-2 text-gray-300">
                 Email
               </label>
               <input
@@ -74,13 +73,14 @@ const Contact = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-white placeholder-gray-500"
+                placeholder="john@example.com"
                 required
               />
             </div>
             
             <div>
-              <label htmlFor="message" className="block text-sm font-medium mb-2">
+              <label htmlFor="message" className="block text-sm font-medium mb-2 text-gray-300">
                 {translations.message}
               </label>
               <textarea
@@ -89,68 +89,78 @@ const Contact = () => {
                 value={formData.message}
                 onChange={handleChange}
                 rows={6}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-white placeholder-gray-500 resize-none"
+                placeholder="How can I help you?"
                 required
               />
             </div>
             
             <button
               type="submit"
-              className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+              className="btn-primary w-full sm:w-auto group"
             >
               {translations.sendMessage}
-              <Send size={20} className="ml-2" />
+              <Send size={20} className="ml-2 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
             </button>
           </form>
         </div>
         
-        <div className="bg-gray-800 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">{translations.connect}</h2>
-          <div className="space-y-4">
+        <div className="md:col-span-2 glass-panel p-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <h2 className="text-2xl font-semibold mb-8 text-gray-100">{translations.connect}</h2>
+          <div className="space-y-6">
             <a
               href="https://github.com/D4emonF"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-gray-300 hover:text-white transition-colors"
+              className="flex items-center text-gray-300 hover:text-white group p-3 hover:bg-white/5 rounded-lg transition-all"
             >
-              <Github className="mr-3" size={24} />
-              GitHub
+              <div className="p-2 bg-white/5 rounded-lg mr-4 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-colors">
+                <Github size={24} />
+              </div>
+              <span className="font-medium">GitHub</span>
             </a>
             <a
               href="https://www.linkedin.com/in/davimfdev"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-gray-300 hover:text-white transition-colors"
+              className="flex items-center text-gray-300 hover:text-white group p-3 hover:bg-white/5 rounded-lg transition-all"
             >
-              <Linkedin className="mr-3" size={24} />
-              LinkedIn
+              <div className="p-2 bg-white/5 rounded-lg mr-4 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-colors">
+                <Linkedin size={24} />
+              </div>
+              <span className="font-medium">LinkedIn</span>
             </a>
             <a
               href="mailto:davimf9702@gmail.com"
-              className="flex items-center text-gray-300 hover:text-white transition-colors"
+              className="flex items-center text-gray-300 hover:text-white group p-3 hover:bg-white/5 rounded-lg transition-all"
             >
-              <Mail className="mr-3" size={24} />
-              davimf9702@gmail.com
+              <div className="p-2 bg-white/5 rounded-lg mr-4 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-colors">
+                <Mail size={24} />
+              </div>
+              <span className="font-medium truncate">davimf9702@gmail.com</span>
             </a>
             <a
               href="https://discord.com/users/344214477069221888"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-gray-300 hover:text-white transition-colors"
+              className="flex items-center text-gray-300 hover:text-white group p-3 hover:bg-white/5 rounded-lg transition-all"
             >
-              <MessageCircle className="mr-3" size={24} />
-              Discord
+              <div className="p-2 bg-white/5 rounded-lg mr-4 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-colors">
+                <MessageCircle size={24} />
+              </div>
+              <span className="font-medium">Discord</span>
             </a>
             <a
                 href="https://api.whatsapp.com/send?phone=%205562986089609&text=Ol%C3%A1%2C+vim+do+seu+site."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center text-gray-300 hover:text-white transition-colors"
+                className="flex items-center text-gray-300 hover:text-white group p-3 hover:bg-white/5 rounded-lg transition-all"
             >
-              <Phone className="mr-3" size={24} />
-              WhatsApp
+              <div className="p-2 bg-white/5 rounded-lg mr-4 group-hover:bg-green-500/20 group-hover:text-green-400 transition-colors">
+                <Phone size={24} />
+              </div>
+              <span className="font-medium">WhatsApp</span>
             </a>
-
           </div>
         </div>
       </div>

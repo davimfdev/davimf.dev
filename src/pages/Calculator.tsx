@@ -59,55 +59,59 @@ const Calculator = () => {
     };
 
     return (
-        <div className="bg-gray-800 rounded-lg p-8 w-full max-w-4xl mx-auto my-8 border border-yellow-500 shadow-xl text-white">
-            <h1 className="text-3xl font-bold mb-6 text-yellow-500 text-center">Calculadora de Produção</h1>
+        <div className="glass-panel p-8 w-full max-w-4xl mx-auto my-12 border-t-4 border-t-yellow-500 shadow-2xl animate-fade-in relative z-10">
+            <h1 className="text-4xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 text-center">Calculadora de Produção</h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-700 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 p-6 bg-white/5 rounded-xl border border-white/10 shadow-inner animate-slide-up">
                 <div className="md:col-span-2">
-                    <label htmlFor="produto" className="block text-sm font-medium text-gray-300 mb-1">Produto</label>
+                    <label htmlFor="produto" className="block text-sm font-semibold text-gray-300 mb-2">Produto</label>
                     <select
                         id="produto"
                         value={produtoSelecionado.nome}
                         onChange={(e) => setProdutoSelecionado(PRODUTOS.find(p => p.nome === e.target.value) || PRODUTOS[0])}
-                        className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-md focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                        className="w-full px-4 py-3 bg-gray-900/50 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-white cursor-pointer transition-all"
                     >
                         {PRODUTOS.map(p => <option key={p.nome} value={p.nome}>{p.nome}</option>)}
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="quantidade" className="block text-sm font-medium text-gray-300 mb-1">Quantidade</label>
+                    <label htmlFor="quantidade" className="block text-sm font-semibold text-gray-300 mb-2">Quantidade</label>
                     <input
                         type="number"
                         id="quantidade"
                         value={quantidade}
                         onChange={(e) => setQuantidade(Math.max(1, parseInt(e.target.value) || 1))}
                         min="1"
-                        className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-md focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                        className="w-full px-4 py-3 bg-gray-900/50 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-white transition-all"
                     />
                 </div>
-                <div className="md:col-span-3 text-center">
+                <div className="md:col-span-3 text-center mt-2">
                     <button
                         onClick={handleAddProduto}
-                        className="w-full md:w-auto bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-6 rounded-lg transition-colors"
+                        className="w-full md:w-auto bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-gray-900 font-bold py-3 px-8 rounded-lg transition-all transform hover:-translate-y-1 shadow-lg shadow-yellow-500/20"
                     >
                         Adicionar Produto
                     </button>
                 </div>
             </div>
 
-            <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-3 text-yellow-400">Itens Adicionados</h2>
+            <div className="mb-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                <h2 className="text-2xl font-bold mb-4 text-yellow-500">Itens Adicionados</h2>
                 {itens.length === 0 ? (
-                    <p className="text-gray-400 text-center py-4">Nenhum item adicionado ainda.</p>
+                    <div className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center bg-white/5">
+                        <p className="text-gray-400 text-lg">Nenhum item adicionado ainda.</p>
+                    </div>
                 ) : (
-                    <ul className="space-y-2">
-                        {itens.map(item => (
-                            <li key={item.produto.nome} className="flex justify-between items-center bg-gray-700 p-3 rounded-md">
-                                <div>
-                                    <span className="font-bold">{item.produto.nome}</span>
-                                    <span className="text-gray-400"> x {item.quantidade}</span>
+                    <ul className="space-y-3">
+                        {itens.map((item, index) => (
+                            <li key={item.produto.nome} className="flex justify-between items-center bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-colors animate-fade-in" style={{ animationDelay: `${index * 0.05}s` }}>
+                                <div className="flex items-center gap-4">
+                                    <div className="h-10 w-10 bg-yellow-500/20 rounded-lg flex items-center justify-center border border-yellow-500/30">
+                                        <span className="text-yellow-500 font-bold text-sm">x{item.quantidade}</span>
+                                    </div>
+                                    <span className="font-bold text-lg text-gray-100">{item.produto.nome}</span>
                                 </div>
-                                <button onClick={() => handleRemoveItem(item.produto.nome)} className="text-red-500 hover:text-red-400 font-bold">
+                                <button onClick={() => handleRemoveItem(item.produto.nome)} className="text-red-400 hover:text-red-300 font-medium px-3 py-1 rounded-lg hover:bg-red-400/10 transition-colors">
                                     Remover
                                 </button>
                             </li>
@@ -116,45 +120,45 @@ const Calculator = () => {
                 )}
             </div>
 
-            <div>
-                <h2 className="text-xl font-semibold mb-4 text-yellow-400">Resumo do Cálculo</h2>
-                <div className="bg-gray-700 p-4 rounded-lg space-y-4">
-                    <div className="flex items-center justify-center space-x-4 mb-4">
-                        <span className={`font-bold ${!comParceria ? 'text-yellow-400' : 'text-gray-400'}`}>Sem Parceria</span>
+            <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                <h2 className="text-2xl font-bold mb-6 text-yellow-500">Resumo do Cálculo</h2>
+                <div className="bg-white/5 border border-white/10 p-6 rounded-xl space-y-6 shadow-inner">
+                    <div className="flex items-center justify-center space-x-6 p-4 bg-gray-900/50 rounded-lg border border-white/5">
+                        <span className={`font-semibold transition-colors ${!comParceria ? 'text-yellow-400' : 'text-gray-500'}`}>Sem Parceria</span>
                         <label htmlFor="parceria-toggle" className="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="parceria-toggle" className="sr-only peer" checked={comParceria} onChange={() => setComParceria(!comParceria)} />
-                            <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-yellow-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
+                            <div className="w-14 h-7 bg-gray-700 rounded-full peer peer-focus:ring-4 peer-focus:ring-yellow-500/30 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
                         </label>
-                        <span className={`font-bold ${comParceria ? 'text-yellow-400' : 'text-gray-400'}`}>Com Parceria</span>
+                        <span className={`font-semibold transition-colors ${comParceria ? 'text-yellow-400' : 'text-gray-500'}`}>Com Parceria</span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-lg">
-                        <div className="bg-gray-800 p-4 rounded-md">
-                            <p className="text-gray-400">Total de Pólvora Usada:</p>
-                            <p className="font-bold text-xl">{formatNumber(calculos.totalPolvora)}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="bg-gray-900/50 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                            <p className="text-gray-400 text-sm font-medium mb-1">Total de Pólvora Usada</p>
+                            <p className="font-bold text-2xl text-gray-100">{formatNumber(calculos.totalPolvora)}</p>
                         </div>
-                        <div className="bg-gray-800 p-4 rounded-md">
-                            <p className="text-gray-400">Total de Dinheiro Usado:</p>
-                            <p className="font-bold text-xl">{formatCurrency(calculos.totalDinheiro)}</p>
+                        <div className="bg-gray-900/50 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                            <p className="text-gray-400 text-sm font-medium mb-1">Total de Dinheiro Usado</p>
+                            <p className="font-bold text-2xl text-gray-100">{formatCurrency(calculos.totalDinheiro)}</p>
                         </div>
-                        <div className="bg-gray-800 p-4 rounded-md">
-                            <p className="text-gray-400">Total a Cobrar do Cliente:</p>
-                            <p className="font-bold text-xl text-green-400">{formatCurrency(calculos.totalVenda)}</p>
+                        <div className="bg-gray-900/50 p-5 rounded-xl border border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent">
+                            <p className="text-green-400/80 text-sm font-medium mb-1">Total a Cobrar do Cliente</p>
+                            <p className="font-bold text-2xl text-green-400">{formatCurrency(calculos.totalVenda)}</p>
                         </div>
-                        <div className="bg-gray-800 p-4 rounded-md">
-                            <p className="text-gray-400">Comissão (20%):</p>
-                            <p className="font-bold text-xl text-blue-400">{formatCurrency(calculos.totalComissao)}</p>
+                        <div className="bg-gray-900/50 p-5 rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent">
+                            <p className="text-blue-400/80 text-sm font-medium mb-1">Comissão (20%)</p>
+                            <p className="font-bold text-2xl text-blue-400">{formatCurrency(calculos.totalComissao)}</p>
                         </div>
-                        <div className="bg-gray-800 p-4 rounded-md sm:col-span-2">
-                            <p className="text-gray-400">Total para Facção:</p>
-                            <p className="font-bold text-xl text-purple-400">{formatCurrency(calculos.totalFaccao)}</p>
+                        <div className="bg-gray-900/50 p-6 rounded-xl sm:col-span-2 border border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-transparent shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+                            <p className="text-purple-400/80 text-sm font-medium mb-1 uppercase tracking-wider">Total para Facção</p>
+                            <p className="font-extrabold text-4xl text-purple-400">{formatCurrency(calculos.totalFaccao)}</p>
                         </div>
                     </div>
                      {itens.length > 0 && (
-                        <div className="text-center mt-4">
+                        <div className="text-center pt-6 border-t border-white/10 mt-6">
                             <button
                                 onClick={() => setItens([])}
-                                className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+                                className="px-6 py-2 rounded-lg font-medium text-red-400 hover:text-white hover:bg-red-500 border border-red-500/30 hover:border-red-500 transition-all"
                             >
                                 Limpar Tudo
                             </button>

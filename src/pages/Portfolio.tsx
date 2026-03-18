@@ -6,27 +6,35 @@ const Portfolio = () => {
     const projects = translations.projectsList;
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-8">Portfolio</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map((project) => (
-          <div key={project.id} className="bg-gray-800 rounded-lg overflow-hidden">
-            <img
-              src={project.image}
-              alt={project.title}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
-              <p className="text-gray-400 mb-4">{project.description}</p>
+    <div className="animate-fade-in relative z-10">
+      <h1 className="text-4xl font-bold mb-12 text-gradient inline-block">Portfolio</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {projects.map((project, index) => (
+          <div 
+            key={project.id} 
+            className="glass-panel group overflow-hidden animate-slide-up"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
+            <div className="relative overflow-hidden">
+              <img
+                src={project.image}
+                alt={project.title}
+                className="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300"></div>
+            </div>
+            <div className="p-6 relative">
+              <h3 className="text-2xl font-semibold mb-3 text-gray-100 group-hover:text-blue-400 transition-colors">{project.title}</h3>
+              <p className="text-gray-400 mb-6 leading-relaxed line-clamp-3">{project.description}</p>
               {project.link && (
                 <a
                   href={project.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center text-blue-400 hover:text-blue-300"
+                  className="inline-flex items-center text-blue-400 hover:text-blue-300 font-medium group/link"
                 >
-                    {translations.viewProject} <ExternalLink size={16} className="ml-1" />
+                  {translations.viewProject} 
+                  <ExternalLink size={18} className="ml-2 transform group-hover/link:-translate-y-1 group-hover/link:translate-x-1 transition-transform" />
                 </a>
               )}
             </div>

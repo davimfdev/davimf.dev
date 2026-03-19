@@ -52,9 +52,19 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   useEffect(() => {
+    // 1. CAÇADOR DE TOKENS: Verifica se o token veio na URL (vinda do backend)
+    const params = new URLSearchParams(window.location.search);
+    const tokenFromUrl = params.get('token');
+
+    if (tokenFromUrl) {
+      localStorage.setItem('discord_token', tokenFromUrl);
+      // Limpa a URL para não ficar aquele texto feio e por segurança
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // 2. Tenta pegar o token (seja o que acabou de salvar ou o que já estava lá)
     const token = localStorage.getItem('discord_token');
 
-    // Só faz o fetch se tiver token E se ainda não tiver os dados do usuário carregados
     if (token && !discordUser) {
       fetch('https://discord.com/api/users/@me', {
         headers: { Authorization: `Bearer ${token}` }
@@ -66,12 +76,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           .then(data => {
             setDiscordUser(data);
 
-            // --- LÓGICA DE REDIRECIONAMENTO AQUI ---
-            // Verifica se viemos de uma página específica antes do login
+            // 3. REDIRECIONAMENTO INTELIGENTE
             const returnPath = localStorage.getItem('return_path');
             if (returnPath && returnPath !== '/login' && returnPath !== '/') {
               localStorage.removeItem('return_path');
               navigate(returnPath);
+            } else if (tokenFromUrl) {
+              // Se ele acabou de logar e não tinha rota salva, manda pro dashboard
+              navigate('/dashboard');
             }
           })
           .catch(() => {
@@ -80,6 +92,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           });
     }
 
+    // Lógica do clique fora (dropdowns)
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
@@ -92,9 +105,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
 
-    // IMPORTANTE: Deixe as dependências vazias [] para rodar APENAS uma vez no carregamento do site
-    // ou apenas quando o 'navigate' mudar.
-  }, [navigate]);
+  }, [navigate, discordUser]); // Adicionado discordUser para atualizar o estado quando logar
 
   return (
       <div className="min-h-screen flex flex-col relative z-0">

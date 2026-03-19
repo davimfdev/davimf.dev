@@ -44,7 +44,7 @@ export default async (req: Request, context: Context) => {
         return new Response(null, {
             status: 302,
             headers: {
-                Location: `${redirectBase}/?token=${tokens.access_token}`,
+                Location: `/dashboard?token=${tokens.access_token}`,
             },
         });
 

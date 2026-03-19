@@ -12,6 +12,7 @@
   "dependencies": {
     "@netlify/functions": "^4.1.0",
     "@netlify/neon": "^0.1.0",
+    "@supabase/supabase-js": "^2.99.2",
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "chart.js": "^4.4.3",
@@ -27,11 +28,13 @@
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.344.0",
     "netlify": "^24.3.0",
+    "postgres": "^3.4.8",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.2",
-    "resend": "^6.5.2"
+    "resend": "^6.5.2",
+    "supabase": "^2.81.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

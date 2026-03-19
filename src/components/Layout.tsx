@@ -25,8 +25,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const { language, setLanguage, translations } = useLanguage();
 
-  const DISCORD_AUTH_URL = "https://discord.com/api/oauth2/authorize?client_id=1484035057478799411&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2F.netlify%2Ffunctions%2Fcallback&response_type=code&scope=identify%20guilds";
-
+  const DISCORD_AUTH_URL = "https://discord.com/api/oauth2/authorize?client_id=1484035057478799411&redirect_uri=https%3A%2F%2Fdavimf.dev%2F.netlify%2Ffunctions%2Fcallback&response_type=code&scope=identify%20guilds";
   const navigation = [
     { name: translations.home, href: '/' },
     { name: translations.portfolio, href: '/portfolio' },

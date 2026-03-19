@@ -38,11 +38,13 @@ export default async (req: Request, context: Context) => {
             return new Response(JSON.stringify(tokens), { status: 400 });
         }
 
-        // Redireciona para o dashboard com o token
+        // Redireciona de volta para o site com o token na URL
+        // O Layout.tsx vai capturar esse token e salvar no localStorage
+        const redirectBase = isLocal ? 'http://localhost:8888' : 'https://davimf.dev';
         return new Response(null, {
             status: 302,
             headers: {
-                Location: `/dashboard?token=${tokens.access_token}`,
+                Location: `${redirectBase}/?token=${tokens.access_token}`,
             },
         });
 

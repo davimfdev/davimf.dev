@@ -5,7 +5,7 @@ export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
 
   // Coloque seu Client ID aqui para o botão de login funcionar se o usuário estiver deslogado
-  const discordLoginUrl = "https://discord.com/api/oauth2/authorize?client_id=SEU_CLIENT_ID&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2F.netlify%2Ffunctions%2Fcallback&response_type=code&scope=identify%20guilds";
+  const discordLoginUrl = "https://discord.com/api/oauth2/authorize?client_id=1484035057478799411&redirect_uri=https://davimf.dev/api/callback&response_type=code&scope=identify%20guilds";
 
   useEffect(() => {
     const token = localStorage.getItem('discord_token');

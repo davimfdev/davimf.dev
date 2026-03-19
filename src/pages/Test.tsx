@@ -4,7 +4,7 @@ export default function Test() {
     // Não use process.env para esse teste rápido, assim garantimos que a variável não está vazia.
     const clientId = "1484035057478799411";
 
-    const redirectUri = encodeURIComponent("http://localhost:8888/.netlify/functions/callback");
+    const redirectUri = encodeURIComponent("https://davimf.dev/api/callback");
     const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=identify%20guilds`;
 
     return (

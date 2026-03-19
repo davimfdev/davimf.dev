@@ -1,257 +1,119 @@
 import { Handler } from '@netlify/functions';
 import { neon } from '@neondatabase/serverless';
-import jwt from 'jsonwebtoken';
-import { getGoogleAuthClient, formatTaskAsGoogleEvent, createGoogleTask, formatTaskAsGoogleTask } from './google-calendar-helpers';
-import { google } from 'googleapis';
 
-interface UserPayload {
-  userId: number;
-}
-
+// Conexão com o banco (Neon)
 const sql = neon(process.env.DATABASE_URL!);
 
-const getUserIdFromToken = (authHeader: string | null): number | null => {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
-  const token = authHeader.split(' ')[1];
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as UserPayload;
-    return payload.userId;
-  } catch (error) {
-    return null;
-  }
+// Função para validar o token e pegar o ID do Discord
+const getDiscordId = async (authHeader: string | null): Promise<string | null> => {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const res = await fetch('https://discord.com/api/users/@me', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.id; // Retorna o ID do Discord como String
+    } catch {
+        return null;
+    }
 };
 
-const getNextDueDate = (currentDueDate: string, recurrence: 'Daily' | 'Weekly' | 'Monthly'): string => {
+// Lógica de recorrência simplificada (sem Google)
+const getNextDueDate = (currentDueDate: string, recurrence: string): string => {
     const date = new Date(currentDueDate);
-    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-    const correctedDate = new Date(date.getTime() + userTimezoneOffset);
+    const correctedDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+
     if (recurrence === 'Daily') correctedDate.setDate(correctedDate.getDate() + 1);
     else if (recurrence === 'Weekly') correctedDate.setDate(correctedDate.getDate() + 7);
     else if (recurrence === 'Monthly') correctedDate.setMonth(correctedDate.getMonth() + 1);
+
     return correctedDate.toISOString().split('T')[0];
 };
 
-const syncTaskWithGoogle = async (userId: number, task: any) => {
-  const auth = await getGoogleAuthClient(userId);
-  if (!auth) return null;
-
-  const googleId = task.google_event_id?.replace('google_', '');
-
-  if (task.due_time && !task.is_all_day) {
-    const event = formatTaskAsGoogleEvent(task);
-    if (!event) return null;
-
-    const calendar = google.calendar({ version: 'v3', auth });
-    try {
-      if (googleId) {
-        const updatedEvent = await calendar.events.update({ calendarId: 'primary', eventId: googleId, requestBody: event });
-        return `google_${updatedEvent.data.id}`;
-      } else {
-        const createdEvent = await calendar.events.insert({ calendarId: 'primary', requestBody: event });
-        return `google_${createdEvent.data.id}`;
-      }
-    } catch (error: any) {
-      console.error(`Erro ao sincronizar evento do Google para o usuário ${userId}:`, error.message);
-      return null;
-    }
-  } else {
-    try {
-      if (googleId) {
-        const tasksApi = google.tasks({ version: 'v1', auth });
-        const taskLists = await tasksApi.tasklists.list();
-        if (!taskLists.data.items) return null;
-        for (const taskList of taskLists.data.items) {
-          try {
-            await tasksApi.tasks.patch({
-              tasklist: taskList.id!,
-              task: googleId,
-              requestBody: formatTaskAsGoogleTask(task),
-            });
-            return `google_${googleId}`;
-          } catch (taskError: any) {
-            if (taskError.code !== 404) throw taskError;
-          }
-        }
-        return null;
-      } else {
-        const createdTaskId = await createGoogleTask(auth, task);
-        return createdTaskId ? `google_${createdTaskId}` : null;
-      }
-    } catch (error: any) {
-      console.error(`Erro ao sincronizar tarefa do Google Tasks para o usuário ${userId}:`, error.message);
-      return null;
-    }
-  }
-};
-
-const completeGoogleItem = async (userId: number, task: any) => {
-    const auth = await getGoogleAuthClient(userId);
-    if (!auth || !task.google_event_id) return;
-
-    const googleId = task.google_event_id.replace('google_', '');
+export const handler: Handler = async (event) => {
+    // Agora validamos via Discord!
+    const discordId = await getDiscordId(event.headers.authorization);
+    if (!discordId) return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
 
     try {
-        const calendar = google.calendar({ version: 'v3', auth });
-        const event = await calendar.events.get({ calendarId: 'primary', eventId: googleId });
-        
-        if (event.data.summary?.startsWith('[Concluído]')) return;
+        const method = event.httpMethod;
+        const body = event.body ? JSON.parse(event.body) : {};
 
-        const updatedEvent = { ...event.data, summary: `[Concluído] ${task.text}` };
-        await calendar.events.update({ calendarId: 'primary', eventId: googleId, requestBody: updatedEvent });
-        return;
-    } catch (error: any) {
-        if (error.code !== 404) console.error(`Erro ao tentar completar item como Evento:`, error.message);
-    }
-
-    try {
-        const tasksApi = google.tasks({ version: 'v1', auth });
-        const taskLists = await tasksApi.tasklists.list();
-        if (!taskLists.data.items) return;
-        for (const taskList of taskLists.data.items) {
-            try {
-                await tasksApi.tasks.patch({
-                    tasklist: taskList.id!,
-                    task: googleId,
-                    requestBody: {
-                        id: googleId,
-                        status: 'completed',
-                    }
-                });
-                return;
-            } catch (taskError: any) {
-                if (taskError.code !== 404) throw taskError;
+        switch (method) {
+            case 'GET': {
+                // Busca usando o novo user_id (String/Discord ID)
+                const tasks = await sql`
+          SELECT * FROM tasks 
+          WHERE user_id = ${discordId} 
+          ORDER BY due_date ASC, due_time ASC, created_at DESC
+        `;
+                return { statusCode: 200, body: JSON.stringify(tasks) };
             }
-        }
-    } catch (error) {
-        console.error(`Erro ao tentar completar item como Tarefa:`, error);
-    }
-};
 
-const deleteGoogleItem = async (userId: number, googleEventId: string) => {
-    const auth = await getGoogleAuthClient(userId);
-    if (!auth || !googleEventId) return;
-
-    const googleId = googleEventId.replace('google_', '');
-
-    try {
-        const calendar = google.calendar({ version: 'v3', auth });
-        await calendar.events.delete({ calendarId: 'primary', eventId: googleId });
-        return;
-    } catch (error: any) {
-        if (error.code !== 404) console.error(`Falha ao deletar evento do Google:`, error.message);
-    }
-
-    try {
-        const tasksApi = google.tasks({ version: 'v1', auth });
-        const taskLists = await tasksApi.tasklists.list();
-        if (!taskLists.data.items) return;
-        for (const taskList of taskLists.data.items) {
-            try {
-                await tasksApi.tasks.delete({ tasklist: taskList.id!, task: googleId });
-                return;
-            } catch (taskError: any) {
-                if (taskError.code !== 404) throw taskError;
-            }
-        }
-    } catch (error) {
-        console.error(`Falha ao deletar tarefa do Google:`, error);
-    }
-};
-
-export const handler: Handler = async (event, context) => {
-  const userId = getUserIdFromToken(event.headers.authorization);
-  if (!userId) return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
-
-  try {
-    if (!event.body && event.httpMethod !== 'GET') {
-      return { statusCode: 400, body: JSON.stringify({ error: 'Request body is missing.' }) };
-    }
-
-    switch (event.httpMethod) {
-      case 'GET': {
-        const tasks = await sql`SELECT * FROM tasks WHERE user_id = ${userId} ORDER BY due_date ASC, due_time ASC, created_at DESC`;
-        return { statusCode: 200, body: JSON.stringify(tasks), headers: {'Content-Type': 'application/json'} };
-      }
-
-      case 'POST': {
-        const taskData = JSON.parse(event.body!);
-        const [newTask] = await sql`
+            case 'POST': {
+                const [newTask] = await sql`
           INSERT INTO tasks (text, user_id, due_date, priority, recurrence, is_all_day, due_time) 
-          VALUES (${taskData.text}, ${userId}, ${taskData.due_date || null}, ${taskData.priority || 'Medium'}, ${taskData.recurrence || 'None'}, ${taskData.is_all_day}, ${taskData.is_all_day ? null : taskData.due_time}) 
+          VALUES (
+            ${body.text}, 
+            ${discordId}, 
+            ${body.due_date || null}, 
+            ${body.priority || 'Medium'}, 
+            ${body.recurrence || 'None'}, 
+            ${body.is_all_day}, 
+            ${body.is_all_day ? null : body.due_time}
+          ) 
           RETURNING *
         `;
-        const googleEventId = await syncTaskWithGoogle(userId, newTask);
-        if (googleEventId) {
-          const [finalTask] = await sql`UPDATE tasks SET google_event_id = ${googleEventId} WHERE id = ${newTask.id} RETURNING *`;
-          return { statusCode: 201, body: JSON.stringify(finalTask) };
-        }
-        return { statusCode: 201, body: JSON.stringify(newTask) };
-      }
+                return { statusCode: 201, body: JSON.stringify(newTask) };
+            }
 
-      case 'PUT': {
-        const taskData = JSON.parse(event.body!);
-        const [existingTask] = await sql`SELECT * FROM tasks WHERE id = ${taskData.id} AND user_id = ${userId}`;
-        if (!existingTask) return { statusCode: 404, body: JSON.stringify({ error: 'Task not found.' }) };
+            case 'PUT': {
+                const [existingTask] = await sql`SELECT * FROM tasks WHERE id = ${body.id} AND user_id = ${discordId}`;
+                if (!existingTask) return { statusCode: 404, body: JSON.stringify({ error: 'Task not found.' }) };
 
-        if (taskData.completed && !existingTask.completed) {
-            await completeGoogleItem(userId, existingTask);
-        }
-
-        let newRecurringTask = null;
-        if (taskData.completed && !existingTask.completed && existingTask.recurrence !== 'None' && existingTask.due_date) {
-            const nextDate = getNextDueDate(existingTask.due_date, existingTask.recurrence);
-            [newRecurringTask] = await sql`
+                let newRecurringTask = null;
+                // Se a tarefa foi concluída e tem recorrência, cria a próxima
+                if (body.completed && !existingTask.completed && existingTask.recurrence !== 'None' && existingTask.due_date) {
+                    const nextDate = getNextDueDate(existingTask.due_date, existingTask.recurrence);
+                    [newRecurringTask] = await sql`
                 INSERT INTO tasks (text, user_id, due_date, priority, recurrence, is_all_day, due_time)
-                VALUES (${existingTask.text}, ${userId}, ${nextDate}, ${existingTask.priority}, ${existingTask.recurrence}, ${existingTask.is_all_day}, ${existingTask.due_time})
+                VALUES (${existingTask.text}, ${discordId}, ${nextDate}, ${existingTask.priority}, ${existingTask.recurrence}, ${existingTask.is_all_day}, ${existingTask.due_time})
                 RETURNING *
             `;
-            const googleEventId = await syncTaskWithGoogle(userId, newRecurringTask);
-            if (googleEventId && newRecurringTask) {
-                await sql`UPDATE tasks SET google_event_id = ${googleEventId} WHERE id = ${newRecurringTask.id}`;
-                newRecurringTask.google_event_id = googleEventId;
-            }
-        }
-        
-        const [updatedTask] = await sql`
+                }
+
+                const [updatedTask] = await sql`
             UPDATE tasks 
             SET 
-                text = ${taskData.text !== undefined ? taskData.text : existingTask.text},
-                completed = ${taskData.completed !== undefined ? taskData.completed : existingTask.completed},
-                due_date = ${taskData.due_date !== undefined ? taskData.due_date : existingTask.due_date},
-                priority = ${taskData.priority !== undefined ? taskData.priority : existingTask.priority},
-                recurrence = ${taskData.recurrence !== undefined ? taskData.recurrence : existingTask.recurrence},
-                is_all_day = ${taskData.is_all_day !== undefined ? taskData.is_all_day : existingTask.is_all_day},
-                due_time = ${taskData.is_all_day ? null : (taskData.due_time !== undefined ? taskData.due_time : existingTask.due_time)}
-            WHERE id = ${taskData.id} AND user_id = ${userId}
+                text = ${body.text ?? existingTask.text},
+                completed = ${body.completed ?? existingTask.completed},
+                due_date = ${body.due_date ?? existingTask.due_date},
+                priority = ${body.priority ?? existingTask.priority},
+                recurrence = ${body.recurrence ?? existingTask.recurrence},
+                is_all_day = ${body.is_all_day ?? existingTask.is_all_day},
+                due_time = ${body.is_all_day ? null : (body.due_time ?? existingTask.due_time)}
+            WHERE id = ${body.id} AND user_id = ${discordId}
             RETURNING *
         `;
 
-        const googleEventId = await syncTaskWithGoogle(userId, updatedTask);
-        if (googleEventId && updatedTask.google_event_id !== googleEventId) {
-            await sql`UPDATE tasks SET google_event_id = ${googleEventId} WHERE id = ${updatedTask.id}`;
-            updatedTask.google_event_id = googleEventId;
+                return { statusCode: 200, body: JSON.stringify({ updatedTask, newRecurringTask }) };
+            }
+
+            case 'DELETE': {
+                // O body do DELETE costuma vir como { id: 123 }
+                const { id } = body;
+                await sql`DELETE FROM tasks WHERE id = ${id} AND user_id = ${discordId}`;
+                return { statusCode: 200, body: JSON.stringify({ message: 'Task deleted successfully.' }) };
+            }
+
+            default:
+                return { statusCode: 405, body: 'Method Not Allowed' };
         }
-
-        return { statusCode: 200, body: JSON.stringify({ updatedTask, newRecurringTask }) };
-      }
-
-      case 'DELETE': {
-        const { id } = JSON.parse(event.body!);
-        const [taskToDelete] = await sql`SELECT google_event_id FROM tasks WHERE id = ${id} AND user_id = ${userId}`;
-
-        if (taskToDelete && taskToDelete.google_event_id) {
-            await deleteGoogleItem(userId, taskToDelete.google_event_id);
-        }
-
-        await sql`DELETE FROM tasks WHERE id = ${id} AND user_id = ${userId}`;
-        return { statusCode: 200, body: JSON.stringify({ message: 'Task deleted successfully.' }) };
-      }
-
-      default:
-        return { statusCode: 405, body: 'Method Not Allowed' };
+    } catch (err) {
+        console.error(err);
+        return { statusCode: 500, body: JSON.stringify({ error: 'Internal Server Error' }) };
     }
-  } catch (err) {
-    console.error(err);
-    return { statusCode: 500, body: JSON.stringify({ error: 'An internal server error occurred.' }) };
-  }
 };

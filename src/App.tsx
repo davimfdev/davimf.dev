@@ -20,6 +20,8 @@ import ResetPasswordPage from './pages/ResetPasswordPage.tsx';
 import UrlShortener from "./components/UrlShortener.tsx";
 import UrlRedirectPage from "./pages/UrlRedirectPage.tsx";
 import PrivacyPolicy from './pages/PrivacyPolicy.tsx'; // Importa a nova página
+import Test from './pages/Test.tsx'
+import Dashboard from './pages/Dashboard.tsx'
 
 function App() {
   return (
@@ -36,28 +38,16 @@ function App() {
               <Route path="/calc" element={<Calculator />} />
               <Route path="/plans" element={<Plans />} />
               <Route path="/roulette" element={<Roulette />} />
-              <Route
-                path="/todo"
-                element={
-                  <ProtectedRoute>
-                    <TodoList />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/finances"
-                element={
-                  <ProtectedRoute>
-                    <FinanceManager />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/todo" element={<TodoList />} />
+              <Route path="/finances" element={<FinanceManager />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/request-password-reset" element={<RequestPasswordResetPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
-              <Route path="/shortener" element={<UrlShortener />} />
+              <Route path="/encurtador" element={<UrlShortener />} />
               <Route path="/r/:shortCode" element={<UrlRedirectPage />} />
+              <Route path="/test" element={<Test/>} />
+              <Route path="/dashboard" element={<Dashboard/>} />
               {/* Rota para a Política de Privacidade */}
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             </Routes>

@@ -1,71 +1,61 @@
-import { Config, Context } from '@netlify/functions';
-import { neon } from '@netlify/neon';
+import { Handler } from '@netlify/functions';
+import { neon } from '@neondatabase/serverless';
 
-// Helper function to generate a short code
-const generateShortCode = (length = 6) => {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-};
+const sql = neon(process.env.DATABASE_URL!);
 
-export default async (req: Request, context: Context) => {
-  // Ensure we're only accepting POST requests
-  if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405 });
+export const handler: Handler = async (event) => {
+  if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
+
+  const authHeader = event.headers.authorization;
+  const token = authHeader?.split(' ')[1];
+
+  let discordId = null;
+  if (token) {
+    const userRes = await fetch('https://discord.com/api/users/@me', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (userRes.ok) {
+      const user = await userRes.json();
+      discordId = user.id;
+    }
   }
 
   try {
-    const { originalUrl } = await req.json();
+    const body = JSON.parse(event.body || '{}');
+    const originalUrl = body.originalUrl || body.original_url;
 
     if (!originalUrl) {
-      return new Response(JSON.stringify({ error: 'Original URL is required.' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return { statusCode: 400, body: JSON.stringify({ error: 'URL original é obrigatória' }) };
     }
 
-    const sql = neon(process.env.NETLIFY_DATABASE_URL!);
+    // Gera um código de 6 letras/números
+    const shortCode = Math.random().toString(36).substring(2, 8);
 
-    // A simple retry mechanism to handle potential collisions
-    let shortCode = generateShortCode();
-    let existing = await sql`SELECT id FROM urls WHERE id = ${shortCode}`;
-    let retries = 0;
-    while (existing.length > 0 && retries < 5) {
-      shortCode = generateShortCode();
-      existing = await sql`SELECT id FROM urls WHERE id = ${shortCode}`;
-      retries++;
-    }
+    // Monta o link final (Se tiver rodando local, usa localhost, senão usa seu domínio)
+    const host = event.headers.host || 'davimf.dev';
+    const protocol = host.includes('localhost') ? 'http://' : 'https://';
+    // Altere para incluir o /r/ antes do código
+    const finalShortUrl = `${protocol}${host}/r/${shortCode}`;
 
-    if (existing.length > 0) {
-      return new Response(JSON.stringify({ error: 'Could not generate a unique short URL. Please try again.' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    // Salva no banco (Certifique-se que sua tabela tem a coluna short_code)
+    const [newUrl] = await sql`
+            INSERT INTO urls (original_url, short_url, short_code, user_id, created_at)
+            VALUES (${originalUrl}, ${finalShortUrl}, ${shortCode}, ${discordId}, now())
+            RETURNING *
+        `;
 
-    await sql`INSERT INTO urls (id, original_url) VALUES (${shortCode}, ${originalUrl})`;
-
-    // Get the site's base URL from the request headers
-    const siteUrl = new URL(req.url).origin;
-    const newShortUrl = `${siteUrl}/r/${shortCode}`;
-
-    return new Response(JSON.stringify({ shortUrl: newShortUrl }), {
-      status: 200,
+    return {
+      statusCode: 201,
       headers: { 'Content-Type': 'application/json' },
-    });
-
-  } catch (err) {
-    console.error(err);
-    return new Response(JSON.stringify({ error: 'An internal error occurred.' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+      body: JSON.stringify({
+        id: newUrl.id,
+        original_url: newUrl.original_url,
+        short_url: newUrl.short_url,
+        shortUrl: newUrl.short_url // Mandando duplicado pra não ter erro no front
+      })
+    };
+  } catch (err: any) {
+    console.error('Erro ao criar URL:', err);
+    return { statusCode: 500, body: JSON.stringify({ error: 'Erro ao gerar o link curto.' }) };
   }
-};
-
-export const config: Config = {
-  path: "/api/create-short-url",
 };

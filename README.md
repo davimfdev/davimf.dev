@@ -76,33 +76,6 @@ Authenticate via Discord OAuth at the top-right corner.
 
 ---
 
-## Development
-
-```bash
-npm install
-netlify dev      # runs Vite + Netlify Functions locally on :8888
-```
-
-### Environment Variables
-
-```env
-# Discord
-DISCORD_CLIENT_ID=
-DISCORD_CLIENT_SECRET=
-
-# Neon (PostgreSQL) — users, URLs, finances, tasks
-DATABASE_URL=
-
-# Supabase — bot config
-SUPABASE_URL=
-SUPABASE_SERVICE_KEY=
-
-# FMM license system
-ADMIN_SECRET=
-```
-
----
-
 ## License
 
 Private — all rights reserved.

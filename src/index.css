@@ -1,199 +1,83 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=JetBrains+Mono:wght@400;500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    background-color: #080a12;
-    @apply text-gray-100 antialiased overflow-x-hidden;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-
-  ::selection {
-    background-color: rgba(245, 158, 11, 0.28);
-    color: white;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Syne', sans-serif;
-    letter-spacing: -0.025em;
+    @apply bg-gray-900 text-gray-100 antialiased overflow-x-hidden selection:bg-blue-500/30 selection:text-white;
   }
 }
 
 @layer components {
+  /* Mica / Glassmorphism Effect */
   .glass-panel {
-    background: rgba(255, 255, 255, 0.028);
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-lg rounded-xl transition-all duration-300;
   }
 
   .glass-panel:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(245, 158, 11, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    @apply bg-white/10 border-white/20;
   }
 
   .glass-nav {
-    background: rgba(8, 10, 18, 0.82);
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow:
-      0 4px 32px rgba(0, 0, 0, 0.5),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.03);
-    transition: all 0.3s ease;
+    @apply bg-black/40 backdrop-blur-md border-b border-white/10 shadow-lg transition-all duration-300;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center px-7 py-3.5 font-semibold rounded-xl transition-all duration-300;
-    font-family: 'Syne', sans-serif;
-    font-size: 0.875rem;
-    letter-spacing: 0.025em;
-    color: #0c0a06;
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%);
-    box-shadow:
-      0 4px 20px rgba(245, 158, 11, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-
-  .btn-primary:hover {
-    background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 50%, #f97316 100%);
-    box-shadow:
-      0 8px 32px rgba(245, 158, 11, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
-  }
-
-  .btn-primary:active {
-    transform: translateY(0px);
+    @apply inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-7 py-3.5 font-semibold rounded-xl transition-all duration-300;
-    font-family: 'Syne', sans-serif;
-    font-size: 0.875rem;
-    letter-spacing: 0.025em;
-    color: rgba(255, 255, 255, 0.82);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
-  }
-
-  .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
-  }
-
-  .btn-secondary:active {
-    transform: translateY(0px);
+    @apply inline-flex items-center justify-center px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 rounded-lg transition-all duration-300 transform hover:-translate-y-1 backdrop-blur-sm;
   }
 
   .nav-link {
-    color: rgba(156, 163, 175, 0.9);
-    @apply px-3 py-2 rounded-lg text-sm transition-all duration-200 relative;
-    font-family: 'Syne', sans-serif;
-    font-weight: 500;
-    letter-spacing: 0.01em;
+    @apply text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/5 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0.5 after:bg-blue-500 after:transition-all after:duration-300 hover:after:w-full;
   }
 
-  .nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: 4px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 1.5px;
-    background: linear-gradient(90deg, #f59e0b, #ea580c);
-    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 1px;
-  }
-
-  .nav-link:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.04);
-  }
-
-  .nav-link:hover::after {
-    width: calc(100% - 20px);
-  }
-
+  /* Animated gradient text */
   .text-gradient {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 40%, #f97316 70%, #ea580c 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    color: transparent;
-    animation: gradient-pan 7s linear infinite;
+    @apply bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent;
   }
 }
 
-/* ── Background ─────────────────────────────────────────── */
+/* Background blob effects for extra modern feel */
 .bg-blobs {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: -1;
+  overflow: hidden;
+  background: radial-gradient(circle at 15% 50%, rgba(37, 99, 235, 0.08), transparent 25%),
+              radial-gradient(circle at 85% 30%, rgba(147, 51, 234, 0.08), transparent 25%);
   pointer-events: none;
-  background:
-    radial-gradient(ellipse 70% 55% at 8% 15%,  rgba(245, 158,  11, 0.07) 0%, transparent 100%),
-    radial-gradient(ellipse 60% 50% at 92% 82%,  rgba( 99, 102, 241, 0.07) 0%, transparent 100%),
-    radial-gradient(ellipse 45% 35% at 55% 48%,  rgba(234,  88,  12, 0.03) 0%, transparent 100%),
-    #080a12;
 }
 
-.bg-blobs::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 256px 256px;
-}
-
-/* ── Animations ─────────────────────────────────────────── */
+/* Animations that we can use as classes later */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(28px); }
-  to   { opacity: 1; transform: translateY(0); }
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-12px); }
-}
-
-@keyframes gradient-pan {
-  0%, 100% { background-position: 0% center; }
-  50%       { background-position: 100% center; }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.6s ease-out forwards;
+  animation: fadeIn 0.5s ease-out forwards;
 }
 
 .animate-slide-up {
-  animation: slideUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUp 0.6s ease-out forwards;
 }
 
 .animate-float {
-  animation: float 4s ease-in-out infinite;
+  animation: float 3s ease-in-out infinite;
 }

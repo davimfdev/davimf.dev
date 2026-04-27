@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+// MODIFICADO: Adicionado LogOut na lista de imports
 import { Menu, X, Github, Linkedin, Mail, Globe, MessageCircle, Phone, User, ChevronDown, LogOut } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -16,7 +17,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
 
   const handleLogin = () => {
+    // Salva a página atual (ex: /encurtador) para voltar depois do login
     localStorage.setItem('return_path', location.pathname);
+    // Redireciona para o Discord
     window.location.href = DISCORD_AUTH_URL;
   };
 
@@ -49,14 +52,17 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   useEffect(() => {
+    // 1. CAÇADOR DE TOKENS: Verifica se o token veio na URL (vinda do backend)
     const params = new URLSearchParams(window.location.search);
     const tokenFromUrl = params.get('token');
 
     if (tokenFromUrl) {
       localStorage.setItem('discord_token', tokenFromUrl);
+      // Limpa a URL para não ficar aquele texto feio e por segurança
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
+    // 2. Tenta pegar o token (seja o que acabou de salvar ou o que já estava lá)
     const token = localStorage.getItem('discord_token');
 
     if (token && !discordUser) {
@@ -70,11 +76,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           .then(data => {
             setDiscordUser(data);
 
+            // 3. REDIRECIONAMENTO INTELIGENTE
             const returnPath = localStorage.getItem('return_path');
             if (returnPath && returnPath !== '/login' && returnPath !== '/') {
               localStorage.removeItem('return_path');
               navigate(returnPath);
             } else if (tokenFromUrl) {
+              // Se ele acabou de logar e não tinha rota salva, manda pro dashboard
               navigate('/dashboard');
             }
           })
@@ -84,6 +92,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           });
     }
 
+    // Lógica do clique fora (dropdowns)
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
@@ -96,7 +105,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
 
-  }, [navigate, discordUser]);
+  }, [navigate, discordUser]); // Adicionado discordUser para atualizar o estado quando logar
 
   return (
       <div className="min-h-screen flex flex-col relative z-0">
@@ -106,7 +115,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-20">
               <div className="flex items-center">
-                <Link to="/" className="text-2xl font-bold text-gradient" style={{ fontFamily: "'Syne', sans-serif", letterSpacing: '-0.02em' }}>
+                <Link to="/" className="text-2xl font-bold text-gradient tracking-wide">
                   Davimf<span className="text-white">.dev</span>
                 </Link>
               </div>
@@ -176,9 +185,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   </div>
                 </div>
 
-                <button onClick={toggleLanguage} className="flex items-center px-3 py-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 rounded-full transition-all duration-300" aria-label="Toggle language" style={{ fontFamily: "'Syne', sans-serif" }}>
-                  <Globe size={16} />
-                  <span className="ml-2 text-xs font-semibold tracking-widest">{language.toUpperCase()}</span>
+                <button onClick={toggleLanguage} className="flex items-center p-2 text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-full transition-all duration-300" aria-label="Toggle language">
+                  <Globe size={18} />
+                  <span className="ml-2 text-sm font-medium">{language.toUpperCase()}</span>
                 </button>
               </div>
 

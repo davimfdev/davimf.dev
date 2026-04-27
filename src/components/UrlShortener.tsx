@@ -133,7 +133,7 @@ const UrlShortener = () => {
             <Scissors size={36} className="text-blue-400" />
           </div>
           <h1 className="text-4xl font-extrabold text-gradient text-center">Encurtador de Links</h1>
-          <p className="text-gray-400 mt-4 text-center">Crie e gerencie seus links curtos da Yakuza.</p>
+          <p className="text-gray-400 mt-4 text-center">Crie e gerencie seus links curtos.</p>
         </div>
 
         {/* Formulário principal */}

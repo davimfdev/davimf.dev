@@ -157,6 +157,27 @@ const UrlShortener = () => {
           </form>
 
           {error && <div className="mt-4 text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">{error}</div>}
+
+          {shortUrl && (
+            <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl flex items-center justify-between gap-3 animate-slide-up">
+              <div className="overflow-hidden">
+                <p className="text-xs text-blue-400 font-semibold uppercase tracking-wider mb-1">Link encurtado</p>
+                <p className="text-blue-300 font-mono font-bold truncate">{shortUrl}</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => copyToClipboard(shortUrl)}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-all"
+                >
+                  <Copy size={15} />
+                  {copied ? 'Copiado!' : 'Copiar'}
+                </button>
+                <a href={shortUrl} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 transition-colors" title="Abrir">
+                  <ExternalLink size={16} />
+                </a>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Histórico do Usuário */}

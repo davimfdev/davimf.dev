@@ -8,8 +8,6 @@ export default async (req: Request, context: Context) => {
         return new Response('Código não fornecido', { status: 400 });
     }
 
-    // LÓGICA DE REDIRECIONAMENTO DINÂMICO
-    // Se o host contiver 'localhost', ele usa o link de teste, senão usa o oficial
     const host = req.headers.get('host') || '';
     const isLocal = host.includes('localhost');
     const redirectUri = isLocal
@@ -21,7 +19,7 @@ export default async (req: Request, context: Context) => {
         client_secret: process.env.DISCORD_CLIENT_SECRET!,
         grant_type: 'authorization_code',
         code: code,
-        redirect_uri: redirectUri, // Agora ele envia o link certo dependendo de onde você está
+        redirect_uri: redirectUri,
     });
 
     try {
@@ -38,9 +36,6 @@ export default async (req: Request, context: Context) => {
             return new Response(JSON.stringify(tokens), { status: 400 });
         }
 
-        // Redireciona de volta para o site com o token na URL
-        // O Layout.tsx vai capturar esse token e salvar no localStorage
-        const redirectBase = isLocal ? 'http://localhost:8888' : 'https://davimf.dev';
         return new Response(null, {
             status: 302,
             headers: {
@@ -53,7 +48,6 @@ export default async (req: Request, context: Context) => {
     }
 };
 
-// Define a rota curta /api/callback
 export const config: Config = {
     path: "/api/callback",
 };

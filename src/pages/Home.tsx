@@ -8,24 +8,24 @@ const Home = () => {
   return (
     <div className="min-h-[calc(100vh-16rem)] flex flex-col justify-center items-center py-12 relative z-10">
       {/* Background decoration elements */}
-      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-[100px] pointer-events-none animate-pulse"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '1s' }}></div>
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-600/8 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div className="max-w-4xl w-full mx-auto text-center space-y-12">
         
         {/* Hero Section */}
         <div className="animate-slide-up space-y-6">
-          <div className="inline-flex items-center px-4 py-2 glass-panel rounded-full text-sm font-medium text-blue-400 mb-4 animate-fade-in">
-            <span className="relative flex h-3 w-3 mr-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+          <div className="inline-flex items-center px-4 py-2 glass-panel rounded-full text-sm font-medium text-amber-400 mb-4 animate-fade-in" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.8rem', letterSpacing: '0.04em' }}>
+            <span className="relative flex h-2.5 w-2.5 mr-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
             </span>
             {translations.availableForWork}
           </div>
           
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
             {translations.greeting}{' '}
-            <span className="text-gradient animate-pulse">
+            <span className="text-gradient">
               Davi
             </span>
           </h1>
@@ -54,9 +54,9 @@ const Home = () => {
           ].map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <div key={index} className="glass-panel p-8 flex flex-col items-center text-center transform hover:-translate-y-2 transition-all duration-300 group cursor-default">
-                <div className="p-4 bg-white/5 rounded-2xl mb-6 group-hover:bg-blue-500/20 transition-colors duration-300">
-                  <Icon size={32} className="text-blue-400 group-hover:text-blue-300" />
+              <div key={index} className="glass-panel p-8 flex flex-col items-center text-center transform hover:-translate-y-2 transition-all duration-300 group cursor-default" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="p-4 bg-white/5 rounded-2xl mb-6 group-hover:bg-amber-500/15 transition-colors duration-300">
+                  <Icon size={32} className="text-amber-400 group-hover:text-amber-300" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-gray-100">{feature.title}</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">{feature.desc}</p>

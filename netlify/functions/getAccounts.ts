@@ -8,7 +8,6 @@ export const handler: Handler = async (event) => {
     if (!token) return { statusCode: 401, body: 'Unauthorized' };
 
     try {
-        // Validação do Token no Discord
         const discordIdRes = await fetch('https://discord.com/api/users/@me', {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -19,11 +18,11 @@ export const handler: Handler = async (event) => {
         const discordId = userData.id;
 
         switch (event.httpMethod) {
-            case 'GET':
+            case 'GET': {
                 const accounts = await sql`SELECT * FROM accounts WHERE user_id = ${discordId} ORDER BY name ASC`;
                 return { statusCode: 200, body: JSON.stringify(accounts) };
-
-            case 'POST':
+            }
+            case 'POST': {
                 const postBody = JSON.parse(event.body || '{}');
                 const [newAccount] = await sql`
                     INSERT INTO accounts (user_id, name, currency, type, initial_balance)
@@ -31,27 +30,22 @@ export const handler: Handler = async (event) => {
                     RETURNING *
                 `;
                 return { statusCode: 201, body: JSON.stringify(newAccount) };
-
-            // --- ESTE É O BLOCO QUE RESOLVE O ERRO 405 ---
-            case 'DELETE':
+            }
+            case 'DELETE': {
                 const deleteBody = JSON.parse(event.body || '{}');
                 const { id } = deleteBody;
 
                 if (!id) return { statusCode: 400, body: 'ID da conta é obrigatório' };
 
-                // 1. Deleta todas as transações vinculadas a este banco primeiro (importante!)
                 await sql`DELETE FROM transactions WHERE account_id = ${id} AND user_id = ${discordId}`;
-
-                // 2. Deleta a conta em si
-                const result = await sql`DELETE FROM accounts WHERE id = ${id} AND user_id = ${discordId}`;
+                await sql`DELETE FROM accounts WHERE id = ${id} AND user_id = ${discordId}`;
 
                 return {
                     statusCode: 200,
                     body: JSON.stringify({ message: 'Banco e transações removidos com sucesso' })
                 };
-
+            }
             default:
-                // Se chegar qualquer coisa que não seja GET, POST ou DELETE, retorna 405
                 return { statusCode: 405, body: 'Method Not Allowed' };
         }
     } catch (err: any) {

@@ -1,13 +1,31 @@
 import { Handler } from '@netlify/functions';
 import { createClient } from '@supabase/supabase-js';
 
-export const handler: Handler = async (event) => {
-    // Inicialização movida para DENTRO da função para evitar o erro de URL vazia
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+export const handler: Handler = async (event, context) => {
+    let supabaseUrl = process.env.SUPABASE_URL || '';
+    let supabaseKey = process.env.SUPABASE_SERVICE_KEY || '';
 
-    if (!supabaseUrl || !supabaseKey) {
-        return { statusCode: 500, body: JSON.stringify({ error: 'Configuração do banco ausente.' }) };
+    supabaseUrl = supabaseUrl.replace(/^['"]|['"]$/g, '');
+    supabaseKey = supabaseKey.replace(/^['"]|['"]$/g, '');
+
+    if (supabaseUrl.startsWith('postgres')) {
+        const match = supabaseUrl.match(/@db\.([a-z0-9-]+)\.supabase\.co/);
+        if (match) {
+            supabaseUrl = `https://${match[1]}.supabase.co`;
+        } else {
+             console.error('Invalid postgres url format for Supabase:', supabaseUrl);
+             return { statusCode: 500, body: JSON.stringify({ error: 'Configuração do banco inválida.' }) };
+        }
+    }
+
+    if (!supabaseUrl || (!supabaseUrl.startsWith('http://') && !supabaseUrl.startsWith('https://'))) {
+        console.error('Missing or invalid SUPABASE_URL:', supabaseUrl);
+        return { statusCode: 500, body: JSON.stringify({ error: 'Configuração do banco ausente ou url invalida.' }) };
+    }
+
+    if (!supabaseKey) {
+        console.error('Missing SUPABASE_SERVICE_KEY');
+        return { statusCode: 500, body: JSON.stringify({ error: 'Chave do banco ausente.' }) };
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -28,9 +46,9 @@ export const handler: Handler = async (event) => {
 
         const guilds = await response.json();
 
-        // Pega apenas servidores onde o usuário é Admin/Dono
         const adminGuilds = guilds.filter((guild: any) => {
             const isOwner = guild.owner === true;
+            // O Discord envia permissions como string numérica gigante
             const permissions = BigInt(guild.permissions);
             const isAdmin = (permissions & BigInt(0x8)) === BigInt(0x8);
             const canManageGuild = (permissions & BigInt(0x20)) === BigInt(0x20);
@@ -43,7 +61,6 @@ export const handler: Handler = async (event) => {
 
         const adminGuildIds = adminGuilds.map((g: any) => g.id);
 
-        // Verifica no Supabase em quais desses servidores o bot já está
         const { data: botGuildsData, error: dbError } = await supabase
             .from('guilds')
             .select('id')
@@ -51,11 +68,11 @@ export const handler: Handler = async (event) => {
 
         if (dbError) throw dbError;
 
-        // Injeta a propriedade "hasBot" em cada servidor
-        const botGuildIds = botGuildsData.map((dbGuild: any) => dbGuild.id);
+        const botGuildIds = botGuildsData ? botGuildsData.map((dbGuild: any) => dbGuild.id) : [];
         const finalGuilds = adminGuilds.map((guild: any) => ({
             ...guild,
-            hasBot: botGuildIds.includes(guild.id)
+            // Garante comparação como string caso o banco retorne diferente
+            hasBot: botGuildIds.some((id: any) => String(id) === String(guild.id))
         }));
 
         return {

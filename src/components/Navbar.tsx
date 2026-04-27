@@ -3,11 +3,16 @@ import { useEffect, useState } from 'react';
 export default function Navbar() {
   const [user, setUser] = useState<any>(null);
   const [showDropdown, setShowDropdown] = useState(false);
-
-  // Coloque seu Client ID aqui para o botão de login funcionar se o usuário estiver deslogado
-  const discordLoginUrl = "https://discord.com/api/oauth2/authorize?client_id=1484035057478799411&redirect_uri=https://davimf.dev/api/callback&response_type=code&scope=identify%20guilds";
+  const [discordLoginUrl, setDiscordLoginUrl] = useState('');
 
   useEffect(() => {
+    // A URL de login é construída no lado do cliente para garantir que window.location.hostname esteja disponível
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    console.log(window.location.hostname)
+    const redirectUri = isLocalhost ? "http://localhost:8888/api/callback" : "https://davimf.dev/api/callback";
+    const url = `https://discord.com/api/oauth2/authorize?client_id=1484035057478799411&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20guilds`;
+    setDiscordLoginUrl(url);
+
     const token = localStorage.getItem('discord_token');
 
     if (token) {

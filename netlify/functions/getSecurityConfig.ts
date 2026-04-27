@@ -2,7 +2,18 @@ import { Handler } from '@netlify/functions';
 import { createClient } from '@supabase/supabase-js';
 
 export const handler: Handler = async (event) => {
-    if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
+    if (event.httpMethod !== 'GET') return { statusCode: 405, body: 'Method Not Allowed' };
+
+    const { guildId } = event.queryStringParameters || {};
+    const authHeader = event.headers.authorization;
+
+    if (!guildId) {
+        return { statusCode: 400, body: JSON.stringify({ error: 'Missing guildId' }) };
+    }
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized: No token provided' }) };
+    }
 
     let supabaseUrl = process.env.SUPABASE_URL || '';
     let supabaseKey = process.env.SUPABASE_SERVICE_KEY || '';
@@ -15,44 +26,32 @@ export const handler: Handler = async (event) => {
         if (match) {
             supabaseUrl = `https://${match[1]}.supabase.co`;
         } else {
-             console.error('Invalid postgres url format for Supabase:', supabaseUrl);
              return { statusCode: 500, body: JSON.stringify({ error: 'Configuração do banco inválida.' }) };
         }
     }
 
     if (!supabaseUrl || (!supabaseUrl.startsWith('http://') && !supabaseUrl.startsWith('https://'))) {
-        console.error('Missing or invalid SUPABASE_URL:', supabaseUrl);
         return { statusCode: 500, body: JSON.stringify({ error: 'Configuração do banco ausente ou url invalida.' }) };
     }
 
     if (!supabaseKey) {
-        console.error('Missing SUPABASE_SERVICE_KEY');
         return { statusCode: 500, body: JSON.stringify({ error: 'Chave do banco ausente.' }) };
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { guildId, prefix, cor, cargoEntrada, userToken } = JSON.parse(event.body || '{}');
+    const { data: securityData, error: securityError } = await supabase
+        .from('guild_verificacao')
+        .select('*')
+        .eq('guild_id', guildId)
+        .single();
 
-    if (!guildId) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'Missing guildId' }) };
-    }
-
-    if (!userToken) {
-        return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized: No token provided' }) };
-    }
-
-    const { error } = await supabase
-        .from('guilds')
-        .update({ prefix, cor, cargo_entrada: cargoEntrada })
-        .eq('id', guildId);
-
-    if (error) {
-        return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
+    if (securityError && securityError.code !== 'PGRST116') { // Ignore "Row not found"
+        return { statusCode: 500, body: JSON.stringify({ error: securityError.message }) };
     }
 
     return {
         statusCode: 200,
-        body: JSON.stringify({ message: 'Configurações atualizadas com sucesso!' }),
+        body: JSON.stringify({ data: securityData || {} }),
     };
 };

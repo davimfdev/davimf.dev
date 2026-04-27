@@ -8,20 +8,21 @@ import Portfolio from './pages/Portfolio';
 import Resume from './pages/Resume';
 import Products from './pages/Products';
 import Contact from './pages/Contact';
-import Calculator from "./pages/Calculator.tsx";
-import Plans from "./pages/Plans.tsx";
-import Roulette from "./pages/Roulette.tsx";
-import TodoList from "./pages/TodoList.tsx";
-import FinanceManager from "./pages/FinanceManager.tsx";
-import LoginPage from "./pages/LoginPage.tsx";
-import RegisterPage from "./pages/RegisterPage.tsx";
-import RequestPasswordResetPage from './pages/RequestPasswordResetPage.tsx';
-import ResetPasswordPage from './pages/ResetPasswordPage.tsx';
-import UrlShortener from "./components/UrlShortener.tsx";
-import UrlRedirectPage from "./pages/UrlRedirectPage.tsx";
-import PrivacyPolicy from './pages/PrivacyPolicy.tsx'; // Importa a nova página
-import Test from './pages/Test.tsx'
-import Dashboard from './pages/Dashboard.tsx'
+import Calculator from './pages/Calculator';
+import Plans from './pages/Plans';
+import Roulette from './pages/Roulette';
+import TodoList from './pages/TodoList';
+import FinanceManager from './pages/FinanceManager';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import RequestPasswordResetPage from './pages/RequestPasswordResetPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import UrlShortener from './components/UrlShortener';
+import UrlRedirectPage from './pages/UrlRedirectPage';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Test from './pages/Test';
+import Dashboard from './pages/Dashboard';
+import BotConfig from './pages/BotConfig';
 
 function App() {
   return (
@@ -48,7 +49,7 @@ function App() {
               <Route path="/r/:shortCode" element={<UrlRedirectPage />} />
               <Route path="/test" element={<Test/>} />
               <Route path="/dashboard" element={<Dashboard/>} />
-              {/* Rota para a Política de Privacidade */}
+              <Route path="/dashboard/:guildId" element={<BotConfig/>} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             </Routes>
           </Layout>

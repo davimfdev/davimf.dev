@@ -1,5 +1,4 @@
 import { Context } from '@netlify/functions';
-import { sql } from './lib/fmm-license.js';
 
 const ABACATE_BASE = "https://api.abacatepay.com/v2";
 
@@ -23,13 +22,20 @@ export default async (req: Request, _context: Context) => {
 
   const apiKey = process.env.ABACATEPAY_KEY;
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: "Payment not configured" }), { status: 500 });
+    return new Response(JSON.stringify({ error: "ABACATEPAY_KEY not set" }), { status: 500 });
   }
 
-  const { plan, period } = await req.json();
+  let body: { plan?: string; period?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: "Invalid JSON body" }), { status: 400 });
+  }
 
-  if (!PRODUCT_ENV_KEY[plan]?.[period]) {
-    return new Response(JSON.stringify({ error: "Invalid plan or period" }), { status: 400 });
+  const { plan, period } = body;
+
+  if (!plan || !period || !PRODUCT_ENV_KEY[plan]?.[period]) {
+    return new Response(JSON.stringify({ error: `Invalid plan="${plan}" or period="${period}"` }), { status: 400 });
   }
 
   const productId = process.env[PRODUCT_ENV_KEY[plan][period]];
@@ -44,6 +50,9 @@ export default async (req: Request, _context: Context) => {
   const baseUrl = process.env.URL || "http://localhost:8888";
   const completionUrl = `${baseUrl}/fmm-activated?ref=${ref}`;
 
+  // Create AbacatePay checkout
+  let checkoutUrl: string;
+  let checkoutId: string;
   try {
     const res = await fetch(`${ABACATE_BASE}/checkouts/create`, {
       method: "POST",
@@ -58,11 +67,31 @@ export default async (req: Request, _context: Context) => {
       }),
     });
 
-    const data = await res.json();
-    if (!data.success) throw new Error(data.error || "AbacatePay error");
+    const rawText = await res.text();
+    let data: any;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      console.error("[abacate-checkout] Non-JSON response:", rawText.slice(0, 500));
+      return new Response(JSON.stringify({ error: "AbacatePay returned invalid response" }), { status: 502 });
+    }
 
-    const checkoutId = data.data.id;
+    console.log("[abacate-checkout] AbacatePay response:", JSON.stringify(data));
 
+    if (!data.success) {
+      return new Response(JSON.stringify({ error: data.error || "AbacatePay checkout failed" }), { status: 502 });
+    }
+
+    checkoutUrl = data.data.url;
+    checkoutId = data.data.id;
+  } catch (err: any) {
+    console.error("[abacate-checkout] Fetch error:", err);
+    return new Response(JSON.stringify({ error: `Network error: ${err.message}` }), { status: 502 });
+  }
+
+  // Persist order — non-fatal if DB fails
+  try {
+    const { sql } = await import('./lib/fmm-license.js');
     await sql`
       CREATE TABLE IF NOT EXISTS fmm_orders (
         ref TEXT PRIMARY KEY,
@@ -73,20 +102,16 @@ export default async (req: Request, _context: Context) => {
         created_at TIMESTAMPTZ DEFAULT NOW()
       )
     `;
-
     await sql`
       INSERT INTO fmm_orders (ref, abacate_checkout_id, plan, period)
       VALUES (${ref}, ${checkoutId}, ${plan}, ${period})
     `;
-
-    return new Response(JSON.stringify({ url: data.data.url }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
   } catch (err: any) {
-    return new Response(
-      JSON.stringify({ error: err.message || "Internal Server Error" }),
-      { status: 500 }
-    );
+    console.error("[abacate-checkout] DB error (non-fatal):", err);
   }
+
+  return new Response(JSON.stringify({ url: checkoutUrl }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 };

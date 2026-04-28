@@ -81,3 +81,33 @@
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
+
+@media print {
+  nav, footer, .bg-blobs, button {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .glass-panel {
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  .text-gradient {
+    background: none !important;
+    -webkit-text-fill-color: black !important;
+    color: black !important;
+  }
+  .text-gray-100, .text-gray-300, .text-gray-400 {
+    color: #374151 !important;
+  }
+  .text-blue-400 {
+    color: #1d4ed8 !important;
+  }
+  main {
+    padding-top: 0 !important;
+  }
+}

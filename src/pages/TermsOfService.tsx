@@ -1,55 +1,75 @@
 import React from 'react';
 import { ScrollText } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const TermsOfService: React.FC = () => {
+  const { translations } = useLanguage();
+  const t = translations.terms;
+
   return (
     <div className="max-w-4xl mx-auto p-8 text-gray-300 animate-fade-in relative z-10">
       <div className="flex items-center gap-4 mb-10">
         <div className="p-3 bg-indigo-500/20 rounded-xl border border-indigo-500/30">
           <ScrollText size={32} className="text-indigo-400" />
         </div>
-        <h1 className="text-4xl font-extrabold text-gradient">Termos de Serviço</h1>
+        <h1 className="text-4xl font-extrabold text-gradient">{t.title}</h1>
       </div>
-      
+
       <div className="space-y-8 glass-panel p-8 sm:p-10 border border-white/10 animate-slide-up">
         <section>
           <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
             <span className="bg-indigo-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">1</span>
-            Aceitação dos Termos
+            {t.acceptance}
           </h2>
-          <p className="leading-relaxed pl-9">
-            Ao acessar e usar este site, você aceita e concorda em estar vinculado pelos termos e disposições deste acordo.
-          </p>
+          <p className="leading-relaxed pl-9">{t.acceptanceText}</p>
         </section>
 
         <section>
           <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
             <span className="bg-indigo-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">2</span>
-            Uso do Serviço
+            {t.serviceDescription}
           </h2>
-          <p className="leading-relaxed pl-9">
-            Você concorda em usar nossos serviços apenas para fins lícitos e de acordo com as leis aplicáveis.
-          </p>
+          <p className="leading-relaxed pl-9">{t.serviceDescriptionText}</p>
         </section>
 
         <section>
           <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
             <span className="bg-indigo-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">3</span>
-            Modificações
+            {t.userConduct}
           </h2>
-          <p className="leading-relaxed pl-9">
-            Reservamo-nos o direito de modificar estes termos a qualquer momento. Suas alterações entrarão em vigor imediatamente após a publicação.
-          </p>
+          <p className="leading-relaxed pl-9">{t.userConductText}</p>
         </section>
 
         <section>
           <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
             <span className="bg-indigo-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">4</span>
-            Contato
+            {t.googleIntegration}
           </h2>
-          <p className="leading-relaxed pl-9">
-            Se você tiver dúvidas sobre estes termos, entre em contato através de nossa página de contato.
-          </p>
+          <p className="leading-relaxed pl-9">{t.googleIntegrationText}</p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
+            <span className="bg-indigo-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">5</span>
+            {t.liabilityLimitation}
+          </h2>
+          <p className="leading-relaxed pl-9">{t.liabilityLimitationText}</p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
+            <span className="bg-indigo-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">6</span>
+            {t.termsModification}
+          </h2>
+          <p className="leading-relaxed pl-9">{t.termsModificationText}</p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
+            <span className="bg-indigo-500 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3">7</span>
+            {t.contact}
+          </h2>
+          <p className="leading-relaxed pl-9">{t.contactText}</p>
         </section>
       </div>
     </div>

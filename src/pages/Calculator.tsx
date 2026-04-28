@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Produto, ItemCalculo } from '../types/calculator.types';
+import { useLanguage } from '../context/LanguageContext';
 
 const PRODUTOS: Produto[] = [
     { nome: "Five-Seven", valorComParceria: 278.35, valorSemParceria: 303.08, polvora: 11 / 20, dinheiro: 600 / 20 },
@@ -13,6 +14,7 @@ const PRODUTOS: Produto[] = [
 ];
 
 const Calculator = () => {
+    const { translations } = useLanguage();
     const [itens, setItens] = useState<ItemCalculo[]>([]);
     const [produtoSelecionado, setProdutoSelecionado] = useState<Produto>(PRODUTOS[0]);
     const [quantidade, setQuantidade] = useState(1);
@@ -60,11 +62,11 @@ const Calculator = () => {
 
     return (
         <div className="glass-panel p-8 w-full max-w-4xl mx-auto my-12 border-t-4 border-t-yellow-500 shadow-2xl animate-fade-in relative z-10">
-            <h1 className="text-4xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 text-center">Calculadora de Produção</h1>
+            <h1 className="text-4xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 text-center">{translations.calculatorTitle}</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 p-6 bg-white/5 rounded-xl border border-white/10 shadow-inner animate-slide-up">
                 <div className="md:col-span-2">
-                    <label htmlFor="produto" className="block text-sm font-semibold text-gray-300 mb-2">Produto</label>
+                    <label htmlFor="produto" className="block text-sm font-semibold text-gray-300 mb-2">{translations.calculatorProduct}</label>
                     <select
                         id="produto"
                         value={produtoSelecionado.nome}
@@ -75,7 +77,7 @@ const Calculator = () => {
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="quantidade" className="block text-sm font-semibold text-gray-300 mb-2">Quantidade</label>
+                    <label htmlFor="quantidade" className="block text-sm font-semibold text-gray-300 mb-2">{translations.quantity}</label>
                     <input
                         type="number"
                         id="quantidade"
@@ -90,16 +92,16 @@ const Calculator = () => {
                         onClick={handleAddProduto}
                         className="w-full md:w-auto bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-gray-900 font-bold py-3 px-8 rounded-lg transition-all transform hover:-translate-y-1 shadow-lg shadow-yellow-500/20"
                     >
-                        Adicionar Produto
+                        {translations.calculatorAddProduct}
                     </button>
                 </div>
             </div>
 
             <div className="mb-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                <h2 className="text-2xl font-bold mb-4 text-yellow-500">Itens Adicionados</h2>
+                <h2 className="text-2xl font-bold mb-4 text-yellow-500">{translations.calculatorAddedItems}</h2>
                 {itens.length === 0 ? (
                     <div className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center bg-white/5">
-                        <p className="text-gray-400 text-lg">Nenhum item adicionado ainda.</p>
+                        <p className="text-gray-400 text-lg">{translations.calculatorNoItems}</p>
                     </div>
                 ) : (
                     <ul className="space-y-3">
@@ -112,7 +114,7 @@ const Calculator = () => {
                                     <span className="font-bold text-lg text-gray-100">{item.produto.nome}</span>
                                 </div>
                                 <button onClick={() => handleRemoveItem(item.produto.nome)} className="text-red-400 hover:text-red-300 font-medium px-3 py-1 rounded-lg hover:bg-red-400/10 transition-colors">
-                                    Remover
+                                    {translations.calculatorRemove}
                                 </button>
                             </li>
                         ))}
@@ -121,36 +123,36 @@ const Calculator = () => {
             </div>
 
             <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                <h2 className="text-2xl font-bold mb-6 text-yellow-500">Resumo do Cálculo</h2>
+                <h2 className="text-2xl font-bold mb-6 text-yellow-500">{translations.calculatorSummary}</h2>
                 <div className="bg-white/5 border border-white/10 p-6 rounded-xl space-y-6 shadow-inner">
                     <div className="flex items-center justify-center space-x-6 p-4 bg-gray-900/50 rounded-lg border border-white/5">
-                        <span className={`font-semibold transition-colors ${!comParceria ? 'text-yellow-400' : 'text-gray-500'}`}>Sem Parceria</span>
+                        <span className={`font-semibold transition-colors ${!comParceria ? 'text-yellow-400' : 'text-gray-500'}`}>{translations.calculatorWithoutPartnership}</span>
                         <label htmlFor="parceria-toggle" className="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="parceria-toggle" className="sr-only peer" checked={comParceria} onChange={() => setComParceria(!comParceria)} />
                             <div className="w-14 h-7 bg-gray-700 rounded-full peer peer-focus:ring-4 peer-focus:ring-yellow-500/30 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
                         </label>
-                        <span className={`font-semibold transition-colors ${comParceria ? 'text-yellow-400' : 'text-gray-500'}`}>Com Parceria</span>
+                        <span className={`font-semibold transition-colors ${comParceria ? 'text-yellow-400' : 'text-gray-500'}`}>{translations.calculatorWithPartnership}</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="bg-gray-900/50 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-                            <p className="text-gray-400 text-sm font-medium mb-1">Total de Pólvora Usada</p>
+                            <p className="text-gray-400 text-sm font-medium mb-1">{translations.calculatorGunpowder}</p>
                             <p className="font-bold text-2xl text-gray-100">{formatNumber(calculos.totalPolvora)}</p>
                         </div>
                         <div className="bg-gray-900/50 p-5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-                            <p className="text-gray-400 text-sm font-medium mb-1">Total de Dinheiro Usado</p>
+                            <p className="text-gray-400 text-sm font-medium mb-1">{translations.calculatorMoneyUsed}</p>
                             <p className="font-bold text-2xl text-gray-100">{formatCurrency(calculos.totalDinheiro)}</p>
                         </div>
                         <div className="bg-gray-900/50 p-5 rounded-xl border border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent">
-                            <p className="text-green-400/80 text-sm font-medium mb-1">Total a Cobrar do Cliente</p>
+                            <p className="text-green-400/80 text-sm font-medium mb-1">{translations.calculatorTotalCharge}</p>
                             <p className="font-bold text-2xl text-green-400">{formatCurrency(calculos.totalVenda)}</p>
                         </div>
                         <div className="bg-gray-900/50 p-5 rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent">
-                            <p className="text-blue-400/80 text-sm font-medium mb-1">Comissão (20%)</p>
+                            <p className="text-blue-400/80 text-sm font-medium mb-1">{translations.calculatorCommission}</p>
                             <p className="font-bold text-2xl text-blue-400">{formatCurrency(calculos.totalComissao)}</p>
                         </div>
                         <div className="bg-gray-900/50 p-6 rounded-xl sm:col-span-2 border border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-transparent shadow-[0_0_15px_rgba(168,85,247,0.1)]">
-                            <p className="text-purple-400/80 text-sm font-medium mb-1 uppercase tracking-wider">Total para Facção</p>
+                            <p className="text-purple-400/80 text-sm font-medium mb-1 uppercase tracking-wider">{translations.calculatorTotalFaction}</p>
                             <p className="font-extrabold text-4xl text-purple-400">{formatCurrency(calculos.totalFaccao)}</p>
                         </div>
                     </div>
@@ -160,7 +162,7 @@ const Calculator = () => {
                                 onClick={() => setItens([])}
                                 className="px-6 py-2 rounded-lg font-medium text-red-400 hover:text-white hover:bg-red-500 border border-red-500/30 hover:border-red-500 transition-all"
                             >
-                                Limpar Tudo
+                                {translations.calculatorClearAll}
                             </button>
                         </div>
                     )}

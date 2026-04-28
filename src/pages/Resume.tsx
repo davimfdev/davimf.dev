@@ -17,21 +17,28 @@ const Resume = () => {
     toolsList,
     experienceList,
     educationList,
-    downloadPDF
+    downloadPDF,
+    fullName
   } = translations;
+
+  const handleDownload = () => {
+    window.print();
+  };
 
   return (
     <div className="container mx-auto px-4 py-12 animate-fade-in relative z-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12">
-        <h1 className="text-4xl font-bold text-gradient inline-block mb-4 sm:mb-0">{translations.resume}</h1>
-        <a
-          href="/resume.pdf"
-          download
+        <div className="mb-4 sm:mb-0">
+          <h1 className="text-4xl font-bold text-gradient inline-block">{fullName}</h1>
+          <p className="text-gray-400 mt-1">{translations.resume}</p>
+        </div>
+        <button
+          onClick={handleDownload}
           className="btn-primary group"
         >
           <Download size={18} className="mr-2 group-hover:-translate-y-0.5 transition-transform" />
           {downloadPDF}
-        </a>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

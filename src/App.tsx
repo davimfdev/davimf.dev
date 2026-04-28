@@ -23,6 +23,8 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import Test from './pages/Test';
 import Dashboard from './pages/Dashboard';
 import BotConfig from './pages/BotConfig';
+import FmmPlans from './pages/FmmPlans';
+import FmmActivated from './pages/FmmActivated';
 
 function App() {
   return (
@@ -51,6 +53,8 @@ function App() {
               <Route path="/dashboard" element={<Dashboard/>} />
               <Route path="/dashboard/:guildId" element={<BotConfig/>} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/fmm-plans" element={<FmmPlans />} />
+              <Route path="/fmm-activated" element={<FmmActivated />} />
             </Routes>
           </Layout>
         </Router>

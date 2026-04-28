@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
 import '../styles/animations.css';
+import { useLanguage } from '../context/LanguageContext';
 
 const Roulette = () => {
+  const { translations } = useLanguage();
   const [names, setNames] = useState('');
   const [numberOfWinners, setNumberOfWinners] = useState(1);
   const [winners, setWinners] = useState<string[]>([]);
@@ -78,20 +80,20 @@ const Roulette = () => {
 
   return (
     <div className="container mx-auto px-4 py-12 animate-fade-in relative z-10">
-      <h1 className="text-5xl font-extrabold text-center mb-12 text-gradient">Roleta</h1>
+      <h1 className="text-5xl font-extrabold text-center mb-12 text-gradient">{translations.roulette}</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         <div className="lg:col-span-1 glass-panel p-8 animate-slide-up">
-          <h2 className="text-2xl font-bold mb-6 text-gray-100">Participantes</h2>
+          <h2 className="text-2xl font-bold mb-6 text-gray-100">{translations.rouletteParticipants}</h2>
           <textarea
             className="w-full h-48 p-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-200 resize-none transition-all placeholder-gray-500"
-            placeholder="Digite os nomes, um por linha..."
+            placeholder={translations.rouletteNamesPlaceholder}
             value={names}
             onChange={(e) => setNames(e.target.value)}
             disabled={isSpinning}
           />
           <div className="mt-8 flex flex-col space-y-4">
             <div className="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/10">
-              <label htmlFor="numberOfWinners" className="text-lg font-medium text-gray-300">Sortear:</label>
+              <label htmlFor="numberOfWinners" className="text-lg font-medium text-gray-300">{translations.rouletteDraw}:</label>
               <div className="flex items-center">
                 <input
                   id="numberOfWinners"
@@ -103,7 +105,7 @@ const Roulette = () => {
                   onChange={(e) => setNumberOfWinners(Math.max(1, parseInt(e.target.value, 10) || 1))}
                   disabled={isSpinning}
                 />
-                <span className="ml-3 text-gray-400">nome(s)</span>
+                <span className="ml-3 text-gray-400">{translations.rouletteNamesUnit}</span>
               </div>
             </div>
           </div>
@@ -112,7 +114,7 @@ const Roulette = () => {
             onClick={handleSpin}
             disabled={isSpinning || nameList.length === 0}
           >
-            {isSpinning ? 'Sorteando...' : 'Girar a Roleta'}
+            {isSpinning ? translations.rouletteSpinning : translations.rouletteSpinButton}
           </button>
         </div>
 
@@ -160,7 +162,7 @@ const Roulette = () => {
             </div>
             {winners.length > 0 && !isSpinning && (
                 <div className="mt-8 w-full text-center bg-white/5 p-6 rounded-xl border border-white/10 animate-fade-in">
-                    <h2 className="text-2xl font-bold mb-4 text-gray-300">Vencedor(es):</h2>
+                    <h2 className="text-2xl font-bold mb-4 text-gray-300">{translations.rouletteWinners}</h2>
                     <ul className="flex flex-wrap justify-center gap-3">
                     {winners.map((winner, index) => (
                         <li key={index} className="px-4 py-2 bg-blue-500/20 border border-blue-500/30 text-blue-400 rounded-lg text-xl font-bold animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>

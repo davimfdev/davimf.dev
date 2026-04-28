@@ -49,7 +49,8 @@ const translations = {
       { id: 1, title: "Discord Bot", description: "Um bot completamente personalizavel, focado em moderação e segurança.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" }
     ],
     productList: [
-      { id: 1, name: "Conhecer os bots do discord", description: "Um bot completamente personálizavel, focado em moderação e segurança.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" }
+      { id: 1, name: "Conhecer os bots do discord", description: "Um bot completamente personálizavel, focado em moderação e segurança.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" },
+      { id: 2, name: "FiveM Mod Manager", description: "Gerencie seus mods do FiveM com apenas um clique. Instale, ative e desative mods de som, RPF e Citizens com backup automático e otimizações de desempenho.", image: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/270123807/original/2e13089eeeef09bbb2a04d238dce1f419b5a7268/install-gta-fivem-server-with-qbcore-linux-or-windows.png", link: "/fmm-plans" }
     ],
     downloadPDF: "Baixar PDF",
     personalInfo: "Dados Pessoais",
@@ -97,7 +98,10 @@ const translations = {
     subscribe: "Assinar",
     month: "mês",
     year: "ano",
+    quarterly: "Trimestral",
+    lifetime: "Vitalício",
     annualDiscount: "Economize 16% com o plano anual!",
+    fmmModManagerPlans: "Planos do Gerenciador de Mods FiveM",
     discordPlans: [
         { title: "Básico", price: 35, features: ["logs", "verification", "security", "moderation", "limited_customization", "paid_features"], paymentLinks: { monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=01bac1298ea84b9ea952483a553811ec", annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=52e56a46d88345418fe1472f0c443e1d" } },
         { title: "Intermediário", price: 50, features: ["all_basic", "vip", "five_new_features", "advanced_security", "hour_counting"], paymentLinks: { monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=59aab9185a0e4ca4be5334bfabd8dd6d", annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=352c67ff541b492fb3126d3164928057" } },
@@ -111,6 +115,23 @@ const translations = {
     planFeatures: {
         discord: { logs: "Módulos de log", verification: "Verificação de entrada", security: "Módulos de segurança", moderation: "Moderação", limited_customization: "Customização limitada", paid_features: "Novas funcionalidades pagas à parte", all_basic: "Tudo do plano Básico", vip: "Sistemas de VIP", five_new_features: "Até 5 funcionalidades novas inclusas", advanced_security: "Sistemas de segurança mais avançados", hour_counting: "Sistema de contagem de horas", all_intermediate: "Tudo do plano Intermediário", unlimited_features: "Funcionalidades novas ilimitadas", full_customization: "Bot totalmente customizável", large_servers: "Preparado para GRANDES servidores", priority_support: "Suporte prioritário", proactive_monitoring: "Monitoramento proativo do desempenho" },
         fivem: { basic_features: "Funcionalidades do plano Base", sell_logs: "Logs de venda", production_logs: "Logs de produção", sets: "Sets", all_base: "Tudo do plano Base", financial_panel: "Painel financeiro", report_system: "Sistema de relatórios", all_intermediate_fivem: "Tudo do plano Intermediário", full_customization_fivem: "100% de personalização", free_new_features: "Novas funcionalidades gratuitas", priority_support_fivem: "Suporte prioritário" }
+    },
+    fmmPlans: [
+        { title: "Básico", prices: { monthly: 15, quarterly: 40, lifetime: 80 }, features: ["fmm_sound_mods", "fmm_rpf_mods", "fmm_one_click", "fmm_backup", "fmm_basic_support"], paymentLinks: { monthly: "#", quarterly: "#", lifetime: "#" } },
+        { title: "Pro", prices: { monthly: 35, quarterly: 100, lifetime: 200 }, features: ["fmm_all_basic", "fmm_citizens", "fmm_citizens_extras", "fmm_performance", "fmm_advanced_logs", "fmm_priority_support"], paymentLinks: { monthly: "#", quarterly: "#", lifetime: "#" } }
+    ],
+    fmmPlanFeatures: {
+        fmm_sound_mods: "Gerenciamento de mods de som",
+        fmm_rpf_mods: "Gerenciamento de mods RPF",
+        fmm_one_click: "Ativar/desativar mods com 1 clique",
+        fmm_backup: "Backup automático antes de instalações",
+        fmm_basic_support: "Suporte básico",
+        fmm_all_basic: "Tudo do plano Básico",
+        fmm_citizens: "Gerenciamento de Citizens",
+        fmm_citizens_extras: "Suporte a CitizenExtras",
+        fmm_performance: "Otimizações de desempenho do Windows",
+        fmm_advanced_logs: "Logs avançados e histórico completo",
+        fmm_priority_support: "Suporte prioritário"
     },
     urlShortenerTitle: "Encurtador de URL",
     urlShortenerPlaceholder: "Digite a URL para encurtar",
@@ -189,6 +210,28 @@ const translations = {
     recurrenceWeekly: "Semanal",
     recurrenceMonthly: "Mensal",
     connectGoogleCalendar: "Conectar com Google Calendar",
+    fullName: "Davi Monteiro Fonseca",
+    rouletteParticipants: "Participantes",
+    rouletteDraw: "Sortear",
+    rouletteNamesUnit: "nome(s)",
+    rouletteSpinButton: "Girar a Roleta",
+    rouletteSpinning: "Sorteando...",
+    rouletteWinners: "Vencedor(es):",
+    rouletteNamesPlaceholder: "Digite os nomes, um por linha...",
+    calculatorProduct: "Produto",
+    calculatorAddProduct: "Adicionar Produto",
+    calculatorAddedItems: "Itens Adicionados",
+    calculatorNoItems: "Nenhum item adicionado ainda.",
+    calculatorRemove: "Remover",
+    calculatorClearAll: "Limpar Tudo",
+    calculatorSummary: "Resumo do Cálculo",
+    calculatorGunpowder: "Total de Pólvora Usada",
+    calculatorMoneyUsed: "Total de Dinheiro Usado",
+    calculatorTotalCharge: "Total a Cobrar do Cliente",
+    calculatorCommission: "Comissão (20%)",
+    calculatorTotalFaction: "Total para Facção",
+    calculatorWithoutPartnership: "Sem Parceria",
+    calculatorWithPartnership: "Com Parceria",
     privacyPolicy: "Política de Privacidade",
     termsOfService: "Termos de Serviço",
     privacy: {
@@ -228,7 +271,9 @@ const translations = {
         liabilityLimitation: "Limitação de Responsabilidade",
         liabilityLimitationText: "Em nenhuma circunstância o proprietário deste site será responsável por quaisquer danos diretos, indiretos, incidentais, especiais ou consequenciais que resultem do uso ou da incapacidade de usar este serviço. O uso do serviço é por sua conta e risco. Não oferecemos garantia de que o serviço estará livre de erros, interrupções ou perda de dados.",
         termsModification: "Modificações nos Termos",
-        termsModificationText: "Reservamo-nos o direito de modificar estes termos a qualquer momento. Aconselhamos que você revise esta página periodicamente para estar ciente de quaisquer alterações. O uso continuado do site após a publicação de alterações constituirá sua aceitação dos novos termos."
+        termsModificationText: "Reservamo-nos o direito de modificar estes termos a qualquer momento. Aconselhamos que você revise esta página periodicamente para estar ciente de quaisquer alterações. O uso continuado do site após a publicação de alterações constituirá sua aceitação dos novos termos.",
+        contact: "Contato",
+        contactText: "Se você tiver dúvidas sobre estes termos, entre em contato através da nossa página de contato."
     }
   },
   en: {
@@ -271,7 +316,8 @@ const translations = {
         { id: 1, title: "Discord Bot", description: "A fully customizable bot focused on moderation and security.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" }
     ],
     productList: [
-        { id: 1, name: "Discover the discord bots", description: "A fully customizable bot focused on moderation and security.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" }
+        { id: 1, name: "Discover the discord bots", description: "A fully customizable bot focused on moderation and security.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" },
+        { id: 2, name: "FiveM Mod Manager", description: "Manage your FiveM mods with just one click. Safely install, enable, and disable sound, RPF, and Citizens mods with automatic backups and performance optimizations.", image: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/270123807/original/2e13089eeeef09bbb2a04d238dce1f419b5a7268/install-gta-fivem-server-with-qbcore-linux-or-windows.png", link: "/fmm-plans" }
     ],
     downloadPDF: "Download PDF",
     personalInfo: "Personal Information",
@@ -319,7 +365,10 @@ const translations = {
     subscribe: "Subscribe",
     month: "month",
     year: "year",
+    quarterly: "Quarterly",
+    lifetime: "Lifetime",
     annualDiscount: "Save 16% with the annual plan!",
+    fmmModManagerPlans: "FiveM Mod Manager Plans",
     discordPlans: [
         { title: "Basic", price: 35, features: ["logs", "verification", "security", "moderation", "limited_customization", "paid_features"], paymentLinks: { monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=01bac1298ea84b9ea952483a553811ec", annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=52e56a46d88345418fe1472f0c443e1d" } },
         { title: "Intermediate", price: 50, features: ["all_basic", "vip", "five_new_features", "advanced_security", "hour_counting"], paymentLinks: { monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=59aab9185a0e4ca4be5334bfabd8dd6d", annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=352c67ff541b492fb3126d3164928057" } },
@@ -333,6 +382,23 @@ const translations = {
     planFeatures: {
         discord: { logs: "Log modules", verification: "Entry verification", security: "Security modules", moderation: "Moderation", limited_customization: "Limited customization", paid_features: "New features paid separately", all_basic: "Everything from the Basic plan", vip: "VIP systems", five_new_features: "Up to 5 new features included", advanced_security: "Advanced security systems", hour_counting: "Hour counting system", all_intermediate: "Everything from the Intermediate plan", unlimited_features: "Unlimited new features", full_customization: "Fully customizable bot", large_servers: "Prepared for LARGE servers", priority_support: "Priority support", proactive_monitoring: "Proactive performance monitoring" },
         fivem: { basic_features: "Base plan features", sell_logs: "Sell logs", production_logs: "Production logs", sets: "Sets", all_base: "Everything from the Base plan", financial_panel: "Financial panel", report_system: "Reporting system", all_intermediate_fivem: "Everything from the Intermediate plan", full_customization_fivem: "100% customization", free_new_features: "Free new features", priority_support_fivem: "Priority support" }
+    },
+    fmmPlans: [
+        { title: "Basic", prices: { monthly: 15, quarterly: 40, lifetime: 80 }, features: ["fmm_sound_mods", "fmm_rpf_mods", "fmm_one_click", "fmm_backup", "fmm_basic_support"], paymentLinks: { monthly: "#", quarterly: "#", lifetime: "#" } },
+        { title: "Pro", prices: { monthly: 35, quarterly: 100, lifetime: 200 }, features: ["fmm_all_basic", "fmm_citizens", "fmm_citizens_extras", "fmm_performance", "fmm_advanced_logs", "fmm_priority_support"], paymentLinks: { monthly: "#", quarterly: "#", lifetime: "#" } }
+    ],
+    fmmPlanFeatures: {
+        fmm_sound_mods: "Sound mod management",
+        fmm_rpf_mods: "RPF mod management",
+        fmm_one_click: "Enable/disable mods with 1 click",
+        fmm_backup: "Automatic backup before installations",
+        fmm_basic_support: "Basic support",
+        fmm_all_basic: "Everything from the Basic plan",
+        fmm_citizens: "Citizens management",
+        fmm_citizens_extras: "CitizenExtras support",
+        fmm_performance: "Windows performance optimizations",
+        fmm_advanced_logs: "Advanced logs and full history",
+        fmm_priority_support: "Priority support"
     },
     urlShortenerTitle: "URL Shortener",
     urlShortenerPlaceholder: "Enter URL to shorten",
@@ -411,6 +477,28 @@ const translations = {
     recurrenceWeekly: "Weekly",
     recurrenceMonthly: "Monthly",
     connectGoogleCalendar: "Connect with Google Calendar",
+    fullName: "Davi Monteiro Fonseca",
+    rouletteParticipants: "Participants",
+    rouletteDraw: "Draw",
+    rouletteNamesUnit: "name(s)",
+    rouletteSpinButton: "Spin the Wheel",
+    rouletteSpinning: "Drawing...",
+    rouletteWinners: "Winner(s):",
+    rouletteNamesPlaceholder: "Enter names, one per line...",
+    calculatorProduct: "Product",
+    calculatorAddProduct: "Add Product",
+    calculatorAddedItems: "Added Items",
+    calculatorNoItems: "No items added yet.",
+    calculatorRemove: "Remove",
+    calculatorClearAll: "Clear All",
+    calculatorSummary: "Calculation Summary",
+    calculatorGunpowder: "Total Gunpowder Used",
+    calculatorMoneyUsed: "Total Money Used",
+    calculatorTotalCharge: "Total to Charge Client",
+    calculatorCommission: "Commission (20%)",
+    calculatorTotalFaction: "Total for Faction",
+    calculatorWithoutPartnership: "Without Partnership",
+    calculatorWithPartnership: "With Partnership",
     privacyPolicy: "Privacy Policy",
     termsOfService: "Terms of Service",
     privacy: {
@@ -450,7 +538,9 @@ const translations = {
         liabilityLimitation: "Limitation of Liability",
         liabilityLimitationText: "Under no circumstances shall the owner of this site be liable for any direct, indirect, incidental, special, or consequential damages that result from the use of or inability to use this service. Your use of the service is at your sole risk. We do not warrant that the service will be error-free, uninterrupted, or free of data loss.",
         termsModification: "Modifications to Terms",
-        termsModificationText: "We reserve the right to modify these terms at any time. We advise you to review this page periodically for any changes. Your continued use of the site after the posting of changes will constitute your acceptance of such changes."
+        termsModificationText: "We reserve the right to modify these terms at any time. We advise you to review this page periodically for any changes. Your continued use of the site after the posting of changes will constitute your acceptance of such changes.",
+        contact: "Contact",
+        contactText: "If you have any questions about these terms, please contact us through our contact page."
     }
   }
 };

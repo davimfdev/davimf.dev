@@ -1,6 +1,27 @@
+import React from 'react';
 import { ArrowRight, Code, Layout, Smartphone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { useCardTilt } from '../hooks/useCardTilt';
+
+function FeatureCard({ feature }: { feature: { icon: React.ElementType; title: string; desc: string } }) {
+  const { ref, onMouseMove, onMouseLeave } = useCardTilt();
+  const Icon = feature.icon;
+  return (
+    <div
+      ref={ref}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+      className="glass-panel p-8 flex flex-col items-center text-center group cursor-default"
+    >
+      <div className="p-4 bg-white/5 rounded-2xl mb-6 group-hover:bg-blue-500/20 transition-colors duration-300">
+        <Icon size={32} className="text-blue-400 group-hover:text-blue-300" />
+      </div>
+      <h3 className="text-xl font-bold mb-3 text-gray-100">{feature.title}</h3>
+      <p className="text-gray-400 text-sm leading-relaxed">{feature.desc}</p>
+    </div>
+  );
+}
 
 const Home = () => {
   const { translations } = useLanguage();
@@ -51,18 +72,9 @@ const Home = () => {
             { icon: Code, title: translations.cleanCode, desc: translations.cleanCodeDesc },
             { icon: Layout, title: translations.modernUI, desc: translations.modernUIDesc },
             { icon: Smartphone, title: translations.responsive, desc: translations.responsiveDesc },
-          ].map((feature, index) => {
-            const Icon = feature.icon;
-            return (
-              <div key={index} className="glass-panel p-8 flex flex-col items-center text-center transform hover:-translate-y-2 transition-all duration-300 group cursor-default">
-                <div className="p-4 bg-white/5 rounded-2xl mb-6 group-hover:bg-blue-500/20 transition-colors duration-300">
-                  <Icon size={32} className="text-blue-400 group-hover:text-blue-300" />
-                </div>
-                <h3 className="text-xl font-bold mb-3 text-gray-100">{feature.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{feature.desc}</p>
-              </div>
-            );
-          })}
+          ].map((feature, index) => (
+            <FeatureCard key={index} feature={feature} />
+          ))}
         </div>
 
       </div>

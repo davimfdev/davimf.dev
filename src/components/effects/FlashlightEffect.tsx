@@ -6,23 +6,25 @@ export default function FlashlightEffect() {
     root.style.setProperty('--fl-x', '50%');
     root.style.setProperty('--fl-y', '50%');
 
+    const touchMoveOptions: AddEventListenerOptions = { passive: true };
+
     const onMouseMove = (e: MouseEvent) => {
-      root.style.setProperty('--fl-x', (e.clientX / window.innerWidth  * 100).toFixed(2) + '%');
-      root.style.setProperty('--fl-y', (e.clientY / window.innerHeight * 100).toFixed(2) + '%');
+      root.style.setProperty('--fl-x', ((e.clientX / window.innerWidth  * 100) | 0) + '%');
+      root.style.setProperty('--fl-y', ((e.clientY / window.innerHeight * 100) | 0) + '%');
     };
 
     const onTouchMove = (e: TouchEvent) => {
       const t = e.touches[0];
-      root.style.setProperty('--fl-x', (t.clientX / window.innerWidth  * 100).toFixed(2) + '%');
-      root.style.setProperty('--fl-y', (t.clientY / window.innerHeight * 100).toFixed(2) + '%');
+      root.style.setProperty('--fl-x', ((t.clientX / window.innerWidth  * 100) | 0) + '%');
+      root.style.setProperty('--fl-y', ((t.clientY / window.innerHeight * 100) | 0) + '%');
     };
 
     window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, touchMoveOptions);
 
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchmove', onTouchMove, touchMoveOptions);
     };
   }, []);
 
@@ -47,7 +49,6 @@ export default function FlashlightEffect() {
           zIndex: 0,
           pointerEvents: 'none',
           background: 'radial-gradient(circle 140px at var(--fl-x, 50%) var(--fl-y, 50%), transparent 0%, rgba(17,24,39,0.92) 100%)',
-          willChange: 'background',
         }}
       />
     </>

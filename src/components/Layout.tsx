@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 // MODIFICADO: Adicionado LogOut na lista de imports
 import { Menu, X, Github, Linkedin, Mail, Globe, MessageCircle, Phone, User, ChevronDown, LogOut } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import FlashlightEffect from './effects/FlashlightEffect';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -110,6 +111,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
       <div className="min-h-screen flex flex-col relative z-0">
         <div className="bg-blobs"></div>
+        <FlashlightEffect />
 
         <nav className="glass-nav fixed w-full z-50 top-0">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

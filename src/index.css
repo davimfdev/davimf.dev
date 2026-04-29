@@ -11,11 +11,26 @@
 @layer components {
   /* Mica / Glassmorphism Effect */
   .glass-panel {
-    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-lg rounded-xl transition-all duration-300;
+    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-lg rounded-xl transition-all duration-300 relative overflow-hidden;
   }
 
   .glass-panel:hover {
     @apply bg-white/10 border-white/20;
+  }
+
+  .glass-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s;
+    background: radial-gradient(circle at var(--shine-x, 50%) var(--shine-y, 50%), rgba(255,255,255,0.07) 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  .glass-panel:hover::before {
+    opacity: 1;
   }
 
   .glass-nav {

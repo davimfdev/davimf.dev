@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
+import { NotesProvider } from './context/NotesContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
@@ -25,13 +26,17 @@ import Dashboard from './pages/Dashboard';
 import BotConfig from './pages/BotConfig';
 import FmmPlans from './pages/FmmPlans';
 import FmmActivated from './pages/FmmActivated';
+import Notes from './pages/Notes';
+import { NotesFloatingLayer } from './components/notes/NotesFloatingLayer';
 
 function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
+        <NotesProvider>
         <Router>
           <Layout>
+            <NotesFloatingLayer />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/portfolio" element={<Portfolio />} />
@@ -55,9 +60,11 @@ function App() {
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/fmm-plans" element={<FmmPlans />} />
               <Route path="/fmm-activated" element={<FmmActivated />} />
+              <Route path="/notes" element={<Notes />} />
             </Routes>
           </Layout>
         </Router>
+        </NotesProvider>
       </AuthProvider>
     </LanguageProvider>
   );

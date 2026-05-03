@@ -40,6 +40,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: translations.financeManager, href: '/finances' },
     { name: translations.urlShortener, href: '/encurtador' },
     { name: translations.roulette, href: '/roulette' },
+    { name: 'Notas', href: '/notes' },
   ];
 
   const toggleLanguage = () => setLanguage(language === 'pt' ? 'en' : 'pt');

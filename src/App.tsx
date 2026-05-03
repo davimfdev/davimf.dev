@@ -35,8 +35,8 @@ function App() {
       <AuthProvider>
         <NotesProvider>
         <Router>
+          <NotesFloatingLayer />
           <Layout>
-            <NotesFloatingLayer />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/portfolio" element={<Portfolio />} />

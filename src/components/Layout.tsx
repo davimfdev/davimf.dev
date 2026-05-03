@@ -26,7 +26,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const { language, setLanguage, translations } = useLanguage();
 
-  const DISCORD_AUTH_URL = "https://discord.com/api/oauth2/authorize?client_id=1484035057478799411&redirect_uri=https%3A%2F%2Fdavimf.dev%2Fapi%2Fcallback&response_type=code&scope=identify%20guilds";
+  const redirectUri = encodeURIComponent(`${window.location.origin}/api/callback`);
+  const DISCORD_AUTH_URL = `https://discord.com/api/oauth2/authorize?client_id=1484035057478799411&redirect_uri=${redirectUri}&response_type=code&scope=identify%20guilds`;
   const navigation = [
     { name: translations.home, href: '/' },
     { name: translations.portfolio, href: '/portfolio' },
@@ -241,7 +242,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           )}
         </nav>
 
-        <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 w-full animate-fade-in relative z-10">
+        <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 w-full animate-fade-in relative z-20">
           {children}
         </main>
 

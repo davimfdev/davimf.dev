@@ -26,7 +26,6 @@ export const NoteCard: React.FC<NoteCardProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isCreating, setIsCreating] = useState(true);
   const cardRef = useRef<HTMLDivElement>(null);
-  const dragOffset = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
 
   useEffect(() => {
@@ -46,25 +45,43 @@ export const NoteCard: React.FC<NoteCardProps> = ({
     onBringToFront(note.id);
     isDragging.current = true;
 
-    const rect = cardRef.current!.getBoundingClientRect();
-    dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    // offsetLeft/offsetTop = parent-relative coords (same space as style.left/top)
+    const startX = cardRef.current!.offsetLeft;
+    const startY = cardRef.current!.offsetTop;
+    const startClientX = e.clientX;
+    const startClientY = e.clientY;
+
+    // Lock note.pos_x/pos_y in parent state immediately so any re-render
+    // (e.g. from bringToFront z-index update) doesn't snap card back to gridPosition.
+    // Large debounce = state updates now, API call effectively never (overwritten on mouseup).
+    onUpdate({ id: note.id, pos_x: startX, pos_y: startY }, 999999);
+
+    if (cardRef.current) cardRef.current.style.transition = 'none';
 
     const handleMouseMove = (ev: MouseEvent) => {
-      if (!isDragging.current) return;
-      const newX = ev.clientX - dragOffset.current.x;
-      const newY = ev.clientY - dragOffset.current.y;
-      if (cardRef.current) {
-        cardRef.current.style.left = `${newX}px`;
-        cardRef.current.style.top = `${newY}px`;
-      }
+      if (!isDragging.current || !cardRef.current) return;
+      const dx = ev.clientX - startClientX;
+      const dy = ev.clientY - startClientY;
+      // Direct DOM — transform not declared in JSX style so React never resets it
+      cardRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
     };
 
     const handleMouseUp = (ev: MouseEvent) => {
       if (!isDragging.current) return;
       isDragging.current = false;
-      const newX = ev.clientX - dragOffset.current.x;
-      const newY = Math.max(0, ev.clientY - dragOffset.current.y);
-      onUpdate({ id: note.id, pos_x: newX, pos_y: newY }, 500);
+      const dx = ev.clientX - startClientX;
+      const dy = ev.clientY - startClientY;
+      const finalX = startX + dx;
+      const finalY = Math.max(0, startY + dy);
+      if (cardRef.current) {
+        // Set final position directly before React re-render to avoid flicker
+        cardRef.current.style.transform = '';
+        cardRef.current.style.left = `${finalX}px`;
+        cardRef.current.style.top = `${finalY}px`;
+        cardRef.current.style.transition = '';
+      }
+      // Clears the 999999ms timer above; sends API call after 500ms
+      onUpdate({ id: note.id, pos_x: finalX, pos_y: finalY }, 500);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
@@ -89,7 +106,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
       <>
         <div className="fixed inset-0 bg-black/60 z-[9998]" onClick={() => onUpdate({ id: note.id, is_maximized: false })} />
         <div
-          className="fixed inset-4 z-[9999] glass-panel flex flex-col overflow-hidden"
+          className="fixed top-[88px] left-4 right-4 bottom-4 z-[9999] glass-panel flex flex-col overflow-hidden"
           style={{ ...bgStyle, borderColor: `rgba(${rgb}, 0.4)` }}
         >
           <div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
@@ -118,12 +135,13 @@ export const NoteCard: React.FC<NoteCardProps> = ({
   return (
     <div
       ref={cardRef}
-      className={`absolute select-none transition-all duration-200 ${isCreating ? 'opacity-0 scale-90' : 'opacity-100 scale-100'} ${isDeleting ? 'opacity-0 scale-90' : ''}`}
+      className={`absolute select-none ${isCreating ? 'opacity-0 scale-90' : 'opacity-100 scale-100'} ${isDeleting ? 'opacity-0 scale-90' : ''}`}
       style={{
         left: posX,
         top: posY,
         width: note.width,
         zIndex: note.z_index,
+        transition: isCreating || isDeleting ? 'opacity 200ms, transform 200ms' : undefined,
       }}
       onMouseDown={() => onBringToFront(note.id)}
     >

@@ -67,12 +67,27 @@ export default async (req: Request, context: Context) => {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + durationDays);
 
+  const authHeader = req.headers.get('authorization');
+  let discordUserId: string | null = null;
+  if (authHeader?.startsWith('Bearer ')) {
+    try {
+      const discordRes = await fetch('https://discord.com/api/users/@me', {
+        headers: { Authorization: authHeader },
+      });
+      if (discordRes.ok) {
+        const u = await discordRes.json();
+        discordUserId = u.id ?? null;
+      }
+    } catch { /* non-fatal */ }
+  }
+
   await sql`
-    INSERT INTO fmm_license_keys (key_hash, key_prefix, level, duration_days, expires_at, notes)
+    INSERT INTO fmm_license_keys (key_hash, key_prefix, level, duration_days, expires_at, notes, discord_user_id)
     VALUES (
       ${keyHash}, ${keyPrefix}, ${order.plan}, ${durationDays},
       ${expiresAt.toISOString()},
-      ${`Auto-generated via AbacatePay checkout ${order.abacate_checkout_id}`}
+      ${`Auto-generated via AbacatePay checkout ${order.abacate_checkout_id}`},
+      ${discordUserId}
     )
   `;
 

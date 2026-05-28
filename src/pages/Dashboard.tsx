@@ -1,12 +1,16 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate} from "react-router-dom";
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Dashboard() {
     const [guilds, setGuilds] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [serverError, setServerError] = useState(false);
     const hasFetched = useRef(false);
 
     const navigate = useNavigate();
+    const { translations } = useLanguage();
+    const t = translations as any;
 
     // Link de convite do seu bot (substitua o CLIENT_ID pelo do seu bot)
     const BOT_INVITE_LINK = "https://discord.com/api/oauth2/authorize?client_id=1484035057478799411&permissions=8&scope=bot%20applications.commands";
@@ -48,17 +52,19 @@ export default function Dashboard() {
         fetch('/.netlify/functions/getGuilds', {
             headers: { Authorization: `Bearer ${savedToken}` },
         })
-            .then((res) => res.json())
-            .then((data) => {
+            .then(async (res) => ({ status: res.status, data: await res.json() }))
+            .then(({ status, data }) => {
                 if (Array.isArray(data)) {
                     const sortedGuilds = data.sort((a, b) => (a.hasBot === b.hasBot ? 0 : a.hasBot ? -1 : 1));
                     setGuilds(sortedGuilds);
                 } else {
                     setGuilds([]);
-                    if (data.error) {
+                    if (status === 401) {
                         localStorage.removeItem('discord_token');
                         alert("Sessão expirada. Faça login novamente.");
                         window.location.href = '/';
+                    } else if (status === 500) {
+                        setServerError(true);
                     }
                 }
                 setLoading(false);
@@ -73,6 +79,34 @@ export default function Dashboard() {
         return (
             <div style={styles.container}>
                 <h2 style={styles.loadingText}>Carregando seus servidores...</h2>
+            </div>
+        );
+    }
+
+    if (serverError) {
+        return (
+            <div style={styles.container}>
+                <div style={{
+                    maxWidth: 480,
+                    margin: '80px auto',
+                    padding: '32px',
+                    borderRadius: 16,
+                    background: 'rgba(239,68,68,0.08)',
+                    border: '1px solid rgba(239,68,68,0.3)',
+                    textAlign: 'center',
+                }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#ef4444"
+                        style={{ width: 48, height: 48, marginBottom: 16 }}>
+                        <path strokeLinecap="round" strokeLinejoin="round"
+                            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                    </svg>
+                    <h2 style={{ color: '#ef4444', fontSize: 20, fontWeight: 700, marginBottom: 12 }}>
+                        {t.dbOfflineTitle}
+                    </h2>
+                    <p style={{ color: '#9ca3af', fontSize: 14, lineHeight: 1.6 }}>
+                        {t.dbOfflineMessage}
+                    </p>
+                </div>
             </div>
         );
     }

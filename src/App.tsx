@@ -3,7 +3,6 @@ import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotesProvider } from './context/NotesContext';
 import Layout from './components/Layout';
-import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Portfolio from './pages/Portfolio';
 import Resume from './pages/Resume';
@@ -26,6 +25,8 @@ import Dashboard from './pages/Dashboard';
 import BotConfig from './pages/BotConfig';
 import FmmPlans from './pages/FmmPlans';
 import FmmActivated from './pages/FmmActivated';
+import MyKeys from './pages/MyKeys';
+import FmmAdmin from './pages/FmmAdmin';
 import Notes from './pages/Notes';
 import { NotesFloatingLayer } from './components/notes/NotesFloatingLayer';
 
@@ -58,8 +59,10 @@ function App() {
               <Route path="/dashboard" element={<Dashboard/>} />
               <Route path="/dashboard/:guildId" element={<BotConfig/>} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/fmm-plans" element={<FmmPlans />} />
+              <Route path="/fmm" element={<FmmPlans />} />
               <Route path="/fmm-activated" element={<FmmActivated />} />
+              <Route path="/my-keys" element={<MyKeys />} />
+              <Route path="/fmm-admin" element={<FmmAdmin />} />
               <Route path="/notes" element={<Notes />} />
             </Routes>
           </Layout>

@@ -50,7 +50,7 @@ const translations = {
     ],
     productList: [
       { id: 1, name: "Conhecer os bots do discord", description: "Um bot completamente personálizavel, focado em moderação e segurança.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" },
-      { id: 2, name: "FiveM Mod Manager", description: "Gerencie seus mods do FiveM com apenas um clique. Instale, ative e desative mods de som, RPF e Citizens com backup automático e otimizações de desempenho.", image: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/270123807/original/2e13089eeeef09bbb2a04d238dce1f419b5a7268/install-gta-fivem-server-with-qbcore-linux-or-windows.png", link: "/fmm-plans" }
+      { id: 2, name: "FiveM Mod Manager", description: "Gerencie seus mods do FiveM com apenas um clique. Instale, ative e desative mods de som, RPF e Citizens com backup automático e otimizações de desempenho.", image: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/270123807/original/2e13089eeeef09bbb2a04d238dce1f419b5a7268/install-gta-fivem-server-with-qbcore-linux-or-windows.png", link: "/fmm" }
     ],
     downloadPDF: "Baixar PDF",
     personalInfo: "Dados Pessoais",
@@ -102,6 +102,15 @@ const translations = {
     lifetime: "Vitalício",
     annualDiscount: "Economize 16% com o plano anual!",
     fmmModManagerPlans: "Planos do Gerenciador de Mods FiveM",
+    fmmQuarterlySavings: "Economize ~11% vs mensal",
+    fmmLifetimeNote: "Pagamento único — acesso para sempre",
+    fmmForever: "para sempre",
+    fmmRecommended: "Recomendado",
+    fmmOneTimePayment: "pagamento único",
+    fmmLicenseDelivery: "Após o pagamento, sua licença será entregue automaticamente.",
+    fmmDownloadFree: "Grátis",
+    dbOfflineTitle: "Serviço temporariamente indisponível",
+    dbOfflineMessage: "Nosso banco de dados está offline no momento. Já enviamos um alerta e ele será restaurado em breve. Tente novamente mais tarde.",
     discordPlans: [
         { title: "Básico", price: 35, features: ["logs", "verification", "security", "moderation", "limited_customization", "paid_features"], paymentLinks: { monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=01bac1298ea84b9ea952483a553811ec", annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=52e56a46d88345418fe1472f0c443e1d" } },
         { title: "Intermediário", price: 50, features: ["all_basic", "vip", "five_new_features", "advanced_security", "hour_counting"], paymentLinks: { monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=59aab9185a0e4ca4be5334bfabd8dd6d", annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=352c67ff541b492fb3126d3164928057" } },
@@ -117,21 +126,28 @@ const translations = {
         fivem: { basic_features: "Funcionalidades do plano Base", sell_logs: "Logs de venda", production_logs: "Logs de produção", sets: "Sets", all_base: "Tudo do plano Base", financial_panel: "Painel financeiro", report_system: "Sistema de relatórios", all_intermediate_fivem: "Tudo do plano Intermediário", full_customization_fivem: "100% de personalização", free_new_features: "Novas funcionalidades gratuitas", priority_support_fivem: "Suporte prioritário" }
     },
     fmmPlans: [
-        { title: "Básico", prices: { monthly: 15, quarterly: 40, lifetime: 80 }, features: ["fmm_sound_mods", "fmm_rpf_mods", "fmm_one_click", "fmm_backup", "fmm_basic_support"], paymentLinks: { monthly: "#", quarterly: "#", lifetime: "#" } },
-        { title: "Pro", prices: { monthly: 35, quarterly: 100, lifetime: 200 }, features: ["fmm_all_basic", "fmm_citizens", "fmm_citizens_extras", "fmm_performance", "fmm_advanced_logs", "fmm_priority_support"], paymentLinks: { monthly: "#", quarterly: "#", lifetime: "#" } }
+        { title: "Básico", prices: { monthly: 15, quarterly: 40, lifetime: 80 }, features: ["fmm_sound_packs", "fmm_citizen_extras", "fmm_servers_list", "fmm_one_click_server", "fmm_favorite_servers", "fmm_fivem_settings", "fmm_settings_presets", "fmm_apply_registry", "fmm_hardware_analysis"], paymentLinks: { monthly: "#", quarterly: "#", lifetime: "#" } },
+        { title: "Pro", prices: { monthly: 35, quarterly: 100, lifetime: 200 }, features: ["fmm_all_basic", "fmm_restore_services", "fmm_save_profile", "fmm_load_profile", "fmm_rename_profile", "fmm_auto_reconnect"], paymentLinks: { monthly: "#", quarterly: "#", lifetime: "#" } }
     ],
     fmmPlanFeatures: {
-        fmm_sound_mods: "Gerenciamento de mods de som",
-        fmm_rpf_mods: "Gerenciamento de mods RPF",
-        fmm_one_click: "Ativar/desativar mods com 1 clique",
-        fmm_backup: "Backup automático antes de instalações",
-        fmm_basic_support: "Suporte básico",
+        fmm_scan_mods: "Escanear e visualizar mods instalados",
+        fmm_rpf_mods: "Ativar/desativar mods RPF",
+        fmm_view_optimizations: "Ver otimizações disponíveis",
+        fmm_sound_packs: "Ativar/desativar sound packs",
+        fmm_citizen_extras: "Ativar/desativar citizen extras",
+        fmm_servers_list: "Salvar e gerenciar lista de servidores",
+        fmm_one_click_server: "Entrar em servidor com um clique",
+        fmm_favorite_servers: "Favoritar servidores",
+        fmm_fivem_settings: "Editar configurações gráficas e de rede",
+        fmm_settings_presets: "Salvar e carregar presets de configuração",
+        fmm_apply_registry: "Aplicar otimizações de registro do Windows",
+        fmm_hardware_analysis: "Análise de hardware e saúde do sistema",
         fmm_all_basic: "Tudo do plano Básico",
-        fmm_citizens: "Gerenciamento de Citizens",
-        fmm_citizens_extras: "Suporte a CitizenExtras",
-        fmm_performance: "Otimizações de desempenho do Windows",
-        fmm_advanced_logs: "Logs avançados e histórico completo",
-        fmm_priority_support: "Suporte prioritário"
+        fmm_restore_services: "Reativar serviços bloqueados pelo Windows",
+        fmm_save_profile: "Salvar combinação de mods como perfil",
+        fmm_load_profile: "Carregar perfil salvo com um clique",
+        fmm_rename_profile: "Renomear perfis",
+        fmm_auto_reconnect: "Auto-reconexão após crash no servidor",
     },
     urlShortenerTitle: "Encurtador de URL",
     urlShortenerPlaceholder: "Digite a URL para encurtar",
@@ -317,7 +333,7 @@ const translations = {
     ],
     productList: [
         { id: 1, name: "Discover the discord bots", description: "A fully customizable bot focused on moderation and security.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" },
-        { id: 2, name: "FiveM Mod Manager", description: "Manage your FiveM mods with just one click. Safely install, enable, and disable sound, RPF, and Citizens mods with automatic backups and performance optimizations.", image: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/270123807/original/2e13089eeeef09bbb2a04d238dce1f419b5a7268/install-gta-fivem-server-with-qbcore-linux-or-windows.png", link: "/fmm-plans" }
+        { id: 2, name: "FiveM Mod Manager", description: "Manage your FiveM mods with just one click. Safely install, enable, and disable sound, RPF, and Citizens mods with automatic backups and performance optimizations.", image: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/270123807/original/2e13089eeeef09bbb2a04d238dce1f419b5a7268/install-gta-fivem-server-with-qbcore-linux-or-windows.png", link: "/fmm" }
     ],
     downloadPDF: "Download PDF",
     personalInfo: "Personal Information",
@@ -369,6 +385,15 @@ const translations = {
     lifetime: "Lifetime",
     annualDiscount: "Save 16% with the annual plan!",
     fmmModManagerPlans: "FiveM Mod Manager Plans",
+    fmmQuarterlySavings: "Save ~11% vs monthly",
+    fmmLifetimeNote: "One-time payment — lifetime access",
+    fmmForever: "forever",
+    fmmRecommended: "Recommended",
+    fmmOneTimePayment: "one-time payment",
+    fmmLicenseDelivery: "After payment, your license will be delivered automatically.",
+    fmmDownloadFree: "Free",
+    dbOfflineTitle: "Service temporarily unavailable",
+    dbOfflineMessage: "Our database is currently offline. We've already sent an alert and it will be restored shortly. Please try again later.",
     discordPlans: [
         { title: "Basic", price: 35, features: ["logs", "verification", "security", "moderation", "limited_customization", "paid_features"], paymentLinks: { monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=01bac1298ea84b9ea952483a553811ec", annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=52e56a46d88345418fe1472f0c443e1d" } },
         { title: "Intermediate", price: 50, features: ["all_basic", "vip", "five_new_features", "advanced_security", "hour_counting"], paymentLinks: { monthly: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=59aab9185a0e4ca4be5334bfabd8dd6d", annually: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=352c67ff541b492fb3126d3164928057" } },
@@ -384,21 +409,28 @@ const translations = {
         fivem: { basic_features: "Base plan features", sell_logs: "Sell logs", production_logs: "Production logs", sets: "Sets", all_base: "Everything from the Base plan", financial_panel: "Financial panel", report_system: "Reporting system", all_intermediate_fivem: "Everything from the Intermediate plan", full_customization_fivem: "100% customization", free_new_features: "Free new features", priority_support_fivem: "Priority support" }
     },
     fmmPlans: [
-        { title: "Basic", prices: { monthly: 15, quarterly: 40, lifetime: 80 }, features: ["fmm_sound_mods", "fmm_rpf_mods", "fmm_one_click", "fmm_backup", "fmm_basic_support"], paymentLinks: { monthly: "#", quarterly: "#", lifetime: "#" } },
-        { title: "Pro", prices: { monthly: 35, quarterly: 100, lifetime: 200 }, features: ["fmm_all_basic", "fmm_citizens", "fmm_citizens_extras", "fmm_performance", "fmm_advanced_logs", "fmm_priority_support"], paymentLinks: { monthly: "#", quarterly: "#", lifetime: "#" } }
+        { title: "Basic", prices: { monthly: 15, quarterly: 40, lifetime: 80 }, features: ["fmm_sound_packs", "fmm_citizen_extras", "fmm_servers_list", "fmm_one_click_server", "fmm_favorite_servers", "fmm_fivem_settings", "fmm_settings_presets", "fmm_apply_registry", "fmm_hardware_analysis"], paymentLinks: { monthly: "#", quarterly: "#", lifetime: "#" } },
+        { title: "Pro", prices: { monthly: 35, quarterly: 100, lifetime: 200 }, features: ["fmm_all_basic", "fmm_restore_services", "fmm_save_profile", "fmm_load_profile", "fmm_rename_profile", "fmm_auto_reconnect"], paymentLinks: { monthly: "#", quarterly: "#", lifetime: "#" } }
     ],
     fmmPlanFeatures: {
-        fmm_sound_mods: "Sound mod management",
-        fmm_rpf_mods: "RPF mod management",
-        fmm_one_click: "Enable/disable mods with 1 click",
-        fmm_backup: "Automatic backup before installations",
-        fmm_basic_support: "Basic support",
+        fmm_scan_mods: "Scan and view installed mods",
+        fmm_rpf_mods: "Enable/disable RPF mods",
+        fmm_view_optimizations: "View available optimizations",
+        fmm_sound_packs: "Enable/disable sound packs",
+        fmm_citizen_extras: "Enable/disable citizen extras",
+        fmm_servers_list: "Save and manage server list",
+        fmm_one_click_server: "One-click server join",
+        fmm_favorite_servers: "Favorite servers",
+        fmm_fivem_settings: "Edit graphics and network settings",
+        fmm_settings_presets: "Save and load configuration presets",
+        fmm_apply_registry: "Apply Windows registry optimizations",
+        fmm_hardware_analysis: "Hardware and system health analysis",
         fmm_all_basic: "Everything from the Basic plan",
-        fmm_citizens: "Citizens management",
-        fmm_citizens_extras: "CitizenExtras support",
-        fmm_performance: "Windows performance optimizations",
-        fmm_advanced_logs: "Advanced logs and full history",
-        fmm_priority_support: "Priority support"
+        fmm_restore_services: "Re-enable services blocked by Windows",
+        fmm_save_profile: "Save current mod combination as profile",
+        fmm_load_profile: "Load saved profile with one click",
+        fmm_rename_profile: "Rename profiles",
+        fmm_auto_reconnect: "Auto-reconnect after server crash",
     },
     urlShortenerTitle: "URL Shortener",
     urlShortenerPlaceholder: "Enter URL to shorten",

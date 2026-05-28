@@ -83,6 +83,19 @@ export const handler: Handler = async (event, context) => {
 
     } catch (error) {
         console.error(error);
+
+        const msg = error instanceof Error ? error.message : String(error);
+
+        fetch('https://formspree.io/f/meoekelg', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: 'Alerta Automático — Site',
+                email: 'davimf9702@gmail.com',
+                message: `⚠️ Erro crítico em getGuilds (provável Supabase offline).\n\nHorário: ${new Date().toISOString()}\nErro: ${msg}`,
+            }),
+        }).catch(() => {});
+
         return { statusCode: 500, body: JSON.stringify({ error: 'Erro interno no servidor' }) };
     }
 };

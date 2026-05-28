@@ -176,6 +176,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                           <Link to="/dashboard" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
                             Painel do Bot
                           </Link>
+                          <Link to="/my-keys" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                            Minhas Chaves
+                          </Link>
+                          {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
+                            <Link to="/fmm-admin" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 transition-colors">
+                              Admin FMM
+                            </Link>
+                          )}
                           <button onClick={handleLogout} className="flex items-center w-full text-left px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors">
                             <LogOut size={14} className="mr-2" />
                             Sair (Logoff)
@@ -228,6 +236,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         <Link to="/dashboard" className="text-gray-300 hover:bg-white/10 hover:text-white block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
                           Painel do Bot
                         </Link>
+                        <Link to="/my-keys" className="text-gray-300 hover:bg-white/10 hover:text-white block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
+                          Minhas Chaves
+                        </Link>
+                        {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
+                          <Link to="/fmm-admin" className="text-purple-400 hover:bg-purple-500/10 hover:text-purple-300 block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
+                            Admin FMM
+                          </Link>
+                        )}
                         <button onClick={handleLogout} className="w-full text-left text-red-400 hover:bg-red-500/10 block px-3 py-2 rounded-lg text-base font-medium transition-colors">
                           Sair (Logoff)
                         </button>

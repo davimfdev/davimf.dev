@@ -44,13 +44,13 @@ const RequestPasswordResetPage: React.FC = () => {
   return (
     <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-white/10 shadow-2xl">
       <div className="flex justify-center mb-6">
-        <div className="p-4 bg-blue-500/20 rounded-full border border-blue-500/30">
-          <Mail size={32} className="text-blue-400" />
+        <div className="p-4 bg-accent/20 rounded-full border border-accent/30">
+          <Mail size={32} className="text-accent" />
         </div>
       </div>
       <h1 className="text-4xl font-extrabold mb-8 text-center text-gradient">Recuperar Senha</h1>
       
-      {message && !resetLink && <div className="bg-blue-500/20 border border-blue-500/30 text-blue-300 px-4 py-3 rounded-lg mb-6 text-sm">{message}</div>}
+      {message && !resetLink && <div className="bg-accent/20 border border-accent/30 text-accent px-4 py-3 rounded-lg mb-6 text-sm">{message}</div>}
       {resetLink && (
         <div className="bg-green-500/20 border border-green-500/30 text-green-300 px-5 py-4 rounded-lg mb-6 break-words animate-slide-up shadow-inner">
           <p className="font-medium mb-3">{message}</p>
@@ -71,7 +71,7 @@ const RequestPasswordResetPage: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="seu@email.com"
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-white placeholder-gray-500 transition-all"
             required
             disabled={loading}
           />
@@ -91,7 +91,7 @@ const RequestPasswordResetPage: React.FC = () => {
       <div className="mt-8 pt-6 border-t border-white/10 text-center">
         <p className="text-gray-400">
           Lembrou sua senha?{' '}
-          <Link to="/login" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+          <Link to="/login" className="text-accent hover:text-accent font-medium transition-colors">
             Fazer Login
           </Link>
         </p>

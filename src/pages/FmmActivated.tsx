@@ -95,7 +95,7 @@ const FmmActivated = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in relative z-10 px-4">
         <div className="glass-panel p-10 max-w-md w-full text-center">
-          <Loader className="text-blue-400 mx-auto mb-4 animate-spin" size={48} />
+          <Loader className="text-accent mx-auto mb-4 animate-spin" size={48} />
           <h2 className="text-2xl font-bold text-white mb-3">Confirmando pagamento...</h2>
           <p className="text-gray-400">Isso pode levar alguns segundos.</p>
         </div>
@@ -110,7 +110,7 @@ const FmmActivated = () => {
           <CheckCircle className="text-green-400 mx-auto mb-4" size={52} />
           <h2 className="text-3xl font-bold text-white mb-1">Pagamento Confirmado!</h2>
           <p className="text-gray-400">
-            Plano <span className="text-blue-400 font-semibold capitalize">{result.plan}</span>{' '}
+            Plano <span className="text-accent font-semibold capitalize">{result.plan}</span>{' '}
             — {PERIOD_LABEL[result.period ?? ''] ?? result.period}
           </p>
         </div>
@@ -118,7 +118,7 @@ const FmmActivated = () => {
         <div className="mb-6">
           <p className="text-sm text-gray-400 mb-2 font-medium">Sua chave de licença:</p>
           <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-xl px-4 py-3">
-            <code className="text-blue-300 font-mono text-lg tracking-widest flex-grow select-all">
+            <code className="text-accent font-mono text-lg tracking-widest flex-grow select-all">
               {result.key}
             </code>
             <button
@@ -146,8 +146,8 @@ const FmmActivated = () => {
           </a>
         </div>
 
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 text-sm text-gray-300">
-          <p className="font-semibold text-blue-400 mb-1">Como ativar:</p>
+        <div className="bg-accent/10 border border-accent/20 rounded-xl p-4 text-sm text-gray-300">
+          <p className="font-semibold text-accent mb-1">Como ativar:</p>
           <ol className="list-decimal list-inside space-y-1 text-gray-400">
             <li>Baixe e abra o FiveM Mod Manager</li>
             <li>Vá em <span className="text-white">Configurações → Ativar Licença</span></li>
@@ -157,7 +157,7 @@ const FmmActivated = () => {
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Dúvidas?{' '}
-          <Link to="/contact" className="text-blue-400 hover:underline">Entre em contato</Link>
+          <Link to="/contact" className="text-accent hover:underline">Entre em contato</Link>
         </p>
       </div>
     </div>

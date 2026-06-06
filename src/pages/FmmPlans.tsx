@@ -99,7 +99,7 @@ const FmmPlans = () => {
                 onClick={() => setPeriod(key)}
                 className={`px-5 py-2 rounded-full font-medium transition-all duration-200 ${
                   period === key
-                    ? 'bg-blue-600 text-white shadow-lg'
+                    ? 'bg-accent text-ink shadow-lg'
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
@@ -110,12 +110,12 @@ const FmmPlans = () => {
         </div>
 
         {period === 'quarterly' && (
-          <p className="mt-4 text-blue-400 font-semibold bg-blue-500/10 inline-block px-4 py-1 rounded-full border border-blue-500/20 animate-fade-in">
+          <p className="mt-4 text-accent font-semibold bg-accent/10 inline-block px-4 py-1 rounded-full border border-accent/20 animate-fade-in">
             {t.fmmQuarterlySavings}
           </p>
         )}
         {period === 'lifetime' && (
-          <p className="mt-4 text-blue-400 font-semibold bg-blue-500/10 inline-block px-4 py-1 rounded-full border border-blue-500/20 animate-fade-in">
+          <p className="mt-4 text-accent font-semibold bg-accent/10 inline-block px-4 py-1 rounded-full border border-accent/20 animate-fade-in">
             {t.fmmLifetimeNote}
           </p>
         )}
@@ -162,9 +162,9 @@ const FmmPlans = () => {
                   border: '1px solid #3b82f6',
                 }}
               >
-                <Zap size={36} className="text-blue-400" />
+                <Zap size={36} className="text-accent" />
               </div>
-              <span className="text-xs font-bold tracking-[0.15em] uppercase text-blue-400">Básico</span>
+              <span className="text-xs font-bold tracking-[0.15em] uppercase text-accent">Básico</span>
               <span className="text-xl font-extrabold text-white mt-0.5">R${basicPlan.prices[period]}</span>
               <span className="text-xs text-gray-600">{priceSuffix() ?? t.fmmOneTimePayment}</span>
             </div>
@@ -185,9 +185,9 @@ const FmmPlans = () => {
                   border: '2px solid #8b5cf6',
                 }}
               >
-                <Layers size={36} className="text-purple-400" />
+                <Layers size={36} className="text-accent" />
               </div>
-              <span className="text-xs font-bold tracking-[0.15em] uppercase text-purple-400">Pro</span>
+              <span className="text-xs font-bold tracking-[0.15em] uppercase text-accent">Pro</span>
               <span className="text-xl font-extrabold text-white mt-0.5">R${proPlan.prices[period]}</span>
               <span className="text-xs text-gray-600">{priceSuffix() ?? t.fmmOneTimePayment}</span>
             </div>
@@ -227,14 +227,14 @@ const FmmPlans = () => {
               {/* Basic col */}
               <div className="flex justify-center py-3.5" style={{ background: 'rgba(59,130,246,0.03)' }}>
                 {basic
-                  ? <Check size={22} strokeWidth={2.5} className="text-blue-400" />
+                  ? <Check size={22} strokeWidth={2.5} className="text-accent" />
                   : <Minus size={16} className="text-gray-800" />}
               </div>
 
               {/* Pro col */}
               <div className="flex justify-center py-3.5" style={{ background: 'rgba(139,92,246,0.04)' }}>
                 {pro
-                  ? <Check size={22} strokeWidth={2.5} className="text-purple-400" />
+                  ? <Check size={22} strokeWidth={2.5} className="text-accent" />
                   : <Minus size={16} className="text-gray-800" />}
               </div>
             </div>
@@ -266,7 +266,7 @@ const FmmPlans = () => {
               <button
                 onClick={() => handleBuy('basic')}
                 disabled={loading !== null}
-                className="w-full px-3 py-2.5 rounded-lg text-sm font-semibold text-blue-400 border border-blue-500/50 hover:bg-blue-500/10 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2.5 rounded-lg text-sm font-semibold text-accent border border-accent/50 hover:bg-accent-soft/10 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading === 'basic' ? '...' : t.subscribe}
               </button>

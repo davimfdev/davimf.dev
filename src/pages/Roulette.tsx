@@ -85,7 +85,7 @@ const Roulette = () => {
         <div className="lg:col-span-1 glass-panel p-8 animate-slide-up">
           <h2 className="text-2xl font-bold mb-6 text-gray-100">{translations.rouletteParticipants}</h2>
           <textarea
-            className="w-full h-48 p-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-200 resize-none transition-all placeholder-gray-500"
+            className="w-full h-48 p-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-gray-200 resize-none transition-all placeholder-gray-500"
             placeholder={translations.rouletteNamesPlaceholder}
             value={names}
             onChange={(e) => setNames(e.target.value)}
@@ -100,7 +100,7 @@ const Roulette = () => {
                   type="number"
                   min="1"
                   max={nameList.length || 1}
-                  className="w-20 p-2 bg-gray-900 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center font-bold"
+                  className="w-20 p-2 bg-gray-900 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-center font-bold"
                   value={numberOfWinners}
                   onChange={(e) => setNumberOfWinners(Math.max(1, parseInt(e.target.value, 10) || 1))}
                   disabled={isSpinning}
@@ -165,7 +165,7 @@ const Roulette = () => {
                     <h2 className="text-2xl font-bold mb-4 text-gray-300">{translations.rouletteWinners}</h2>
                     <ul className="flex flex-wrap justify-center gap-3">
                     {winners.map((winner, index) => (
-                        <li key={index} className="px-4 py-2 bg-blue-500/20 border border-blue-500/30 text-blue-400 rounded-lg text-xl font-bold animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
+                        <li key={index} className="px-4 py-2 bg-accent/20 border border-accent/30 text-accent rounded-lg text-xl font-bold animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
                           {winner}
                         </li>
                     ))}

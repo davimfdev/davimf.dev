@@ -42,7 +42,7 @@ const Notes: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -95,7 +95,7 @@ const Notes: React.FC = () => {
 
       <button
         onClick={createNote}
-        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 hover:scale-110 active:scale-95 transition-transform flex items-center justify-center z-50"
+        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-gradient-to-br from-accent to-accent-dim text-ink shadow-lg shadow-accent/30 hover:scale-110 active:scale-95 transition-transform flex items-center justify-center z-50"
         title="Nova nota"
       >
         <Plus size={24} />

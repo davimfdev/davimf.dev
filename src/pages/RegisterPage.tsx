@@ -84,7 +84,7 @@ const RegisterPage: React.FC = () => {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-white placeholder-gray-500 transition-all"
             required
             disabled={loading}
             placeholder="seu@email.com"
@@ -99,7 +99,7 @@ const RegisterPage: React.FC = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-white placeholder-gray-500 transition-all"
             required
             disabled={loading}
             placeholder="••••••••"
@@ -114,7 +114,7 @@ const RegisterPage: React.FC = () => {
             id="confirm-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-white placeholder-gray-500 transition-all"
             required
             disabled={loading}
             placeholder="••••••••"
@@ -135,7 +135,7 @@ const RegisterPage: React.FC = () => {
       <div className="mt-8 pt-6 border-t border-white/10 text-center">
         <p className="text-gray-400">
           Já tem uma conta?{' '}
-          <Link to="/login" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+          <Link to="/login" className="text-accent hover:text-accent font-medium transition-colors">
             Fazer Login
           </Link>
         </p>

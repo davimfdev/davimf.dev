@@ -8,7 +8,13 @@
       "mcp__plugin_context-mode_context-mode__ctx_execute_file",
       "Bash(git *)",
       "Bash(npm ls *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(npx vitest *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(npx eslint *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(sort -t: -k2 -rn)"
     ]
   }
 }

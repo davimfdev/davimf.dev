@@ -2,23 +2,16 @@ import React from 'react';
 import { ArrowRight, Code, Layout, Smartphone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { useCardTilt } from '../hooks/useCardTilt';
 
 function FeatureCard({ feature }: { feature: { icon: React.ElementType; title: string; desc: string } }) {
-  const { ref, onMouseMove, onMouseLeave } = useCardTilt();
   const Icon = feature.icon;
   return (
-    <div
-      ref={ref}
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
-      className="glass-panel p-8 flex flex-col items-center text-center group cursor-default"
-    >
-      <div className="p-4 bg-white/5 rounded-2xl mb-6 group-hover:bg-blue-500/20 transition-colors duration-300">
-        <Icon size={32} className="text-blue-400 group-hover:text-blue-300" />
+    <div className="glass-panel p-8 flex flex-col items-start text-left group cursor-default transition-transform duration-300 ease-out hover:-translate-y-1 will-change-transform">
+      <div className="p-3 rounded-xl mb-6 border border-white/[0.08] group-hover:border-accent/40 transition-colors duration-300">
+        <Icon size={24} strokeWidth={1.5} className="text-[#A8A8A4] group-hover:text-accent transition-colors duration-300" />
       </div>
-      <h3 className="text-xl font-bold mb-3 text-gray-100">{feature.title}</h3>
-      <p className="text-gray-400 text-sm leading-relaxed">{feature.desc}</p>
+      <h3 className="text-lg font-semibold mb-2 text-[#F5F3EF]">{feature.title}</h3>
+      <p className="text-[#9B9B97] text-sm leading-relaxed">{feature.desc}</p>
     </div>
   );
 }
@@ -27,47 +20,39 @@ const Home = () => {
   const { translations } = useLanguage();
 
   return (
-    <div className="min-h-[calc(100vh-16rem)] flex flex-col justify-center items-center py-12 relative z-10">
-      {/* Background decoration elements */}
-      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-[100px] pointer-events-none animate-pulse"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '1s' }}></div>
+    <div className="min-h-[calc(100vh-16rem)] flex flex-col justify-center py-16 md:py-24 relative z-10">
+      <div className="max-w-6xl w-full mx-auto space-y-20 md:space-y-28">
 
-      <div className="max-w-4xl w-full mx-auto text-center space-y-12">
-        
-        {/* Hero Section */}
-        <div className="animate-slide-up space-y-6">
-          <div className="inline-flex items-center px-4 py-2 glass-panel rounded-full text-sm font-medium text-blue-400 mb-4 animate-fade-in">
-            <span className="relative flex h-3 w-3 mr-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
-            </span>
+        {/* Hero */}
+        <div className="animate-slide-up space-y-8 max-w-5xl">
+          <div className="inline-flex items-center gap-2.5 text-sm text-[#9B9B97]">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent"></span>
             {translations.availableForWork}
           </div>
-          
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
+
+          <h1 className="font-display font-extrabold leading-[0.95] tracking-tight text-[#F5F3EF]"
+              style={{ fontSize: 'clamp(3rem, 8vw, 6rem)' }}>
             {translations.greeting}{' '}
-            <span className="text-gradient animate-pulse">
-              Davi
-            </span>
+            <span className="text-accent">Davi</span>
           </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto leading-relaxed font-light">
+
+          <p className="text-lg md:text-xl text-[#9B9B97] max-w-2xl leading-relaxed">
             {translations.description}
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8">
+
+          <div className="flex flex-col sm:flex-row gap-4 pt-2">
             <Link to="/portfolio" className="btn-primary group">
               {translations.viewWork}
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
             </Link>
-            <Link to="/contact" className="btn-secondary group">
+            <Link to="/contact" className="btn-secondary">
               {translations.getInTouch}
             </Link>
           </div>
         </div>
 
-        {/* Feature Cards Showcase (Glassmorphism) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-16 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+        {/* What I do */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           {[
             { icon: Code, title: translations.cleanCode, desc: translations.cleanCodeDesc },
             { icon: Layout, title: translations.modernUI, desc: translations.modernUIDesc },

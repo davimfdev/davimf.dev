@@ -147,13 +147,13 @@ const Calculator = () => {
                             <p className="text-green-400/80 text-sm font-medium mb-1">{translations.calculatorTotalCharge}</p>
                             <p className="font-bold text-2xl text-green-400">{formatCurrency(calculos.totalVenda)}</p>
                         </div>
-                        <div className="bg-gray-900/50 p-5 rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent">
-                            <p className="text-blue-400/80 text-sm font-medium mb-1">{translations.calculatorCommission}</p>
-                            <p className="font-bold text-2xl text-blue-400">{formatCurrency(calculos.totalComissao)}</p>
+                        <div className="bg-gray-900/50 p-5 rounded-xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent">
+                            <p className="text-accent/80 text-sm font-medium mb-1">{translations.calculatorCommission}</p>
+                            <p className="font-bold text-2xl text-accent">{formatCurrency(calculos.totalComissao)}</p>
                         </div>
-                        <div className="bg-gray-900/50 p-6 rounded-xl sm:col-span-2 border border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-transparent shadow-[0_0_15px_rgba(168,85,247,0.1)]">
-                            <p className="text-purple-400/80 text-sm font-medium mb-1 uppercase tracking-wider">{translations.calculatorTotalFaction}</p>
-                            <p className="font-extrabold text-4xl text-purple-400">{formatCurrency(calculos.totalFaccao)}</p>
+                        <div className="bg-gray-900/50 p-6 rounded-xl sm:col-span-2 border border-accent/30 bg-gradient-to-br from-accent/10 to-transparent shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+                            <p className="text-accent/80 text-sm font-medium mb-1 uppercase tracking-wider">{translations.calculatorTotalFaction}</p>
+                            <p className="font-extrabold text-4xl text-accent">{formatCurrency(calculos.totalFaccao)}</p>
                         </div>
                     </div>
                      {itens.length > 0 && (

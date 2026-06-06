@@ -129,8 +129,8 @@ const UrlShortener = () => {
         />
 
         <div className="flex flex-col items-center mb-10">
-          <div className="p-4 bg-blue-500/20 rounded-full border border-blue-500/30 mb-6 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
-            <Scissors size={36} className="text-blue-400" />
+          <div className="p-4 bg-accent/20 rounded-full border border-accent/30 mb-6 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
+            <Scissors size={36} className="text-accent" />
           </div>
           <h1 className="text-4xl font-extrabold text-gradient text-center">Encurtador de Links</h1>
           <p className="text-gray-400 mt-4 text-center">Crie e gerencie seus links curtos.</p>
@@ -140,14 +140,14 @@ const UrlShortener = () => {
         <div className="glass-panel p-6 md:p-8 border-t border-white/10 shadow-2xl mb-12">
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="relative">
-              <Link2 className="absolute left-4 top-4 text-blue-400" size={20} />
+              <Link2 className="absolute left-4 top-4 text-accent" size={20} />
               <input
                   type="url"
                   placeholder="Cole sua URL longa (https://...)"
                   value={originalUrl}
                   onChange={(e) => setOriginalUrl(e.target.value)}
                   required
-                  className="w-full pl-12 pr-4 py-4 bg-gray-900/60 border border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 text-white outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-900/60 border border-white/10 rounded-xl focus:ring-2 focus:ring-accent text-white outline-none transition-all"
               />
             </div>
             <button type="submit" disabled={loading} className="w-full btn-primary py-4 font-bold text-lg flex justify-center items-center gap-2">
@@ -159,15 +159,15 @@ const UrlShortener = () => {
           {error && <div className="mt-4 text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">{error}</div>}
 
           {shortUrl && (
-            <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl flex items-center justify-between gap-3 animate-slide-up">
+            <div className="mt-4 p-4 bg-accent/10 border border-accent/30 rounded-xl flex items-center justify-between gap-3 animate-slide-up">
               <div className="overflow-hidden">
-                <p className="text-xs text-blue-400 font-semibold uppercase tracking-wider mb-1">Link encurtado</p>
-                <p className="text-blue-300 font-mono font-bold truncate">{shortUrl}</p>
+                <p className="text-xs text-accent font-semibold uppercase tracking-wider mb-1">Link encurtado</p>
+                <p className="text-accent font-mono font-bold truncate">{shortUrl}</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => copyToClipboard(shortUrl)}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-all"
+                  className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-soft text-ink text-sm font-semibold rounded-lg transition-all"
                 >
                   <Copy size={15} />
                   {copied ? 'Copiado!' : 'Copiar'}
@@ -184,12 +184,12 @@ const UrlShortener = () => {
         {token && (
             <div className="animate-slide-up">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <History className="text-blue-400" /> Meus Links
+                <History className="text-accent" /> Meus Links
               </h2>
 
               <div className="space-y-4">
                 {historyLoading ? (
-                    <div className="flex justify-center p-10"><Loader2 className="animate-spin text-blue-500" /></div>
+                    <div className="flex justify-center p-10"><Loader2 className="animate-spin text-accent" /></div>
                 ) : myUrls.length > 0 ? (
                     myUrls.map(url => {
                       // Previne o undefined checando todas as chaves possíveis do banco
@@ -197,10 +197,10 @@ const UrlShortener = () => {
                       const displayOriginalUrl = url.original_url || url.originalUrl || url.originalurl || '';
 
                       return (
-                          <div key={url.id} className="glass-panel p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 group border border-white/5 hover:border-blue-500/30 transition-all">
+                          <div key={url.id} className="glass-panel p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 group border border-white/5 hover:border-accent/30 transition-all">
                             <div className="overflow-hidden w-full sm:w-2/3">
                               {/* Link Curto */}
-                              <p className="text-blue-400 font-mono font-bold text-lg truncate">
+                              <p className="text-accent font-mono font-bold text-lg truncate">
                                 {displayShortUrl ? displayShortUrl : 'Erro: Link curto não encontrado'}
                               </p>
                               {/* Link Longo (Cores ajustadas para ficarem bem visíveis) */}

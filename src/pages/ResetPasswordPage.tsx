@@ -63,8 +63,8 @@ const ResetPasswordPage: React.FC = () => {
   return (
     <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-white/10 shadow-2xl">
       <div className="flex justify-center mb-6">
-        <div className="p-4 bg-purple-500/20 rounded-full border border-purple-500/30">
-          <KeyRound size={32} className="text-purple-400" />
+        <div className="p-4 bg-accent/20 rounded-full border border-accent/30">
+          <KeyRound size={32} className="text-accent" />
         </div>
       </div>
       <h1 className="text-4xl font-extrabold mb-8 text-center text-gradient">Redefinir Senha</h1>
@@ -75,7 +75,7 @@ const ResetPasswordPage: React.FC = () => {
             <p>{error}</p>
             {error.includes('token') && (
                 <p className="mt-3">
-                    <Link to="/request-password-reset" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">Solicite um novo link aqui.</Link>
+                    <Link to="/request-password-reset" className="text-accent hover:text-accent transition-colors font-medium">Solicite um novo link aqui.</Link>
                 </p>
             )}
         </div>
@@ -90,7 +90,7 @@ const ResetPasswordPage: React.FC = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-500 transition-all"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-white placeholder-gray-500 transition-all"
               required
               placeholder="••••••••"
             />
@@ -102,7 +102,7 @@ const ResetPasswordPage: React.FC = () => {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-500 transition-all"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-white placeholder-gray-500 transition-all"
               required
               placeholder="••••••••"
             />
@@ -110,7 +110,7 @@ const ResetPasswordPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary py-3 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-purple-500/30 hover:shadow-purple-500/50 group"
+            className="w-full btn-primary py-3 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed mt-4 bg-gradient-to-r from-accent to-pink-600 hover:from-accent hover:to-pink-500 shadow-accent/30 hover:shadow-accent/50 group"
           >
             {loading ? 'Redefinindo...' : (
               <span className="flex items-center justify-center">

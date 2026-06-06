@@ -46,8 +46,8 @@ const LoginPage: React.FC = () => {
   return (
     <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-white/10 shadow-2xl">
       <div className="flex justify-center mb-6">
-        <div className="p-4 bg-blue-500/20 rounded-full border border-blue-500/30">
-          <LogIn size={32} className="text-blue-400" />
+        <div className="p-4 bg-accent/20 rounded-full border border-accent/30">
+          <LogIn size={32} className="text-accent" />
         </div>
       </div>
       <h1 className="text-4xl font-extrabold mb-8 text-center text-gradient">Login</h1>
@@ -60,7 +60,7 @@ const LoginPage: React.FC = () => {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-white placeholder-gray-500 transition-all"
             required
             disabled={loading}
             placeholder="seu@email.com"
@@ -69,7 +69,7 @@ const LoginPage: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-2">
             <label className="block text-gray-300 font-medium" htmlFor="password">Senha</label>
-            <Link to="/request-password-reset" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+            <Link to="/request-password-reset" className="text-sm text-accent hover:text-accent transition-colors">
               Esqueceu a senha?
             </Link>
           </div>
@@ -78,7 +78,7 @@ const LoginPage: React.FC = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500 transition-all"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-white placeholder-gray-500 transition-all"
             required
             disabled={loading}
             placeholder="••••••••"
@@ -99,7 +99,7 @@ const LoginPage: React.FC = () => {
       <div className="mt-8 pt-6 border-t border-white/10 text-center">
         <p className="text-gray-400">
           Não tem uma conta?{' '}
-          <Link to="/register" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+          <Link to="/register" className="text-accent hover:text-accent font-medium transition-colors">
             Registre-se
           </Link>
         </p>

@@ -28,6 +28,7 @@ import FmmActivated from './pages/FmmActivated';
 import MyKeys from './pages/MyKeys';
 import FmmAdmin from './pages/FmmAdmin';
 import Notes from './pages/Notes';
+import PasswordGenerator from './pages/PasswordGenerator';
 import { NotesFloatingLayer } from './components/notes/NotesFloatingLayer';
 
 function App() {
@@ -64,6 +65,7 @@ function App() {
               <Route path="/my-keys" element={<MyKeys />} />
               <Route path="/fmm-admin" element={<FmmAdmin />} />
               <Route path="/notes" element={<Notes />} />
+              <Route path="/password-generator" element={<PasswordGenerator />} />
             </Routes>
           </Layout>
         </Router>

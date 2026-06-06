@@ -53,7 +53,7 @@ const MyKeys = () => {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-20 text-center animate-fade-in relative z-10">
-        <div className="inline-block w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <div className="inline-block w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mb-4" />
         <p className="text-gray-400">Carregando suas chaves...</p>
       </div>
     );
@@ -63,7 +63,7 @@ const MyKeys = () => {
     return (
       <div className="container mx-auto px-4 py-20 text-center animate-fade-in relative z-10">
         <p className="text-red-400 mb-4">{error}</p>
-        <Link to="/" className="text-blue-400 hover:underline">Voltar ao início</Link>
+        <Link to="/" className="text-accent hover:underline">Voltar ao início</Link>
       </div>
     );
   }
@@ -71,7 +71,7 @@ const MyKeys = () => {
   return (
     <div className="container mx-auto px-4 py-12 animate-fade-in relative z-10 max-w-3xl">
       <div className="flex items-center gap-3 mb-8">
-        <Key size={28} className="text-blue-400" />
+        <Key size={28} className="text-accent" />
         <h1 className="text-3xl font-extrabold text-white">Minhas Chaves FMM</h1>
       </div>
 
@@ -79,16 +79,16 @@ const MyKeys = () => {
         <div className="glass-panel p-10 text-center">
           <Key size={48} className="text-gray-600 mx-auto mb-4" />
           <p className="text-gray-400">Nenhuma chave encontrada.</p>
-          <Link to="/fmm" className="mt-4 inline-block text-blue-400 hover:underline">Ver planos</Link>
+          <Link to="/fmm" className="mt-4 inline-block text-accent hover:underline">Ver planos</Link>
         </div>
       ) : (
         <div className="flex flex-col gap-4">
           {keys.map((k) => {
             const expired = isExpired(k.expires_at);
             const lifetime = isLifetime(k.duration_days);
-            const levelColor = k.level === 'pro' ? 'text-purple-400' : 'text-blue-400';
-            const levelBorder = k.level === 'pro' ? 'border-purple-500/30' : 'border-blue-500/30';
-            const levelBg = k.level === 'pro' ? 'bg-purple-500/5' : 'bg-blue-500/5';
+            const levelColor = k.level === 'pro' ? 'text-accent' : 'text-accent';
+            const levelBorder = k.level === 'pro' ? 'border-accent/30' : 'border-accent/30';
+            const levelBg = k.level === 'pro' ? 'bg-accent/5' : 'bg-accent/5';
 
             return (
               <div key={k.key_prefix} className={`glass-panel p-5 border ${levelBorder} ${levelBg}`}>
@@ -96,8 +96,8 @@ const MyKeys = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       {k.level === 'pro'
-                        ? <ShieldCheck size={16} className="text-purple-400" />
-                        : <Zap size={16} className="text-blue-400" />}
+                        ? <ShieldCheck size={16} className="text-accent" />
+                        : <Zap size={16} className="text-accent" />}
                       <span className={`text-xs font-bold uppercase tracking-widest ${levelColor}`}>
                         {k.level}
                       </span>

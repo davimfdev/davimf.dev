@@ -171,7 +171,7 @@ const FmmAdmin = () => {
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-[60vh]">
-      <Loader size={32} className="text-blue-400 animate-spin" />
+      <Loader size={32} className="text-accent animate-spin" />
     </div>
   );
 
@@ -188,7 +188,7 @@ const FmmAdmin = () => {
     <>
     <div className="container mx-auto px-4 py-12 animate-fade-in relative z-10 max-w-5xl">
       <div className="flex items-center gap-3 mb-8">
-        <ShieldCheck size={28} className="text-purple-400" />
+        <ShieldCheck size={28} className="text-accent" />
         <h1 className="text-3xl font-extrabold text-white">Admin FMM</h1>
         <span className="text-xs text-gray-500 font-mono ml-auto">{userId}</span>
       </div>
@@ -202,7 +202,7 @@ const FmmAdmin = () => {
             <div className="flex gap-2">
               {(['basic', 'pro'] as const).map((l) => (
                 <button key={l} onClick={() => setLevel(l)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${level === l ? (l === 'pro' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white') : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${level === l ? (l === 'pro' ? 'bg-accent text-ink' : 'bg-accent text-ink') : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
                   {l}
                 </button>
               ))}
@@ -212,7 +212,7 @@ const FmmAdmin = () => {
             <label className="text-xs text-gray-400 uppercase tracking-wider mb-2 block">Quantidade</label>
             <input type="number" min={1} max={50} value={quantity}
               onChange={(e) => setQuantity(Math.max(1, Math.min(50, parseInt(e.target.value) || 1)))}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500" />
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-accent" />
           </div>
         </div>
 
@@ -223,14 +223,14 @@ const FmmAdmin = () => {
           <div className="flex gap-2 mb-3">
             {PRESETS.map((p) => (
               <button key={p.days} onClick={() => setDurationDays(p.days)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${durationDays === p.days ? 'bg-blue-600 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${durationDays === p.days ? 'bg-accent text-ink' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
                 {p.label}
               </button>
             ))}
           </div>
           <input type="number" min={1} value={durationDays}
             onChange={(e) => setDurationDays(Math.max(1, parseInt(e.target.value) || 1))}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-accent"
             placeholder="Dias personalizados" />
         </div>
 
@@ -252,7 +252,7 @@ const FmmAdmin = () => {
           <div className="flex flex-col gap-2">
             {generatedKeys.map((k, i) => (
               <div key={k.key} className="flex items-center gap-3 bg-black/30 border border-white/10 rounded-xl px-4 py-3">
-                <code className="font-mono text-blue-300 text-sm tracking-widest flex-grow select-all">{k.key}</code>
+                <code className="font-mono text-accent text-sm tracking-widest flex-grow select-all">{k.key}</code>
                 <button onClick={() => copyKey(i)} className="text-gray-400 hover:text-white transition-colors flex-shrink-0">
                   {k.copied ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
                 </button>
@@ -276,7 +276,7 @@ const FmmAdmin = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Prefixo, user ID, notes..."
-                className="bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500 w-52"
+                className="bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-sm text-white focus:outline-none focus:border-accent w-52"
               />
             </div>
             <button onClick={fetchKeys} disabled={keysLoading}
@@ -289,7 +289,7 @@ const FmmAdmin = () => {
         {keysError && <p className="text-red-400 text-sm mb-4 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{keysError}</p>}
 
         {keysLoading && !dbKeys.length ? (
-          <div className="text-center py-10"><Loader size={24} className="text-blue-400 animate-spin mx-auto" /></div>
+          <div className="text-center py-10"><Loader size={24} className="text-accent animate-spin mx-auto" /></div>
         ) : filtered.length === 0 ? (
           <p className="text-gray-500 text-center py-8">Nenhuma chave encontrada.</p>
         ) : (
@@ -321,7 +321,7 @@ const FmmAdmin = () => {
 
                       {/* Level */}
                       <td className="py-3 pr-4">
-                        <span className={`text-xs font-bold uppercase ${k.level === 'pro' ? 'text-purple-400' : 'text-blue-400'}`}>
+                        <span className={`text-xs font-bold uppercase ${k.level === 'pro' ? 'text-accent' : 'text-accent'}`}>
                           {k.level}
                         </span>
                       </td>
@@ -401,12 +401,12 @@ const FmmAdmin = () => {
                                 min={1}
                                 value={editingDuration.days}
                                 onChange={(e) => setEditingDuration({ id: k.id, days: Math.max(1, parseInt(e.target.value) || 1) })}
-                                className="w-16 bg-white/10 border border-white/20 rounded px-1.5 py-0.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                                className="w-16 bg-white/10 border border-white/20 rounded px-1.5 py-0.5 text-xs text-white focus:outline-none focus:border-accent"
                               />
                               <button
                                 onClick={() => doAction('set_duration', k.id, { duration_days: editingDuration.days })}
                                 disabled={busy}
-                                className="p-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs transition-all disabled:opacity-40"
+                                className="p-1 rounded bg-accent hover:bg-accent-soft text-ink text-xs transition-all disabled:opacity-40"
                               >
                                 {busy ? <Loader size={11} className="animate-spin" /> : <Check size={11} />}
                               </button>
@@ -422,7 +422,7 @@ const FmmAdmin = () => {
                               onClick={() => setEditingDuration({ id: k.id, days: k.duration_days })}
                               disabled={busy}
                               title="Alterar duração"
-                              className="p-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-all disabled:opacity-40"
+                              className="p-1.5 rounded-lg bg-accent/10 hover:bg-accent-soft/20 text-accent transition-all disabled:opacity-40"
                             >
                               <Clock size={13} />
                             </button>

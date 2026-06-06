@@ -133,7 +133,7 @@ const TodoList: React.FC = () => {
   };
 
   if (!token) return <div className="text-white p-20 text-center">Logue com o Discord.</div>;
-  if (tasksLoading) return <div className="text-center p-20"><Loader2 className="animate-spin text-blue-500 mx-auto" /></div>;
+  if (tasksLoading) return <div className="text-center p-20"><Loader2 className="animate-spin text-accent mx-auto" /></div>;
 
   return (
       <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-in relative z-10">
@@ -167,7 +167,7 @@ const TodoList: React.FC = () => {
                 <option value="Medium">Média</option>
                 <option value="High">Alta</option>
               </select>
-              <button type="submit" className="ml-auto bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 transition-all">
+              <button type="submit" className="ml-auto bg-accent hover:bg-accent-soft text-ink px-6 py-2 rounded-xl font-bold flex items-center gap-2 transition-all">
                 <Plus size={20} /> {editingTask ? 'Atualizar' : 'Adicionar'}
               </button>
             </div>
@@ -176,13 +176,13 @@ const TodoList: React.FC = () => {
 
         <div className="space-y-4">
           {tasks.map(task => (
-              <div key={task.id} className={`glass-panel p-4 flex items-center gap-4 group border-l-4 ${task.priority === 'High' ? 'border-red-500' : task.priority === 'Medium' ? 'border-yellow-500' : 'border-blue-500'} ${task.completed ? 'opacity-50' : ''}`}>
+              <div key={task.id} className={`glass-panel p-4 flex items-center gap-4 group border-l-4 ${task.priority === 'High' ? 'border-red-500' : task.priority === 'Medium' ? 'border-yellow-500' : 'border-accent'} ${task.completed ? 'opacity-50' : ''}`}>
                 <div onClick={() => toggleTaskCompletion(task)} className={`w-6 h-6 rounded-full border-2 cursor-pointer flex items-center justify-center ${task.completed ? 'bg-green-500 border-green-500' : 'border-gray-500'}`}>
                   {task.completed && <Check size={16} className="text-white" />}
                 </div>
                 <span className={`flex-grow text-white ${task.completed ? 'line-through text-gray-500' : ''}`}>{task.text}</span>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                  <button onClick={() => { setEditingTask(task); setNewTaskText(task.text); setDueDate(task.due_date || ''); }} className="p-2 text-gray-400 hover:text-blue-400"><Edit size={18} /></button>
+                  <button onClick={() => { setEditingTask(task); setNewTaskText(task.text); setDueDate(task.due_date || ''); }} className="p-2 text-gray-400 hover:text-accent"><Edit size={18} /></button>
                   {/* CHAMA O MODAL CUSTOMIZADO AQUI */}
                   <button onClick={() => triggerDeleteTask(task.id)} className="p-2 text-gray-400 hover:text-red-400"><Trash2 size={18} /></button>
                 </div>

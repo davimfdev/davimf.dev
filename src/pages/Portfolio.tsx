@@ -24,14 +24,14 @@ const Portfolio = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300"></div>
             </div>
             <div className="p-6 relative">
-              <h3 className="text-2xl font-semibold mb-3 text-gray-100 group-hover:text-blue-400 transition-colors">{project.title}</h3>
+              <h3 className="text-2xl font-semibold mb-3 text-gray-100 group-hover:text-accent transition-colors">{project.title}</h3>
               <p className="text-gray-400 mb-6 leading-relaxed line-clamp-3">{project.description}</p>
               {project.link && (
                 <a
                   href={project.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center text-blue-400 hover:text-blue-300 font-medium group/link"
+                  className="inline-flex items-center text-accent hover:text-accent font-medium group/link"
                 >
                   {translations.viewProject} 
                   <ExternalLink size={18} className="ml-2 transform group-hover/link:-translate-y-1 group-hover/link:translate-x-1 transition-transform" />

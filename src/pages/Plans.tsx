@@ -46,7 +46,7 @@ const Plans = () => {
         <ul className="space-y-4 mb-8 flex-grow">
           {plan.features.map((feature: string) => (
             <li key={feature} className="flex items-start">
-              <CheckCircle className="text-blue-500 mr-3 mt-1 flex-shrink-0" size={20} />
+              <CheckCircle className="text-accent mr-3 mt-1 flex-shrink-0" size={20} />
               <span className="text-gray-300">{planFeatures[type][feature]}</span>
             </li>
           ))}
@@ -76,13 +76,13 @@ const Plans = () => {
                 checked={billingCycle === 'annually'}
                 onChange={handleBillingCycleChange}
               />
-              <div className="w-14 h-7 bg-gray-700 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-800/50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-14 h-7 bg-gray-700 rounded-full peer peer-focus:ring-4 peer-focus:ring-accent/50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
             </label>
             <span className={`ml-4 font-medium transition-colors ${billingCycle === 'annually' ? 'text-white' : 'text-gray-400'}`}>{annually}</span>
           </div>
           <div className={`transition-opacity duration-500 h-8 mt-4 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
             {billingCycle === 'annually' && (
-              <p className="text-blue-400 font-semibold bg-blue-500/10 px-4 py-1 rounded-full animate-fade-in border border-blue-500/20">{annualDiscount}</p>
+              <p className="text-accent font-semibold bg-accent/10 px-4 py-1 rounded-full animate-fade-in border border-accent/20">{annualDiscount}</p>
             )}
           </div>
         </div>

@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 // MODIFICADO: Adicionado LogOut na lista de imports
 import { Menu, X, Github, Linkedin, Mail, Globe, MessageCircle, Phone, User, ChevronDown, LogOut } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import FlashlightEffect from './effects/FlashlightEffect';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -42,6 +41,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: translations.urlShortener, href: '/encurtador' },
     { name: translations.roulette, href: '/roulette' },
     { name: 'Notas', href: '/notes' },
+    { name: translations.passwordGenerator, href: '/password-generator' },
   ];
 
   const toggleLanguage = () => setLanguage(language === 'pt' ? 'en' : 'pt');
@@ -113,14 +113,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
       <div className="min-h-screen flex flex-col relative z-0">
         <div className="bg-blobs"></div>
-        <FlashlightEffect />
 
         <nav className="glass-nav fixed w-full z-50 top-0">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-20">
               <div className="flex items-center">
-                <Link to="/" className="text-2xl font-bold text-gradient tracking-wide">
-                  Davimf<span className="text-white">.dev</span>
+                <Link to="/" className="text-2xl font-display font-extrabold text-accent tracking-tight">
+                  Davimf<span className="text-[#F5F3EF]">.dev</span>
                 </Link>
               </div>
 
@@ -180,7 +179,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             Minhas Chaves
                           </Link>
                           {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
-                            <Link to="/fmm-admin" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 transition-colors">
+                            <Link to="/fmm-admin" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-accent hover:text-accent hover:bg-accent-soft/10 transition-colors">
                               Admin FMM
                             </Link>
                           )}
@@ -240,7 +239,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                           Minhas Chaves
                         </Link>
                         {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
-                          <Link to="/fmm-admin" className="text-purple-400 hover:bg-purple-500/10 hover:text-purple-300 block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
+                          <Link to="/fmm-admin" className="text-accent hover:bg-accent-soft/10 hover:text-accent block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
                             Admin FMM
                           </Link>
                         )}

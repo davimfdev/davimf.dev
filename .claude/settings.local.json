@@ -14,7 +14,10 @@
       "Bash(npm run *)",
       "Bash(npx eslint *)",
       "Bash(echo \"exit=$?\")",
-      "Bash(sort -t: -k2 -rn)"
+      "Bash(sort -t: -k2 -rn)",
+      "PowerShell(npm run *)",
+      "PowerShell($libs = @\\(\"sharp\",\"puppeteer\",\"puppeteer-core\",\"@resvg/resvg-js\",\"canvas\"\\); foreach\\($l in $libs\\){ if\\(Test-Path \"node_modules\\\\$l\"\\){ \"FOUND: $l\" } else { \"no: $l\" } })",
+      "PowerShell($c = Get-ChildItem -Recurse -Filter \"chrome.exe\" \".netlify\" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName; if\\($c\\){\"CHROME: $c\"} else {\"none\"})"
     ]
   }
 }

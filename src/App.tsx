@@ -29,6 +29,7 @@ import MyKeys from './pages/MyKeys';
 import FmmAdmin from './pages/FmmAdmin';
 import Notes from './pages/Notes';
 import PasswordGenerator from './pages/PasswordGenerator';
+import TicketView from './pages/TicketView';
 import { NotesFloatingLayer } from './components/notes/NotesFloatingLayer';
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/encurtador" element={<UrlShortener />} />
               <Route path="/r/:shortCode" element={<UrlRedirectPage />} />
+              <Route path="/ticket/:id" element={<TicketView />} />
               <Route path="/test" element={<Test/>} />
               <Route path="/dashboard" element={<Dashboard/>} />
               <Route path="/dashboard/:guildId" element={<BotConfig/>} />

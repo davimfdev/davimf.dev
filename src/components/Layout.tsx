@@ -30,7 +30,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigation = [
     { name: translations.home, href: '/' },
     { name: translations.portfolio, href: '/portfolio' },
-    { name: translations.resume, href: '/resume' },
     { name: translations.products, href: '/products' },
     { name: translations.contact, href: '/contact' },
   ];

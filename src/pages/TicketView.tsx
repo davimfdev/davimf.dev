@@ -30,7 +30,9 @@ function md(s: string | null | undefined, emoji: Record<string, string>): string
   let out = esc(s);
   out = out.replace(/&lt;(a?):(\w+):(\d+)&gt;/g, (_f, a, name, id) => {
     const uri = emoji[`<${a}:${name}:${id}>`];
-    return uri ? `<img class="inline h-5 w-5 align-text-bottom" src="${uri}" alt=":${name}:">` : `:${name}:`;
+    if (!uri) return `:${name}:`;
+    const safeUri = uri.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+    return `<img class="inline h-5 w-5 align-text-bottom" src="${safeUri}" alt=":${name}:">`;
   });
   out = out.replace(/```([^`]+)```/g, '<code>$1</code>').replace(/`([^`\n]+)`/g, '<code>$1</code>');
   out = out.replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>').replace(/\*([^*\n]+)\*/g, '<i>$1</i>');

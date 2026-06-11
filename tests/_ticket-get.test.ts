@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const sqlMock = vi.fn();
 vi.mock('@netlify/neon', () => ({ neon: () => sqlMock }));
 
-import handler from './ticket-get';
+import handler from '../netlify/functions/ticket-get';
 
 beforeEach(() => {
   process.env.TICKETS_NEON = 'postgres://x';

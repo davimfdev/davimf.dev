@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const sqlMock = vi.fn();
 vi.mock('@netlify/neon', () => ({ neon: () => sqlMock }));
 
-import handler from './ticket-store';
+import handler from '../netlify/functions/ticket-store';
 
 const SECRET = 'test-secret';
 beforeEach(() => {

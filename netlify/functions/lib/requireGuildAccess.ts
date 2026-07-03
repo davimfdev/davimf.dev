@@ -1,8 +1,9 @@
-import { botSql } from './botDb';
+import { botSql, type DashboardSql } from './botDb';
 
 export type Access = { ok: true; userId: string } | { ok: false; status: number; error: string };
 
-type Deps = { fetchImpl?: typeof fetch; sql?: (strings: TemplateStringsArray, ...v: any[]) => Promise<any[]> };
+type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
+type Deps = { fetchImpl?: FetchLike; sql?: DashboardSql };
 
 function bearer(event: { headers: Record<string, string | undefined> }): string | null {
   const h = event.headers || {};
@@ -18,7 +19,7 @@ export async function requireGuildAccess(
   deps: Deps = {},
 ): Promise<Access> {
   const doFetch = deps.fetchImpl ?? fetch;
-  const sql = deps.sql ?? (botSql as any);
+  const sql = deps.sql ?? botSql;
 
   const token = bearer(event);
   if (!token) return { ok: false, status: 401, error: 'Unauthorized' };

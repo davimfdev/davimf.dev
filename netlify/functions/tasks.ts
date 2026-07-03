@@ -5,7 +5,7 @@ import { neon } from '@neondatabase/serverless';
 const sql = neon(process.env.DATABASE_URL!);
 
 // Função para validar o token e pegar o ID do Discord
-const getDiscordId = async (authHeader: string | null): Promise<string | null> => {
+const getDiscordId = async (authHeader: string | null | undefined): Promise<string | null> => {
     if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
     const token = authHeader.split(' ')[1];
 

@@ -12,7 +12,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
   }
 
   // Initialize Neon connection
-  const sql = neon(process.env.DATABASE_URL);
+  const sql = neon(process.env.DATABASE_URL!);
 
   try {
     const body = JSON.parse(event.body || "{}");

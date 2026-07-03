@@ -8,9 +8,11 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck:functions": "tsc --noEmit -p tsconfig.functions.json"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
     "@netlify/functions": "^5.2.0",
     "@netlify/neon": "^0.1.0",
     "@supabase/supabase-js": "^2.99.2",
@@ -43,6 +45,7 @@
   "devDependencies": {
     "@eslint/js": "^9.9.1",
     "@types/bcryptjs": "^2.4.6",
+    "@types/cookie": "^0.6.0",
     "@types/cors": "^2.8.17",
     "@types/crypto-js": "^4.2.2",
     "@types/express": "^5.0.0",

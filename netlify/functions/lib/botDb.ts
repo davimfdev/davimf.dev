@@ -6,13 +6,19 @@ import { neon } from '@neondatabase/serverless';
 // escopo do módulo lançaria no *import* quando BOT_CONFIG_DATABASE_URL está ausente — o que
 // quebraria testes que só importam este módulo (mesmo injetando `sql`). Aqui o cliente real só
 // é criado na primeira query; o uso `botSql\`...\`` continua idêntico para os callers.
-type Sql = ReturnType<typeof neon>;
+export type SqlRow = Record<string, unknown>;
+export type DashboardSql = (
+  strings: TemplateStringsArray,
+  ...values: unknown[]
+) => Promise<SqlRow[]>;
 
-let cached: Sql | null = null;
+type NeonSql = ReturnType<typeof neon>;
 
-function client(): Sql {
+let cached: NeonSql | null = null;
+
+function client(): NeonSql {
   return (cached ??= neon(process.env.BOT_CONFIG_DATABASE_URL!));
 }
 
 export const botSql = ((strings: TemplateStringsArray, ...values: unknown[]) =>
-  (client() as (s: TemplateStringsArray, ...v: unknown[]) => Promise<unknown[]>)(strings, ...values)) as Sql;
+  client()(strings, ...values) as Promise<SqlRow[]>) as DashboardSql;

@@ -16,7 +16,7 @@ export const handler: Handler = async (event) => {
 
   const ids = owned.map((g) => g.id);
   const present = await botSql`SELECT guild_id FROM bot_guilds WHERE bot_present = true AND guild_id = ANY(${ids})`;
-  const presentIds = new Set(present.map((r: any) => String(r.guild_id)));
+  const presentIds = new Set(present.map((row) => String(row.guild_id)));
 
   const out = owned.map((g) => ({ ...g, hasBot: presentIds.has(String(g.id)) }));
   return { statusCode: 200, body: JSON.stringify(out) };

@@ -17,17 +17,17 @@ export default async (req: Request, context: Context) => {
   const ref = new URL(req.url).searchParams.get("ref");
   if (!ref) return errorResponse("Missing ref", 400);
 
-  const rows = await sql<{
-    abacate_checkout_id: string;
-    plan: string;
-    period: string;
-    license_key: string | null;
-  }[]>`
+  const rows = await sql`
     SELECT abacate_checkout_id, plan, period, license_key
     FROM fmm_orders
     WHERE ref = ${ref}
     LIMIT 1
-  `;
+  ` as Array<{
+    abacate_checkout_id: string;
+    plan: string;
+    period: string;
+    license_key: string | null;
+  }>;
 
   if (!rows.length) return errorResponse("Order not found", 404);
 

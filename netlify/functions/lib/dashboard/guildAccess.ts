@@ -18,7 +18,7 @@ export type GuildAccessDeps = {
   getMemberRoles: (accessToken: string, guildId: string) => Promise<string[]>;
 };
 
-function configuredSupportIds(): ReadonlySet<string> {
+export function configuredSupportIds(): ReadonlySet<string> {
   const raw = process.env.BOT_SUPPORT_USER_IDS?.trim();
   if (!raw) {
     if (process.env.NODE_ENV === 'production') throw new Error('BOT_SUPPORT_USER_IDS is required in production');

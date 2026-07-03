@@ -14,6 +14,9 @@ describe('allowedOrigin', () => {
   it('bloqueia POST de origin estranho', () => {
     expect(allowedOrigin(ev('POST', { origin: 'https://evil.example' }))).toBe(false);
   });
+  it('bloqueia domínio que apenas começa com o host oficial', () => {
+    expect(allowedOrigin(ev('POST', { origin: 'https://davimf.dev.evil.example' }))).toBe(false);
+  });
   it('bloqueia POST sem origin nem referer', () => {
     expect(allowedOrigin(ev('POST'))).toBe(false);
   });

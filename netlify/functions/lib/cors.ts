@@ -11,5 +11,9 @@ export function allowedOrigin(event: { httpMethod: string; headers: Record<strin
   if (!MUTATING.has(event.httpMethod)) return true;
   const h = event.headers || {};
   const src = h.origin || h.Origin || h.referer || h.Referer || '';
-  return ALLOWED.some((a) => src.startsWith(a));
+  try {
+    return ALLOWED.includes(new URL(src).origin);
+  } catch {
+    return false;
+  }
 }

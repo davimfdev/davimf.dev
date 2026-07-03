@@ -14,11 +14,11 @@ export const handler: Handler = async (event) => {
     botSql`SELECT * FROM guild_channels_snapshot WHERE guild_id = ${access.guildId} ORDER BY position, name`,
     botSql`SELECT * FROM guild_roles_snapshot WHERE guild_id = ${access.guildId} ORDER BY position DESC, name`,
     botSql`SELECT * FROM ticket_categories WHERE guild_id = ${access.guildId} ORDER BY position, id`,
-    botSql`SELECT * FROM self_roles WHERE guild_id = ${access.guildId} ORDER BY created_at, id`,
+    botSql`SELECT * FROM self_role_panels WHERE guild_id = ${access.guildId} ORDER BY created_at, id`,
     botSql`SELECT * FROM level_rewards WHERE guild_id = ${access.guildId} ORDER BY level`,
-    botSql`SELECT * FROM quiz WHERE guild_id = ${access.guildId} ORDER BY created_at, id`,
+    botSql`SELECT * FROM quiz_questions WHERE guild_id = ${access.guildId} ORDER BY id`,
     botSql`SELECT * FROM shop_items WHERE guild_id = ${access.guildId} ORDER BY created_at, id`,
-    botSql`SELECT * FROM action_types WHERE guild_id = ${access.guildId} ORDER BY id`,
+    botSql`SELECT * FROM fac_action_types WHERE guild_id = ${access.guildId} ORDER BY name, id`,
   ]);
   const rawConfig = configRows[0] ?? { guild_id: access.guildId, channels: {}, roles: {}, toggles: {}, settings: {}, dashboard_access: {} };
   const bot = botRows[0] ?? {};

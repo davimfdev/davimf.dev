@@ -8,3 +8,5 @@ export type DashboardGuild = {
   lastSeenAt?: string;
   accessLevel: AccessLevel;
 };
+
+export type RoleOption = { id: string; name: string; color?: number | null };

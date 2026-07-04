@@ -1,6 +1,10 @@
+// @vitest-environment jsdom
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
-import { ConfigMapEditor } from '../ConfigMapEditor';
+import { ConfigMapEditor, type ConfigField } from '../ConfigMapEditor';
+
+afterEach(cleanup);
 
 describe('ConfigMapEditor', () => {
   it('renders channel, role, boolean, numeric and text controls from field definitions', () => {
@@ -20,9 +24,23 @@ describe('ConfigMapEditor', () => {
       onSave={async () => undefined}
     />);
     expect(html).toContain('#geral');
-    expect(html).toContain('@Staff');
+    expect(html).toContain('bd-role-name">Staff');
     expect(html).toContain('type="checkbox"');
     expect(html).toContain('type="number"');
     expect(html).toContain('Salvar alterações');
+  });
+
+  it('picks a role by id through the SelectField dropdown', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    render(
+      <ConfigMapEditor title="Cargos" column="roles" values={{}}
+        fields={[{ key: 'moderador', label: 'Moderador', kind: 'role' } as ConfigField]}
+        roles={[{ id: 'r1', name: 'Moderador', color: 0x5865f2 }]} onSave={onSave} />,
+    );
+    fireEvent.click(screen.getAllByRole('button')[0]);
+    fireEvent.click(screen.getByRole('option', { name: 'Moderador' }));
+    fireEvent.click(screen.getByRole('button', { name: /salvar/i }));
+    await screen.findByText('Alterações salvas.');
+    expect(onSave).toHaveBeenCalledWith('roles', { moderador: 'r1' });
   });
 });

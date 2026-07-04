@@ -29,11 +29,11 @@ export type GuildConfigResponse = {
 export const dashboardApi = {
   session: () => request<DashboardSession>('/api/dashboard-session'),
   guilds: () => request<DashboardGuild[]>('/api/bot-guilds'),
-  config: (guildId: string) => request<GuildConfigResponse>(`/api/bot-config-get?guildId=${encodeURIComponent(guildId)}`),
+  config: (guildId: string, signal?: AbortSignal) => request<GuildConfigResponse>(`/api/bot-config-get?guildId=${encodeURIComponent(guildId)}`, { signal }),
   patch: (guildId: string, column: string, set: Record<string, unknown>, remove: string[] = []) => request<{ ok: true }>('/api/bot-config-patch', {
     method: 'PATCH', body: JSON.stringify({ guildId, column, set, remove }),
   }),
-  access: (guildId: string) => request<Record<string, unknown>>(`/api/bot-config-access?guildId=${encodeURIComponent(guildId)}`),
+  access: (guildId: string, signal?: AbortSignal) => request<Record<string, unknown>>(`/api/bot-config-access?guildId=${encodeURIComponent(guildId)}`, { signal }),
   updateAccess: (guildId: string, users: string[], roles: string[]) => request<{ ok: true }>('/api/bot-config-access', {
     method: 'PATCH', body: JSON.stringify({ guildId, users, roles }),
   }),

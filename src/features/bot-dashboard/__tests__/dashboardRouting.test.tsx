@@ -48,13 +48,17 @@ describe('dashboard routing', () => {
   it('renders the security section at /security', async () => {
     renderAt('/dashboard/g1/security');
     expect(await screen.findByText('Módulos e proteções')).toBeTruthy();
+    expect(screen.queryByText('Preferências gerais')).toBeNull();
+    expect(screen.queryByText('Central de configuração')).toBeNull();
   });
   it('redirects the index to overview', async () => {
     renderAt('/dashboard/g1');
     expect(await screen.findByRole('heading', { name: 'Visão geral' })).toBeTruthy();
+    expect(screen.queryByText('Módulos e proteções')).toBeNull();
   });
   it('soft-migrates an old hash deep-link to its section', async () => {
     renderAt('/dashboard/g1#security');
     expect(await screen.findByText('Módulos e proteções')).toBeTruthy();
+    expect(screen.queryByText('Central de configuração')).toBeNull();
   });
 });

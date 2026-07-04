@@ -34,4 +34,11 @@ export const dashboardApi = {
     method: 'PATCH', body: JSON.stringify({ guildId, column, set, remove }),
   }),
   access: (guildId: string) => request<Record<string, unknown>>(`/api/bot-config-access?guildId=${encodeURIComponent(guildId)}`),
+  updateAccess: (guildId: string, users: string[], roles: string[]) => request<{ ok: true }>('/api/bot-config-access', {
+    method: 'PATCH', body: JSON.stringify({ guildId, users, roles }),
+  }),
+  collection: (guildId: string, collection: string, method: 'POST' | 'PATCH' | 'DELETE', data: Record<string, unknown> = {}, resourceId?: string) =>
+    request<Record<string, unknown>>('/api/bot-config-collection', {
+      method, body: JSON.stringify({ guildId, collection, resourceId, data }),
+    }),
 };

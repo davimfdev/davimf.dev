@@ -12,7 +12,7 @@ Personal developer portfolio and tooling platform. Built with React + TypeScript
 
 - **Frontend:** React 18, TypeScript, Vite, Tailwind CSS
 - **Backend:** Netlify Functions (serverless)
-- **Databases:** Neon (PostgreSQL) · Supabase
+- **Database:** Neon (PostgreSQL)
 - **Auth:** Discord OAuth2
 - **Payments:** Mercado Pago
 

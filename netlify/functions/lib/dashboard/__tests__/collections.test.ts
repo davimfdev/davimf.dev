@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { COLLECTION_TABLES, disableCollectionItem, listCollection } from '../collections';
+import { COLLECTION_TABLES, createCollectionItem, disableCollectionItem, listCollection, updateCollectionItem } from '../collections';
 import type { GuildAccess } from '../types';
 
 const access: GuildAccess = {
@@ -27,5 +27,25 @@ describe('guild-scoped collections', () => {
     expect(call).toContain('enabled = false');
     expect(call).toContain('g1');
     expect(call).toContain('item-1');
+  });
+
+  it('rejects a 26th enabled shop item', async () => {
+    const sql = vi.fn().mockResolvedValueOnce([{ count: 25 }]);
+    await expect(createCollectionItem('shop-items', access, {
+      type: 'role', roleId: '123456789012345678', name: 'VIP', price: 100,
+    }, sql as never)).rejects.toMatchObject({ code: 'DISCORD_COMPONENT_LIMIT', field: 'shop-items' });
+    expect(sql).toHaveBeenCalledOnce();
+  });
+
+  it('updates self-role options only through their guild-owned panel', async () => {
+    const sql = vi.fn().mockResolvedValueOnce([{ panel_id: 'panel-1', role_id: '123456789012345678' }]).mockResolvedValueOnce([]);
+    await updateCollectionItem('self-role-options', access, '123456789012345678', {
+      panelId: 'panel-1', label: 'VIP', emoji: null, position: 2,
+    }, sql as never);
+    const query = JSON.stringify(sql.mock.calls[0]);
+    expect(query).toContain('self_role_panels');
+    expect(query).toContain('g1');
+    expect(query).toContain('panel-1');
+    expect(query).toContain('123456789012345678');
   });
 });

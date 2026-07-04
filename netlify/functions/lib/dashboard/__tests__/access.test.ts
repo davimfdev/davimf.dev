@@ -24,12 +24,24 @@ describe('dashboard access management', () => {
   });
 
   it('normalizes owner updates and writes audit', async () => {
-    const deps = { sql: vi.fn().mockResolvedValue([]), validateRoleIds: vi.fn().mockResolvedValue(undefined), audit: vi.fn() };
+    const deps = {
+      sql: vi.fn().mockResolvedValueOnce([{ dashboard_access: { users: ['111111111111111111'], roles: [] } }]).mockResolvedValueOnce([]),
+      validateRoleIds: vi.fn().mockResolvedValue(undefined), audit: vi.fn(),
+    };
     await updateDashboardAccess(owner, {
       users: ['956985471332937778', '956985471332937778', '344214477069221888'],
       roles: ['123456789012345678'],
     }, deps as never);
     expect(deps.validateRoleIds).toHaveBeenCalledWith('g1', ['123456789012345678']);
-    expect(deps.audit).toHaveBeenCalledWith(expect.objectContaining({ result: 'success' }));
+    expect(deps.audit).toHaveBeenCalledWith(expect.objectContaining({
+      result: 'success',
+      changeSummary: {
+        before: { users: ['111111111111111111'], roles: [] },
+        after: {
+          users: ['344214477069221888', '956985471332937778'],
+          roles: ['123456789012345678'],
+        },
+      },
+    }));
   });
 });

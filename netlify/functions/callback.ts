@@ -15,9 +15,9 @@ type DiscordTokens = {
   scope?: string;
 };
 
-function clearStateCookie(): string {
+function clearStateCookie(secure: boolean): string {
   return cookie.serialize('bot_dashboard_oauth_state', '', {
-    httpOnly: true, secure: true, sameSite: 'lax', path: '/api/callback', expires: new Date(0),
+    httpOnly: true, secure, sameSite: 'lax', path: '/api/callback', expires: new Date(0),
   });
 }
 
@@ -67,7 +67,7 @@ export async function handleCallback(req: Request, deps: CallbackDeps = {}): Pro
   });
   const isLocal = new URL(redirectUri).hostname === 'localhost';
   const headers = new Headers({ Location: state.returnTo });
-  headers.append('Set-Cookie', clearStateCookie());
+  headers.append('Set-Cookie', clearStateCookie(!isLocal));
   headers.append('Set-Cookie', cookie.serialize(DASHBOARD_COOKIE, sessionValue, {
     httpOnly: true,
     secure: !isLocal,

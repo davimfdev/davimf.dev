@@ -47,9 +47,16 @@ export async function updateDashboardAccess(access: GuildAccess, input: AccessIn
   if (roles.length !== new Set(input.roles).size) throw new AccessManagementError(422, 'INVALID_ROLE_ID', 'roles');
   const deps = injected ?? defaults();
   await deps.validateRoleIds(access.guildId, roles);
+  const currentRows = await deps.sql`SELECT dashboard_access FROM guild_config WHERE guild_id=${access.guildId}`;
+  const current = (currentRows[0]?.dashboard_access ?? {}) as Record<string, unknown>;
+  const before = {
+    users: Array.isArray(current.users) ? current.users.map(String).sort() : [],
+    roles: Array.isArray(current.roles) ? current.roles.map(String).sort() : [],
+  };
+  const after = { users, roles };
   const json = JSON.stringify({ users, roles });
   await deps.sql`INSERT INTO guild_config (guild_id, dashboard_access, updated_by, updated_at)
     VALUES (${access.guildId}, ${json}::jsonb, ${access.userId}, now())
     ON CONFLICT (guild_id) DO UPDATE SET dashboard_access=${json}::jsonb, updated_by=${access.userId}, updated_at=now()`;
-  await deps.audit({ actorUserId: access.userId, accessLevel: access.accessLevel, targetGuildId: access.guildId, method: 'PATCH', route: '/api/bot-config-access', operation: 'update-access', resourceType: 'dashboard_access', changeSummary: { users, roles }, result: 'success' });
+  await deps.audit({ actorUserId: access.userId, accessLevel: access.accessLevel, targetGuildId: access.guildId, method: 'PATCH', route: '/api/bot-config-access', operation: 'update-access', resourceType: 'dashboard_access', changeSummary: { before, after }, result: 'success' });
 }

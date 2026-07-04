@@ -35,6 +35,7 @@ describe('dashboard Discord OAuth routes', () => {
   });
 
   it('stores tokens server-side and redirects without leaking them', async () => {
+    process.env.DISCORD_REDIRECT_URI = 'http://localhost:8888/api/callback';
     const started = await startLogin({ httpMethod: 'GET', queryStringParameters: null, headers: {} } as never, {} as never);
     if (!started) throw new Error('Expected a handler response');
     const cookieHeader = String(started.headers?.['Set-Cookie']);
@@ -53,5 +54,6 @@ describe('dashboard Discord OAuth routes', () => {
     expect(response.headers.get('location')).toBe('/dashboard');
     expect(response.headers.get('location')).not.toContain('access-secret');
     expect(response.headers.get('set-cookie')).toContain('bot_dashboard_session=signed-session');
+    expect(response.headers.get('set-cookie')).not.toContain('Secure');
   });
 });

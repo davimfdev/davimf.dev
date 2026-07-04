@@ -62,10 +62,13 @@ export async function createCollectionItem(
       rows = await sql`INSERT INTO quiz_questions (id, guild_id, question, correct, wrong1, wrong2, wrong3)
         VALUES (${id}, ${guildId}, ${data.question}, ${data.correct}, ${data.wrong1}, ${data.wrong2}, ${data.wrong3}) RETURNING *`;
       break;
-    case 'shop-items':
+    case 'shop-items': {
+      const count = await sql`SELECT count(*)::int AS count FROM shop_items WHERE guild_id=${guildId} AND enabled=true`;
+      if (Number(count[0]?.count ?? 0) >= 25) throw new CollectionError(422, 'DISCORD_COMPONENT_LIMIT', 'shop-items');
       rows = await sql`INSERT INTO shop_items (guild_id, type, role_id, name, description, price, duration_s, stock, per_user, enabled, created_at)
         VALUES (${guildId}, ${data.type}, ${data.roleId ?? null}, ${data.name}, ${data.description ?? null}, ${data.price}, ${data.durationS ?? null}, ${data.stock ?? null}, ${data.perUser ?? null}, true, ${Date.now()}) RETURNING *`;
       break;
+    }
     case 'action-types':
       rows = await sql`INSERT INTO fac_action_types (id, guild_id, name, max_contingent, min_contingent, dirty_money)
         VALUES (${id}, ${guildId}, ${data.name}, ${data.maxContingent ?? 0}, ${data.minContingent ?? 0}, ${data.dirtyMoney ?? 0}) RETURNING *`;
@@ -88,7 +91,16 @@ export async function updateCollectionItem(
     case 'quiz': rows = await sql`UPDATE quiz_questions SET question=${data.question}, correct=${data.correct}, wrong1=${data.wrong1}, wrong2=${data.wrong2}, wrong3=${data.wrong3} WHERE guild_id=${guildId} AND id=${resourceId} RETURNING *`; break;
     case 'shop-items': rows = await sql`UPDATE shop_items SET type=${data.type}, role_id=${data.roleId ?? null}, name=${data.name}, description=${data.description ?? null}, price=${data.price}, duration_s=${data.durationS ?? null}, stock=${data.stock ?? null}, per_user=${data.perUser ?? null} WHERE guild_id=${guildId} AND id=${resourceId}::bigint RETURNING *`; break;
     case 'action-types': rows = await sql`UPDATE fac_action_types SET name=${data.name}, max_contingent=${data.maxContingent ?? 0}, min_contingent=${data.minContingent ?? 0}, dirty_money=${data.dirtyMoney ?? 0} WHERE guild_id=${guildId} AND id=${resourceId} RETURNING *`; break;
-    case 'self-role-options': throw new CollectionError(400, 'COMPOSITE_RESOURCE_UPDATE_UNSUPPORTED');
+    case 'self-role-options': {
+      const panelId = typeof data.panelId === 'string' ? data.panelId : '';
+      if (!panelId) throw new CollectionError(400, 'PANEL_ID_REQUIRED', 'panelId');
+      rows = await sql`UPDATE self_role_options o
+        SET label=${data.label}, emoji=${data.emoji ?? null}, position=${data.position ?? 0}
+        FROM self_role_panels p
+        WHERE o.panel_id=p.id AND p.guild_id=${guildId} AND o.panel_id=${panelId} AND o.role_id=${resourceId}
+        RETURNING o.*`;
+      break;
+    }
   }
   if (!rows[0]) throw new CollectionError(404, 'RESOURCE_NOT_FOUND');
   await writeAudit({ actorUserId: access.userId, accessLevel: access.accessLevel, targetGuildId: guildId, method: 'PATCH', route: '/api/bot-config-collection', operation: 'update', resourceType: name, resourceId, changeSummary: data, result: 'success' }, sql);

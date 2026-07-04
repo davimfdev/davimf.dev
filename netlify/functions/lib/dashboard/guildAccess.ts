@@ -38,9 +38,18 @@ function defaultDeps(sql: DashboardSql = botSql): GuildAccessDeps {
       return rows[0] ? { guildId: String(rows[0].guild_id), botPresent: Boolean(rows[0].bot_present) } : null;
     },
     getDiscordGuilds: async (accessToken) => {
-      const response = await fetch('https://discord.com/api/users/@me/guilds', { headers: { Authorization: `Bearer ${accessToken}` } });
-      if (!response.ok) throw new Error('Discord guilds fetch failed');
-      return await response.json() as DiscordGuild[];
+      const headers = { Authorization: `Bearer ${accessToken}` };
+      for (let attempt = 0; ; attempt++) {
+        const response = await fetch('https://discord.com/api/users/@me/guilds', { headers });
+        if (response.ok) return await response.json() as DiscordGuild[];
+        // Retry transient rate-limits (429) and upstream errors (5xx); the dashboard
+        // fires concurrent loads, and the second one can lose the per-token rate token.
+        const retryable = response.status === 429 || response.status >= 500;
+        if (!retryable || attempt >= 2) throw new Error(`Discord guilds fetch failed: ${response.status}`);
+        const retryAfter = Number(response.headers.get('retry-after'));
+        const delayMs = Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(retryAfter * 1000, 3000) : 300 * (attempt + 1);
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
     },
     getDashboardAccess: async (guildId) => {
       const rows = await sql`SELECT dashboard_access FROM guild_config WHERE guild_id = ${guildId}`;

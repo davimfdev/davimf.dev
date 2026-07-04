@@ -17,7 +17,14 @@
       "Bash(sort -t: -k2 -rn)",
       "PowerShell(npm run *)",
       "PowerShell($libs = @\\(\"sharp\",\"puppeteer\",\"puppeteer-core\",\"@resvg/resvg-js\",\"canvas\"\\); foreach\\($l in $libs\\){ if\\(Test-Path \"node_modules\\\\$l\"\\){ \"FOUND: $l\" } else { \"no: $l\" } })",
-      "PowerShell($c = Get-ChildItem -Recurse -Filter \"chrome.exe\" \".netlify\" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName; if\\($c\\){\"CHROME: $c\"} else {\"none\"})"
+      "PowerShell($c = Get-ChildItem -Recurse -Filter \"chrome.exe\" \".netlify\" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName; if\\($c\\){\"CHROME: $c\"} else {\"none\"})",
+      "Bash(cd *)",
+      "PowerShell(Get-Process *)",
+      "Bash(cat netlify/functions/lib/dashboard/siteDb.ts)",
+      "Bash(find src *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\(p.scripts,null,2\\)\\); console.log\\('deps:', Object.keys\\(p.devDependencies||{}\\).filter\\(d=>/vitest|testing-library|jsdom|happy-dom/.test\\(d\\)\\)\\)\")",
+      "Bash(bash \"C:/Users/davi/.claude/plugins/cache/claude-plugins-official/superpowers/6.1.1/skills/subagent-driven-development/scripts/review-package\" e8887c09100862eadd7c491c309c62ce53241ce0 36352e4)",
+      "Bash(bash \"C:/Users/davi/.claude/plugins/cache/claude-plugins-official/superpowers/6.1.1/skills/subagent-driven-development/scripts/review-package\" 36352e424a9f55bf382bca97c4b65cc4f88da703 af6aaa5)"
     ]
   }
 }

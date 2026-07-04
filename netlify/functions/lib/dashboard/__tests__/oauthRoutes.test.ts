@@ -56,4 +56,21 @@ describe('dashboard Discord OAuth routes', () => {
     expect(response.headers.get('set-cookie')).toContain('bot_dashboard_session=signed-session');
     expect(response.headers.get('set-cookie')).not.toContain('Secure');
   });
+
+  it('returns the Discord token in the redirect for non-dashboard pages (legacy site auth)', async () => {
+    const started = await startLogin({ httpMethod: 'GET', queryStringParameters: { returnTo: '/todo' }, headers: {} } as never, {} as never);
+    if (!started) throw new Error('Expected a handler response');
+    const cookieHeader = String(started.headers?.['Set-Cookie']);
+    const state = new URL(String(started.headers?.Location)).searchParams.get('state')!;
+    const fetchImpl = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ access_token: 'access-secret', expires_in: 3600 }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'u1' }), { status: 200 }));
+    const response = await handleCallback(new Request(`https://davimf.dev/api/callback?code=x&state=${encodeURIComponent(state)}`, {
+      headers: { cookie: cookieHeader.split(';')[0] },
+    }), { fetchImpl: fetchImpl as never, createSession: vi.fn().mockResolvedValue('signed-session') });
+    const location = response.headers.get('location')!;
+    expect(location.startsWith('/todo')).toBe(true);
+    expect(new URL(location, 'https://davimf.dev').searchParams.get('token')).toBe('access-secret');
+    expect(response.headers.get('set-cookie')).toContain('bot_dashboard_session=signed-session');
+  });
 });

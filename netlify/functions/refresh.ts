@@ -37,18 +37,13 @@ export default async (req: Request, context: Context) => {
     }
     const user = userResult[0];
 
-    const googleIntegrationResult = await sql`
-      SELECT 1 FROM google_calendar_integrations WHERE user_id = ${user.id}
-    `;
-    const isGoogleConnected = googleIntegrationResult.length > 0;
-
     const accessToken = jwt.sign(
-      { userId: user.id, email: user.email, jti: randomBytes(16).toString('hex'), isGoogleConnected },
+      { userId: user.id, email: user.email, jti: randomBytes(16).toString('hex') },
       JWT_SECRET,
       { expiresIn: '15m' }
     );
 
-    return new Response(JSON.stringify({ accessToken, isGoogleConnected }), {
+    return new Response(JSON.stringify({ accessToken }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

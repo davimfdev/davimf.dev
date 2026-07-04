@@ -66,7 +66,14 @@ export async function handleCallback(req: Request, deps: CallbackDeps = {}): Pro
     expiresAt: new Date(Date.now() + tokens.expires_in * 1000),
   });
   const isLocal = new URL(redirectUri).hostname === 'localhost';
-  const headers = new Headers({ Location: state.returnTo });
+  // O dashboard usa exclusivamente a sessão-cookie segura. As demais páginas do site
+  // (todo, finanças, notas, encurtador, chaves FMM, navbar) ainda autenticam via o
+  // access token do Discord no localStorage, então o entregamos na URL de retorno.
+  const dest = new URL(state.returnTo, url.origin);
+  if (!state.returnTo.startsWith('/dashboard')) {
+    dest.searchParams.set('token', tokens.access_token);
+  }
+  const headers = new Headers({ Location: dest.pathname + dest.search });
   headers.append('Set-Cookie', clearStateCookie(!isLocal));
   headers.append('Set-Cookie', cookie.serialize(DASHBOARD_COOKIE, sessionValue, {
     httpOnly: true,

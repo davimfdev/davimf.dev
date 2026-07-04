@@ -18,16 +18,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isDashboard = location.pathname === '/dashboard' || location.pathname.startsWith('/dashboard/');
 
   const handleLogin = () => {
-    // Salva a página atual (ex: /encurtador) para voltar depois do login
-    localStorage.setItem('return_path', location.pathname);
-    // Redireciona para o Discord
-    window.location.href = DISCORD_AUTH_URL;
+    // Login unificado: passa pelo fluxo seguro (state + sessão no servidor).
+    // O callback devolve o token na URL para as features que ainda usam localStorage.
+    window.location.href = `/api/dashboard-login?returnTo=${encodeURIComponent(location.pathname)}`;
   };
 
   const { language, setLanguage, translations } = useLanguage();
 
-  const redirectUri = encodeURIComponent(`${window.location.origin}/api/callback`);
-  const DISCORD_AUTH_URL = `https://discord.com/api/oauth2/authorize?client_id=1484035057478799411&redirect_uri=${redirectUri}&response_type=code&scope=identify%20guilds`;
   const navigation = [
     { name: translations.home, href: '/' },
     { name: translations.portfolio, href: '/portfolio' },
@@ -51,7 +48,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     setDiscordUser(null);
     setIsUserMenuOpen(false);
     setIsMenuOpen(false);
-    navigate('/');
+    // Revoga também a sessão-cookie do servidor (dashboard).
+    fetch('/api/dashboard-logout', { method: 'POST', credentials: 'include' }).finally(() => navigate('/'));
   };
 
   useEffect(() => {
@@ -192,7 +190,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                           </button>
                         </>
                     ) : (
-                        <button onClick={() => window.location.href = DISCORD_AUTH_URL} className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                        <button onClick={handleLogin} className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
                           Entrar com Discord
                         </button>
                     )}
@@ -251,7 +249,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         </button>
                       </>
                   ) : (
-                      <button onClick={() => window.location.href = DISCORD_AUTH_URL} className="w-full text-left text-gray-300 hover:bg-white/10 hover:text-white block px-3 py-2 rounded-lg text-base font-medium transition-colors">
+                      <button onClick={handleLogin} className="w-full text-left text-gray-300 hover:bg-white/10 hover:text-white block px-3 py-2 rounded-lg text-base font-medium transition-colors">
                         Entrar com Discord
                       </button>
                   )}

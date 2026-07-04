@@ -17,7 +17,9 @@ function signature(payload: string): string {
 }
 
 function safeReturnTo(value: string): string {
-  return value.startsWith('/dashboard') && !value.startsWith('//') ? value : '/dashboard';
+  // Aceita qualquer caminho local do site (ex.: /todo, /encurtador, /dashboard),
+  // rejeitando URLs absolutas/protocol-relative que poderiam causar open redirect.
+  return value.startsWith('/') && !value.startsWith('//') ? value : '/dashboard';
 }
 
 export function createOAuthState(returnTo = '/dashboard', now = Date.now()): string {

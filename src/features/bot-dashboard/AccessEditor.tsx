@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
-
-type RoleOption = { id: string; name: string };
+import { RoleChip } from './RoleChip';
+import { SelectField } from './SelectField';
+import type { RoleOption } from './types';
 
 export function AccessEditor({ users, roles, availableRoles, canManage, onSave }: {
   users: string[];
@@ -27,7 +28,19 @@ export function AccessEditor({ users, roles, availableRoles, canManage, onSave }
   return <section className="bd-editor" aria-labelledby="access-editor-title"><header><div><p>Governança</p><h2 id="access-editor-title">Quem pode configurar</h2></div></header>
     <form onSubmit={submit}><div className="bd-editor-grid">
       <label className="bd-field"><span>IDs de usuários</span><small>Um ID Discord por linha.</small><textarea value={userText} onChange={(event) => setUserText(event.target.value)} disabled={saving} /></label>
-      <fieldset className="bd-role-options"><legend>Cargos delegados</legend>{availableRoles.map((role) => <label key={role.id}><input type="checkbox" checked={selectedRoles.includes(role.id)} disabled={saving} onChange={(event) => setSelectedRoles((current) => event.target.checked ? [...new Set([...current, role.id])] : current.filter((id) => id !== role.id))} /><span>@{role.name}</span></label>)}</fieldset>
+      <div className="bd-field">
+        <span>Cargos delegados</span>
+        <div className="bd-chip-row">
+          {selectedRoles.length === 0 && <small>Nenhum cargo delegado.</small>}
+          {selectedRoles.map((id) => {
+            const role = availableRoles.find((r) => r.id === id) ?? { id, name: id };
+            return <RoleChip key={id} role={role} onRemove={() => setSelectedRoles((current) => current.filter((r) => r !== id))} />;
+          })}
+        </div>
+        <SelectField id="access-role-add" value="" placeholder="Adicionar cargo…" disabled={saving}
+          options={availableRoles.filter((r) => !selectedRoles.includes(r.id)).map((r) => ({ value: r.id, label: r.name, role: r }))}
+          onChange={(id) => { if (id) setSelectedRoles((current) => [...new Set([...current, id])]); }} />
+      </div>
     </div><footer><span role="status">{message}</span><button type="submit" disabled={saving}>{saving ? 'Salvando…' : 'Salvar acessos'}</button></footer></form>
   </section>;
 }

@@ -20,3 +20,4 @@
 .bd-select-option.is-selected{color:#fff;font-weight:650}
 .bd-select-option.is-selected::after{content:'✓';margin-left:auto;color:#7c6df2}
 .bd-select-empty{padding:8px 10px;color:#7a879c;font-size:.85rem}
+.bd-chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 4px}

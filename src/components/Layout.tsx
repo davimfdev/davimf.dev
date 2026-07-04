@@ -15,6 +15,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
 
   const location = useLocation();
+  const isDashboard = location.pathname === '/dashboard' || location.pathname.startsWith('/dashboard/');
 
   const handleLogin = () => {
     // Salva a página atual (ex: /encurtador) para voltar depois do login
@@ -54,6 +55,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   useEffect(() => {
+    if (isDashboard) return;
     // 1. CAÇADOR DE TOKENS: Verifica se o token veio na URL (vinda do backend)
     const params = new URLSearchParams(window.location.search);
     const tokenFromUrl = params.get('token');
@@ -107,7 +109,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
 
-  }, [navigate, discordUser]); // Adicionado discordUser para atualizar o estado quando logar
+  }, [navigate, discordUser, isDashboard]); // Adicionado discordUser para atualizar o estado quando logar
+
+  if (isDashboard) return <>{children}</>;
 
   return (
       <div className="min-h-screen flex flex-col relative z-0">

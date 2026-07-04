@@ -50,9 +50,9 @@ export function ConfigMapEditor({ title, column, values, fields, channels = [], 
           if (field.kind === 'channel') channels.forEach((c) => opts.push({ value: c.id, label: `#${c.name}` }));
           else if (field.kind === 'role') roles.forEach((r) => opts.push({ value: r.id, label: r.name, role: r }));
           field.options?.forEach((o) => opts.push({ value: o.value, label: o.label }));
-          return <label className="bd-field" key={field.key}><span>{field.label}</span>{field.description && <small>{field.description}</small>}
+          return <div className="bd-field" key={field.key}><span>{field.label}</span>{field.description && <small>{field.description}</small>}
             <SelectField id={id} value={String(value ?? '')} options={opts} disabled={disabled || saving} onChange={(next) => setValue(field.key, next)} />
-          </label>;
+          </div>;
         }
         return <label className="bd-field" key={field.key} htmlFor={id}><span>{field.label}</span>{field.description && <small>{field.description}</small>}
           {field.kind === 'string[]' ? <textarea id={id} value={Array.isArray(value) ? value.join('\n') : ''} disabled={disabled || saving} onChange={(event) => setValue(field.key, event.target.value.split('\n').map((item) => item.trim()).filter(Boolean))} />

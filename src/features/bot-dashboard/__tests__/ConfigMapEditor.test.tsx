@@ -39,6 +39,7 @@ describe('ConfigMapEditor', () => {
     );
     fireEvent.click(screen.getAllByRole('button')[0]);
     fireEvent.click(screen.getByRole('option', { name: 'Moderador' }));
+    expect(screen.queryByRole('combobox')).toBeNull(); // popover closed on select
     fireEvent.click(screen.getByRole('button', { name: /salvar/i }));
     await screen.findByText('Alterações salvas.');
     expect(onSave).toHaveBeenCalledWith('roles', { moderador: 'r1' });

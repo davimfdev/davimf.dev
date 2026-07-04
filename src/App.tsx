@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotesProvider } from './context/NotesContext';
@@ -23,6 +23,12 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import Test from './pages/Test';
 import Dashboard from './pages/Dashboard';
 import BotConfig from './pages/BotConfig';
+import { OverviewSection } from './features/bot-dashboard/sections/OverviewSection';
+import { ChannelsSection } from './features/bot-dashboard/sections/ChannelsSection';
+import { RolesSection } from './features/bot-dashboard/sections/RolesSection';
+import { ModerationSection } from './features/bot-dashboard/sections/ModerationSection';
+import { SecuritySection } from './features/bot-dashboard/sections/SecuritySection';
+import { ModulesSection } from './features/bot-dashboard/sections/ModulesSection';
 import FmmPlans from './pages/FmmPlans';
 import FmmActivated from './pages/FmmActivated';
 import MyKeys from './pages/MyKeys';
@@ -60,7 +66,15 @@ function App() {
               <Route path="/ticket/:id" element={<TicketView />} />
               <Route path="/test" element={<Test/>} />
               <Route path="/dashboard" element={<Dashboard/>} />
-              <Route path="/dashboard/:guildId" element={<BotConfig/>} />
+              <Route path="/dashboard/:guildId" element={<BotConfig/>}>
+                <Route index element={<Navigate to="overview" replace />} />
+                <Route path="overview" element={<OverviewSection/>} />
+                <Route path="channels" element={<ChannelsSection/>} />
+                <Route path="roles" element={<RolesSection/>} />
+                <Route path="moderation" element={<ModerationSection/>} />
+                <Route path="security" element={<SecuritySection/>} />
+                <Route path="modules" element={<ModulesSection/>} />
+              </Route>
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/fmm" element={<FmmPlans />} />
               <Route path="/fmm-activated" element={<FmmActivated />} />

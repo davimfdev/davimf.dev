@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Activity, ArrowLeft, Bot, ChevronDown, Headphones, HelpCircle, LayoutDashboard, LogOut, Menu, Settings, Shield, SlidersHorizontal, Users, X } from 'lucide-react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import type { AccessLevel } from './types';
 import './dashboard.css';
 
@@ -9,7 +9,6 @@ type Props = {
   children: ReactNode;
   guildName: string;
   accessLevel: AccessLevel;
-  activeSection: string;
 };
 
 const sections = [
@@ -21,7 +20,7 @@ const sections = [
   { id: 'modules', label: 'Módulos', icon: Settings },
 ];
 
-export function DashboardShell({ children, guildName, accessLevel, activeSection }: Props) {
+export function DashboardShell({ children, guildName, accessLevel }: Props) {
   const [open, setOpen] = useState(false);
   return (
     <div className="bd-shell">
@@ -50,9 +49,9 @@ export function DashboardShell({ children, guildName, accessLevel, activeSection
         )}
         <nav className="bd-section-nav" aria-label="Configurações do servidor">
           {sections.map(({ id, label, icon: Icon }) => (
-            <a key={id} className={activeSection === id ? 'is-active' : ''} href={`#${id}`} onClick={() => setOpen(false)}>
+            <NavLink key={id} to={id} className={({ isActive }) => (isActive ? 'is-active' : '')} onClick={() => setOpen(false)}>
               <Icon aria-hidden="true" />{label}
-            </a>
+            </NavLink>
           ))}
         </nav>
         <div className="bd-sidebar-health"><span className="is-good" /><div><strong>BaseBot conectado</strong><small>Snapshots monitorados</small></div></div>

@@ -7,7 +7,7 @@ describe('DashboardShell', () => {
   it('combines the global rail, contextual navigation and support notice', () => {
     const html = renderToStaticMarkup(
       <MemoryRouter>
-        <DashboardShell guildName="Comunidade Aurora" accessLevel="support" activeSection="overview">
+        <DashboardShell guildName="Comunidade Aurora" accessLevel="support">
           <p>Conteúdo</p>
         </DashboardShell>
       </MemoryRouter>,

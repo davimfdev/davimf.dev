@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from 'react';
+import { SelectField, type SelectOption } from './SelectField';
+import type { RoleOption } from './types';
 
 export type ConfigField = {
   key: string;
@@ -16,7 +18,7 @@ export function ConfigMapEditor({ title, column, values, fields, channels = [], 
   values: Record<string, unknown>;
   fields: ConfigField[];
   channels?: SnapshotOption[];
-  roles?: SnapshotOption[];
+  roles?: RoleOption[];
   disabled?: boolean;
   onSave: (column: 'channels' | 'roles' | 'toggles' | 'settings', values: Record<string, unknown>) => Promise<unknown>;
 }) {
@@ -43,12 +45,17 @@ export function ConfigMapEditor({ title, column, values, fields, channels = [], 
           <input id={id} type="checkbox" checked={Boolean(value)} disabled={disabled || saving} onChange={(event) => setValue(field.key, event.target.checked)} />
         </label>;
         const snapshot = field.kind === 'channel' ? channels : field.kind === 'role' ? roles : undefined;
+        if (snapshot || field.options) {
+          const opts: SelectOption[] = [{ value: '', label: 'Não definido' }];
+          if (field.kind === 'channel') channels.forEach((c) => opts.push({ value: c.id, label: `#${c.name}` }));
+          else if (field.kind === 'role') roles.forEach((r) => opts.push({ value: r.id, label: r.name, role: r }));
+          field.options?.forEach((o) => opts.push({ value: o.value, label: o.label }));
+          return <label className="bd-field" key={field.key}><span>{field.label}</span>{field.description && <small>{field.description}</small>}
+            <SelectField id={id} value={String(value ?? '')} options={opts} disabled={disabled || saving} onChange={(next) => setValue(field.key, next)} />
+          </label>;
+        }
         return <label className="bd-field" key={field.key} htmlFor={id}><span>{field.label}</span>{field.description && <small>{field.description}</small>}
-          {(snapshot || field.options) ? <select id={id} value={String(value ?? '')} disabled={disabled || saving} onChange={(event) => setValue(field.key, event.target.value)}>
-            <option value="">Não definido</option>
-            {snapshot?.map((option) => <option key={option.id} value={option.id}>{field.kind === 'channel' ? '#' : '@'}{option.name}</option>)}
-            {field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-          </select> : field.kind === 'string[]' ? <textarea id={id} value={Array.isArray(value) ? value.join('\n') : ''} disabled={disabled || saving} onChange={(event) => setValue(field.key, event.target.value.split('\n').map((item) => item.trim()).filter(Boolean))} />
+          {field.kind === 'string[]' ? <textarea id={id} value={Array.isArray(value) ? value.join('\n') : ''} disabled={disabled || saving} onChange={(event) => setValue(field.key, event.target.value.split('\n').map((item) => item.trim()).filter(Boolean))} />
           : <input id={id} type={field.kind === 'number' ? 'number' : 'text'} value={String(value ?? '')} disabled={disabled || saving} onChange={(event) => setValue(field.key, field.kind === 'number' ? Number(event.target.value) : event.target.value)} />}
         </label>;
       })}</div>

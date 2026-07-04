@@ -1,4 +1,5 @@
 import { Activity, AlertTriangle, CheckCircle2, Radio, ShieldCheck, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { Health } from './api';
 import type { AccessLevel } from './types';
 
@@ -25,8 +26,8 @@ export function Overview({ health, accessLevel }: { health: Health; accessLevel:
       </div>
       {(stale || blocked) && <div className="bd-guidance"><AlertTriangle /><div><strong>{title}</strong><p>Mantenha o bot online e aguarde a próxima publicação de canais e cargos antes de salvar campos dependentes do Discord.</p></div></div>}
       <div className="bd-next-grid">
-        <article><span><Activity /> Base operacional</span><h2>Revise canais e logs</h2><p>Direcione eventos importantes para canais onde o bot consegue visualizar e enviar mensagens.</p><a href="#channels">Abrir canais</a></article>
-        <article><span><Users /> Governança</span><h2>Organize cargos e acessos</h2><p>Defina cargos operacionais e delegue a configuração sem compartilhar credenciais.</p><a href="#roles">Abrir acessos</a></article>
+        <article><span><Activity /> Base operacional</span><h2>Revise canais e logs</h2><p>Direcione eventos importantes para canais onde o bot consegue visualizar e enviar mensagens.</p><Link to="../channels">Abrir canais</Link></article>
+        <article><span><Users /> Governança</span><h2>Organize cargos e acessos</h2><p>Defina cargos operacionais e delegue a configuração sem compartilhar credenciais.</p><Link to="../roles">Abrir acessos</Link></article>
       </div>
     </section>
   );

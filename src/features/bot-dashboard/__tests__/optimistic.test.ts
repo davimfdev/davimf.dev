@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { mergeConfigColumn, collectionKeyFor, applyCollectionMutation } from './optimistic';
-import type { GuildConfigResponse } from './api';
+import { mergeConfigColumn, collectionKeyFor, applyCollectionMutation } from '../optimistic';
+import type { GuildConfigResponse } from '../api';
 
 describe('mergeConfigColumn', () => {
   it('replaces one column and preserves the others immutably', () => {

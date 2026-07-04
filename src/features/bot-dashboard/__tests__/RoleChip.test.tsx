@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
-import { RoleChip } from './RoleChip';
-import { roleColorToHex } from './roleColor';
+import { RoleChip } from '../RoleChip';
+import { roleColorToHex } from '../roleColor';
 
 afterEach(cleanup);
 

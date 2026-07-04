@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
-import { SelectField, filterOptions, type SelectOption } from './SelectField';
+import { SelectField, filterOptions, type SelectOption } from '../SelectField';
 
 afterEach(cleanup);
 

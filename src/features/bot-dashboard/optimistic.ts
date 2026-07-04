@@ -14,7 +14,7 @@ const COLLECTION_KEYS: Record<string, string> = {
   'level-rewards': 'levelRewards',
   quiz: 'quiz',
   'shop-items': 'shopItems',
-  'fac-action-types': 'actionTypes',
+  'action-types': 'actionTypes',
 };
 
 export function collectionKeyFor(collection: string): string | null {

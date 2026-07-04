@@ -17,6 +17,9 @@ describe('collectionKeyFor', () => {
     expect(collectionKeyFor('ticket-categories')).toBe('ticketCategories');
     expect(collectionKeyFor('shop-items')).toBe('shopItems');
   });
+  it('maps action-types to actionTypes', () => {
+    expect(collectionKeyFor('action-types')).toBe('actionTypes');
+  });
   it('returns null for an unknown collection', () => {
     expect(collectionKeyFor('nope')).toBeNull();
   });

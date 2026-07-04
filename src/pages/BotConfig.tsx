@@ -8,6 +8,8 @@ import { ConfigMapEditor, type ConfigField } from '../features/bot-dashboard/Con
 import { AccessEditor } from '../features/bot-dashboard/AccessEditor';
 import { CollectionEditor } from '../features/bot-dashboard/CollectionEditor';
 import type { AccessLevel } from '../features/bot-dashboard/types';
+import { mergeConfigColumn, collectionKeyFor, applyCollectionMutation } from '../features/bot-dashboard/optimistic';
+import type { RoleOption } from '../features/bot-dashboard/types';
 import '../features/bot-dashboard/editors.css';
 
 const channelFields: ConfigField[] = [
@@ -36,33 +38,52 @@ export default function BotConfig() {
   const [loading, setLoading] = useState(true);
   const [accessMap, setAccessMap] = useState<{ users: string[]; roles: string[] }>({ users: [], roles: [] });
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (signal?: AbortSignal) => {
     setLoading(true); setError(null);
     try {
-      const next = await dashboardApi.config(guildId); setData(next);
+      const next = await dashboardApi.config(guildId, signal);
+      if (signal?.aborted) return;
+      setData(next); setError(null);
       if (next.guild.canManageAccess) {
-        const access = await dashboardApi.access(guildId);
+        const access = await dashboardApi.access(guildId, signal);
+        if (signal?.aborted) return;
         setAccessMap({ users: Array.isArray(access.users) ? access.users.map(String) : [], roles: Array.isArray(access.roles) ? access.roles.map(String) : [] });
       }
     }
     catch (cause) {
+      if (signal?.aborted || (cause instanceof DOMException && cause.name === 'AbortError')) return;
       const apiError = cause instanceof DashboardApiError ? cause : new DashboardApiError(500, 'LOAD_FAILED', 'Falha ao carregar.');
       if (apiError.status === 401) { window.location.href = `/api/dashboard-login?returnTo=${encodeURIComponent(`/dashboard/${guildId}`)}`; return; }
       if (apiError.status === 403) { navigate('/dashboard', { replace: true }); return; }
       setError(apiError);
-    } finally { setLoading(false); }
+    } finally { if (!signal?.aborted) setLoading(false); }
   }, [guildId, navigate]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    const controller = new AbortController();
+    void load(controller.signal);
+    return () => controller.abort();
+  }, [load]);
 
   if (loading) return <div className="bd-full-loading"><span /><p>Preparando configuração do servidor…</p></div>;
   if (error || !data) return <div className="bd-full-error"><AlertTriangle /><h1>Configuração indisponível</h1><p>{error?.message ?? 'O servidor não retornou dados válidos.'}</p><button className="bd-button bd-button--quiet" onClick={() => void load()}><RefreshCw /> Tentar novamente</button></div>;
 
   const configMap = (key: string) => data.config[key] && typeof data.config[key] === 'object' ? data.config[key] as Record<string, unknown> : {};
   const channels = data.channels.map((item) => ({ id: String(item.channel_id ?? item.channelId ?? ''), name: String(item.name ?? item.channel_name ?? 'Canal') })).filter((item) => item.id);
-  const roles = data.roles.map((item) => ({ id: String(item.role_id ?? item.roleId ?? ''), name: String(item.name ?? item.role_name ?? 'Cargo') })).filter((item) => item.id);
-  const saveMap = async (column: 'channels'|'roles'|'toggles'|'settings', values: Record<string, unknown>) => { await dashboardApi.patch(guildId, column, values); await load(); };
-  const mutateCollection = async (collection: string, method: 'POST'|'PATCH'|'DELETE', payload: Record<string, unknown>, resourceId?: string) => { await dashboardApi.collection(guildId, collection, method, payload, resourceId); await load(); };
+  const roles: RoleOption[] = data.roles.map((item) => ({
+    id: String(item.role_id ?? item.roleId ?? ''),
+    name: String(item.name ?? item.role_name ?? 'Cargo'),
+    color: typeof item.color === 'number' ? item.color : null,
+  })).filter((item) => item.id);
+  const saveMap = async (column: 'channels'|'roles'|'toggles'|'settings', values: Record<string, unknown>) => {
+    await dashboardApi.patch(guildId, column, values);
+    setData((prev) => (prev ? mergeConfigColumn(prev, column, values) : prev));
+  };
+  const mutateCollection = async (collection: string, method: 'POST'|'PATCH'|'DELETE', payload: Record<string, unknown>, resourceId?: string) => {
+    const res = await dashboardApi.collection(guildId, collection, method, payload, resourceId) as { item?: Record<string, unknown> };
+    const key = collectionKeyFor(collection);
+    if (key) setData((prev) => (prev ? { ...prev, collections: applyCollectionMutation(prev.collections, key, method, res.item, resourceId) } : prev));
+  };
 
   return (
     <DashboardShell guildName={data.guild.name} accessLevel={data.guild.accessLevel as AccessLevel} activeSection="overview">

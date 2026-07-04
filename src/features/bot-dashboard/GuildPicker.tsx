@@ -34,9 +34,15 @@ export function GuildPicker({ guilds }: { guilds: DashboardGuild[] }) {
         return (
           <article className="bd-guild-row" key={guild.id}>
             <div className="bd-guild-avatar" aria-hidden="true">
-              {guild.icon
-                ? <img src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=96`} alt="" />
-                : guild.name.slice(0, 1).toUpperCase()}
+              {guild.name.slice(0, 1).toUpperCase()}
+              {guild.icon && (
+                <img
+                  src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.${guild.icon.startsWith('a_') ? 'gif' : 'webp'}?size=96`}
+                  alt=""
+                  loading="lazy"
+                  onError={(event) => { event.currentTarget.style.display = 'none'; }}
+                />
+              )}
             </div>
             <div className="bd-guild-main">
               <div className="bd-guild-title">

@@ -47,7 +47,11 @@ export default function BotConfig() {
     const controller = new AbortController();
     void load(controller.signal);
     return () => controller.abort();
-  }, [load]);
+    // Reload only when the guild changes — not when `load`'s identity churns.
+    // react-router's `navigate` gets a new identity on each navigation, which
+    // would otherwise refetch the config on every section change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [guildId]);
 
   // Soft-migrate old hash deep-links (/dashboard/:id#security) once on mount.
   useEffect(() => {

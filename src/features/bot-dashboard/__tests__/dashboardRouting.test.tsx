@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, cleanup } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 vi.mock('../api', async (importActual) => {
@@ -18,6 +18,7 @@ import { SecuritySection } from '../sections/SecuritySection';
 import { ModulesSection } from '../sections/ModulesSection';
 
 afterEach(cleanup);
+beforeEach(() => { vi.clearAllMocks(); });
 
 const fakeData = {
   guild: { id: 'g1', name: 'Aurora', accessLevel: 'owner', canManageAccess: false },
@@ -60,5 +61,14 @@ describe('dashboard routing', () => {
     renderAt('/dashboard/g1#security');
     expect(await screen.findByText('Módulos e proteções')).toBeTruthy();
     expect(screen.queryByText('Central de configuração')).toBeNull();
+  });
+  it('loads config once and stays mounted when navigating between sections', async () => {
+    renderAt('/dashboard/g1/overview');
+    expect(await screen.findByRole('heading', { name: 'Visão geral' })).toBeTruthy();
+    expect(dashboardApi.config).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole('link', { name: /Segurança/ }));
+    expect(await screen.findByText('Módulos e proteções')).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Visão geral' })).toBeNull();
+    expect(dashboardApi.config).toHaveBeenCalledTimes(1);
   });
 });

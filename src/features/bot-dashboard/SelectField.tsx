@@ -23,6 +23,7 @@ export function SelectField({ id, value, options, placeholder = 'Não definido',
   const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const filtered = useMemo(() => filterOptions(options, query), [options, query]);
   const selected = options.find((option) => option.value === value) ?? null;
@@ -41,10 +42,10 @@ export function SelectField({ id, value, options, placeholder = 'Não definido',
     if (open) { setQuery(''); setActiveIndex(0); inputRef.current?.focus(); }
   }, [open]);
 
-  const choose = (option: SelectOption) => { onChange(option.value); setOpen(false); };
+  const choose = (option: SelectOption) => { onChange(option.value); setOpen(false); triggerRef.current?.focus(); };
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Escape') { setOpen(false); return; }
+    if (event.key === 'Escape') { setOpen(false); triggerRef.current?.focus(); return; }
     if (event.key === 'ArrowDown') { event.preventDefault(); setActiveIndex((i) => Math.min(i + 1, filtered.length - 1)); }
     else if (event.key === 'ArrowUp') { event.preventDefault(); setActiveIndex((i) => Math.max(i - 1, 0)); }
     else if (event.key === 'Enter' && open) { event.preventDefault(); const option = filtered[activeIndex]; if (option) choose(option); }
@@ -52,7 +53,7 @@ export function SelectField({ id, value, options, placeholder = 'Não definido',
 
   return (
     <div className="bd-select" ref={rootRef} onKeyDown={onKeyDown}>
-      <button type="button" id={id} className="bd-select-trigger" disabled={disabled}
+      <button type="button" id={id} ref={triggerRef} className="bd-select-trigger" disabled={disabled}
         aria-haspopup="listbox" aria-expanded={open} aria-controls={listId}
         onClick={() => setOpen((v) => !v)}>
         <span className="bd-select-value">
@@ -65,9 +66,11 @@ export function SelectField({ id, value, options, placeholder = 'Não definido',
       {open && (
         <div className="bd-select-popover">
           <input ref={inputRef} type="search" className="bd-select-filter" placeholder="Filtrar…"
+            aria-label="Filtrar opções" role="combobox" aria-expanded={true} aria-controls={listId}
+            aria-autocomplete="list"
+            aria-activedescendant={filtered[activeIndex] ? `${id}-opt-${activeIndex}` : undefined}
             value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} />
-          <ul className="bd-select-list" role="listbox" id={listId}
-            aria-activedescendant={filtered[activeIndex] ? `${id}-opt-${activeIndex}` : undefined}>
+          <ul className="bd-select-list" role="listbox" id={listId}>
             {filtered.length === 0 && <li className="bd-select-empty">Nada encontrado</li>}
             {filtered.map((option, index) => (
               <li key={option.value || '__none'} id={`${id}-opt-${index}`} role="option"

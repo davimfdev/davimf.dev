@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 // MODIFICADO: Adicionado LogOut na lista de imports
-import { Menu, X, Github, Linkedin, Mail, Globe, MessageCircle, Phone, User, ChevronDown, LogOut } from 'lucide-react';
+import { Menu, X, Github, Linkedin, Mail, Globe, MessageCircle, Phone, User, ChevronDown, LogOut, Bot } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -76,17 +76,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             throw new Error('Token inválido');
           })
           .then(data => {
+            // 3. Nenhum redirecionamento aqui: o `returnTo` enviado em handleLogin
+            // já trouxe o usuário de volta para a página onde ele estava. Só
+            // atualizamos o estado para a navbar refletir que ele está logado.
             setDiscordUser(data);
-
-            // 3. REDIRECIONAMENTO INTELIGENTE
-            const returnPath = localStorage.getItem('return_path');
-            if (returnPath && returnPath !== '/login' && returnPath !== '/') {
-              localStorage.removeItem('return_path');
-              navigate(returnPath);
-            } else if (tokenFromUrl) {
-              // Se ele acabou de logar e não tinha rota salva, manda pro dashboard
-              navigate('/dashboard');
-            }
           })
           .catch(() => {
             localStorage.removeItem('discord_token');
@@ -107,7 +100,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
 
-  }, [navigate, discordUser, isDashboard]); // Adicionado discordUser para atualizar o estado quando logar
+  }, [discordUser, isDashboard]); // discordUser mantém o efeito em sincronia quando o login acontece
 
   if (isDashboard) return <>{children}</>;
 
@@ -150,6 +143,16 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </div>
 
               <div className="hidden md:flex items-center space-x-4">
+                {discordUser && (
+                    <Link
+                        to="/dashboard"
+                        className="flex items-center gap-2 pl-3 pr-4 py-2 text-sm font-medium text-accent bg-accent-soft/10 hover:bg-accent-soft/20 border border-accent/20 hover:border-accent/40 rounded-full transition-all duration-300"
+                    >
+                      <Bot size={18} />
+                      Painel do Bot
+                    </Link>
+                )}
+
                 <div className="relative" ref={userMenuRef}>
                   <button
                       onClick={() => discordUser ? setIsUserMenuOpen(!isUserMenuOpen) : handleLogin()}

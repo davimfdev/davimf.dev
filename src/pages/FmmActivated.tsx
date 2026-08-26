@@ -35,7 +35,7 @@ const FmmActivated = () => {
     const poll = async () => {
       try {
         const discordToken = localStorage.getItem('discord_token');
-        const res = await fetch(`/.netlify/functions/fmm-claim?ref=${ref}`, {
+        const res = await fetch(`/api/fmm-claim?ref=${ref}`, {
           headers: discordToken ? { Authorization: `Bearer ${discordToken}` } : {},
         });
         const data: ClaimResult & { error?: string } = await res.json();

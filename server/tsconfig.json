@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+
+    /* As Netlify Functions vivem fora de server/ e são compiladas junto sem
+       nenhuma alteração no código-fonte delas. rootDir sobe um nível para que
+       a saída fique em dist/netlify/functions/* e dist/server/src/*. */
+    "rootDir": "..",
+    "outDir": "dist",
+
+    /* netlify/functions/ fica FORA de server/, então a busca padrão por
+       node_modules subindo a partir daqueles arquivos nunca chega em
+       server/node_modules. No repo isso passa despercebido porque a raiz tem o
+       node_modules do frontend; dentro da imagem Docker, não. Este mapeamento
+       aponta a resolução para as dependências do backend em qualquer caso.
+       (Em runtime não há problema: dist/ mora dentro de server/.) */
+    "baseUrl": ".",
+    "paths": { "*": ["node_modules/*", "node_modules/@types/*"] },
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "declaration": false,
+
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts", "../netlify/functions/**/*.ts"],
+  "exclude": ["../netlify/functions/**/__tests__/**", "dist", "node_modules"]
+}

@@ -56,7 +56,7 @@ const FmmPlans = () => {
     setLoading(planKey);
     setError(null);
     try {
-      const res = await fetch('/.netlify/functions/abacate-checkout', {
+      const res = await fetch('/api/abacate-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan: planKey, period }),

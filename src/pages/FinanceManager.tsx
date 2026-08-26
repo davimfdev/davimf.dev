@@ -20,7 +20,7 @@ const TransferModal: React.FC<{ isOpen: boolean; onClose: () => void; onTransfer
     if (!fromAccountId || !toAccountId || !amount) return;
     setLoading(true);
     try {
-      await fetch('/.netlify/functions/getTransactions', {
+      await fetch('/api/getTransactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ fromAccountId, toAccountId, amount, type: 'transfer' }),
@@ -64,7 +64,7 @@ const AddAccountModal: React.FC<{ isOpen: boolean; onClose: () => void; onAccoun
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch('/.netlify/functions/getAccounts', {
+      const response = await fetch('/api/getAccounts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ name, initial_balance: initialBalance, type: 'Corrente' }),
@@ -115,8 +115,8 @@ const FinanceManager: React.FC = () => {
     if (!token) { setLoading(false); return; }
     try {
       const [accRes, transRes] = await Promise.all([
-        fetch('/.netlify/functions/getAccounts', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/.netlify/functions/getTransactions', { headers: { Authorization: `Bearer ${token}` } })
+        fetch('/api/getAccounts', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/getTransactions', { headers: { Authorization: `Bearer ${token}` } })
       ]);
       if (accRes.ok) setAccounts(await accRes.json());
       if (transRes.ok) setTransactions(await transRes.json());
@@ -130,7 +130,7 @@ const FinanceManager: React.FC = () => {
     if (!description || !amount || !accountId || !token) return;
     const finalAmount = transactionType === 'expense' ? -Math.abs(parseFloat(amount)) : Math.abs(parseFloat(amount));
     try {
-      const response = await fetch('/.netlify/functions/getTransactions', {
+      const response = await fetch('/api/getTransactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({
@@ -149,7 +149,7 @@ const FinanceManager: React.FC = () => {
       title: 'Excluir Transação?',
       message: 'Esta ação removerá o registro financeiro permanentemente.',
       onConfirm: async () => {
-        await fetch('/.netlify/functions/getTransactions', {
+        await fetch('/api/getTransactions', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ id }),
@@ -166,7 +166,7 @@ const FinanceManager: React.FC = () => {
       title: 'Remover Banco?',
       message: `Ao excluir o banco "${name}", todas as transações vinculadas serão perdidas.`,
       onConfirm: async () => {
-        const response = await fetch('/.netlify/functions/getAccounts', {
+        const response = await fetch('/api/getAccounts', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ id }),

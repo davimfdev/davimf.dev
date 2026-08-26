@@ -29,7 +29,7 @@ const MyKeys = () => {
       return;
     }
 
-    fetch('/.netlify/functions/fmm-my-keys', {
+    fetch('/api/fmm-my-keys', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {

@@ -102,7 +102,7 @@ const FmmAdmin = () => {
     setKeysLoading(true);
     setKeysError(null);
     try {
-      const res = await fetch('/.netlify/functions/fmm-admin-keys', {
+      const res = await fetch('/api/fmm-admin-keys', {
         headers: { Authorization: `Bearer ${token()}` },
       });
       const data = await res.json();
@@ -117,7 +117,7 @@ const FmmAdmin = () => {
   const doAction = async (action: string, key_id: number, extra?: object) => {
     setActionLoading(key_id);
     try {
-      const res = await fetch('/.netlify/functions/fmm-admin-keys', {
+      const res = await fetch('/api/fmm-admin-keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({ action, key_id, ...extra }),
@@ -141,7 +141,7 @@ const FmmAdmin = () => {
     setGenerating(true);
     setGenError(null);
     try {
-      const res = await fetch('/.netlify/functions/fmm-admin-generate', {
+      const res = await fetch('/api/fmm-admin-generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({ level, duration_days: durationDays, quantity }),

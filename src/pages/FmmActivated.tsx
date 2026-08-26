@@ -137,7 +137,7 @@ const FmmActivated = () => {
         <div className="mb-8">
           <p className="text-sm text-gray-400 mb-3 font-medium">Download do aplicativo:</p>
           <a
-            href="https://github.com/D4emonF/FMM-Releases/releases/latest/download/FMM.exe"
+            href="https://github.com/davimfdev/FMM-Releases/releases/latest/download/FMM.exe"
             className="w-full flex items-center justify-center gap-2 btn-primary"
             download
           >

@@ -109,7 +109,7 @@ const Contact = () => {
           <h2 className="text-2xl font-semibold mb-8 text-gray-100">{translations.connect}</h2>
           <div className="space-y-6">
             <a
-              href="https://github.com/D4emonF"
+              href="https://github.com/davimfdev"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center text-gray-300 hover:text-white group p-3 hover:bg-white/5 rounded-lg transition-all"
@@ -131,13 +131,13 @@ const Contact = () => {
               <span className="font-medium">LinkedIn</span>
             </a>
             <a
-              href="mailto:davimf9702@gmail.com"
+              href="mailto:davi@davimf.dev"
               className="flex items-center text-gray-300 hover:text-white group p-3 hover:bg-white/5 rounded-lg transition-all"
             >
               <div className="p-2 bg-white/5 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
                 <Mail size={24} />
               </div>
-              <span className="font-medium truncate">davimf9702@gmail.com</span>
+              <span className="font-medium truncate">davi@davimf.dev</span>
             </a>
             <a
               href="https://discord.com/users/344214477069221888"

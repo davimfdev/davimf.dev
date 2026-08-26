@@ -28,7 +28,7 @@ export function DashboardShell({ children, guildName, accessLevel }: Props) {
         <Link className="bd-rail-brand" to="/dashboard" aria-label="BaseBot"><Bot /></Link>
         <div className="bd-rail-actions">
           <Link to="/dashboard" aria-label="Servidores"><LayoutDashboard /></Link>
-          <a href="mailto:davimf9702@gmail.com" aria-label="Ajuda"><HelpCircle /></a>
+          <a href="mailto:davi@davimf.dev" aria-label="Ajuda"><HelpCircle /></a>
         </div>
         <button type="button" aria-label="Sair" onClick={() => { void fetch('/api/dashboard-logout', { method: 'POST', credentials: 'include' }).finally(() => { window.location.href = '/'; }); }}><LogOut /></button>
       </nav>

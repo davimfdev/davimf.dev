@@ -270,9 +270,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </div>
               <div className="flex space-x-4">
                 {[
-                  { icon: Github, href: "https://github.com/D4emonF" },
+                  { icon: Github, href: "https://github.com/davimfdev" },
                   { icon: Linkedin, href: "https://www.linkedin.com/in/davimfdev" },
-                  { icon: Mail, href: "mailto:davimf9702@gmail.com" },
+                  { icon: Mail, href: "mailto:davi@davimf.dev" },
                   { icon: MessageCircle, href: "https://discord.com/users/344214477069221888" },
                   { icon: Phone, href: "https://api.whatsapp.com/send?phone=%205562986089609&text=Ol%C3%A1%2C+vim+do+seu+site." }
                 ].map((social, index) => {

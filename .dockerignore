@@ -3,46 +3,27 @@
 #
 # Os padrões com "/" na frente são ancorados na raiz do contexto — importante
 # para não excluir server/src junto com o src/ do frontend.
-
-/.git
-/.github
-/.idea
-/.vscode
-/.netlify
-/.superpowers
-/.impeccable
-/.claude
+.git
+.github
+.idea
+.vscode
+.netlify
+.superpowers
+.impeccable
+.claude
 
 **/node_modules
-/server/dist
-/dist
-/dist-ssr
+**/dist
+dist-ssr
 
-# Nunca copiar segredos para dentro da imagem
+# Secrets
 .env
 .env.*
+!.env.example
 
-# Frontend
-/src
-/public
-/index.html
-/vite.config.ts
-/tailwind.config.js
-/postcss.config.js
-/eslint.config.js
-/tsconfig.json
-/tsconfig.app.json
-/tsconfig.node.json
-/tsconfig.functions.json
-/nginx.conf
-/package.json
-/package-lock.json
-/deno.lock
-
-# Docs, migrações SQL e testes
-/docs
-/db
-*.md
-**/__tests__
-
+# Logs
 *.log
+
+# OS/editor junk
+.DS_Store
+Thumbs.db

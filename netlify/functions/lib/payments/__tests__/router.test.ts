@@ -667,6 +667,41 @@ describe('roteador de pagamentos', () => {
   });
 });
 
+describe('contrato de rotas: registro no Express e implementação no roteador', () => {
+  it('ambas as listas declaram exatamente os mesmos caminhos', async () => {
+    const { PAYMENTS_ROUTE_PATHS } = await import('../router');
+    // Importa PAYMENTS_PATHS do servidor. Os `load()` são funções, não chamadas,
+    // então a importação não tem efeitos colaterais — só carrega a array.
+    const { PAYMENTS_PATHS } = await import('../../../../../server/src/routes/functions');
+
+    // Normaliza para comparação: sort para ignorar ordem, depois compara como arrays
+    const sortedRouter = PAYMENTS_ROUTE_PATHS.slice().sort();
+    const sortedExpress = PAYMENTS_PATHS.slice().sort();
+
+    // Detecta caminhos no roteador mas não registrados no Express (404 em produção)
+    const routerSet = new Set(sortedRouter);
+    const expressSet = new Set(sortedExpress);
+    const missingFromExpress = sortedRouter.filter((path) => !expressSet.has(path));
+    // Detecta caminhos no Express mas não servidos pelo roteador (rota morta)
+    const missingFromRouter = sortedExpress.filter((path) => !routerSet.has(path));
+
+    // Falha explícita com nome de caminhos faltantes — detecta 404 em produção
+    if (missingFromExpress.length > 0) {
+      expect(missingFromExpress).toEqual(
+        [],
+      );
+    }
+    // Falha explícita com nome de caminhos faltantes — detecta rota morta
+    if (missingFromRouter.length > 0) {
+      expect(missingFromRouter).toEqual(
+        [],
+      );
+    }
+    // Comparação legível da diferença final: mostra quais arrays diferem
+    expect(sortedRouter).toEqual(sortedExpress);
+  });
+});
+
 describe('rejeição de dados sensíveis de cartão', () => {
   it('recusa qualquer corpo que contenha PAN ou CVV', () => {
     for (const field of ['card_number', 'cardNumber', 'cvv', 'securityCode', 'security_code', 'pan']) {

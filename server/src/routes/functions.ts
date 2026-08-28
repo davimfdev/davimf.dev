@@ -68,6 +68,7 @@ export const PAYMENTS_PATHS: string[] = [
   '/api/payments/subscription/cancel',
   '/api/payments/status',
   '/api/payments/licenses',
+  '/api/payments/payer-profile',
   '/api/payments/webhooks/mercadopago',
   '/api/payments/admin/refund',
 ];

@@ -473,6 +473,20 @@ describe('dados comerciais da Order', () => {
     expect(raw).not.toContain('last_purchase');
   });
 
+  it('não envia additional_info.payer porque o schema de Orders online o rejeita', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
+
+    await provider(impl).createPixPayment({
+      ...BASE,
+      payerMetadata: { registrationDate: '2026-01-15T12:30:00.000Z' },
+    });
+
+    const raw = String(calls[0].init.body);
+    const body = JSON.parse(raw);
+    expect(body).not.toHaveProperty('additional_info');
+    expect(raw).not.toContain('registration_date');
+  });
+
   it('não inventa endereço vazio quando só o CEP e o logradouro existem', async () => {
     const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-BOL-2' }) }));
 

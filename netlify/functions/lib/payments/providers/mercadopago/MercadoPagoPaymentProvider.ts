@@ -94,17 +94,6 @@ function buildItems(input: BaseChargeInput): Array<Record<string, unknown>> {
   }];
 }
 
-/** Metadados de risco somente quando existe uma fonte real no integrador. */
-function buildAdditionalInfo(input: BaseChargeInput): Record<string, unknown> | null {
-  const metadata = input.payerMetadata;
-  if (!metadata) return null;
-  const payer: Record<string, unknown> = {};
-  if (metadata.registrationDate) payer.registration_date = metadata.registrationDate;
-  if (metadata.lastPurchase) payer.last_purchase = metadata.lastPurchase;
-  if (metadata.authenticationType) payer.authentication_type = metadata.authenticationType;
-  return Object.keys(payer).length > 0 ? { payer } : null;
-}
-
 function buildPayer(payer: Payer, options: { requireIdentification?: boolean; requireAddress?: boolean } = {}): OrderPayer {
   if (!payer.email) throw new ValidationError('E-mail do pagador é obrigatório.', 'PAYER_EMAIL_REQUIRED');
 
@@ -200,7 +189,6 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
    * contrato de cartão e não pode vazar para Pix/boleto.
    */
   private baseOrder(input: BaseChargeInput, method: 'pix' | 'card' | 'boleto'): Record<string, unknown> {
-    const additionalInfo = buildAdditionalInfo(input);
     return {
       type: 'online',
       processing_mode: 'automatic',
@@ -209,7 +197,6 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
       description: input.description,
       items: buildItems(input),
       payer: this.payer(input.payer, method),
-      ...(additionalInfo ? { additional_info: additionalInfo } : {}),
     };
   }
 

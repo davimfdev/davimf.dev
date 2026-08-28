@@ -34,7 +34,7 @@ import {
 import { PaymentResult } from './PaymentResult';
 import { ThreeDsChallenge } from './ThreeDsChallenge';
 import { useMercadoPago } from './useMercadoPago';
-import { useMercadoPagoDeviceId } from './useMercadoPagoDeviceId';
+import { readMercadoPagoDeviceId, useMercadoPagoDeviceId } from './useMercadoPagoDeviceId';
 
 type Method = 'pix' | 'card' | 'boleto';
 type Step = 'identify' | 'method' | 'result';
@@ -183,13 +183,17 @@ export function CheckoutModal({ product, onClose }: Props) {
     // documento substituído mais adiante pela transação (o do portador do
     // cartão). Só viaja com o consentimento dado.
     const reviewedProfile = saveProfile ? toPayerProfile(payerValues) : null;
+    // O SDK/security.js pode publicar o valor depois que a janela curta do
+    // hook terminou. Uma leitura final e síncrona no clique captura esse valor
+    // real sem atrasar nem impedir o pagamento quando ele continua ausente.
+    const currentDeviceId = deviceId ?? readMercadoPagoDeviceId();
     return {
       payer,
       // Espelha exatamente a caixa de consentimento.
       savePayerProfile: saveProfile,
       ...(reviewedProfile ? { payerProfile: reviewedProfile } : {}),
       // Só um Device ID REAL do SDK viaja; ausente é ausente.
-      ...(deviceId ? { deviceId } : {}),
+      ...(currentDeviceId ? { deviceId: currentDeviceId } : {}),
     };
   };
 

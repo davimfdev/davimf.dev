@@ -383,6 +383,20 @@ describe('CheckoutModal com perfil reutilizável', () => {
     expect((paymentsApiMock.pix.mock.calls[0][0] as { deviceId?: string }).deviceId).toBeUndefined();
   });
 
+  it('relê o Device ID no clique quando o SDK o publica depois das tentativas iniciais', async () => {
+    setDeviceSessionId(undefined);
+    await openCheckout();
+    fillPayer();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Continuar' }));
+    const pixButton = await screen.findByRole('button', { name: /Gerar Pix/ });
+    setDeviceSessionId('mp-late-real-id');
+    fireEvent.click(pixButton);
+
+    await waitFor(() => expect(paymentsApiMock.pix).toHaveBeenCalledTimes(1));
+    expect(paymentsApiMock.pix.mock.calls[0][0]).toMatchObject({ deviceId: 'mp-late-real-id' });
+  });
+
   it('mantém o pagamento utilizável quando a persistência de perfil está indisponível', async () => {
     paymentsApiMock.payerProfile.get.mockResolvedValue({ persistenceAvailable: false, profile: null });
 

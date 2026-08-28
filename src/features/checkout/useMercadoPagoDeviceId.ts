@@ -30,7 +30,7 @@ export type DeviceIdOptions = {
 };
 
 /** Só o valor REAL do SDK: string não vazia. Qualquer outra coisa vira `null`. */
-function readSdkDeviceId(): string | null {
+export function readMercadoPagoDeviceId(): string | null {
   if (typeof window === 'undefined') return null;
   const raw = (window as { MP_DEVICE_SESSION_ID?: unknown }).MP_DEVICE_SESSION_ID;
   if (typeof raw !== 'string') return null;
@@ -67,7 +67,7 @@ export function useMercadoPagoDeviceId(active: boolean, options: DeviceIdOptions
 
     ensureSecurityScript();
 
-    const immediate = readSdkDeviceId();
+    const immediate = readMercadoPagoDeviceId();
     setDeviceId(immediate);
     if (immediate) return;
 
@@ -76,7 +76,7 @@ export function useMercadoPagoDeviceId(active: boolean, options: DeviceIdOptions
 
     let timer: ReturnType<typeof setTimeout> | undefined;
     const poll = () => {
-      const value = readSdkDeviceId();
+      const value = readMercadoPagoDeviceId();
       if (value) {
         setDeviceId(value);
         return;

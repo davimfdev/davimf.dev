@@ -308,6 +308,29 @@ export function parsePayerProfile(body: Record<string, unknown>): PayerProfileDa
   };
 }
 
+/**
+ * Limite defensivo do Device ID na fronteira pública. O SDK gera um
+ * identificador curto — nada além disso é aceito aqui.
+ */
+const DEVICE_ID_MAX_LENGTH = 300;
+
+/**
+ * Device ID opcional do MercadoPago.js.
+ *
+ * REQUEST-SCOPED: o valor só atravessa a requisição até o header do provider.
+ * Nunca é persistido, nunca é logado e nunca volta na resposta — por isso a
+ * mensagem de erro também não repete o valor recebido.
+ */
+export function parseDeviceId(body: Record<string, unknown>): string | undefined {
+  const value = body.deviceId;
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value !== 'string' || value.length > DEVICE_ID_MAX_LENGTH) {
+    throw new ValidationError('Campo "deviceId" inválido.', 'FIELD_INVALID');
+  }
+  const trimmed = value.trim();
+  return trimmed === '' ? undefined : trimmed;
+}
+
 /** Only the literal true records reusable payer details. */
 export function parseSavePayerProfile(body: Record<string, unknown>): boolean {
   const value = body.savePayerProfile;

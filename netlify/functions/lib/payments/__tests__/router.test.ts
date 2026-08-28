@@ -6,13 +6,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { requireDashboardSession } from '../../dashboard/session';
 import { setOrderServiceForTesting } from '../application/OrderService';
 import { PayerProfileService, setPayerProfileServiceForTesting } from '../application/PayerProfileService';
-import { setPaymentServiceForTesting } from '../application/PaymentService';
+import { PaymentService, setPaymentServiceForTesting } from '../application/PaymentService';
 import { setSubscriptionServiceForTesting } from '../application/SubscriptionService';
 import { parsePayer, rejectRawCardData } from '../http';
 import { upsertPayerProfile, type PayerProfileData } from '../repositories/PayerProfileRepository';
 import { ValidationError } from '../domain/errors';
 import { routePaymentsRequest } from '../router';
-import { FakeSql, productRow, uninstallSql } from './helpers';
+import { FakeSql, paymentRow, productRow, uninstallSql } from './helpers';
+import type { SqlRow } from '../infrastructure/db';
 
 vi.mock('../../dashboard/session', () => ({
   requireDashboardSession: vi.fn(),
@@ -351,6 +352,145 @@ describe('roteador de pagamentos', () => {
     expect((await second.json() as { deleted: boolean }).deleted).toBe(false);
     authenticate('discord-2');
     expect((await (await routePaymentsRequest(request('/api/payments/payer-profile'))).json() as { profile: unknown }).profile).toMatchObject({ email: 'other@example.com' });
+  });
+
+  // ------------------------------------------------------------ Device ID --
+
+  /**
+   * Fronteira pública do Device ID. Ele entra pelo corpo da cobrança, chega ao
+   * provider e MORRE ali: não vai para o banco, nem para a resposta.
+   */
+  const CHARGE_ORDER = {
+    id: 'order-1',
+    reference: 'DVMF-TEST0001',
+    userId: 'discord-1',
+    userEmail: 'comprador@example.com',
+    productCode: 'fmm-pro-monthly',
+    quantity: 1,
+    amountCents: 3500,
+    currency: 'BRL',
+    status: 'PENDING',
+    autoRenew: false,
+    metadata: {},
+    createdAt: '2026-08-01T00:00:00.000Z',
+    paidAt: null,
+  };
+
+  const CHARGE_PRODUCT = {
+    id: 1,
+    code: 'fmm-pro-monthly',
+    family: 'fmm',
+    name: 'FMM Pro',
+    description: null,
+    priceCents: 3500,
+    currency: 'BRL',
+    isLifetime: false,
+    fulfillmentKind: 'fmm_license',
+    fulfillmentRef: 'pro',
+  };
+
+  /** Instala um PaymentService real com provider falso e SQL de pagamento. */
+  function installChargeWorld(): { providerInputs: Array<Record<string, unknown>> } {
+    const providerInputs: Array<Record<string, unknown>> = [];
+    let stored: SqlRow | null = null;
+
+    sql.use([
+      {
+        match: (query) => query.includes('INSERT INTO payments'),
+        rows: (_query, values) => {
+          stored ??= paymentRow({ order_id: values[0], user_id: values[1], method: values[3], idempotency_key: values[7] });
+          return [stored];
+        },
+      },
+      { match: (query) => query.startsWith('SELECT 1 FROM payments'), rows: [] },
+      {
+        match: (query) => query.includes('UPDATE payments SET'),
+        rows: (_query, values) => {
+          stored = {
+            ...(stored ?? paymentRow()),
+            provider_payment_id: values[0] ?? null,
+            provider_txn_id: values[1] ?? null,
+            status: values[2],
+            status_detail: values[3] ?? null,
+            details: values[6] ? JSON.parse(String(values[6])) : {},
+          };
+          return [stored];
+        },
+      },
+      { match: (query) => query.includes('FROM payments WHERE id'), rows: () => (stored ? [stored] : []) },
+      { match: (query) => query.includes('INSERT INTO email_dispatches'), rows: [] },
+    ]);
+
+    setOrderServiceForTesting({
+      requireOwnedOrder: async () => CHARGE_ORDER,
+      requireProduct: async () => CHARGE_PRODUCT,
+      requireOrder: async () => CHARGE_ORDER,
+    } as never);
+
+    setPaymentServiceForTesting(new PaymentService(
+      {
+        name: 'mercadopago',
+        createPixPayment: async (input: Record<string, unknown>) => {
+          providerInputs.push(input);
+          return {
+            providerPaymentId: 'ORD-1', providerTxnId: 'PAY-1', status: 'PENDING',
+            statusDetail: 'pending_waiting_transfer', method: 'pix', amountCents: 3500, currency: 'BRL',
+            installments: 1, refundedCents: 0, expiresAt: null,
+            display: { pixQrCode: '00020126PIX' }, raw: {},
+          };
+        },
+      } as never,
+      { requireOrder: async () => CHARGE_ORDER } as never,
+      { findByOrder: async () => null } as never,
+      { notify: async () => undefined } as never,
+      { saveFromCharge: async () => undefined } as never,
+    ));
+
+    return { providerInputs };
+  }
+
+  function pixRequest(body: Record<string, unknown>): Request {
+    return request('/api/payments/pix', { method: 'POST', body: JSON.stringify({ orderId: 'order-1', ...body }) });
+  }
+
+  it('leva o Device ID do navegador ao provider sem persistir nem devolvê-lo', async () => {
+    authenticate();
+    const { providerInputs } = installChargeWorld();
+    const deviceId = 'mp-device-session-do-navegador';
+
+    const response = await routePaymentsRequest(pixRequest({
+      deviceId,
+      payer: { email: 'comprador@example.com' },
+    }));
+    const body = await response.text();
+
+    expect(response.status).toBe(201);
+    expect(providerInputs[0]).toMatchObject({ deviceId });
+    // Nunca ecoado na resposta…
+    expect(body).not.toContain(deviceId);
+    // …e nunca gravado: nenhum valor ligado a nenhuma query o contém.
+    expect(JSON.stringify(sql.calls)).not.toContain(deviceId);
+  });
+
+  it('cobra normalmente quando o navegador não envia Device ID', async () => {
+    authenticate();
+    const { providerInputs } = installChargeWorld();
+
+    const response = await routePaymentsRequest(pixRequest({ payer: { email: 'comprador@example.com' } }));
+
+    expect(response.status).toBe(201);
+    expect(providerInputs[0]).not.toHaveProperty('deviceId');
+  });
+
+  it('recusa Device ID que não seja string não vazia e limitada', async () => {
+    authenticate();
+    installChargeWorld();
+
+    for (const deviceId of [42, { id: 'x' }, 'x'.repeat(301)]) {
+      const response = await routePaymentsRequest(pixRequest({ deviceId, payer: { email: 'comprador@example.com' } }));
+      expect(response.status).toBe(400);
+      expect((await response.json() as { error: { code: string } }).error.code).toBe('FIELD_INVALID');
+    }
   });
 });
 

@@ -1,9 +1,14 @@
 /**
  * Checkout transparente — acontece DENTRO do site.
  *
- * Fluxo: Produto -> Comprar -> Pix/Cartão/Boleto -> Processamento -> Resultado.
+ * Fluxo: Produto -> Identificação -> Pix/Cartão/Boleto -> Resultado.
  * O único redirecionamento aceito é uma autenticação bancária obrigatória (3DS),
  * exigida pelo emissor.
+ *
+ * A etapa de identificação coleta os dados do pagador exigidos pela transação
+ * ANTES da escolha do método. Eles são enviados em toda cobrança; guardá-los
+ * para a próxima compra depende de consentimento explícito e desmarcado por
+ * padrão. Dados de cartão continuam exclusivamente nos Secure Fields.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -14,12 +19,20 @@ import {
   paymentsApi,
   type CatalogProduct,
   type CheckoutOrder,
-  type PayerInput,
   type PaymentView,
 } from './api';
 import { CardForm, type CardSubmitPayload } from './CardForm';
+import {
+  PayerProfileForm,
+  emptyPayerProfileValues,
+  payerProfileValuesFrom,
+  toPayerInput,
+  toPayerProfile,
+  type PayerProfileFormValues,
+} from './PayerProfileForm';
 import { PaymentResult } from './PaymentResult';
 import { useMercadoPago } from './useMercadoPago';
+import { useMercadoPagoDeviceId } from './useMercadoPagoDeviceId';
 
 type Method = 'pix' | 'card' | 'boleto';
 type Step = 'identify' | 'method' | 'result';
@@ -29,10 +42,6 @@ const METHODS: Array<{ id: Method; label: string; Icon: typeof QrCode; hint: str
   { id: 'card', label: 'Cartão', Icon: CreditCard, hint: 'Aprovação na hora' },
   { id: 'boleto', label: 'Boleto', Icon: Banknote, hint: 'Até 3 dias úteis' },
 ];
-
-const inputClass =
-  'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 py-2.5 text-[15px] text-[#F5F3EF] placeholder:text-[#6B6B67] focus:outline-none focus:border-accent/60 transition-colors';
-const labelClass = 'block text-xs font-medium text-[#A8A8A4] mb-1.5';
 
 /** Estados terminais param o polling. */
 const SETTLED = new Set(['PAID', 'DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED', 'REFUNDED', 'CHARGEBACK']);
@@ -45,15 +54,14 @@ type Props = {
 export function CheckoutModal({ product, onClose }: Props) {
   const [step, setStep] = useState<Step>('identify');
   const [method, setMethod] = useState<Method>('pix');
-  const [email, setEmail] = useState('');
   const [autoRenew, setAutoRenew] = useState(false);
 
-  const [documentNumber, setDocumentNumber] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [zipCode, setZipCode] = useState('');
-  const [streetName, setStreetName] = useState('');
-  const [streetNumber, setStreetNumber] = useState('');
+  const [payerValues, setPayerValues] = useState<PayerProfileFormValues>(emptyPayerProfileValues);
+  // Consentimento NASCE desmarcado — inclusive quando o formulário veio
+  // pré-preenchido por um perfil salvo.
+  const [saveProfile, setSaveProfile] = useState(false);
+  const [hasSavedProfile, setHasSavedProfile] = useState(false);
+  const [profilePersistence, setProfilePersistence] = useState(false);
 
   const [order, setOrder] = useState<CheckoutOrder | null>(null);
   const [payment, setPayment] = useState<PaymentView | null>(null);
@@ -67,12 +75,40 @@ export function CheckoutModal({ product, onClose }: Props) {
     typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : String(Date.now()),
   );
 
-  const { mp, loading: sdkLoading, error: sdkError } = useMercadoPago(step === 'method' && method === 'card' ? publicKey : null);
+  // O SDK é carregado assim que a public key chega: é ele quem gera o Device
+  // ID, útil para Pix e boleto também — não só para o formulário de cartão.
+  const { mp, loading: sdkLoading, error: sdkError } = useMercadoPago(publicKey);
+  // Leitura defensiva e limitada. `null` é um resultado aceitável: nada no
+  // checkout espera pelo Device ID.
+  const deviceId = useMercadoPagoDeviceId(Boolean(mp), { attempts: 8, intervalMs: 125 });
 
   const recurringAvailable = product.recurringEligible && !product.isLifetime;
+  const email = payerValues.email;
 
   useEffect(() => {
     paymentsApi.config().then((config) => setPublicKey(config.publicKey)).catch(() => setPublicKey(null));
+  }, []);
+
+  // Perfil salvo: pré-preenche e habilita a exclusão. Falha ou indisponível
+  // degrada só o perfil — pagar continua funcionando.
+  useEffect(() => {
+    let cancelled = false;
+    paymentsApi.payerProfile
+      .get()
+      .then(({ persistenceAvailable, profile }) => {
+        if (cancelled) return;
+        setProfilePersistence(persistenceAvailable);
+        if (profile) {
+          setHasSavedProfile(true);
+          setPayerValues(payerProfileValuesFrom(profile));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setProfilePersistence(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -128,26 +164,35 @@ export function CheckoutModal({ product, onClose }: Props) {
     return created;
   }, [order, product.code, email, autoRenew, recurringAvailable]);
 
-  const payer = useMemo((): PayerInput => {
-    const digits = documentNumber.replace(/\D/g, '');
-    return {
-      email,
-      firstName: firstName || undefined,
-      lastName: lastName || undefined,
-      identification: digits ? { type: digits.length > 11 ? 'CNPJ' : 'CPF', number: digits } : undefined,
-      address: zipCode
-        ? {
-            zipCode: zipCode.replace(/\D/g, ''),
-            streetName,
-            streetNumber,
-          }
-        : undefined,
-    };
-  }, [email, firstName, lastName, documentNumber, zipCode, streetName, streetNumber]);
+  const payer = useMemo(() => toPayerInput(payerValues, email.trim().toLowerCase()), [payerValues, email]);
+
+  /** Tudo que acompanha QUALQUER cobrança, além do pedido. */
+  const chargeExtras = () => ({
+    payer,
+    // Espelha exatamente a caixa de consentimento.
+    savePayerProfile: saveProfile,
+    // Só um Device ID REAL do SDK viaja; ausente é ausente.
+    ...(deviceId ? { deviceId } : {}),
+  });
+
+  const handleDeleteProfile = async () => {
+    try {
+      await paymentsApi.payerProfile.delete();
+      setHasSavedProfile(false);
+      setSaveProfile(false);
+      setError(null);
+    } catch (caught) {
+      setError(describeError(caught));
+    }
+  };
 
   const handleIdentify = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return setError('Informe um e-mail válido.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) return setError('Informe um e-mail válido.');
+    // Salvar exige o perfil COMPLETO — é o que o backend armazena.
+    if (saveProfile && !toPayerProfile(payerValues)) {
+      return setError('Para salvar seus dados, preencha nome, documento e endereço completos.');
+    }
     setError(null);
     setSubmitting(true);
     try {
@@ -181,29 +226,38 @@ export function CheckoutModal({ product, onClose }: Props) {
 
   const handlePix = () =>
     runCharge(async (orderId) => {
-      const { payment: created } = await paymentsApi.pix({ orderId, payer, idempotencyKey: `${idempotencyKey.current}:pix` });
+      const { payment: created } = await paymentsApi.pix({
+        orderId,
+        ...chargeExtras(),
+        idempotencyKey: `${idempotencyKey.current}:pix`,
+      });
       return created;
     });
 
   const handleBoleto = () => {
-    const digits = documentNumber.replace(/\D/g, '');
-    if (digits.length !== 11 && digits.length !== 14) return setError('Boleto exige CPF ou CNPJ.');
-    if (!firstName.trim() || !lastName.trim()) return setError('Boleto exige nome e sobrenome.');
-    if (zipCode.replace(/\D/g, '').length !== 8 || !streetName.trim() || !streetNumber.trim()) {
-      return setError('Boleto exige CEP, rua e número.');
-    }
+    // O boleto do provider exige pagador completo.
+    if (!payer.identification) return setError('Boleto exige CPF ou CNPJ.');
+    if (!payer.firstName || !payer.lastName) return setError('Boleto exige nome e sobrenome.');
+    if (!payer.address) return setError('Boleto exige CEP, rua, número, bairro, cidade e UF.');
     return runCharge(async (orderId) => {
-      const { payment: created } = await paymentsApi.boleto({ orderId, payer, idempotencyKey: `${idempotencyKey.current}:boleto` });
+      const { payment: created } = await paymentsApi.boleto({
+        orderId,
+        ...chargeExtras(),
+        idempotencyKey: `${idempotencyKey.current}:boleto`,
+      });
       return created;
     });
   };
 
   const handleCard = (payload: CardSubmitPayload) =>
     runCharge(async (orderId) => {
+      const extras = chargeExtras();
       const response = await paymentsApi.card({
         orderId,
+        ...extras,
         payer: {
-          ...payer,
+          ...extras.payer,
+          // O documento do PORTADOR do cartão é o que o emissor valida.
           identification: { type: payload.documentType, number: payload.documentNumber },
         },
         // Só a referência segura viaja: token de uso único + id da bandeira.
@@ -249,19 +303,15 @@ export function CheckoutModal({ product, onClose }: Props) {
         {/* ------------------------------------------------- identificação -- */}
         {step === 'identify' && (
           <form onSubmit={handleIdentify} className="flex flex-col gap-4">
-            <div>
-              <label className={labelClass} htmlFor="checkout-email">E-mail para receber a chave</label>
-              <input
-                id="checkout-email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                autoComplete="email"
-                className={inputClass}
-                placeholder="voce@exemplo.com"
-                required
-              />
-            </div>
+            <PayerProfileForm
+              values={payerValues}
+              onChange={(patch) => setPayerValues((current) => ({ ...current, ...patch }))}
+              saveProfile={saveProfile}
+              onSaveProfileChange={setSaveProfile}
+              hasSavedProfile={hasSavedProfile}
+              persistenceAvailable={profilePersistence}
+              onDeleteSavedProfile={handleDeleteProfile}
+            />
 
             {recurringAvailable && (
               <label className="flex items-start gap-3 cursor-pointer rounded-lg border border-white/10 px-3.5 py-3 hover:border-white/20 transition-colors">
@@ -333,37 +383,9 @@ export function CheckoutModal({ product, onClose }: Props) {
 
             {method === 'boleto' && (
               <div className="flex flex-col gap-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className={labelClass} htmlFor="first-name">Nome</label>
-                    <input id="first-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={inputClass} />
-                  </div>
-                  <div>
-                    <label className={labelClass} htmlFor="last-name">Sobrenome</label>
-                    <input id="last-name" value={lastName} onChange={(e) => setLastName(e.target.value)} className={inputClass} />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelClass} htmlFor="boleto-doc">CPF ou CNPJ</label>
-                  <input id="boleto-doc" value={documentNumber} onChange={(e) => setDocumentNumber(e.target.value)} inputMode="numeric" className={inputClass} placeholder="000.000.000-00" />
-                </div>
-                <div className="grid grid-cols-[1fr_2fr_80px] gap-3">
-                  <div>
-                    <label className={labelClass} htmlFor="zip">CEP</label>
-                    <input id="zip" value={zipCode} onChange={(e) => setZipCode(e.target.value)} inputMode="numeric" className={inputClass} placeholder="00000-000" />
-                  </div>
-                  <div>
-                    <label className={labelClass} htmlFor="street">Rua</label>
-                    <input id="street" value={streetName} onChange={(e) => setStreetName(e.target.value)} className={inputClass} />
-                  </div>
-                  <div>
-                    <label className={labelClass} htmlFor="street-number">Nº</label>
-                    <input id="street-number" value={streetNumber} onChange={(e) => setStreetNumber(e.target.value)} className={inputClass} />
-                  </div>
-                </div>
-
-                {error && <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>}
-
+                <p className="text-sm text-[#A8A8A4]">
+                  O boleto usa os dados informados na identificação. A compensação leva até 3 dias úteis.
+                </p>
                 <button onClick={handleBoleto} disabled={submitting} className="btn-primary w-full disabled:opacity-60">
                   {submitting ? <><Loader2 size={16} className="animate-spin mr-2" /> Gerando boleto…</> : 'Gerar boleto'}
                 </button>
@@ -397,7 +419,7 @@ export function CheckoutModal({ product, onClose }: Props) {
               </>
             )}
 
-            {method !== 'boleto' && error && (
+            {error && (
               <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 mt-4">{error}</p>
             )}
           </div>

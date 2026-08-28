@@ -37,6 +37,7 @@ import {
   optionalInt,
   optionalString,
   originAllowed,
+  parseDeviceId,
   parsePayer,
   parsePayerProfile,
   parseSavePayerProfile,
@@ -146,6 +147,9 @@ async function loadChargeContext(request: Request) {
     product,
     payer: savePayerProfile ? parsePayerProfile(body) : parsePayer(body, order.userEmail),
     savePayerProfile,
+    // Device ID real do SDK do navegador. Só existe em memória durante esta
+    // requisição: vira header do provider e nada mais.
+    deviceId: parseDeviceId(body),
   };
 }
 
@@ -207,6 +211,7 @@ async function handlePix(request: Request): Promise<Response> {
     product: context.product,
     payer: context.payer,
     savePayerProfile: context.savePayerProfile,
+    deviceId: context.deviceId,
     idempotencyKey: optionalString(context.body, 'idempotencyKey', 120),
   });
   return respondWithPayment(context, view);
@@ -219,6 +224,7 @@ async function handleBoleto(request: Request): Promise<Response> {
     product: context.product,
     payer: context.payer,
     savePayerProfile: context.savePayerProfile,
+    deviceId: context.deviceId,
     idempotencyKey: optionalString(context.body, 'idempotencyKey', 120),
   });
   return respondWithPayment(context, view);
@@ -266,6 +272,7 @@ async function handleCard(request: Request): Promise<Response> {
     product: context.product,
     payer: context.payer,
     savePayerProfile: context.savePayerProfile,
+    deviceId: context.deviceId,
     cardToken,
     paymentMethodId,
     installments,

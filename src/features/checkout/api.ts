@@ -71,19 +71,48 @@ export interface PaymentView {
   downloadUrl?: string;
 }
 
+export interface PayerAddressInput {
+  zipCode: string;
+  streetName: string;
+  streetNumber: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  complement?: string;
+}
+
 export interface PayerInput {
   email: string;
   firstName?: string;
   lastName?: string;
+  phone?: string;
   identification?: { type: string; number: string };
-  address?: {
-    zipCode: string;
-    streetName: string;
-    streetNumber: string;
-    neighborhood?: string;
-    city?: string;
-    state?: string;
-  };
+  address?: PayerAddressInput;
+}
+
+/** Perfil reutilizável do pagador. Só existe com consentimento explícito. */
+export interface PayerProfile {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  identification: { type: string; number: string };
+  address: PayerAddressInput;
+}
+
+/**
+ * Dados que TODA cobrança carrega além do pedido.
+ *
+ * `deviceId` é o valor real do MercadoPago.js — opcional, request-scoped e
+ * jamais persistido. `savePayerProfile` espelha exatamente a caixa de
+ * consentimento do checkout: sem ela marcada, nada é salvo.
+ */
+export interface ChargeCommonInput {
+  orderId: string;
+  payer: PayerInput;
+  idempotencyKey: string;
+  deviceId?: string;
+  savePayerProfile?: boolean;
 }
 
 export class ApiError extends Error {
@@ -136,20 +165,17 @@ export const paymentsApi = {
       body: JSON.stringify(input),
     }),
 
-  pix: (input: { orderId: string; payer: PayerInput; idempotencyKey: string }) =>
+  pix: (input: ChargeCommonInput) =>
     call<{ payment: PaymentView }>('/api/payments/pix', { method: 'POST', body: JSON.stringify(input) }),
 
-  boleto: (input: { orderId: string; payer: PayerInput; idempotencyKey: string }) =>
+  boleto: (input: ChargeCommonInput) =>
     call<{ payment: PaymentView }>('/api/payments/boleto', { method: 'POST', body: JSON.stringify(input) }),
 
   /** `cardToken` vem do MercadoPago.js — PAN e CVV nunca saem do iframe dele. */
-  card: (input: {
-    orderId: string;
-    payer: PayerInput;
+  card: (input: ChargeCommonInput & {
     cardToken: string;
     paymentMethodId: string;
     installments: number;
-    idempotencyKey: string;
   }) =>
     call<{ payment: PaymentView | null; subscription?: { id: string; status: string; nextBillingDate: string | null } }>(
       '/api/payments/card',
@@ -185,6 +211,21 @@ export const paymentsApi = {
     call<{ subscriptions: Array<{ id: string; status: string; autoRenew: boolean; nextBillingDate: string | null; amountCents: number; currency: string }> }>(
       '/api/payments/subscriptions',
     ),
+
+  /**
+   * Perfil do pagador do usuário autenticado. `persistenceAvailable: false`
+   * significa apenas "não dá para guardar/ler perfil agora" — pagar continua
+   * funcionando normalmente.
+   */
+  payerProfile: {
+    get: () => call<{ persistenceAvailable: boolean; profile: PayerProfile | null }>('/api/payments/payer-profile'),
+    put: (profile: PayerProfile) =>
+      call<{ profile: PayerProfile }>('/api/payments/payer-profile', {
+        method: 'PUT',
+        body: JSON.stringify(profile),
+      }),
+    delete: () => call<{ deleted: boolean }>('/api/payments/payer-profile', { method: 'DELETE' }),
+  },
 
   cancelSubscription: (subscriptionId: string) =>
     call<{ subscription: { id: string; status: string } }>('/api/payments/subscription/cancel', {

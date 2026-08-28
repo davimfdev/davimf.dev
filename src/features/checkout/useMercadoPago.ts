@@ -46,6 +46,12 @@ export type MercadoPagoInstance = {
 declare global {
   interface Window {
     MercadoPago?: new (publicKey: string, options?: { locale?: string }) => MercadoPagoInstance;
+    /**
+     * Device ID gerado pelo próprio MercadoPago.js V2. É lido de forma
+     * defensiva por `useMercadoPagoDeviceId` e viaja só com a cobrança:
+     * nunca é persistido, nunca é logado, nunca é inventado por nós.
+     */
+    MP_DEVICE_SESSION_ID?: string;
   }
 }
 

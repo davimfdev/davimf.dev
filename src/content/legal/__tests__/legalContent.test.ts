@@ -62,16 +62,26 @@ describe('conteúdo legal', () => {
   });
 
   it('a política de reembolso promete o que o código faz', () => {
-    // PaymentService revoga a licença no estorno total e suspende no parcial.
+    // Estorno integral revoga a licença (PaymentService), e o texto diz isso.
     const pt = allText(legal.pt.refund).join(' ');
     expect(pt).toContain('7 dias');
     expect(pt).toContain('revogada');
-    expect(pt).toContain('suspensa');
 
     const en = allText(legal.en.refund).join(' ');
     expect(en).toContain('7 calendar days');
     expect(en).toContain('revoked');
-    expect(en).toContain('suspended');
+  });
+
+  it('reembolso parcial não vira regra automática sobre a licença', () => {
+    // Reembolso parcial pode ser abatimento proporcional, em que o consumidor
+    // segue legitimamente com o produto. O texto não pode fixar a suspensão.
+    const pt = allText(legal.pt.refund).join(' ');
+    expect(pt).toContain('conforme a solução adotada');
+    expect(pt).not.toContain('devolução parcial também suspende');
+
+    const en = allText(legal.en.refund).join(' ');
+    expect(en).toContain('set by the solution adopted');
+    expect(en).not.toContain('partial return also suspends');
   });
 
   it('os termos declaram a restrição de uma máquina e a saída gratuita', () => {

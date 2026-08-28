@@ -39,6 +39,7 @@ export const legalPt: LegalContent = {
           'Pagamento: método, status, valor, e — no cartão — apenas bandeira e os quatro últimos dígitos.',
           'Uso do site: métricas de audiência, somente se você consentir com os cookies de análise.',
           'Segurança: um identificador do dispositivo gerado pelo SDK do Mercado Pago no seu navegador, enviado junto da cobrança para prevenção a fraude.',
+          'Dados técnicos: como todo servidor web, a infraestrutura que hospeda o site registra endereço IP, data e hora de acesso e informações básicas do navegador e do dispositivo, necessários à segurança, ao diagnóstico e à prevenção de abuso.',
           'Suporte: o conteúdo das mensagens que você nos envia.',
         ],
       },
@@ -122,7 +123,7 @@ export const legalPt: LegalContent = {
       {
         heading: 'Transferências internacionais de dados',
         paragraphs: [
-          'Parte dos serviços que utilizamos é operada por empresas sediadas fora do Brasil, e por isso seus dados podem ser tratados ou armazenados no exterior. Isso vale, conforme o caso, para Google, Resend, Discord, Mercado Pago e o provedor de infraestrutura do site.',
+          'Parte dos serviços que utilizamos é operada por empresas sediadas fora do Brasil, e por isso seus dados podem ser tratados ou armazenados no exterior. É o caso de Google, Resend e Discord, e pode ser o caso do provedor de infraestrutura do site.',
           'Essas transferências existem para viabilizar a execução do contrato, cumprir obrigações legais ou, no caso da análise de audiência, com base no seu consentimento, e se apoiam nos mecanismos previstos no capítulo V da LGPD.',
           `Para saber a quais países seus dados podem ser transferidos em cada serviço, e sob qual mecanismo, escreva para ${COMPANY.privacyEmail}: respondemos com a informação atualizada de cada fornecedor.`,
         ],
@@ -131,7 +132,7 @@ export const legalPt: LegalContent = {
         heading: 'Segurança',
         paragraphs: [
           'Todo o tráfego do site é cifrado em trânsito. As chaves de licença e os dados de cobrança salvos são armazenados cifrados. O acesso administrativo é restrito e registrado.',
-          'Nenhum sistema é imune a incidentes. Se ocorrer um incidente de segurança com risco relevante a você, comunicaremos você e a ANPD, conforme o art. 48 da LGPD.',
+          'Nenhum sistema é imune a incidentes. Se ocorrer um incidente de segurança que possa acarretar risco ou dano relevante aos titulares, adotaremos as medidas cabíveis e faremos as comunicações exigidas à ANPD e aos titulares afetados, nos prazos previstos na legislação e na regulamentação aplicáveis.',
         ],
       },
       {
@@ -262,8 +263,8 @@ export const legalPt: LegalContent = {
       {
         heading: 'O que acontece com a licença',
         paragraphs: [
-          'No reembolso integral, a chave de licença correspondente àquele pedido é revogada e deixa de funcionar. É a contrapartida natural da devolução: o valor volta para você e o produto deixa de ser utilizável.',
-          'Uma devolução parcial também suspende a chave. Se o que você busca é um abatimento do preço mantendo o produto em uso, fale conosco antes: nesse caso o pedido é tratado de outra forma, e as condições aplicáveis são informadas a você antes da conclusão.',
+          'No reembolso integral, a chave de licença correspondente àquele pedido é revogada e deixa de funcionar. É a contrapartida da devolução integral do valor.',
+          'Em caso de reembolso parcial, abatimento proporcional ou outro acordo, os efeitos sobre a licença são definidos conforme a solução adotada e informados a você antes da conclusão.',
         ],
       },
       {

@@ -73,6 +73,12 @@ export type CreateChargeRequest = {
   /** Explicit consent; this value is consumed here and never reaches the provider. */
   savePayerProfile?: boolean;
   /**
+   * Perfil REVISADO pelo usuário, quando ele difere do pagador da transação —
+   * é o caso do cartão, cujo `payer` carrega o documento do PORTADOR. Também
+   * é consumido aqui e nunca chega ao provider.
+   */
+  payerProfile?: Payer;
+  /**
    * Device ID real gerado pelo SDK do provider no navegador. Opcional,
    * request-scoped: só é repassado ao provider e nunca persistido nem logado.
    */
@@ -106,7 +112,9 @@ export class PaymentService {
   private async savePayerProfileIfConsented(request: CreateChargeRequest): Promise<void> {
     if (request.savePayerProfile !== true) return;
     try {
-      await this.payerProfiles.saveFromCharge(request.order.userId, request.payer);
+      // O consentimento guarda o que o usuário REVISOU. Só na ausência dele o
+      // pagador da transação serve de fonte.
+      await this.payerProfiles.saveFromCharge(request.order.userId, request.payerProfile ?? request.payer);
     } catch {
       // Best effort only: profile storage never changes a payment outcome.
       console.error('[payments] PAYER_PROFILE_SAVE_FAILED');

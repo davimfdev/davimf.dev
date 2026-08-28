@@ -34,6 +34,7 @@ export type PayerProfileFormValues = {
 const inputClass =
   'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 py-2.5 text-[15px] text-[#F5F3EF] placeholder:text-[#6B6B67] focus:outline-none focus:border-accent/60 transition-colors';
 const labelClass = 'block text-xs font-medium text-[#A8A8A4] mb-1.5';
+const hintClass = 'text-[11px] text-[#6B6B67] mt-1.5 leading-snug';
 
 export function emptyPayerProfileValues(): PayerProfileFormValues {
   return {
@@ -143,6 +144,16 @@ export function PayerProfileForm({
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // O tipo do documento é DERIVADO — nunca escolhido. Mesma regra do backend.
+  const derivedType = identificationOf(values)?.type ?? null;
+  // Avisos silenciosos viram visíveis: o que não passa nestes filtros é
+  // descartado sem erro, e o pagador merece saber disso antes de pagar.
+  const phoneIncomplete = digitsOf(values.phone).length > 0 && !phoneOf(values);
+  const addressStarted = [
+    values.zipCode, values.streetName, values.streetNumber, values.neighborhood, values.city, values.state,
+  ].some((field) => field.trim() !== '');
+  const addressIncomplete = addressStarted && !addressOf(values);
+
   // Some o pedido de confirmação se o perfil deixar de existir.
   useEffect(() => {
     if (!hasSavedProfile || !persistenceAvailable) setConfirmingDelete(false);
@@ -192,26 +203,37 @@ export function PayerProfileForm({
         {text('lastName', 'Sobrenome', { autoComplete: 'family-name' })}
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className={labelClass} htmlFor="payer-documentType">Tipo de documento</label>
-          <select
-            id="payer-documentType"
-            value={values.documentType}
-            onChange={(event) => onChange({ documentType: event.target.value === 'CNPJ' ? 'CNPJ' : 'CPF' })}
-            className={inputClass}
-          >
-            <option value="CPF">CPF</option>
-            <option value="CNPJ">CNPJ</option>
-          </select>
-        </div>
+      <div>
         {text('documentNumber', 'Número do documento', {
           inputMode: 'numeric',
-          placeholder: values.documentType === 'CNPJ' ? '00.000.000/0000-00' : '000.000.000-00',
+          placeholder: '000.000.000-00 ou 00.000.000/0000-00',
+          'aria-describedby': 'payer-document-hint',
         })}
+        {/* O tipo NÃO é uma escolha: ele sai da quantidade de dígitos, igual ao
+            backend. Mostrar o que foi reconhecido evita prometer uma seleção
+            que não existe. */}
+        <p id="payer-document-hint" className={hintClass}>
+          {derivedType
+            ? `Reconhecido como ${derivedType} pelos ${digitsOf(values.documentNumber).length} dígitos.`
+            : 'CPF (11 dígitos) ou CNPJ (14 dígitos) — reconhecemos pelo número.'}
+        </p>
       </div>
 
-      {text('phone', 'Telefone', { inputMode: 'tel', autoComplete: 'tel', placeholder: '(00) 00000-0000' })}
+      <div>
+        {text('phone', 'Telefone', {
+          inputMode: 'tel',
+          autoComplete: 'tel',
+          placeholder: '(00) 00000-0000',
+          // O aviso só existe quando há o que avisar — apontar para um id
+          // ausente confunde leitor de tela.
+          ...(phoneIncomplete ? { 'aria-describedby': 'payer-phone-hint' } : {}),
+        })}
+        {phoneIncomplete && (
+          <p id="payer-phone-hint" className={hintClass}>
+            Telefone incompleto (10 a 15 dígitos): assim ele não é salvo nem enviado com a cobrança.
+          </p>
+        )}
+      </div>
 
       <div className="grid grid-cols-[1fr_2fr_80px] gap-3">
         {text('zipCode', 'CEP', { inputMode: 'numeric', autoComplete: 'postal-code', placeholder: '00000-000' })}
@@ -228,6 +250,16 @@ export function PayerProfileForm({
         {text('state', 'Estado (UF)', { maxLength: 2, autoComplete: 'address-level1', placeholder: 'GO' })}
         {text('complement', 'Complemento', { placeholder: 'Opcional' })}
       </div>
+
+      {/* Endereço parcial é descartado em silêncio na fronteira HTTP. Pix e
+          cartão continuam pagáveis sem ele — por isso é um aviso, não um
+          bloqueio. */}
+      {addressIncomplete && (
+        <p className={hintClass}>
+          Endereço incompleto: assim ele não é salvo nem enviado com a cobrança. O boleto exige CEP,
+          rua, número, bairro, cidade e UF.
+        </p>
+      )}
 
       {persistenceAvailable && (
         <div className="flex items-start gap-3 rounded-lg border border-white/10 px-3.5 py-3 hover:border-white/20 transition-colors">

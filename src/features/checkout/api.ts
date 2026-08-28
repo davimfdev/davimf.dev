@@ -106,6 +106,11 @@ export interface PayerProfile {
  * `deviceId` é o valor real do MercadoPago.js — opcional, request-scoped e
  * jamais persistido. `savePayerProfile` espelha exatamente a caixa de
  * consentimento do checkout: sem ela marcada, nada é salvo.
+ *
+ * `payer` é o pagador da TRANSAÇÃO (no cartão ele carrega o documento do
+ * portador). `payerProfile` é o que o usuário REVISOU na identificação e só
+ * acompanha a cobrança quando o consentimento foi dado — o backend o consome
+ * para persistir e nunca o repassa ao provider.
  */
 export interface ChargeCommonInput {
   orderId: string;
@@ -113,6 +118,7 @@ export interface ChargeCommonInput {
   idempotencyKey: string;
   deviceId?: string;
   savePayerProfile?: boolean;
+  payerProfile?: PayerProfile;
 }
 
 export class ApiError extends Error {

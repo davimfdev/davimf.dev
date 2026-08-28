@@ -57,6 +57,9 @@ export function CheckoutModal({ product, onClose }: Props) {
   const [autoRenew, setAutoRenew] = useState(false);
 
   const [payerValues, setPayerValues] = useState<PayerProfileFormValues>(emptyPayerProfileValues);
+  // Vira `true` no primeiro caractere digitado: o pré-preenchimento tardio do
+  // perfil salvo não pode sobrescrever o que já está sendo escrito.
+  const payerTouched = useRef(false);
   // Consentimento NASCE desmarcado — inclusive quando o formulário veio
   // pré-preenchido por um perfil salvo.
   const [saveProfile, setSaveProfile] = useState(false);
@@ -100,7 +103,10 @@ export function CheckoutModal({ product, onClose }: Props) {
         setProfilePersistence(persistenceAvailable);
         if (profile) {
           setHasSavedProfile(true);
-          setPayerValues(payerProfileValuesFrom(profile));
+          // O GET pode resolver DEPOIS que o usuário já começou a digitar.
+          // Pré-preencher aí apagaria o que ele escreveu: só formulário
+          // intocado aceita o perfil salvo.
+          if (!payerTouched.current) setPayerValues(payerProfileValuesFrom(profile));
         }
       })
       .catch(() => {
@@ -167,13 +173,20 @@ export function CheckoutModal({ product, onClose }: Props) {
   const payer = useMemo(() => toPayerInput(payerValues, email.trim().toLowerCase()), [payerValues, email]);
 
   /** Tudo que acompanha QUALQUER cobrança, além do pedido. */
-  const chargeExtras = () => ({
-    payer,
-    // Espelha exatamente a caixa de consentimento.
-    savePayerProfile: saveProfile,
-    // Só um Device ID REAL do SDK viaja; ausente é ausente.
-    ...(deviceId ? { deviceId } : {}),
-  });
+  const chargeExtras = () => {
+    // O perfil guardado é SEMPRE o que o usuário revisou aqui — nunca um
+    // documento substituído mais adiante pela transação (o do portador do
+    // cartão). Só viaja com o consentimento dado.
+    const reviewedProfile = saveProfile ? toPayerProfile(payerValues) : null;
+    return {
+      payer,
+      // Espelha exatamente a caixa de consentimento.
+      savePayerProfile: saveProfile,
+      ...(reviewedProfile ? { payerProfile: reviewedProfile } : {}),
+      // Só um Device ID REAL do SDK viaja; ausente é ausente.
+      ...(deviceId ? { deviceId } : {}),
+    };
+  };
 
   const handleDeleteProfile = async () => {
     try {
@@ -257,7 +270,9 @@ export function CheckoutModal({ product, onClose }: Props) {
         ...extras,
         payer: {
           ...extras.payer,
-          // O documento do PORTADOR do cartão é o que o emissor valida.
+          // O documento do PORTADOR do cartão é o que o emissor valida. A
+          // substituição para aqui: `payerProfile`, quando existe, continua
+          // levando a identificação que o usuário revisou.
           identification: { type: payload.documentType, number: payload.documentNumber },
         },
         // Só a referência segura viaja: token de uso único + id da bandeira.
@@ -305,7 +320,10 @@ export function CheckoutModal({ product, onClose }: Props) {
           <form onSubmit={handleIdentify} className="flex flex-col gap-4">
             <PayerProfileForm
               values={payerValues}
-              onChange={(patch) => setPayerValues((current) => ({ ...current, ...patch }))}
+              onChange={(patch) => {
+                payerTouched.current = true;
+                setPayerValues((current) => ({ ...current, ...patch }));
+              }}
               saveProfile={saveProfile}
               onSaveProfileChange={setSaveProfile}
               hasSavedProfile={hasSavedProfile}

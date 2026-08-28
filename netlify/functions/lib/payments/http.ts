@@ -309,6 +309,29 @@ export function parsePayerProfile(body: Record<string, unknown>): PayerProfileDa
 }
 
 /**
+ * Perfil que o CONSENTIMENTO manda guardar.
+ *
+ * O corpo pode trazer um `payerProfile` separado do `payer` da transação: no
+ * cartão o pagador da transação carrega o documento do PORTADOR (é o que o
+ * emissor valida), e o que o usuário revisou na identificação não pode ser
+ * perdido por causa disso. Campo opcional e SÓ-DE-PERFIL: é consumido aqui e
+ * nunca entra no payload do provider.
+ *
+ * Sem `payerProfile`, o perfil continua saindo do próprio `payer` — a
+ * validação estrita de `parsePayerProfile` é a mesma nos dois caminhos.
+ */
+export function parseConsentedPayerProfile(body: Record<string, unknown>): PayerProfileData {
+  const raw = body.payerProfile;
+  if (raw === undefined || raw === null) return parsePayerProfile(body);
+  if (typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new ValidationError('Campo "payerProfile" inválido.', 'FIELD_INVALID');
+  }
+  // Reembrulhado como `payer` para reusar exatamente o mesmo parser — cada
+  // campo segue limitado em tipo e tamanho, e dados de cartão seguem recusados.
+  return parsePayerProfile({ payer: raw as Record<string, unknown> });
+}
+
+/**
  * Limite defensivo do Device ID na fronteira pública. O SDK gera um
  * identificador curto — nada além disso é aceito aqui.
  */

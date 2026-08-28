@@ -390,8 +390,12 @@ describe('roteador de pagamentos', () => {
   };
 
   /** Instala um PaymentService real com provider falso e SQL de pagamento. */
-  function installChargeWorld(): { providerInputs: Array<Record<string, unknown>> } {
+  function installChargeWorld(): {
+    providerInputs: Array<Record<string, unknown>>;
+    savedProfiles: Array<{ userId: string; profile: Record<string, unknown> }>;
+  } {
     const providerInputs: Array<Record<string, unknown>> = [];
+    const savedProfiles: Array<{ userId: string; profile: Record<string, unknown> }> = [];
     let stored: SqlRow | null = null;
 
     sql.use([
@@ -439,14 +443,27 @@ describe('roteador de pagamentos', () => {
             display: { pixQrCode: '00020126PIX' }, raw: {},
           };
         },
+        createCardPayment: async (input: Record<string, unknown>) => {
+          providerInputs.push(input);
+          return {
+            providerPaymentId: 'ORD-2', providerTxnId: 'PAY-2', status: 'PENDING',
+            statusDetail: 'pending_review_manual', method: 'card', amountCents: 3500, currency: 'BRL',
+            installments: 1, refundedCents: 0, expiresAt: null,
+            display: { cardBrand: 'master', cardLastFour: '1234' }, raw: {},
+          };
+        },
       } as never,
       { requireOrder: async () => CHARGE_ORDER } as never,
       { findByOrder: async () => null } as never,
       { notify: async () => undefined } as never,
-      { saveFromCharge: async () => undefined } as never,
+      {
+        saveFromCharge: async (userId: string, profile: Record<string, unknown>) => {
+          savedProfiles.push({ userId, profile });
+        },
+      } as never,
     ));
 
-    return { providerInputs };
+    return { providerInputs, savedProfiles };
   }
 
   function pixRequest(body: Record<string, unknown>): Request {
@@ -480,6 +497,80 @@ describe('roteador de pagamentos', () => {
 
     expect(response.status).toBe(201);
     expect(providerInputs[0]).not.toHaveProperty('deviceId');
+  });
+
+  /**
+   * Cartão + consentimento: a transação leva o documento do PORTADOR (é o que
+   * o emissor valida) e o perfil guarda a identificação que o usuário revisou.
+   * Sem essa separação o CPF do portador vira o perfil salvo e volta
+   * pré-preenchido na próxima compra.
+   */
+  it('cobra no cartão com o documento do portador e guarda o perfil revisado', async () => {
+    authenticate();
+    const { providerInputs, savedProfiles } = installChargeWorld();
+    const cardholderDocument = '98765432100';
+
+    const response = await routePaymentsRequest(request('/api/payments/card', {
+      method: 'POST',
+      body: JSON.stringify({
+        orderId: 'order-1',
+        cardToken: 'tok_123',
+        paymentMethodId: 'master',
+        installments: 1,
+        savePayerProfile: true,
+        payer: { ...PAYER_PROFILE, identification: { type: 'CPF', number: cardholderDocument } },
+        payerProfile: PAYER_PROFILE,
+      }),
+    }));
+
+    expect(response.status).toBe(201);
+    // O provider recebe o portador…
+    expect(providerInputs[0]).toMatchObject({
+      payer: { identification: { type: 'CPF', number: cardholderDocument } },
+    });
+    // …e o perfil guarda o que foi revisado na identificação.
+    expect(savedProfiles).toMatchObject([
+      { userId: 'discord-1', profile: { identification: { type: 'CPF', number: PAYER_PROFILE.identification.number } } },
+    ]);
+    // Campo só-de-perfil nunca é repassado ao provider.
+    expect(providerInputs[0]).not.toHaveProperty('payerProfile');
+    expect(JSON.stringify(providerInputs[0])).not.toContain(PAYER_PROFILE.identification.number);
+  });
+
+  it('valida o perfil consentido com o mesmo rigor, sem ecoar o valor recusado', async () => {
+    authenticate();
+    const { savedProfiles } = installChargeWorld();
+
+    const response = await routePaymentsRequest(request('/api/payments/card', {
+      method: 'POST',
+      body: JSON.stringify({
+        orderId: 'order-1',
+        cardToken: 'tok_123',
+        paymentMethodId: 'master',
+        savePayerProfile: true,
+        payer: { ...PAYER_PROFILE, identification: { type: 'CPF', number: '98765432100' } },
+        payerProfile: { ...PAYER_PROFILE, identification: { type: 'CPF', number: '123' } },
+      }),
+    }));
+    const body = await response.text();
+
+    expect(response.status).toBe(400);
+    expect(JSON.parse(body)).toMatchObject({ error: { code: 'FIELD_INVALID' } });
+    expect(body).not.toContain('123456');
+    expect(savedProfiles).toEqual([]);
+  });
+
+  it('recusa payerProfile que não seja objeto', async () => {
+    authenticate();
+    installChargeWorld();
+
+    for (const payerProfile of ['x', 42, [PAYER_PROFILE]]) {
+      const response = await routePaymentsRequest(pixRequest({
+        savePayerProfile: true, payer: PAYER_PROFILE, payerProfile,
+      }));
+      expect(response.status).toBe(400);
+      expect((await response.json() as { error: { code: string } }).error.code).toBe('FIELD_INVALID');
+    }
   });
 
   it('recusa Device ID que não seja string não vazia e limitada', async () => {

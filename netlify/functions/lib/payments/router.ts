@@ -37,6 +37,7 @@ import {
   optionalInt,
   optionalString,
   originAllowed,
+  parseConsentedPayerProfile,
   parseDeviceId,
   parsePayer,
   parsePayerProfile,
@@ -145,7 +146,12 @@ async function loadChargeContext(request: Request) {
     body,
     order,
     product,
-    payer: savePayerProfile ? parsePayerProfile(body) : parsePayer(body, order.userEmail),
+    // Pagador da TRANSAÇÃO: é o que vai ao provider. No cartão ele carrega o
+    // documento do portador, que é o que o emissor valida.
+    payer: parsePayer(body, order.userEmail),
+    // Perfil REVISADO pelo usuário: é o que o consentimento guarda. Vive só
+    // aqui — nunca entra no payload do provider.
+    payerProfile: savePayerProfile ? parseConsentedPayerProfile(body) : undefined,
     savePayerProfile,
     // Device ID real do SDK do navegador. Só existe em memória durante esta
     // requisição: vira header do provider e nada mais.
@@ -156,7 +162,7 @@ async function loadChargeContext(request: Request) {
 async function savePayerProfileAfterSubscription(context: ChargeContext): Promise<void> {
   if (context.savePayerProfile !== true) return;
   try {
-    await getPayerProfileService().saveFromCharge(context.user.id, context.payer);
+    await getPayerProfileService().saveFromCharge(context.user.id, context.payerProfile ?? context.payer);
   } catch {
     // Profile persistence is optional and must not alter a completed charge.
     console.error('[payments] PAYER_PROFILE_SAVE_FAILED');
@@ -211,6 +217,7 @@ async function handlePix(request: Request): Promise<Response> {
     product: context.product,
     payer: context.payer,
     savePayerProfile: context.savePayerProfile,
+    payerProfile: context.payerProfile,
     deviceId: context.deviceId,
     idempotencyKey: optionalString(context.body, 'idempotencyKey', 120),
   });
@@ -224,6 +231,7 @@ async function handleBoleto(request: Request): Promise<Response> {
     product: context.product,
     payer: context.payer,
     savePayerProfile: context.savePayerProfile,
+    payerProfile: context.payerProfile,
     deviceId: context.deviceId,
     idempotencyKey: optionalString(context.body, 'idempotencyKey', 120),
   });
@@ -272,6 +280,7 @@ async function handleCard(request: Request): Promise<Response> {
     product: context.product,
     payer: context.payer,
     savePayerProfile: context.savePayerProfile,
+    payerProfile: context.payerProfile,
     deviceId: context.deviceId,
     cardToken,
     paymentMethodId,

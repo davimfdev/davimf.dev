@@ -2,8 +2,9 @@
  * Checkout transparente — acontece DENTRO do site.
  *
  * Fluxo: Produto -> Identificação -> Pix/Cartão/Boleto -> Resultado.
- * O único redirecionamento aceito é uma autenticação bancária obrigatória (3DS),
- * exigida pelo emissor.
+ * Nem a autenticação bancária obrigatória (3DS) tira o usuário do site: ela é
+ * embutida em `ThreeDsChallenge` e a mensagem de conclusão dela só manda
+ * RECONCILIAR com o backend — quem diz se está pago é o provider.
  *
  * A etapa de identificação coleta os dados do pagador exigidos pela transação
  * ANTES da escolha do método. Eles são enviados em toda cobrança; guardá-los
@@ -31,6 +32,7 @@ import {
   type PayerProfileFormValues,
 } from './PayerProfileForm';
 import { PaymentResult } from './PaymentResult';
+import { ThreeDsChallenge } from './ThreeDsChallenge';
 import { useMercadoPago } from './useMercadoPago';
 import { useMercadoPagoDeviceId } from './useMercadoPagoDeviceId';
 
@@ -68,6 +70,9 @@ export function CheckoutModal({ product, onClose }: Props) {
 
   const [order, setOrder] = useState<CheckoutOrder | null>(null);
   const [payment, setPayment] = useState<PaymentView | null>(null);
+  // URL do desafio 3DS em exibição. Existe só enquanto o emissor precisa da
+  // confirmação extra; some assim que o desafio termina ou se revela inválido.
+  const [challengeUrl, setChallengeUrl] = useState<string | null>(null);
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -188,6 +193,31 @@ export function CheckoutModal({ product, onClose }: Props) {
     };
   };
 
+  /**
+   * Fim do desafio 3DS. A mensagem do iframe significa "reconcilie agora" e
+   * NUNCA "está pago": lemos o status no backend e adotamos o que ele
+   * devolver. Se a leitura falhar, o polling de cinco segundos continua.
+   */
+  const handleChallengeComplete = useCallback(async () => {
+    setChallengeUrl(null);
+    const paymentId = payment?.id;
+    if (!paymentId) return;
+    try {
+      const { payment: reconciled } = await paymentsApi.status(paymentId);
+      setPayment(reconciled);
+    } catch {
+      /* webhook e polling continuam sendo a fonte da verdade */
+    }
+  }, [payment?.id]);
+
+  /**
+   * URL de desafio sem origem confiável. Não relaxamos a validação: o desafio
+   * simplesmente não é exibido e o status fica por conta de webhook/polling.
+   */
+  const handleChallengeInvalidUrl = useCallback(() => {
+    setChallengeUrl(null);
+  }, []);
+
   const handleDeleteProfile = async () => {
     try {
       await paymentsApi.payerProfile.delete();
@@ -227,8 +257,8 @@ export function CheckoutModal({ product, onClose }: Props) {
       if (result) {
         setPayment(result);
         setStep('result');
-        // Exceção permitida: autenticação bancária obrigatória (3DS).
-        if (result.threeDsUrl) window.location.href = result.threeDsUrl;
+        // A autenticação obrigatória do emissor acontece DENTRO do checkout.
+        setChallengeUrl(result.threeDsUrl ?? null);
       }
     } catch (caught) {
       setError(describeError(caught));
@@ -444,7 +474,17 @@ export function CheckoutModal({ product, onClose }: Props) {
         )}
 
         {/* ------------------------------------------------------ resultado -- */}
-        {step === 'result' && payment && <PaymentResult payment={payment} />}
+        {step === 'result' && payment && (
+          challengeUrl ? (
+            <ThreeDsChallenge
+              url={challengeUrl}
+              onComplete={handleChallengeComplete}
+              onInvalidUrl={handleChallengeInvalidUrl}
+            />
+          ) : (
+            <PaymentResult payment={payment} />
+          )
+        )}
       </div>
     </div>
   );

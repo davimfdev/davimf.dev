@@ -247,7 +247,11 @@ export function PaymentResult({ payment }: { payment: PaymentView }) {
       <Loader2 size={40} className="text-accent mx-auto mb-3 animate-spin" />
       <h3 className="text-xl font-display font-bold text-[#F5F3EF]">Processando pagamento</h3>
       <p className="text-sm text-[#A8A8A4] mt-2">
-        Isso pode levar alguns segundos. Não feche esta janela.
+        {/* Houve desafio 3DS: ele já foi concluído e não é reaberto aqui — o
+            status definitivo vem do backend (webhook/polling). */}
+        {payment.threeDsUrl
+          ? 'Estamos confirmando a autenticação com o banco emissor. Não feche esta janela.'
+          : 'Isso pode levar alguns segundos. Não feche esta janela.'}
       </p>
       <PaymentSummary payment={payment} />
     </div>

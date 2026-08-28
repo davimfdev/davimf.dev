@@ -6,7 +6,6 @@
  */
 
 import type { Order } from '../domain/types';
-import { ProviderError } from '../domain/errors';
 
 /** Art. 49 do CDC. */
 export const REFUND_WINDOW_DAYS = 7;
@@ -76,6 +75,12 @@ type Deps = {
   acknowledge: (order: Order, outcome: RefundRequestOutcome) => Promise<unknown>;
   /** Avisa o financeiro. Log de container não é canal que alguém observa. */
   alertOperator: (order: Order, outcome: RefundRequestOutcome, detail: string | null) => Promise<unknown>;
+  /**
+   * Tentativa de acesso a pedido inexistente ou de outro usuário. Injetado
+   * (em vez de importado direto) para o teste poder verificar a chamada sem
+   * depender do `console.warn` real do módulo de log.
+   */
+  logAccessDenied: (input: { userId: string; orderId: string }) => void;
 };
 
 export class RefundRequestService {
@@ -90,7 +95,7 @@ export class RefundRequestService {
     if (!order) {
       // 404 idêntico para inexistente e alheio: a resposta não confirma que o
       // id pertence a outra pessoa. O registro fica no log de segurança.
-      logOrderAccessDenied({ userId: input.userId, orderId: input.orderId });
+      this.deps.logAccessDenied({ userId: input.userId, orderId: input.orderId });
       return { status: 404 };
     }
 
@@ -120,51 +125,101 @@ export class RefundRequestService {
 
     const payments = await this.deps.listPayments(order.id);
     const paid = payments.find((payment) => payment.status === 'PAID');
-    if (!paid) return { status: 409, code: 'ORDER_NOT_REFUNDABLE' };
+    if (!paid) {
+      // Também passou pela posse: mesma regra de "toda recusa é registrada",
+      // mesmo sem pagamento PAID para estornar.
+      await this.deps.record({
+        orderId: order.id, userId: input.userId,
+        outcome: 'rejected', reasonCode: 'ORDER_NOT_REFUNDABLE',
+      });
+      return { status: 409, code: 'ORDER_NOT_REFUNDABLE' };
+    }
 
     try {
       await this.deps.refund(paid.id);
     } catch (error) {
-      // Dois casos vão para reconciliação, não para `manual`:
-      //  - o provider ACEITOU e a gravação local falhou (`refundAccepted`);
-      //  - o resultado é AMBÍGUO (timeout, 5xx, 429): `retryable` é true e não
-      //    sabemos se o estorno ocorreu. Assumir que não é como se estorna duas
-      //    vezes.
-      // Só a recusa CONFIRMADA (4xx, `retryable` false) vira `manual`. Em
-      // nenhum dos três casos o estorno é pedido de novo ao provider.
-      const accepted = typeof error === 'object' && error !== null
-        && (error as { refundAccepted?: boolean }).refundAccepted === true;
-      const confirmedProviderRefusal = error instanceof ProviderError && error.retryable === false;
-      const outcome: RefundRequestOutcome =
-        !accepted && confirmedProviderRefusal ? 'manual' : 'reconciliation_required';
-      const rawProviderError = error instanceof ProviderError && error.providerDetail
-        ? error.providerDetail
-        : error instanceof Error ? error.message : 'unknown_refund_error';
-      // O provider não controla quanto gravamos: mesmo limite de
-      // `markEventFailed` (PaymentEventRepository) para provider_error.
-      const providerError = rawProviderError.slice(0, MAX_PROVIDER_ERROR_LENGTH);
-
-      await this.deps.record({ orderId: order.id, userId: input.userId, outcome, providerError }).catch(() => undefined);
-      await this.deps.acknowledge(order, outcome).catch(() => undefined);
-      await this.deps.alertOperator(order, outcome, providerError).catch(() => undefined);
-      return { status: 202, outcome };
+      const outcome = this.classifyRefundFailure(error);
+      const providerError = this.extractProviderError(error);
+      return this.settleAfterRefundAttempt(order, input.userId, outcome, providerError);
     }
 
+    return this.settleAfterRefundAttempt(order, input.userId, 'refunded', null);
+  }
+
+  /**
+   * Classifica a falha do `refund`. SÓ a recusa CONFIRMADA (`retryable`
+   * presente e explicitamente `false`) vira `manual` — ela é a única que
+   * AFIRMA que o dinheiro não se moveu. Qualquer outra forma — aceito pelo
+   * provider (`refundAccepted`), ambígua (`retryable` true: timeout, 5xx,
+   * 429), ou de formato desconhecido (string, objeto sem contrato, erro do
+   * nosso próprio código) — vai para reconciliação: não sabemos se o
+   * estorno ocorreu, e assumir que não é como um reembolso vira dois.
+   */
+  private classifyRefundFailure(error: unknown): 'manual' | 'reconciliation_required' {
+    const props = typeof error === 'object' && error !== null ? (error as Record<string, unknown>) : {};
+    if (props.refundAccepted === true) return 'reconciliation_required';
+    if (props.retryable === false) return 'manual';
+    return 'reconciliation_required';
+  }
+
+  /**
+   * Nunca deixa `.slice` estourar: um erro pode ser string, objeto sem
+   * contrato ou nem `Error`. Prioriza `providerDetail` (erro do provider),
+   * depois `.message` de um `Error` de verdade, e só então `String(error)`
+   * para o que sobrar (string crua, objeto sem contrato).
+   */
+  private extractProviderError(error: unknown): string {
+    const providerDetail = typeof error === 'object' && error !== null
+      ? (error as { providerDetail?: unknown }).providerDetail
+      : undefined;
+    const raw = typeof providerDetail === 'string'
+      ? providerDetail
+      : error instanceof Error ? error.message : String(error);
+    // O provider não controla quanto gravamos: mesmo limite de
+    // `markEventFailed` (PaymentEventRepository) para provider_error.
+    return raw.slice(0, MAX_PROVIDER_ERROR_LENGTH);
+  }
+
+  /**
+   * Bookkeeping depois de TENTAR o estorno (sucesso ou falha já
+   * classificada). A partir daqui o provider já foi chamado — o dinheiro
+   * pode ter se movido — então nenhuma falha NOSSA pode virar exceção: isso
+   * devolveria um 500 ao cliente, que tenderia a repetir o pedido e pedir o
+   * estorno de novo ao provider. Uma falha em gravar ou confirmar degrada
+   * para `reconciliation_required` e avisa o financeiro, em vez de
+   * propagar — o chamador sempre recebe um resultado estruturado.
+   */
+  private async settleAfterRefundAttempt(
+    order: Order,
+    userId: string,
+    outcome: 'refunded' | 'manual' | 'reconciliation_required',
+    providerError: string | null,
+  ): Promise<RefundRequestResult> {
+    let finalOutcome = outcome;
+    let finalProviderError = providerError;
     try {
-      await this.deps.record({ orderId: order.id, userId: input.userId, outcome: 'refunded' });
-      await this.deps.acknowledge(order, 'refunded');
-      return { status: 200, outcome: 'refunded' };
-    } catch (error) {
-      // O dinheiro já se moveu. Nunca propaga uma falha local ao cliente, pois
-      // isso o convidaria a repetir o pedido. Registra/alerta em best effort.
-      const detail = error instanceof Error ? error.message : 'unknown_post_refund_error';
-      const providerError = detail.slice(0, MAX_PROVIDER_ERROR_LENGTH);
+      // Auditoria antes da confirmação por e-mail: nunca o contrário.
+      await this.deps.record({ orderId: order.id, userId, outcome, providerError });
+      await this.deps.acknowledge(order, outcome);
+    } catch (bookkeepingError) {
+      // A falha é NOSSA (gravar ou confirmar), não mais do provider — o
+      // detalhe relevante agora é essa falha, não a original (se houve).
+      finalOutcome = 'reconciliation_required';
+      finalProviderError = this.extractProviderError(bookkeepingError);
+      // Melhor esforço: a resposta ao cliente segue estruturada mesmo que
+      // esta segunda tentativa também falhe.
       await this.deps.record({
-        orderId: order.id, userId: input.userId,
-        outcome: 'reconciliation_required', providerError,
+        orderId: order.id, userId, outcome: finalOutcome, providerError: finalProviderError,
       }).catch(() => undefined);
-      await this.deps.alertOperator(order, 'reconciliation_required', providerError).catch(() => undefined);
-      return { status: 202, outcome: 'reconciliation_required' };
+      await this.deps.acknowledge(order, finalOutcome).catch(() => undefined);
     }
+
+    if (finalOutcome !== 'refunded') {
+      await this.deps.alertOperator(order, finalOutcome, finalProviderError).catch(() => undefined);
+    }
+
+    return finalOutcome === 'refunded'
+      ? { status: 200, outcome: 'refunded' }
+      : { status: 202, outcome: finalOutcome };
   }
 }

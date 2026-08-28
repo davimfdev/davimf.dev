@@ -22,6 +22,7 @@ function build(overrides: Record<string, unknown> = {}) {
   const acknowledge = vi.fn().mockResolvedValue(undefined);
   // Fake: a implementação real do financeiro é de uma tarefa posterior.
   const alertOperator = vi.fn().mockResolvedValue(undefined);
+  const logAccessDenied = vi.fn();
   const service = new RefundRequestService({
     findOwnedOrder: vi.fn().mockResolvedValue(order()),
     listPayments: vi.fn().mockResolvedValue([{ id: 'pay-1', status: 'PAID' }]),
@@ -29,20 +30,23 @@ function build(overrides: Record<string, unknown> = {}) {
     record,
     acknowledge,
     alertOperator,
+    logAccessDenied,
     ...overrides,
   } as never);
-  return { service, record, refund, acknowledge, alertOperator };
+  return { service, record, refund, acknowledge, alertOperator, logAccessDenied };
 }
 
 describe('execução do pedido de reembolso', () => {
-  it('pedido de outro usuário responde 404 e NÃO grava auditoria', async () => {
+  it('pedido de outro usuário responde 404, NÃO grava auditoria e loga a tentativa', async () => {
     const record = vi.fn();
-    const { service } = build({ findOwnedOrder: vi.fn().mockResolvedValue(null), record });
+    const { service, logAccessDenied } = build({ findOwnedOrder: vi.fn().mockResolvedValue(null), record });
 
     const result = await service.request({ orderId: 'ord-alheio', userId: 'user-1', now: NOW });
 
     expect(result).toEqual({ status: 404 });
     expect(record).not.toHaveBeenCalled();
+    expect(logAccessDenied).toHaveBeenCalledTimes(1);
+    expect(logAccessDenied).toHaveBeenCalledWith({ userId: 'user-1', orderId: 'ord-alheio' });
   });
 
   it('caminho elegível estorna, revoga e grava desfecho refunded', async () => {
@@ -119,7 +123,9 @@ describe('execução do pedido de reembolso', () => {
     );
   });
 
-  it('erro desconhecido nunca afirma que o provider recusou', async () => {
+  it('erro lançado como string pura não derruba a resposta (coerção segura, sem placeholder)', async () => {
+    // C2: `.slice` sobre um valor `undefined` (nenhum `providerDetail`, e o
+    // erro nem é `Error`) lançaria — precisa coercionar antes.
     const refund = vi.fn().mockRejectedValue('falha sem contrato');
     const { service, record } = build({ refund });
 
@@ -127,8 +133,38 @@ describe('execução do pedido de reembolso', () => {
 
     expect(result).toEqual({ status: 202, outcome: 'reconciliation_required' });
     expect(record).toHaveBeenCalledWith(expect.objectContaining({
-      outcome: 'reconciliation_required', providerError: 'unknown_refund_error',
+      outcome: 'reconciliation_required', providerError: 'falha sem contrato',
     }));
+  });
+
+  it('erro sem retryable nem refundAccepted (objeto sem contrato) vira reconciliation_required', async () => {
+    // I1: o default seguro para forma desconhecida — inclusive um erro do
+    // NOSSO próprio código — é reconciliação, nunca manual.
+    const refund = vi.fn().mockRejectedValue({ weird: true });
+    const { service, record } = build({ refund });
+
+    const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 202, outcome: 'reconciliation_required' });
+    expect(record).toHaveBeenCalledWith(
+      expect.objectContaining({ outcome: 'reconciliation_required' }),
+    );
+  });
+
+  it('sem pagamento PAID responde 409 e grava a recusa (posse já confirmada)', async () => {
+    // C1: passou pela posse, então também é registrável, mesmo sem
+    // pagamento PAID para estornar.
+    const { service, record, refund } = build({
+      listPayments: vi.fn().mockResolvedValue([{ id: 'pay-1', status: 'PENDING' }]),
+    });
+
+    const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 409, code: 'ORDER_NOT_REFUNDABLE' });
+    expect(refund).not.toHaveBeenCalled();
+    expect(record).toHaveBeenCalledWith(
+      expect.objectContaining({ outcome: 'rejected', reasonCode: 'ORDER_NOT_REFUNDABLE' }),
+    );
   });
 
   it('falha de auditoria depois do estorno não escapa nem pede novo estorno', async () => {
@@ -147,6 +183,41 @@ describe('execução do pedido de reembolso', () => {
     expect(alertOperator).toHaveBeenCalledWith(
       expect.anything(), 'reconciliation_required', 'database unavailable',
     );
+  });
+
+  it('falha ao confirmar por e-mail depois do estorno bem-sucedido degrada para reconciliation_required', async () => {
+    const acknowledge = vi.fn()
+      .mockRejectedValueOnce(new Error('email indisponível'))
+      .mockResolvedValue(undefined);
+    const { service, record, refund, alertOperator } = build({ acknowledge });
+
+    const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 202, outcome: 'reconciliation_required' });
+    expect(refund).toHaveBeenCalledTimes(1);
+    expect(record).toHaveBeenCalledTimes(2);
+    expect(record).toHaveBeenLastCalledWith(expect.objectContaining({
+      outcome: 'reconciliation_required', providerError: 'email indisponível',
+    }));
+    expect(alertOperator).toHaveBeenCalledWith(
+      expect.anything(), 'reconciliation_required', 'email indisponível',
+    );
+  });
+
+  it('grava antes de confirmar por e-mail em toda a execução (auditoria antes do aviso)', async () => {
+    const calls: string[] = [];
+    const record = vi.fn().mockImplementation(async () => {
+      calls.push('record');
+      return { id: 'req-1' };
+    });
+    const acknowledge = vi.fn().mockImplementation(async () => {
+      calls.push('acknowledge');
+    });
+    const { service } = build({ record, acknowledge });
+
+    await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(calls).toEqual(['record', 'acknowledge']);
   });
 
   it('fora da janela grava manual e nunca chama o estorno', async () => {

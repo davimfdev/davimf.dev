@@ -380,23 +380,36 @@ describe('MercadoPagoPaymentProvider', () => {
 describe('dados comerciais da Order', () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it('envia items do backend no Pix e nunca capture_mode', async () => {
+  it('mantém Orders online no schema documentado e não mistura campos de QR/Payments API', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
+    const target = provider(impl);
+
+    await target.createPixPayment({ ...BASE, expiresInMinutes: 30 });
+    await target.createCardPayment({ ...BASE, ...CARD });
+    await target.createBoletoPayment({ ...BASE, payer: FULL_PAYER, expiresInDays: 3 });
+
+    for (const call of calls) {
+      const body = JSON.parse(String(call.init.body));
+      expect(body).not.toHaveProperty('items');
+      expect(body).not.toHaveProperty('description');
+      expect(body).not.toHaveProperty('statement_descriptor');
+      expect(body).not.toHaveProperty('additional_info');
+      expect(body).toMatchObject({
+        type: 'online',
+        processing_mode: 'automatic',
+        external_reference: BASE.reference,
+        total_amount: '35.00',
+      });
+    }
+  });
+
+  it('envia os campos documentados do Pix e nunca capture_mode', async () => {
     const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
 
     await provider(impl).createPixPayment({ ...BASE, expiresInMinutes: 30 });
 
     const body = JSON.parse(String(calls[0].init.body));
-    expect(body.items).toEqual([
-      {
-        title: 'FMM Pro — Mensal',
-        description: 'FMM Pro — Mensal',
-        quantity: 1,
-        unit_price: '35.00',
-        external_code: 'fmm-pro-monthly',
-        category_id: 'software',
-      },
-    ]);
-    expect(body.statement_descriptor).toBe('DAVIMFDEV');
+    expect(body.total_amount).toBe('35.00');
     expect(body.external_reference).toBe('DVMF-1');
     expect(body.processing_mode).toBe('automatic');
     // capture_mode é contrato de CARTÃO; não pode vazar para Pix.
@@ -404,13 +417,12 @@ describe('dados comerciais da Order', () => {
     expect(body).not.toHaveProperty('config');
   });
 
-  it('envia items e o pagador completo no boleto, sem capture_mode', async () => {
+  it('envia o pagador completo no boleto, sem capture_mode', async () => {
     const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-BOL' }) }));
 
     await provider(impl).createBoletoPayment({ ...BASE, payer: FULL_PAYER, expiresInDays: 3 });
 
     const body = JSON.parse(String(calls[0].init.body));
-    expect(body.items[0]).toMatchObject({ external_code: 'fmm-pro-monthly', category_id: 'software', quantity: 1 });
     expect(body).not.toHaveProperty('capture_mode');
     expect(body.payer).toMatchObject({
       first_name: 'João',
@@ -470,7 +482,7 @@ describe('dados comerciais da Order', () => {
       capture_mode: 'automatic',
       config: { online: { transaction_security: { validation: 'on_fraud_risk', liability_shift: 'required' } } },
     });
-    expect(cardBody.items[0].category_id).toBe('software');
+    expect(cardBody).not.toHaveProperty('items');
   });
 
   it('cobra o cartão SALVO com a mesma Order enriquecida e o mesmo 3DS completo', async () => {
@@ -490,54 +502,15 @@ describe('dados comerciais da Order', () => {
     expect(body).toMatchObject({
       capture_mode: 'automatic',
       config: { online: { transaction_security: { validation: 'on_fraud_risk', liability_shift: 'required' } } },
-      statement_descriptor: 'DAVIMFDEV',
     });
-    expect(body.items).toEqual([
-      {
-        title: 'FMM Pro — Mensal',
-        description: 'FMM Pro — Mensal',
-        quantity: 1,
-        unit_price: '35.00',
-        external_code: 'fmm-pro-monthly',
-        category_id: 'software',
-      },
-    ]);
+    expect(body).not.toHaveProperty('items');
+    expect(body).not.toHaveProperty('statement_descriptor');
     // O cartão salvo continua amarrado ao cliente do provider.
     expect(body.payer).toMatchObject({ email: PAYER.email, customer_id: 'CUS-1' });
 
     // Device ID: só header, nunca corpo — igual ao caminho do cartão novo.
     expect((calls[0].init.headers as Record<string, string>)['X-meli-session-id']).toBe('saved-card-device-id');
     expect(String(calls[0].init.body)).not.toContain('saved-card-device-id');
-  });
-});
-
-// ------------------------------------------------------- quantidade > 1 ----
-
-describe('quantidade do pedido', () => {
-  afterEach(() => vi.restoreAllMocks());
-
-  it('divide o total pelo preço unitário REAL quando a quantidade divide os centavos', async () => {
-    const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-QTY-2' }) }));
-
-    await provider(impl).createPixPayment({ ...BASE, quantity: 2, amountCents: 7000 });
-
-    const body = JSON.parse(String(calls[0].init.body));
-    expect(body.total_amount).toBe('70.00');
-    expect(body.items[0]).toMatchObject({ quantity: 2, unit_price: '35.00' });
-    // A soma dos itens tem de bater com o total cobrado.
-    expect(body.items[0].quantity * Number(body.items[0].unit_price)).toBe(Number(body.total_amount));
-  });
-
-  it('colapsa em UM item em vez de inventar preço unitário arredondado', async () => {
-    const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-QTY-3' }) }));
-
-    // 3500 / 3 não fecha em centavos exatos.
-    await provider(impl).createPixPayment({ ...BASE, quantity: 3, amountCents: 3500 });
-
-    const body = JSON.parse(String(calls[0].init.body));
-    expect(body.total_amount).toBe('35.00');
-    expect(body.items[0]).toMatchObject({ quantity: 1, unit_price: '35.00' });
-    expect(body.items[0].quantity * Number(body.items[0].unit_price)).toBe(Number(body.total_amount));
   });
 });
 

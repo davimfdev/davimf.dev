@@ -70,6 +70,20 @@ describe('conteúdo legal', () => {
     expect(en).toContain('suspended');
   });
 
+  it('os termos declaram a restrição de uma máquina por chave', () => {
+    // fmm-activate.ts recusa a segunda máquina com 409. Restrição à fruição
+    // da oferta precisa estar escrita, não descoberta depois da compra.
+    expect(allText(legal.pt.terms).join(' ')).toContain('UM único computador');
+    expect(allText(legal.en.terms).join(' ')).toContain('ONE computer');
+  });
+
+  it('a privacidade declara transferência internacional', () => {
+    // Google, Resend, Discord e Mercado Pago tratam dados fora do Brasil;
+    // silêncio aqui insinuaria que não há transferência.
+    expect(allText(legal.pt.privacy).join(' ')).toContain('fora do Brasil');
+    expect(allText(legal.en.privacy).join(' ')).toContain('outside Brazil');
+  });
+
   it('a política de privacidade declara o rastreamento em vez de negá-lo', () => {
     const pt = allText(legal.pt.privacy).join(' ');
     expect(pt).toContain('Google Analytics');

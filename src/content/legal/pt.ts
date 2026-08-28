@@ -36,6 +36,7 @@ export const legalPt: LegalContent = {
           'Compra: nome, sobrenome, e-mail, CPF ou CNPJ e telefone. Para boleto, também CEP, rua, número, bairro, cidade e estado.',
           'Pagamento: método, status, valor, e — no cartão — apenas bandeira e os quatro últimos dígitos.',
           'Uso do site: métricas de audiência, somente se você consentir com os cookies de análise.',
+          'Segurança: um identificador do dispositivo gerado pelo SDK do Mercado Pago no seu navegador, enviado junto da cobrança para prevenção a fraude.',
           'Suporte: o conteúdo das mensagens que você nos envia.',
         ],
       },
@@ -61,12 +62,14 @@ export const legalPt: LegalContent = {
       {
         heading: 'Com quem compartilhamos',
         paragraphs: [
-          'Não vendemos seus dados e não os usamos para publicidade de terceiros. Compartilhamos apenas com quem é necessário para a operação, na condição de operadores:',
+          'Não vendemos seus dados e não os usamos para publicidade de terceiros. Compartilhamos apenas com terceiros necessários à prestação dos serviços.',
+          'Conforme a atividade efetivamente realizada, esses terceiros podem atuar como operadores em nosso nome ou como controladores independentes, sujeitos às suas próprias obrigações legais e políticas de privacidade:',
         ],
         bullets: [
-          'Mercado Pago: processamento de pagamento e prevenção a fraude. Recebe os dados do pagador necessários para autorizar a cobrança.',
-          'Resend: envio dos e-mails transacionais de confirmação e de entrega da licença.',
+          'Mercado Pago: processamento de pagamento, prevenção a fraude e cumprimento de obrigações financeiras e regulatórias próprias. Recebe os dados do pagador necessários para autorizar a cobrança.',
+          'Resend: infraestrutura de envio dos e-mails transacionais de confirmação e de entrega da licença.',
           'Discord: autenticação da sua conta, quando você escolhe entrar por ele.',
+          'Google: Google Analytics, exclusivamente após o seu consentimento com os cookies de análise.',
           'Provedor de infraestrutura: hospedagem do site e do banco de dados.',
         ],
       },
@@ -83,6 +86,9 @@ export const legalPt: LegalContent = {
         paragraphs: [
           'Dados de conta são mantidos enquanto sua conta existir. Registros de compra e pagamento são mantidos pelo prazo exigido pela legislação fiscal, mesmo após o encerramento da conta, porque a guarda é obrigação legal.',
           'Dados de cobrança que você opta por salvar ficam guardados de forma cifrada até você removê-los.',
+          'O registro do seu consentimento de cookies fica no seu próprio navegador e some quando você limpa os dados do site.',
+          'Registros técnicos da infraestrutura e dados usados na prevenção a fraude são mantidos pelo tempo necessário à segurança da operação e ao cumprimento de obrigações legais.',
+          'Mensagens de suporte são mantidas enquanto necessárias ao atendimento e à comprovação do que foi tratado.',
         ],
       },
       {
@@ -97,7 +103,11 @@ export const legalPt: LegalContent = {
           'portabilidade dos dados a outro fornecedor;',
           'eliminação dos dados tratados com base no seu consentimento;',
           'informação sobre com quem compartilhamos seus dados;',
-          'revogação do consentimento, a qualquer momento.',
+          'informação sobre a possibilidade de não fornecer consentimento e sobre as consequências da recusa;',
+          'revogação do consentimento, a qualquer momento;',
+          'oposição a tratamento realizado sem consentimento, quando houver descumprimento da lei;',
+          'revisão de decisões tomadas unicamente com base em tratamento automatizado que afetem seus interesses;',
+          'petição perante a ANPD e os órgãos de defesa do consumidor.',
         ],
       },
       {
@@ -105,6 +115,14 @@ export const legalPt: LegalContent = {
         paragraphs: [
           `Envie o pedido para ${COMPANY.privacyEmail}. Respondemos no menor prazo possível e, em qualquer caso, dentro dos prazos da LGPD.`,
           'Alguns dados não podem ser eliminados a pedido enquanto durar a obrigação legal de guarda dos registros fiscais da compra. Nesse caso, explicaremos qual dado permanece e por quê.',
+        ],
+      },
+      {
+        heading: 'Transferências internacionais de dados',
+        paragraphs: [
+          'Parte dos serviços que utilizamos é operada por empresas sediadas fora do Brasil, e por isso seus dados podem ser tratados ou armazenados no exterior. Isso vale, conforme o caso, para Google, Resend, Discord, Mercado Pago e o provedor de infraestrutura do site.',
+          'Essas transferências existem para viabilizar a execução do contrato, cumprir obrigações legais ou, no caso da análise de audiência, com base no seu consentimento, e se apoiam nos mecanismos previstos no capítulo V da LGPD.',
+          `Para saber a quais países seus dados podem ser transferidos em cada serviço, e sob qual mecanismo, escreva para ${COMPANY.privacyEmail}: respondemos com a informação atualizada de cada fornecedor.`,
         ],
       },
       {
@@ -140,6 +158,8 @@ export const legalPt: LegalContent = {
         paragraphs: [
           'Vendemos licenças de uso de software. A compra dá a você uma chave de ativação pessoal e intransferível, pelo prazo indicado no produto adquirido, e não transfere a propriedade do software nem qualquer direito autoral sobre ele.',
           'O instalador do software é distribuído gratuitamente. O que você adquire é a licença que o habilita.',
+          'Cada chave ativa o software em UM único computador. A primeira ativação vincula a chave àquela máquina, e tentativas de ativar em outra são recusadas. Se você precisar trocar de computador, fale conosco.',
+          'Produtos identificados como vitalícios são licenças sem renovação periódica e sem nova cobrança, válidas pelo prazo indicado no próprio produto. Não dependem de assinatura ativa.',
         ],
       },
       {
@@ -153,7 +173,7 @@ export const legalPt: LegalContent = {
         heading: 'Preços e pagamento',
         paragraphs: [
           'Os preços estão em reais (BRL) e são os exibidos no momento da compra. Aceitamos Pix, cartão de crédito e boleto, processados pelo Mercado Pago.',
-          'Podemos alterar preços a qualquer momento, mas a alteração nunca afeta uma compra já concluída.',
+          'Alterações de preço não afetam períodos já pagos. Em assinaturas, um novo preço é informado a você antes da renovação em que passe a ser aplicado, e você pode cancelar a renovação antes dessa cobrança.',
         ],
       },
       {
@@ -195,7 +215,8 @@ export const legalPt: LegalContent = {
       {
         heading: 'Alterações destes Termos',
         paragraphs: [
-          'Podemos alterar estes Termos a qualquer tempo. A data da última atualização fica no topo desta página. Alterações não retroagem sobre compras já concluídas.',
+          'Podemos alterar estes Termos a qualquer tempo, e a data da última atualização fica no topo desta página.',
+          'Alterações relevantes não modificam retroativamente as condições do período já contratado. Em serviços com renovação periódica, alterações aplicáveis a períodos futuros são informadas a você previamente, e você pode cancelar a renovação antes da próxima cobrança.',
         ],
       },
       {
@@ -215,7 +236,7 @@ export const legalPt: LegalContent = {
       {
         heading: 'Direito de arrependimento: 7 dias',
         paragraphs: [
-          'Por se tratar de compra realizada fora do estabelecimento comercial, você pode desistir da contratação em até 7 dias corridos contados da data da compra, conforme o art. 49 do Código de Defesa do Consumidor.',
+          'Por se tratar de compra realizada fora do estabelecimento comercial, você pode exercer o direito de arrependimento no prazo de 7 dias corridos, contado da contratação ou do recebimento/disponibilização do produto ou serviço, conforme aplicável, nos termos do art. 49 do Código de Defesa do Consumidor.',
           'Nesse prazo você não precisa justificar o motivo, e o valor pago é devolvido integralmente.',
         ],
       },
@@ -229,21 +250,21 @@ export const legalPt: LegalContent = {
       {
         heading: 'Prazos da devolução',
         paragraphs: [
-          'O estorno é solicitado ao Mercado Pago assim que aprovamos o pedido. O prazo até o dinheiro aparecer para você depende do meio de pagamento: no Pix costuma ser rápido; no cartão de crédito, o estorno aparece na fatura do próprio mês ou na seguinte, conforme o ciclo do seu emissor.',
+          'Recebida uma solicitação válida de exercício do direito de arrependimento dentro do prazo legal, confirmamos o recebimento e solicitamos o estorno ao Mercado Pago. O prazo até o dinheiro aparecer para você depende do meio de pagamento: no Pix costuma ser rápido; no cartão de crédito, o estorno aparece na fatura do próprio mês ou na seguinte, conforme o ciclo do seu emissor.',
           'Esse prazo final é do emissor do cartão e do Mercado Pago, e está fora do nosso controle.',
         ],
       },
       {
         heading: 'O que acontece com a licença',
         paragraphs: [
-          'No reembolso integral, a chave de licença correspondente àquele pedido é revogada e deixa de funcionar. No reembolso parcial, a chave é suspensa.',
-          'É a contrapartida natural da devolução: o valor volta para você e o produto deixa de ser utilizável.',
+          'No reembolso integral, a chave de licença correspondente àquele pedido é revogada e deixa de funcionar. É a contrapartida natural da devolução: o valor volta para você e o produto deixa de ser utilizável.',
+          'Uma devolução parcial também suspende a chave. Se o que você busca é um abatimento do preço mantendo o produto em uso, fale conosco antes: nesse caso o pedido é tratado de outra forma, e as condições aplicáveis são informadas a você antes da conclusão.',
         ],
       },
       {
         heading: 'Depois dos 7 dias',
         paragraphs: [
-          'Passado o prazo de arrependimento, a compra não é mais reembolsável por simples desistência. Isso não afeta seus direitos em caso de vício do produto: se o software não funcionar como anunciado, você continua amparado pelo art. 26 do Código de Defesa do Consumidor.',
+          'Passado o prazo de arrependimento, a compra não é mais reembolsável por simples desistência. Isso não afeta seus direitos em caso de vício ou defeito do produto ou serviço, que continuam assegurados pelo Código de Defesa do Consumidor, inclusive nos termos dos arts. 18, 20 e 26, conforme aplicável.',
           'Nesses casos, fale conosco: buscamos primeiro corrigir o problema e, não sendo possível, tratamos da devolução.',
         ],
       },
@@ -256,7 +277,7 @@ export const legalPt: LegalContent = {
       {
         heading: 'Antes de abrir uma contestação',
         paragraphs: [
-          'Se algo deu errado, fale conosco primeiro. Uma contestação aberta no cartão (chargeback) suspende a licença automaticamente e costuma demorar mais do que um reembolso pedido diretamente a nós.',
+          'Se algo deu errado, fale conosco primeiro. Enquanto uma contestação de pagamento estiver em análise, a licença relacionada à transação poderá ser suspensa temporariamente até a conclusão da disputa, e o processo costuma demorar mais do que um reembolso pedido diretamente a nós.',
         ],
       },
     ],

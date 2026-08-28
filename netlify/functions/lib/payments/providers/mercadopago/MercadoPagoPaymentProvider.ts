@@ -39,12 +39,17 @@ const DEFAULT_BOLETO_EXPIRY_DAYS = 3;
  * da Order, que é onde uma tentativa anterior o colocou e por isso foi
  * rejeitada. Documentado apenas no contrato de cartão.
  *
- * DESLIGADO por padrão. Enviá-lo com valor fixo coincidiu com pagamentos de
- * cartão falhando em `processing_error`, e um campo de fatura não vale
- * bloquear cobrança: só entra no payload quando
- * `MERCADOPAGO_STATEMENT_DESCRIPTOR` estiver definida. Sem ela, o requisito
- * "Fatura do cartão" é atendido pelo "Nome para extratos" da conta, que é a
- * alternativa oficial e cobre também Pix e boleto.
+ * CONFIRMADO em produção: com `MERCADOPAGO_STATEMENT_DESCRIPTOR` definida o
+ * pagamento é aprovado normalmente e o requisito "Fatura do cartão" do
+ * relatório de qualidade fecha (91 → 98). Um `processing_error` observado uma
+ * única vez com o campo ligado era instabilidade do ambiente de teste, não o
+ * campo — não desligue por causa daquele episódio.
+ *
+ * O valor fica em env porque é a marca do negócio, não constante de código.
+ * **Mantenha a variável definida**: sem ela o campo some do payload e o
+ * requisito volta a ficar pendente. O "Nome para faturas" da conta NÃO
+ * substitui para efeito de medição — está configurado nas duas contas e o
+ * medidor não o lê.
  */
 function statementDescriptor(): Record<string, string> {
   const value = process.env.MERCADOPAGO_STATEMENT_DESCRIPTOR?.trim();

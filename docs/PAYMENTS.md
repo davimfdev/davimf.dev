@@ -66,7 +66,7 @@ Obrigatórias (já em `.env.example`, sem valores):
 | `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION` | Assinatura da aba Modo de produção |
 | `MERCADOPAGO_WEBHOOK_SECRET` | Compatibilidade legada para ambiente único |
 | `MERCADOPAGO_APPLICATION_ID` | Opcional. `application_id` da aplicação dona do webhook; só rotula o log como `application=match/foreign` |
-| `MERCADOPAGO_STATEMENT_DESCRIPTOR` | Opcional, **desligado por padrão**. Nome na fatura do cartão; sem ela use "Nome para extratos" na conta |
+| `MERCADOPAGO_STATEMENT_DESCRIPTOR` | Nome na fatura do cartão (`DAVIMFDEV`). **Mantenha definida**: sem ela o requisito "Fatura do cartão" volta a ficar pendente |
 | `MERCADOPAGO_WEBHOOK_DEBUG` | Opcional, `1` liga. Publica as entradas do manifesto de cada rejeição para reproduzir o HMAC fora do servidor. **Temporário**: desligue depois de usar |
 | `RESEND_API_KEY` | Chave do Resend; sem ela o envio vira no-op logado |
 
@@ -414,22 +414,21 @@ O nome que aparece na fatura vai em
 da Order, onde a Orders API recusa o campo. Só o contrato de cartão o
 documenta.
 
-**O envio está desligado por padrão.** Com o campo preenchido, pagamentos de
-cartão em teste passaram a falhar em `processing_error`, e um rótulo de fatura
-não justifica bloquear cobrança. Ele só entra no payload quando
-`MERCADOPAGO_STATEMENT_DESCRIPTOR` estiver definida — útil para reisolar a
-causa ou depois que o suporte do MP confirmar um valor aceito.
+O valor vem de **`MERCADOPAGO_STATEMENT_DESCRIPTOR`** e a variável precisa
+estar definida (`DAVIMFDEV`): sem ela o campo some do payload e o requisito
+"Fatura do cartão" volta a ficar pendente. Ela mora em env por ser a marca do
+negócio, não constante de código.
 
-A alternativa oficial cobre o requisito sem risco e **já está configurada** na
-conta real: *Perfil → Dados do negócio → **Nome para faturas*** (`DAVIMFDEV`).
-Vale também para Pix e boleto, que não aceitam o campo de forma alguma.
+Confirmado na prática: com o campo o pagamento é aprovado normalmente e o
+relatório de qualidade foi de **91 para 98**. Um `processing_error` observado
+uma única vez com o campo ligado era instabilidade do ambiente de teste — não
+desligue a variável por causa daquele episódio.
 
-Atenção ao efeito disso no relatório de qualidade: a configuração é **por
-conta**. Enquanto a medição roda sobre Orders da conta do usuário de teste, ela
-não enxerga o que está configurado na conta real, e o requisito "Fatura do
-cartão" segue pendente por mais correta que a integração esteja. Para fechar em
-teste, a mesma configuração precisa existir no painel do usuário de teste; em
-produção ele já está atendido.
+O **"Nome para faturas"** da conta (*Perfil → Dados do negócio*) está
+preenchido com o mesmo valor nas duas contas — real e usuário de teste — e é o
+que aparece na fatura de Pix e boleto, que não aceitam o campo no payload. Ele
+**não** substitui a variável para efeito de medição: com ele configurado nas
+duas contas e a variável ausente, o requisito continuou pendente.
 
 #### `additional_info` não existe na Orders API
 
@@ -661,7 +660,8 @@ Antes de virar a chave:
 4. cadastrar o webhook na **mesma aplicação** do access token e colar a
    assinatura dela em `MERCADOPAGO_WEBHOOK_SECRET_TEST` e
    `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION`, mais o `application_id` dessa
-   aplicação em `MERCADOPAGO_APPLICATION_ID`;
+   aplicação em `MERCADOPAGO_APPLICATION_ID` e
+   `MERCADOPAGO_STATEMENT_DESCRIPTOR=DAVIMFDEV`;
 5. verificar o domínio `davimf.dev` no Resend (SPF/DKIM) e criar as caixas
    `noreply@`, `financeiro@` e `contato@`;
 6. definir `PAYMENTS_LICENSE_ENCRYPTION_KEY` (32 bytes base64) e **guardá-la**:

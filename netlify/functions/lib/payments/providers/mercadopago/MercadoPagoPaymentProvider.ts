@@ -576,7 +576,19 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
 
     if (topic === 'order' || topic === 'payment' || topic.includes('order') || topic.includes('payment')) {
       normalized.resource = 'payment';
-      if (resourceId) normalized.payment = await this.getPayment(resourceId);
+      if (resourceId) {
+        try {
+          normalized.payment = await this.getPayment(resourceId);
+        } catch (error) {
+          // O simulador oficial usa um Data ID fictício e espera HTTP 200.
+          // Uma assinatura válida + recurso inexistente é uma notificação
+          // reconhecida, porém sem estado financeiro para aplicar. Outros
+          // erros (timeout, 429, 5xx) continuam subindo para provocar retry.
+          const notFound = error instanceof ProviderError && error.providerDetail?.startsWith('HTTP 404 ');
+          if (!notFound) throw error;
+          console.warn('[payments] webhook Mercado Pago válido para recurso inexistente');
+        }
+      }
       return normalized;
     }
 

@@ -1,8 +1,10 @@
+import { createHmac } from 'node:crypto';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ProviderError, ProviderTimeoutError, ValidationError } from '../domain/errors';
 import { MercadoPagoClient } from '../providers/mercadopago/client';
 import { MercadoPagoPaymentProvider } from '../providers/mercadopago/MercadoPagoPaymentProvider';
 import { mapPaymentStatus } from '../providers/mercadopago/mapping';
+import { buildManifest } from '../providers/mercadopago/signature';
 
 type FetchCall = { url: string; init: RequestInit };
 
@@ -69,7 +71,11 @@ function orderResponse(overrides: Record<string, unknown> = {}) {
 }
 
 describe('MercadoPagoPaymentProvider', () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    delete process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST;
+    delete process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION;
+  });
 
   it('cria Pix e devolve QR Code e código copia e cola', async () => {
     const { impl, calls } = stubFetch(() => ({
@@ -378,6 +384,32 @@ describe('MercadoPagoPaymentProvider', () => {
     expect(warning.mock.calls.flat().join(' ')).not.toContain('deadbeef');
     expect(warning.mock.calls.flat().join(' ')).not.toContain('segredo');
     delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
+  });
+
+  it('aceita simulador assinado mesmo quando o Data ID fictício não existe', async () => {
+    const secret = 'segredo-simulador';
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST = secret;
+    const ts = String(Date.now());
+    const requestId = 'simulator-request-id';
+    const dataId = '123456';
+    const signature = createHmac('sha256', secret)
+      .update(buildManifest({ dataId, requestId, ts }))
+      .digest('hex');
+    const { impl } = stubFetch(() => ({ status: 404, body: { message: 'resource not found' } }));
+
+    const result = await provider(impl).processWebhook({
+      rawBody: JSON.stringify({
+        id: 'notification-1', type: 'order', action: 'order.processed', data: { id: dataId },
+      }),
+      headers: { 'x-signature': `ts=${ts},v1=${signature}`, 'x-request-id': requestId },
+      url: `https://davimf.dev/api/payments/webhooks/mercadopago?data.id=${dataId}&type=order`,
+    });
+
+    expect(result).toMatchObject({
+      eventKey: 'mp:notification-1', resource: 'payment', resourceId: dataId,
+    });
+    expect(result).not.toHaveProperty('payment');
+    delete process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST;
   });
 });
 

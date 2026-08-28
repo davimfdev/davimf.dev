@@ -83,6 +83,21 @@ function configuredSecrets(explicit?: string): SecretSource[] {
     .filter((candidate) => candidate.value.length > 0);
 }
 
+/**
+ * Agrupa os segredos por VALOR: dois rótulos com o mesmo fingerprint viram
+ * `test+production:ac346080`, que é como o log denuncia o erro mais caro do
+ * painel de deploy — colar a mesma assinatura nas duas variáveis, deixando um
+ * dos modos sem assinatura válida nenhuma.
+ */
+function describeSecrets(secrets: SecretSource[]): string[] {
+  const byFingerprint = new Map<string, string[]>();
+  for (const secret of secrets) {
+    const print = secretFingerprint(secret.value);
+    byFingerprint.set(print, [...(byFingerprint.get(print) ?? []), secret.label]);
+  }
+  return [...byFingerprint].map(([print, labels]) => `${labels.join('+')}:${print}`);
+}
+
 /** Tudo aqui é seguro de registrar: nenhum campo deriva do segredo ou da assinatura. */
 export type SignatureDiagnostics = {
   /** Conjunto lógico tentado, como `test:1a2b3c4d` — rótulo + fingerprint. */
@@ -160,7 +175,7 @@ export function verifyWebhookSignature(input: VerifyInput): VerifyResult {
 
   const lowercased = dataId ? dataId.toLowerCase() : null;
   const diagnostics: SignatureDiagnostics = {
-    secrets: secrets.map((secret) => `${secret.label}:${secretFingerprint(secret.value)}`),
+    secrets: describeSecrets(secrets),
     tsAgeSeconds: null,
     idSource: dataId ? 'query' : 'absent',
     variants: dataId ? (dataId === lowercased ? ['exact'] : ['exact', 'lowercase']) : ['none'],

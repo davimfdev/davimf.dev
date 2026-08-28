@@ -153,9 +153,15 @@ describe('assinatura do webhook Mercado Pago', () => {
       now: NOW,
     });
 
-    expect(result).toMatchObject({ ok: false, reason: 'MISMATCH' });
-    const [test, production] = (result as { diagnostics: { secrets: string[] } }).diagnostics.secrets;
-    expect(test.split(':')[1]).toBe(production.split(':')[1]);
+    // Um único fingerprint com os dois rótulos: é assim que o log denuncia
+    // "colei a mesma assinatura nas duas variáveis".
+    expect(result).toMatchObject({
+      ok: false,
+      reason: 'MISMATCH',
+      diagnostics: {
+        secrets: [`test+production:${secretFingerprint('mesmo-valor-colado-duas-vezes')}`],
+      },
+    });
   });
 
   it('conta os valores de x-request-id para flagrar proxy duplicando o cabeçalho', () => {
@@ -173,8 +179,7 @@ describe('assinatura do webhook Mercado Pago', () => {
 
   it('ignora espaços e quebras de linha coladas no segredo do painel de deploy', () => {
     delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
-    process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION = `  ${SECRET}
-`;
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION = `  ${SECRET}\n`;
 
     const result = verifyWebhookSignature({
       headers: signedHeaders('ORD-1'),

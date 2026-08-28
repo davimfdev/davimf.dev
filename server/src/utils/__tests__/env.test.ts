@@ -6,7 +6,8 @@ const TOUCHED = [
   'URL', 'PUBLIC_SITE_URL', 'SITE_URL', 'APP_URL',
   'COOLIFY_URL', 'COOLIFY_FQDN', 'SERVICE_FQDN_API', 'SERVICE_FQDN_WEB',
   'ABACATEPAY_KEY', 'PAYMENTS_PROVIDER', 'PAYMENTS_ENV',
-  'PAYMENTS_PAYER_ENCRYPTION_KEY',
+  'PAYMENTS_PAYER_ENCRYPTION_KEY', 'MERCADOPAGO_APPLICATION_ID',
+  'MERCADOPAGO_WEBHOOK_SECRET_TEST', 'MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION',
 ];
 
 let saved: Record<string, string | undefined>;
@@ -127,6 +128,30 @@ describe('warnMissingEnv', () => {
     expect(output).toContain('URL pública não definida');
     expect(output).toContain('URL=https://davimf.dev');
     expect(output).toContain('PUBLIC_SITE_URL');
+  });
+
+  it('avisa quando as assinaturas de teste e produção são o MESMO valor', () => {
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST = '  a-mesma-assinatura ';
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION = 'a-mesma-assinatura';
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    vi.spyOn(console, 'info').mockImplementation(() => undefined);
+
+    warnMissingEnv();
+
+    const output = warn.mock.calls.flat().join('\n');
+    expect(output).toContain('têm o MESMO valor');
+    expect(output).not.toContain('a-mesma-assinatura');
+  });
+
+  it('não avisa quando teste e produção têm assinaturas distintas', () => {
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST = 'assinatura-de-teste';
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION = 'assinatura-de-producao';
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    vi.spyOn(console, 'info').mockImplementation(() => undefined);
+
+    warnMissingEnv();
+
+    expect(warn.mock.calls.flat().join('\n')).not.toContain('MESMO valor');
   });
 
   it('ABACATEPAY_KEY é opcional: nunca entra na lista de ausentes', () => {

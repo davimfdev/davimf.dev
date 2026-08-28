@@ -277,7 +277,16 @@ Como ler:
 | `x-request-id=present(N)` | **N > 1** = proxy duplicou/injetou o cabeçalho e quebrou o manifesto |
 | `ts_age_s` | idade da assinatura; valor grande = relógio fora de hora ou replay |
 | `variants` | quais canonicalizações de `data.id` foram testadas |
-| `secrets` | conjunto lógico tentado, como `rótulo:fingerprint`. O fingerprint é irreversível (8 hex de SHA-256 com separação de domínio) e serve só para responder duas perguntas: *teste e produção estão com valores diferentes?* (fingerprints iguais = mesmo valor colado duas vezes) e *o valor mudou depois do deploy?* |
+| `secrets` | conjunto lógico tentado, como `rótulo:fingerprint`. O fingerprint é irreversível (8 hex de SHA-256 com separação de domínio) e serve só para responder duas perguntas: *teste e produção estão com valores diferentes?* e *o valor mudou depois do deploy?* |
+
+Rótulos agrupados em um único fingerprint — `secrets=test+production:ac346080`
+— significam que a **mesma** assinatura foi colada nas duas variáveis. Cada
+modo do painel gera a sua, então um dos dois fica sem assinatura válida
+nenhuma e rejeita tudo daquele modo. O arranque da API também avisa:
+
+```
+[api] MERCADOPAGO_WEBHOOK_SECRET_TEST e MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION têm o MESMO valor.
+```
 
 A contrapartida aparece nas notificações aceitas, no mesmo formato, para
 comparar as duas na mesma busca:

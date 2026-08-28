@@ -26,6 +26,24 @@ function provider(fetchImpl: typeof fetch, environment: 'sandbox' | 'production'
 
 const PAYER = { email: 'comprador@example.com', identification: { type: 'CPF', number: '12345678909' } };
 
+/** Pagador completo: só campos que o checkout realmente coleta. */
+const FULL_PAYER = {
+  email: 'comprador@example.com',
+  firstName: 'João',
+  lastName: 'Silva',
+  phone: '62999998888',
+  identification: { type: 'CPF', number: '12345678909' },
+  address: {
+    zipCode: '74000000',
+    streetName: 'Av. Goiás',
+    streetNumber: '100',
+    neighborhood: 'Centro',
+    city: 'Goiânia',
+    state: 'GO',
+    complement: 'Sala 2',
+  },
+};
+
 const BASE = {
   reference: 'DVMF-1',
   amountCents: 3500,
@@ -33,7 +51,22 @@ const BASE = {
   description: 'FMM Pro — Mensal',
   payer: PAYER,
   idempotencyKey: 'idem-1',
+  // Valores comerciais: vêm do Product/Order do banco, nunca do request HTTP.
+  quantity: 1,
+  itemCode: 'fmm-pro-monthly',
+  itemCategoryId: 'software',
 };
+
+const CARD = { cardToken: 'tok_seguro_123', paymentMethodId: 'master', installments: 1 };
+
+function orderResponse(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'ORD-1',
+    total_amount: '35.00',
+    transactions: { payments: [{ id: 'PAY-1', amount: '35.00', status: 'action_required' }] },
+    ...overrides,
+  };
+}
 
 describe('MercadoPagoPaymentProvider', () => {
   afterEach(() => vi.restoreAllMocks());
@@ -342,7 +375,256 @@ describe('MercadoPagoPaymentProvider', () => {
   });
 });
 
+// -------------------------------------------- Orders enriquecidas (qualidade)
+
+describe('dados comerciais da Order', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('envia items do backend no Pix e nunca capture_mode', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
+
+    await provider(impl).createPixPayment({ ...BASE, expiresInMinutes: 30 });
+
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.items).toEqual([
+      {
+        title: 'FMM Pro — Mensal',
+        description: 'FMM Pro — Mensal',
+        quantity: 1,
+        unit_price: '35.00',
+        external_code: 'fmm-pro-monthly',
+        category_id: 'software',
+      },
+    ]);
+    expect(body.statement_descriptor).toBe('DAVIMFDEV');
+    expect(body.external_reference).toBe('DVMF-1');
+    expect(body.processing_mode).toBe('automatic');
+    // capture_mode é contrato de CARTÃO; não pode vazar para Pix.
+    expect(body).not.toHaveProperty('capture_mode');
+    expect(body).not.toHaveProperty('config');
+  });
+
+  it('envia items e o pagador completo no boleto, sem capture_mode', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-BOL' }) }));
+
+    await provider(impl).createBoletoPayment({ ...BASE, payer: FULL_PAYER, expiresInDays: 3 });
+
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.items[0]).toMatchObject({ external_code: 'fmm-pro-monthly', category_id: 'software', quantity: 1 });
+    expect(body).not.toHaveProperty('capture_mode');
+    expect(body.payer).toMatchObject({
+      first_name: 'João',
+      last_name: 'Silva',
+      phone: { area_code: '62', number: '999998888' },
+      identification: { type: 'CPF', number: '12345678909' },
+      address: {
+        zip_code: '74000000',
+        street_name: 'Av. Goiás',
+        street_number: '100',
+        neighborhood: 'Centro',
+        city: 'Goiânia',
+        state: 'GO',
+        complement: 'Sala 2',
+      },
+    });
+  });
+
+  it('omite telefone, endereço e metadados de risco que não existem', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
+
+    await provider(impl).createPixPayment(BASE);
+
+    const raw = String(calls[0].init.body);
+    const body = JSON.parse(raw);
+    expect(body.payer).not.toHaveProperty('phone');
+    expect(body.payer).not.toHaveProperty('address');
+    expect(body).not.toHaveProperty('additional_info');
+    expect(raw).not.toContain('registration_date');
+    expect(raw).not.toContain('last_purchase');
+  });
+
+  it('não inventa endereço vazio quando só o CEP e o logradouro existem', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-BOL-2' }) }));
+
+    await provider(impl).createBoletoPayment({
+      ...BASE,
+      payer: {
+        ...PAYER,
+        firstName: 'João',
+        lastName: 'Silva',
+        address: { zipCode: '06233903', streetName: 'Av. das Nações Unidas', streetNumber: '3003' },
+      },
+    });
+
+    const address = JSON.parse(String(calls[0].init.body)).payer.address;
+    expect(address).toEqual({ zip_code: '06233903', street_name: 'Av. das Nações Unidas', street_number: '3003' });
+  });
+
+  it('envia capture_mode automático e 3DS completo apenas no cartão', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-CARD' }) }));
+
+    await provider(impl).createCardPayment({ ...BASE, ...CARD });
+
+    const cardBody = JSON.parse(String(calls[0].init.body));
+    expect(cardBody).toMatchObject({
+      capture_mode: 'automatic',
+      config: { online: { transaction_security: { validation: 'on_fraud_risk', liability_shift: 'required' } } },
+    });
+    expect(cardBody.items[0].category_id).toBe('software');
+  });
+});
+
+describe('Device ID', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('vira X-meli-session-id e nunca entra no corpo da Order', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-CARD' }) }));
+
+    await provider(impl).createCardPayment({ ...BASE, ...CARD, deviceId: 'real-sdk-device-id' });
+
+    const cardHeaders = calls[0].init.headers as Record<string, string>;
+    const cardBody = JSON.parse(String(calls[0].init.body));
+    expect(cardHeaders['X-meli-session-id']).toBe('real-sdk-device-id');
+    expect(JSON.stringify(cardBody)).not.toContain('real-sdk-device-id');
+  });
+
+  it('acompanha Pix e boleto e some quando o SDK não gerou nada', async () => {
+    const withId = stubFetch(() => ({ body: orderResponse() }));
+    await provider(withId.impl).createPixPayment({ ...BASE, deviceId: 'pix-device-id' });
+    await provider(withId.impl).createBoletoPayment({ ...BASE, payer: FULL_PAYER, deviceId: 'boleto-device-id' });
+    expect((withId.calls[0].init.headers as Record<string, string>)['X-meli-session-id']).toBe('pix-device-id');
+    expect((withId.calls[1].init.headers as Record<string, string>)['X-meli-session-id']).toBe('boleto-device-id');
+
+    const without = stubFetch(() => ({ body: orderResponse() }));
+    await provider(without.impl).createPixPayment(BASE);
+    expect(without.calls[0].init.headers as Record<string, string>).not.toHaveProperty('X-meli-session-id');
+  });
+
+  it('recusa Device ID vazio, longo demais ou com quebra de linha', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
+    const target = provider(impl);
+
+    await target.createPixPayment({ ...BASE, deviceId: '   ' });
+    await target.createPixPayment({ ...BASE, deviceId: 'x'.repeat(301) });
+    await target.createPixPayment({ ...BASE, deviceId: 'ok\r\nX-Injected: 1' });
+
+    for (const call of calls) {
+      expect(call.init.headers as Record<string, string>).not.toHaveProperty('X-meli-session-id');
+    }
+  });
+
+  it('não coloca o Device ID no detalhe de auditoria do erro do provider', async () => {
+    const { impl } = stubFetch(() => ({ status: 400, body: { message: 'rejeitado' } }));
+
+    const promise = provider(impl).createCardPayment({ ...BASE, ...CARD, deviceId: 'real-sdk-device-id' });
+    await expect(promise).rejects.toBeInstanceOf(ProviderError);
+    await promise.catch((error: ProviderError) => {
+      expect(error.providerDetail ?? '').not.toContain('real-sdk-device-id');
+      expect(error.message).not.toContain('real-sdk-device-id');
+    });
+  });
+});
+
+// ------------------------------------------------------------ 3DS Challenge
+
+const CHALLENGE_URL = 'https://www.mercadopago.com.br/checkout/v1/payment/redirect/3ds/abc123';
+
+/** Fixture oficial de sandbox: titular `APRO-CHOK` (Challenge autenticado). */
+function challengeCreatedFixture(id: string) {
+  return {
+    id,
+    status: 'action_required',
+    status_detail: 'pending_challenge',
+    total_amount: '35.00',
+    transactions: {
+      payments: [{
+        id: `${id}-PAY`,
+        amount: '35.00',
+        status: 'action_required',
+        status_detail: 'pending_challenge',
+        payment_method: {
+          id: 'master',
+          type: 'credit_card',
+          installments: 1,
+          transaction_security: { type: 'challenge', url: CHALLENGE_URL },
+        },
+      }],
+    },
+  };
+}
+
+describe('3DS Challenge', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('APRO-CHOK: expõe a URL do Challenge e só vira PAID depois da consulta', async () => {
+    const { impl } = stubFetch((call) => ({
+      body: call.init.method === 'POST'
+        ? challengeCreatedFixture('ORD-3DS-APRO')
+        : {
+            id: 'ORD-3DS-APRO',
+            status: 'processed',
+            total_amount: '35.00',
+            transactions: {
+              payments: [{
+                id: 'ORD-3DS-APRO-PAY',
+                amount: '35.00',
+                status: 'processed',
+                status_detail: 'accredited',
+                payment_method: { id: 'master', type: 'credit_card', installments: 1 },
+              }],
+            },
+          },
+    }));
+
+    const target = provider(impl);
+    const created = await target.createCardPayment({ ...BASE, ...CARD, cardToken: 'tok_apro_chok' });
+
+    // Challenge pendente NÃO é terminal e nunca é aprovação.
+    expect(created.status).toBe('PROCESSING');
+    expect(created.statusDetail).toBe('pending_challenge');
+    expect(created.display.threeDsUrl).toBe(CHALLENGE_URL);
+
+    const reconciled = await target.getPayment('ORD-3DS-APRO');
+    expect(reconciled.status).toBe('PAID');
+  });
+
+  it('OTHE-CHNO: Challenge reprovado vira DECLINED', async () => {
+    const { impl } = stubFetch((call) => ({
+      body: call.init.method === 'POST'
+        ? challengeCreatedFixture('ORD-3DS-OTHE')
+        : {
+            id: 'ORD-3DS-OTHE',
+            status: 'action_required',
+            total_amount: '35.00',
+            transactions: {
+              payments: [{
+                id: 'ORD-3DS-OTHE-PAY',
+                amount: '35.00',
+                status: 'rejected',
+                status_detail: 'cc_rejected_3ds_challenge',
+                payment_method: { id: 'master', type: 'credit_card', installments: 1 },
+              }],
+            },
+          },
+    }));
+
+    const target = provider(impl);
+    const created = await target.createCardPayment({ ...BASE, ...CARD, cardToken: 'tok_othe_chno' });
+    expect(created.status).toBe('PROCESSING');
+    expect(created.display.threeDsUrl).toBe(CHALLENGE_URL);
+
+    const reconciled = await target.getPayment('ORD-3DS-OTHE');
+    expect(reconciled.status).toBe('DECLINED');
+  });
+});
+
 describe('normalização de status', () => {
+  it('trata o Challenge 3DS como não terminal e a recusa 3DS como recusa', () => {
+    expect(mapPaymentStatus('action_required', 'pending_challenge')).toBe('PROCESSING');
+    expect(mapPaymentStatus('rejected', 'cc_rejected_3ds_challenge')).toBe('DECLINED');
+    expect(mapPaymentStatus('action_required', 'cc_rejected_3ds_challenge')).toBe('DECLINED');
+  });
+
   it('não deixa status do Mercado Pago vazarem para o domínio', () => {
     expect(mapPaymentStatus('processed', 'accredited')).toBe('PAID');
     expect(mapPaymentStatus('action_required', 'pending_waiting_transfer')).toBe('PENDING');

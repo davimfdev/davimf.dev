@@ -72,6 +72,11 @@ export type CreateChargeRequest = {
   idempotencyKey?: string;
   /** Explicit consent; this value is consumed here and never reaches the provider. */
   savePayerProfile?: boolean;
+  /**
+   * Device ID real gerado pelo SDK do provider no navegador. Opcional,
+   * request-scoped: só é repassado ao provider e nunca persistido nem logado.
+   */
+  deviceId?: string;
 };
 
 export type CreateCardChargeRequest = CreateChargeRequest & {
@@ -81,6 +86,13 @@ export type CreateCardChargeRequest = CreateChargeRequest & {
 };
 
 const MAX_INSTALLMENTS = 12;
+
+/**
+ * Categoria do item no catálogo do provider. O produto é software licenciado;
+ * `software` é a categoria genérica e verdadeira. NÃO trocar por um id de
+ * catálogo MLB inventado só para pontuar em qualidade.
+ */
+const PRODUCT_CATEGORY_ID = 'software';
 
 export class PaymentService {
   constructor(
@@ -146,6 +158,14 @@ export class PaymentService {
     return reserved;
   }
 
+  /**
+   * Entrada neutra da cobrança.
+   *
+   * Todo valor COMERCIAL (quantidade, código e categoria do item) sai do
+   * `Order`/`Product` que vieram do banco — o corpo HTTP nunca é fonte disso.
+   * O Device ID é a única exceção request-scoped: atravessa em memória, não
+   * entra em `payments.details` nem em log.
+   */
   private baseInput(request: CreateChargeRequest, payment: Payment) {
     return {
       reference: request.order.reference,
@@ -154,6 +174,13 @@ export class PaymentService {
       description: request.product.name,
       payer: request.payer,
       idempotencyKey: payment.idempotencyKey,
+      quantity: request.order.quantity,
+      itemCode: request.product.code,
+      itemCategoryId: PRODUCT_CATEGORY_ID,
+      // `payerMetadata` fica ausente de propósito: nenhuma fonte autenticada
+      // do projeto expõe data de cadastro ou de compra anterior confiável, e
+      // inventar esses campos para pontuar seria mentira ao provider.
+      ...(request.deviceId ? { deviceId: request.deviceId } : {}),
       metadata: { orderId: request.order.id, productCode: request.product.code },
     };
   }

@@ -35,6 +35,22 @@ export type Payer = {
   address?: PayerAddress;
 };
 
+/**
+ * Metadados REAIS do pagador para análise de risco do provider.
+ *
+ * Cada campo é opcional porque só pode ser enviado quando a fonte
+ * autenticada realmente o expõe. Nada aqui é inventado para pontuar melhor:
+ * ausência de dado significa ausência do campo no payload.
+ */
+export type PayerMetadata = {
+  /** Data ISO de criação da conta, quando o provedor de identidade a expõe. */
+  registrationDate?: string;
+  /** Data ISO da compra anterior confirmada, quando existir. */
+  lastPurchase?: string;
+  /** Tipo de autenticação da sessão, quando conhecido ('discord', ...). */
+  authenticationType?: string;
+};
+
 export type BaseChargeInput = {
   /** Referência do PEDIDO no nosso banco. O provider só espelha. */
   reference: string;
@@ -44,6 +60,19 @@ export type BaseChargeInput = {
   payer: Payer;
   /** Repassada ao provider quando ele suporta idempotência nativa. */
   idempotencyKey: string;
+  /** Quantidade do PEDIDO (banco). Nunca vem do corpo HTTP. */
+  quantity: number;
+  /** Código externo do item = `code` do Product (banco). */
+  itemCode: string;
+  /** Categoria do catálogo do provider. Constante de backend documentada. */
+  itemCategoryId: string;
+  /**
+   * Device ID gerado pelo SDK do provider no navegador. É request-scoped:
+   * o provider só o traduz em header. Nunca é persistido nem registrado em log.
+   */
+  deviceId?: string;
+  /** Só metadados verdadeiros; ausente quando não há fonte real. */
+  payerMetadata?: PayerMetadata;
   metadata?: Record<string, unknown>;
 };
 

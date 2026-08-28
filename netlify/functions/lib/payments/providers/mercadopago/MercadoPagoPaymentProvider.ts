@@ -9,6 +9,7 @@
 import { ProviderError, ValidationError } from '../../domain/errors';
 import { centsToDecimalString, decimalToCents } from '../../domain/money';
 import type {
+  BaseChargeInput,
   ChargeSavedMethodInput,
   CreateBoletoInput,
   CreateCardInput,
@@ -33,13 +34,53 @@ const DEFAULT_PIX_EXPIRY_MINUTES = 30;
 const DEFAULT_BOLETO_EXPIRY_DAYS = 3;
 type MercadoPagoEnvironment = 'sandbox' | 'production';
 
+/**
+ * Texto que aparece na fatura do cartão. Constante de backend, estável e
+ * verdadeira (é a marca do site). Nunca varia por pedido.
+ */
+const STATEMENT_DESCRIPTOR = 'DAVIMFDEV';
+
+type OrderPhone = { area_code: string; number: string };
+
 type OrderPayer = {
   email: string;
   first_name?: string;
   last_name?: string;
+  phone?: OrderPhone;
   identification?: { type: string; number: string };
   address?: Record<string, string>;
 };
+
+/**
+ * Telefone brasileiro em (DDD, número), formato que o Mercado Pago espera.
+ *
+ * Só devolve algo quando o DDD é DERIVÁVEL do que o cliente digitou: 10/11
+ * dígitos, ou 12/13 com o código do país 55. Qualquer outro formato vira
+ * `null` — é melhor omitir o telefone do que enviar um DDD inventado.
+ */
+function buildPhone(phone: string | undefined): OrderPhone | null {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, '');
+  const national = (digits.length === 12 || digits.length === 13) && digits.startsWith('55')
+    ? digits.slice(2)
+    : digits;
+  if (national.length !== 10 && national.length !== 11) return null;
+  return { area_code: national.slice(0, 2), number: national.slice(2) };
+}
+
+/** Endereço só com os campos REALMENTE preenchidos — sem string vazia. */
+function buildAddress(address: NonNullable<Payer['address']>): Record<string, string> {
+  const out: Record<string, string> = {
+    zip_code: address.zipCode,
+    street_name: address.streetName,
+    street_number: address.streetNumber,
+  };
+  if (address.neighborhood) out.neighborhood = address.neighborhood;
+  if (address.city) out.city = address.city;
+  if (address.state) out.state = address.state;
+  if (address.complement) out.complement = address.complement;
+  return out;
+}
 
 function buildPayer(payer: Payer, options: { requireIdentification?: boolean; requireAddress?: boolean } = {}): OrderPayer {
   if (!payer.email) throw new ValidationError('E-mail do pagador é obrigatório.', 'PAYER_EMAIL_REQUIRED');
@@ -48,6 +89,9 @@ function buildPayer(payer: Payer, options: { requireIdentification?: boolean; re
   if (payer.firstName) out.first_name = payer.firstName;
   if (payer.lastName) out.last_name = payer.lastName;
 
+  const phone = buildPhone(payer.phone);
+  if (phone) out.phone = phone;
+
   if (payer.identification) {
     out.identification = { type: payer.identification.type, number: payer.identification.number };
   } else if (options.requireIdentification) {
@@ -55,19 +99,54 @@ function buildPayer(payer: Payer, options: { requireIdentification?: boolean; re
   }
 
   if (payer.address) {
-    out.address = {
-      zip_code: payer.address.zipCode,
-      street_name: payer.address.streetName,
-      street_number: payer.address.streetNumber,
-      neighborhood: payer.address.neighborhood ?? '',
-      city: payer.address.city ?? '',
-      state: payer.address.state ?? '',
-    };
+    out.address = buildAddress(payer.address);
   } else if (options.requireAddress) {
     throw new ValidationError('Endereço do pagador é obrigatório para boleto.', 'PAYER_ADDRESS_REQUIRED');
   }
 
   return out;
+}
+
+/**
+ * `items[]` da Order — dados comerciais que vieram do Product/Order do banco.
+ *
+ * A soma dos itens tem de bater com `total_amount`. Quando a quantidade não
+ * divide o total em centavos exatos, mantemos UM item com o valor cheio em vez
+ * de inventar um preço unitário arredondado.
+ */
+function buildItems(input: BaseChargeInput): Array<Record<string, unknown>> {
+  const requested = Number(input.quantity);
+  const quantity = Number.isSafeInteger(requested) && requested > 0 ? requested : 1;
+  const units = input.amountCents % quantity === 0 ? quantity : 1;
+
+  return [
+    {
+      title: input.description,
+      description: input.description,
+      quantity: units,
+      unit_price: centsToDecimalString(input.amountCents / units),
+      external_code: input.itemCode,
+      category_id: input.itemCategoryId,
+    },
+  ];
+}
+
+/**
+ * `additional_info.payer` — SÓ o que existe de verdade.
+ *
+ * Sem fonte real de data de cadastro/última compra o objeto inteiro é omitido;
+ * o projeto não fabrica esses campos para influenciar a nota de qualidade.
+ */
+function buildAdditionalInfo(input: BaseChargeInput): Record<string, unknown> | null {
+  const metadata = input.payerMetadata;
+  if (!metadata) return null;
+
+  const payer: Record<string, unknown> = {};
+  if (metadata.registrationDate) payer.registration_date = metadata.registrationDate;
+  if (metadata.lastPurchase) payer.last_purchase = metadata.lastPurchase;
+  if (metadata.authenticationType) payer.authentication_type = metadata.authenticationType;
+
+  return Object.keys(payer).length > 0 ? { payer } : null;
 }
 
 /**
@@ -119,14 +198,39 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
   private async createOrder(
     body: Record<string, unknown>,
     idempotencyKey: string,
+    meliSessionId?: string,
   ): Promise<ProviderPaymentResult> {
     const order = await this.client.request({
       method: 'POST',
       path: '/v1/orders',
       body,
       idempotencyKey,
+      // O Device ID vai SEPARADO do corpo: o cliente HTTP o transforma em
+      // `X-meli-session-id` e ele nunca é serializado no JSON da Order.
+      meliSessionId,
     });
     return mapOrderToPayment(order);
+  }
+
+  /**
+   * Campos COMUNS a toda Order avulsa.
+   *
+   * Nada específico de método entra aqui — em especial `capture_mode`, que é
+   * contrato de cartão e não pode vazar para Pix/boleto.
+   */
+  private baseOrder(input: BaseChargeInput, method: 'pix' | 'card' | 'boleto'): Record<string, unknown> {
+    const additionalInfo = buildAdditionalInfo(input);
+    return {
+      type: 'online',
+      processing_mode: 'automatic',
+      total_amount: centsToDecimalString(input.amountCents),
+      external_reference: input.reference,
+      statement_descriptor: STATEMENT_DESCRIPTOR,
+      description: input.description,
+      items: buildItems(input),
+      payer: this.payer(input.payer, method),
+      ...(additionalInfo ? { additional_info: additionalInfo } : {}),
+    };
   }
 
   async createPixPayment(input: CreatePixInput): Promise<ProviderPaymentResult> {
@@ -135,12 +239,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
 
     return this.createOrder(
       {
-        type: 'online',
-        processing_mode: 'automatic',
-        total_amount: amount,
-        external_reference: input.reference,
-        description: input.description,
-        payer: this.payer(input.payer, 'pix'),
+        ...this.baseOrder(input, 'pix'),
         transactions: {
           payments: [
             {
@@ -152,6 +251,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
         },
       },
       input.idempotencyKey,
+      input.deviceId,
     );
   }
 
@@ -163,12 +263,20 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
 
     return this.createOrder(
       {
-        type: 'online',
-        processing_mode: 'automatic',
-        total_amount: amount,
-        external_reference: input.reference,
-        description: input.description,
-        payer: this.payer(input.payer, 'card'),
+        ...this.baseOrder(input, 'card'),
+        // `capture_mode` SÓ existe no contrato de cartão da Orders API. Não
+        // subir isto para `baseOrder`: Pix e boleto não aceitam o campo.
+        capture_mode: 'automatic',
+        config: {
+          online: {
+            // 3DS completo: o provider decide desafiar em risco de fraude e a
+            // responsabilidade migra para o emissor quando autenticado.
+            transaction_security: {
+              validation: 'on_fraud_risk',
+              liability_shift: 'required',
+            },
+          },
+        },
         transactions: {
           payments: [
             {
@@ -185,6 +293,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
         },
       },
       input.idempotencyKey,
+      input.deviceId,
     );
   }
 
@@ -194,12 +303,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
 
     return this.createOrder(
       {
-        type: 'online',
-        processing_mode: 'automatic',
-        total_amount: amount,
-        external_reference: input.reference,
-        description: input.description,
-        payer: this.payer(input.payer, 'boleto'),
+        ...this.baseOrder(input, 'boleto'),
         transactions: {
           payments: [
             {
@@ -211,6 +315,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
         },
       },
       input.idempotencyKey,
+      input.deviceId,
     );
   }
 

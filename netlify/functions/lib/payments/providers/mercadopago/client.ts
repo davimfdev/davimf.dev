@@ -29,7 +29,32 @@ export type MpRequest = {
   body?: unknown;
   idempotencyKey?: string;
   timeoutMs?: number;
+  /**
+   * Device ID real do MercadoPago.js. ESTA classe é o único lugar que o
+   * traduz — e só em header. Ele nunca vira corpo JSON, nunca é persistido e
+   * nunca entra em mensagem de erro/log.
+   */
+  meliSessionId?: string;
 };
+
+/** Limite defensivo: o SDK gera um identificador curto, não um payload. */
+const MELI_SESSION_ID_MAX_LENGTH = 300;
+
+/**
+ * Fronteira HTTP do Device ID: string não vazia, limitada e sem caracteres de
+ * controle (que permitiriam injeção de header). Qualquer outra coisa é
+ * descartada em silêncio — o pagamento continua, apenas sem o header opcional.
+ */
+function meliSessionHeader(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (trimmed.length === 0 || trimmed.length > MELI_SESSION_ID_MAX_LENGTH) return null;
+  for (let i = 0; i < trimmed.length; i += 1) {
+    const code = trimmed.charCodeAt(i);
+    if (code < 0x20 || code === 0x7f) return null;
+  }
+  return trimmed;
+}
 
 export type MpClientOptions = {
   accessToken?: string;
@@ -90,6 +115,10 @@ export class MercadoPagoClient {
     // Idempotência nativa do Mercado Pago: retry/duplo clique com a mesma chave
     // devolve a MESMA cobrança em vez de criar outra.
     if (input.idempotencyKey) headers['X-Idempotency-Key'] = input.idempotencyKey;
+    // Device ID: entra SÓ aqui, SÓ como header. Se o SDK não gerou um valor
+    // válido, a cobrança segue sem ele — nada bloqueia por causa disso.
+    const meliSessionId = meliSessionHeader(input.meliSessionId);
+    if (meliSessionId) headers['X-meli-session-id'] = meliSessionId;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), input.timeoutMs ?? this.timeoutMs);

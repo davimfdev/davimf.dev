@@ -62,6 +62,9 @@ export function mapPaymentStatus(status: string | null, statusDetail: string | n
   const normalized = (status ?? '').toLowerCase();
   const detail = (statusDetail ?? '').toLowerCase();
 
+  // Recusa declarada no DETALHE é recusa, qualquer que seja o status externo:
+  // `cc_rejected_3ds_challenge` chega com `action_required` em alguns fluxos.
+  if (detail.startsWith('cc_rejected')) return 'DECLINED';
   if (detail && STATUS_DETAIL_OVERRIDE[detail] && normalized !== 'rejected') {
     // Recusa é sempre recusa, mesmo com detail conhecido.
     return STATUS_DETAIL_OVERRIDE[detail];
@@ -148,7 +151,10 @@ function buildDisplay(payment: unknown): PaymentDisplay {
     if (brand) display.cardBrand = brand;
   }
 
+  // Caminho documentado da Orders API primeiro; os dois seguintes são o
+  // formato legado de /v1/payments, mantidos para notificações antigas.
   const threeDs =
+    pickString(method, 'transaction_security', 'url') ??
     pickString(payment, 'three_ds_info', 'external_resource_url') ??
     pickString(method, 'three_ds_info', 'external_resource_url');
   if (threeDs) display.threeDsUrl = threeDs;

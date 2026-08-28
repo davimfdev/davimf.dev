@@ -67,6 +67,7 @@ Obrigatórias (já em `.env.example`, sem valores):
 | `MERCADOPAGO_WEBHOOK_SECRET` | Compatibilidade legada para ambiente único |
 | `MERCADOPAGO_APPLICATION_ID` | Opcional. `application_id` da aplicação dona do webhook; só rotula o log como `application=match/foreign` |
 | `MERCADOPAGO_STATEMENT_DESCRIPTOR` | Opcional, **desligado por padrão**. Nome na fatura do cartão; sem ela use "Nome para extratos" na conta |
+| `MERCADOPAGO_PAYER_ADDITIONAL_INFO` | Opcional, `1` liga. **Experimento**: manda `additional_info.payer` no nível do pagamento. No topo da Order o schema rejeita; o nível do pagamento é hipótese não confirmada. Ligue para UMA medição e desligue |
 | `MERCADOPAGO_WEBHOOK_DEBUG` | Opcional, `1` liga. Publica as entradas do manifesto de cada rejeição para reproduzir o HMAC fora do servidor. **Temporário**: desligue depois de usar |
 | `RESEND_API_KEY` | Chave do Resend; sem ela o envio vira no-op logado |
 

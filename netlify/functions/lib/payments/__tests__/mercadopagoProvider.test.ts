@@ -644,7 +644,8 @@ describe('dados comerciais da Order', () => {
     expect(raw).not.toContain('last_purchase');
   });
 
-  it('não envia additional_info.payer porque o schema de Orders online o rejeita', async () => {
+  it('não envia additional_info.payer por padrão', async () => {
+    delete process.env.MERCADOPAGO_PAYER_ADDITIONAL_INFO;
     const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
 
     await provider(impl).createPixPayment({
@@ -656,6 +657,34 @@ describe('dados comerciais da Order', () => {
     const body = JSON.parse(raw);
     expect(body).not.toHaveProperty('additional_info');
     expect(raw).not.toContain('registration_date');
+  });
+
+  it('com MERCADOPAGO_PAYER_ADDITIONAL_INFO=1 manda additional_info no PAGAMENTO, não no topo', async () => {
+    process.env.MERCADOPAGO_PAYER_ADDITIONAL_INFO = '1';
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
+
+    await provider(impl).createPixPayment({
+      ...BASE,
+      payerMetadata: { registrationDate: '2026-01-15T12:30:00.000Z', authenticationType: 'discord' },
+    });
+
+    const body = JSON.parse(String(calls[0].init.body));
+    // O topo já foi rejeitado; a hipótese sob teste é o nível do pagamento.
+    expect(body).not.toHaveProperty('additional_info');
+    expect(body.transactions.payments[0].additional_info).toEqual({
+      payer: { registration_date: '2026-01-15T12:30:00.000Z', authentication_type: 'discord' },
+    });
+    delete process.env.MERCADOPAGO_PAYER_ADDITIONAL_INFO;
+  });
+
+  it('nunca fabrica metadados de pagador quando não há fonte autenticada', async () => {
+    process.env.MERCADOPAGO_PAYER_ADDITIONAL_INFO = '1';
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
+
+    await provider(impl).createPixPayment({ ...BASE });
+
+    expect(String(calls[0].init.body)).not.toContain('additional_info');
+    delete process.env.MERCADOPAGO_PAYER_ADDITIONAL_INFO;
   });
 
   it('não inventa endereço vazio quando só o CEP e o logradouro existem', async () => {

@@ -186,9 +186,23 @@ Toda criação envia `X-Idempotency-Key`.
 
 1. Painel do Mercado Pago → aplicação → credenciais de **teste**.
 2. `PAYMENTS_ENV=sandbox` e as chaves `TEST-…` no `.env`.
-3. Cartões de teste (BR): aprovado `5031 4332 1540 6351`; para forçar recusa,
-   use o nome do titular documentado pelo MP (`OTHE` = outro erro,
-   `FUND` = saldo insuficiente). CVV `123`, validade `11/30`, CPF `12345678909`.
+3. Cartões de teste (BR) — validade `11/30` em todos:
+
+   | Bandeira | Número | CVV |
+   |---|---|---|
+   | Mastercard (crédito) | `5480 8328 0103 3311` | `123` |
+   | Visa (crédito) | `4235 6477 2802 5682` | `123` |
+   | American Express | `3753 651535 56885` | `1234` |
+   | Elo (débito) | `5067 7667 8388 8311` | `123` |
+
+   **O resultado vem do NOME do titular, não do número.** Digite o código no
+   campo de nome e use CPF `12345678909`:
+   `APRO` aprovado · `OTHE` recusado por erro geral · `FUND` saldo insuficiente ·
+   `SECU` CVV inválido · `EXPI` vencido · `FORM` erro de formulário ·
+   `CALL` exige autorização.
+
+   Cartão fora dessa tabela não tem bandeira reconhecida pelo SDK e volta como
+   `rejected_by_issuer` — não é falha da integração.
 4. Pix e boleto em teste não movimentam dinheiro; confirme pelo painel ou
    disparando a notificação manualmente.
 

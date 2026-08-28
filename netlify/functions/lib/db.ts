@@ -46,7 +46,7 @@ function intFromEnv(name: string, fallback: number): number {
  * nativo). Atrás de um PgBouncer em modo `transaction` eles quebram, então
  * `DB_PREPARE=false` (ou `PGBOUNCER=true`) desliga.
  */
-function usePreparedStatements(): boolean {
+function preparedStatementsEnabled(): boolean {
   if (process.env.PGBOUNCER === 'true') return false;
   return process.env.DB_PREPARE !== 'false';
 }
@@ -60,7 +60,7 @@ export function poolOptions() {
     idle_timeout: intFromEnv('DB_IDLE_TIMEOUT', 30),
     connect_timeout: intFromEnv('DB_CONNECT_TIMEOUT', 10),
     max_lifetime: intFromEnv('DB_MAX_LIFETIME', 60 * 30),
-    prepare: usePreparedStatements(),
+    prepare: preparedStatementsEnabled(),
     // Preserva o comportamento do driver antigo (undefined → NULL). Sem isto o
     // postgres.js lança UNDEFINED_VALUE e handlers como accounts.ts, que
     // interpolam campos crus do corpo da requisição, passariam a quebrar.
@@ -137,6 +137,56 @@ export const siteDbSql = sqlFor(SITE_DB_ENV);
 export const authDbSql = sqlFor(AUTH_DB_ENV);
 export const botDbSql = sqlFor(BOT_DB_ENV);
 export const ticketsDbSql = sqlFor(TICKETS_DB_ENV);
+
+// ------------------------------------------------------------ diagnóstico --
+
+export type DatabaseTarget = {
+  label: string;
+  envVar: string | null;
+  host: string | null;
+  database: string | null;
+};
+
+/**
+ * Para onde cada acessor aponta, SEM credencial — só host, porta e nome do
+ * banco. Existe porque "relation ... does not exist" quase sempre significa
+ * que a migração foi aplicada num banco e a aplicação está lendo outro; sem
+ * isto impresso no arranque, descobrir isso é adivinhação.
+ */
+export function describeDatabases(): DatabaseTarget[] {
+  const targets: Array<[string, readonly string[]]> = [
+    ['site (davimf_dev)', SITE_DB_ENV],
+    ['auth/FMM/pagamentos', AUTH_DB_ENV],
+    ['bot (bot_configs)', BOT_DB_ENV],
+    ['tickets', TICKETS_DB_ENV],
+  ];
+
+  return targets.map(([label, envNames]) => {
+    const envVar = envNames.find((name) => process.env[name]?.trim()) ?? null;
+    const raw = envVar ? process.env[envVar]!.trim() : null;
+    if (!raw) return { label, envVar: null, host: null, database: null };
+    try {
+      const parsed = new URL(raw);
+      return {
+        label,
+        envVar,
+        host: `${parsed.hostname}${parsed.port ? `:${parsed.port}` : ''}`,
+        database: parsed.pathname.replace(/^\//, '') || null,
+      };
+    } catch {
+      // Connection string em formato keyword/value: não dá para parsear como URL.
+      return { label, envVar, host: null, database: null };
+    }
+  });
+}
+
+/** Código SQLSTATE de "relation does not exist". */
+export const UNDEFINED_TABLE = '42P01';
+
+/** `true` quando o erro é de tabela inexistente (migração não aplicada). */
+export function isMissingRelationError(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && (error as { code?: string }).code === UNDEFINED_TABLE;
+}
 
 // --------------------------------------------------------- ciclo de vida ---
 

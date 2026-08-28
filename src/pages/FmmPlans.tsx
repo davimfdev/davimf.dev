@@ -5,7 +5,7 @@ import {
   Package, Server, Settings, Zap, Layers, RefreshCw,
 } from 'lucide-react';
 import { CheckoutModal } from '../features/checkout/CheckoutModal';
-import { paymentsApi, type CatalogProduct } from '../features/checkout/api';
+import { ApiError, paymentsApi, type CatalogProduct } from '../features/checkout/api';
 
 type Period = 'monthly' | 'quarterly' | 'lifetime';
 type PlanKey = 'basic' | 'pro';
@@ -61,7 +61,15 @@ const FmmPlans = () => {
     paymentsApi
       .products('fmm')
       .then(({ products }) => setCatalog(products))
-      .catch(() => setError('Não foi possível carregar os planos. Recarregue a página.'));
+      // Mostra o motivo que o backend deu (ex.: banco não migrado) em vez de
+      // um "recarregue a página" que esconde a causa.
+      .catch((caught: unknown) =>
+        setError(
+          caught instanceof ApiError && caught.status !== 0
+            ? caught.message
+            : 'Não foi possível carregar os planos. Recarregue a página.',
+        ),
+      );
   }, []);
 
   const handleBuy = (planKey: PlanKey) => {

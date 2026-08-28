@@ -10,11 +10,19 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { CreditCard, Loader2, ShieldCheck } from 'lucide-react';
 import type { MercadoPagoInstance, MpInstallmentOption } from './useMercadoPago';
 
+/**
+ * Propriedades aceitas pelo Secure Fields (camelCase). `height: 100%` importa:
+ * o SDK injeta um iframe dentro do nosso contêiner de 42px e, sem altura
+ * explícita, ele fica com a altura padrão do user agent e a área clicável não
+ * cobre a caixa que o usuário vê.
+ */
 const FIELD_STYLE = {
   color: '#F5F3EF',
-  'font-size': '15px',
-  'font-family': 'Satoshi, ui-sans-serif, system-ui, sans-serif',
+  fontSize: '15px',
+  fontFamily: 'Satoshi, ui-sans-serif, system-ui, sans-serif',
   placeholderColor: '#6B6B67',
+  height: '100%',
+  width: '100%',
 };
 
 export type CardSubmitPayload = {
@@ -38,8 +46,10 @@ type Props = {
 const inputClass =
   'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 py-2.5 text-[15px] text-[#F5F3EF] placeholder:text-[#6B6B67] focus:outline-none focus:border-accent/60 transition-colors';
 
+// `[&>iframe]` garante que o iframe do Mercado Pago ocupe a caixa inteira —
+// é ele que recebe o clique e o teclado.
 const fieldShellClass =
-  'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 h-[42px] flex items-center focus-within:border-accent/60 transition-colors';
+  'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 h-[42px] flex items-center focus-within:border-accent/60 transition-colors [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:border-0';
 
 const labelClass = 'block text-xs font-medium text-[#A8A8A4] mb-1.5';
 
@@ -110,12 +120,25 @@ export function CardForm({ mp, amountCents, recurring, submitting, onSubmit }: P
       void onBinChange(bin);
     });
 
+    // Sem este listener, uma falha dentro do iframe fica invisível e o campo
+    // apenas "não digita".
+    for (const field of fields) {
+      field.on('error', (payload) => {
+        console.error('[checkout] Secure Field:', payload);
+        setError('Não foi possível carregar o formulário seguro do cartão. Recarregue a página.');
+      });
+    }
+
     try {
-      fields[0].mount('#mp-card-number');
-      fields[1].mount('#mp-card-expiration');
-      fields[2].mount('#mp-card-security');
+      // `mount` recebe o ID do elemento, NÃO um seletor CSS: passar
+      // '#mp-card-number' faz o SDK não encontrar o contêiner e nenhum iframe
+      // é montado — a caixa aparece, mas não aceita digitação.
+      fields[0].mount('mp-card-number');
+      fields[1].mount('mp-card-expiration');
+      fields[2].mount('mp-card-security');
       setFieldsReady(true);
-    } catch {
+    } catch (mountError) {
+      console.error('[checkout] falha ao montar Secure Fields:', mountError);
       setError('Não foi possível carregar o formulário seguro. Recarregue a página.');
     }
 

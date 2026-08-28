@@ -8,6 +8,7 @@
  *  - a mensagem devolvida nunca vaza detalhe interno do provider.
  */
 
+import { describeDatabases, isMissingRelationError } from '../db';
 import { configuredSupportIds } from '../dashboard/guildAccess';
 import { requireDashboardSession } from '../dashboard/session';
 import { PaymentError, UnauthorizedError, ValidationError } from './domain/errors';
@@ -60,6 +61,27 @@ export function toErrorResponse(error: unknown): Response {
     }
     return errorJson(error.code, error.message, error.status);
   }
+
+  // Tabela do módulo ausente = migração não aplicada (ou aplicada em OUTRO
+  // banco). Sem esta ramificação isso vira um 500 genérico e o operador fica
+  // caçando um problema de pagamento que na verdade é de schema.
+  if (isMissingRelationError(error)) {
+    const relation = /relation "([^"]+)" does not exist/.exec(String((error as Error).message))?.[1];
+    const targets = describeDatabases()
+      .filter((target) => target.label === 'auth/FMM/pagamentos')
+      .map((target) => `${target.envVar ?? '(não definida)'} → ${target.host ?? '?'}/${target.database ?? '?'}`)
+      .join(', ');
+    console.error(
+      `[payments] tabela "${relation ?? '?'}" não existe no banco de pagamentos (${targets}). ` +
+        'Aplique a migração: psql "$DATABASE_URL" -f db/005_payments.sql',
+    );
+    return errorJson(
+      'PAYMENTS_SCHEMA_MISSING',
+      'Pagamentos indisponíveis: o banco não está migrado. Avise o suporte.',
+      503,
+    );
+  }
+
   console.error('[payments] erro não tratado:', error);
   return errorJson('INTERNAL_ERROR', 'Erro interno ao processar o pagamento.', 500);
 }

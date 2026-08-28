@@ -1,12 +1,19 @@
-import { closeAllPools } from '../../netlify/functions/lib/db';
+import { closeAllPools, describeDatabases } from '../../netlify/functions/lib/db';
 import { createApp } from './app';
-import { applyCompatibilityEnv, loadEnvFileIfPresent, logEnvSummary, warnMissingEnv } from './utils/env';
+import {
+  applyCompatibilityEnv,
+  loadEnvFileIfPresent,
+  logDatabaseTargets,
+  logEnvSummary,
+  warnMissingEnv,
+} from './utils/env';
 
 // Ordem importa: ler o .env (quando existe) antes de resolver a URL pública,
 // e resolver a URL antes de reportar o que está faltando.
 const envFile = loadEnvFileIfPresent();
 const siteUrl = applyCompatibilityEnv();
 logEnvSummary(envFile, siteUrl);
+logDatabaseTargets(describeDatabases());
 warnMissingEnv();
 
 const port = Number(process.env.PORT || 3000);

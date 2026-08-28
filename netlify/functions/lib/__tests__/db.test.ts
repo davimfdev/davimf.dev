@@ -13,6 +13,8 @@ import {
   BOT_DB_ENV,
   SITE_DB_ENV,
   TICKETS_DB_ENV,
+  describeDatabases,
+  isMissingRelationError,
   openPoolCount,
   poolOptions,
   resetPoolsForTesting,
@@ -183,5 +185,50 @@ describe('compatibilidade com o driver antigo', () => {
     const pending = sql`SELECT ${1}`;
     expect(typeof pending.then).toBe('function');
     void pending.catch(() => undefined);
+  });
+});
+
+describe('diagnóstico de destino do banco', () => {
+  it('mostra host e nome do banco, sem credencial', () => {
+    process.env.DATABASE_URL = 'postgres://usuario:senhaSuperSecreta@postgres:5432/davimf_dev';
+    process.env.POSTGRES_URL = 'postgres://usuario:senhaSuperSecreta@postgres:5432/bot_configs';
+
+    const targets = describeDatabases();
+    const site = targets.find((t) => t.label === 'site (davimf_dev)');
+    const bot = targets.find((t) => t.label === 'bot (bot_configs)');
+
+    expect(site).toMatchObject({ envVar: 'DATABASE_URL', host: 'postgres:5432', database: 'davimf_dev' });
+    expect(bot).toMatchObject({ envVar: 'POSTGRES_URL', host: 'postgres:5432', database: 'bot_configs' });
+
+    // A senha nunca pode aparecer no diagnóstico.
+    expect(JSON.stringify(targets)).not.toContain('senhaSuperSecreta');
+  });
+
+  it('revela quando pagamentos aponta para banco diferente do site', () => {
+    // É exatamente o cenário que produz "relation products does not exist"
+    // depois de aplicar a migração no banco errado.
+    process.env.DATABASE_URL = 'postgres://u:p@postgres:5432/davimf_dev';
+    process.env.NETLIFY_DATABASE_URL = 'postgres://u:p@postgres:5432/outro_banco';
+
+    const targets = describeDatabases();
+    expect(targets.find((t) => t.label === 'site (davimf_dev)')?.database).toBe('davimf_dev');
+    expect(targets.find((t) => t.label === 'auth/FMM/pagamentos')?.database).toBe('outro_banco');
+  });
+
+  it('marca banco sem variável definida', () => {
+    expect(describeDatabases().every((t) => t.envVar === null)).toBe(true);
+  });
+});
+
+describe('detecção de migração ausente', () => {
+  it('reconhece o SQLSTATE de tabela inexistente', () => {
+    const error = Object.assign(new Error('relation "products" does not exist'), { code: '42P01' });
+    expect(isMissingRelationError(error)).toBe(true);
+  });
+
+  it('não confunde com outros erros', () => {
+    expect(isMissingRelationError(new Error('qualquer coisa'))).toBe(false);
+    expect(isMissingRelationError(Object.assign(new Error('x'), { code: '23505' }))).toBe(false);
+    expect(isMissingRelationError(null)).toBe(false);
   });
 });

@@ -134,3 +134,35 @@ describe('rejeição de dados sensíveis de cartão', () => {
     ).not.toThrow();
   });
 });
+
+describe('migração ausente', () => {
+  it('vira 503 acionável em vez de 500 genérico', async () => {
+    const sql = new FakeSql([
+      {
+        match: () => true,
+        rows: () => {
+          // Reproduz o erro real do Postgres quando db/005_payments.sql não
+          // foi aplicado no banco que o módulo usa.
+          throw Object.assign(new Error('relation "products" does not exist'), { code: '42P01' });
+        },
+      },
+    ]);
+    sql.install();
+    const errorLog = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const response = await routePaymentsRequest(request('/api/payments/products'));
+    const body = await response.json() as { error: { code: string; message: string } };
+
+    expect(response.status).toBe(503);
+    expect(body.error.code).toBe('PAYMENTS_SCHEMA_MISSING');
+    expect(body.error.message).not.toMatch(/relation|products|postgres/i);
+
+    // O log do servidor diz o que fazer e para qual banco.
+    const logged = errorLog.mock.calls.flat().join(' ');
+    expect(logged).toContain('db/005_payments.sql');
+    expect(logged).toContain('products');
+
+    errorLog.mockRestore();
+    uninstallSql();
+  });
+});

@@ -11,6 +11,7 @@
 
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import type { DatabaseTarget } from '../../../netlify/functions/lib/db';
 
 type EnvGroup = {
   label: string;
@@ -226,4 +227,19 @@ export function logEnvSummary(envFile: string | null, siteUrl: string | null): v
     `[api] configuração: ${envFile ? `.env em ${envFile}` : 'somente variáveis do ambiente'}; ` +
       `URL pública = ${siteUrl ?? '(ausente)'}`,
   );
+}
+
+/**
+ * Para onde cada banco aponta, sem credencial.
+ *
+ * "relation ... does not exist" quase sempre é migração aplicada num banco e
+ * aplicação lendo outro; com isto no arranque o diagnóstico é imediato.
+ */
+export function logDatabaseTargets(targets: DatabaseTarget[]): void {
+  for (const target of targets) {
+    const destino = target.envVar
+      ? `${target.envVar} → ${target.host ?? '?'}/${target.database ?? '?'}`
+      : '(nenhuma variável definida)';
+    console.log(`[api] banco ${target.label.padEnd(22)} ${destino}`);
+  }
 }

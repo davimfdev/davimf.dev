@@ -12,7 +12,8 @@ const SDK_SRC = 'https://sdk.mercadopago.com/js/v2';
 const SDK_ID = 'mercadopago-sdk-v2';
 
 export type MpSecureField = {
-  mount: (selector: string) => void;
+  /** ID do elemento (`'mp-card-number'`), NÃO um seletor CSS (`'#...'`). */
+  mount: (elementId: string) => void;
   unmount: () => void;
   on: (event: string, handler: (payload: unknown) => void) => void;
   update: (options: Record<string, unknown>) => void;

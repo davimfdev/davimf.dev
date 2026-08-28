@@ -280,6 +280,44 @@ describe('roteador de pagamentos', () => {
     expect(saved).toMatchObject([{ userId: 'discord-1', profile: { email: 'davi@example.com' } }]);
   });
 
+  it('mantém a assinatura /card com renovação automática quando salvar o perfil falha', async () => {
+    authenticate();
+    setOrderServiceForTesting({
+      requireOwnedOrder: async () => ({
+        id: 'order-1', userId: 'discord-1', userEmail: 'comprador@example.com', productCode: 'fmm-pro-monthly',
+        autoRenew: true,
+      }),
+      requireProduct: async () => productRow(),
+    } as never);
+    setSubscriptionServiceForTesting({
+      create: async () => ({ id: 'sub-1', status: 'ACTIVE', nextBillingDate: null, autoRenew: true }),
+    } as never);
+    setPaymentServiceForTesting({ listForOrder: async () => [] } as never);
+    setPayerProfileServiceForTesting(new PayerProfileService({
+      persistenceAvailable: () => true,
+      repository: {
+        find: async () => null,
+        upsert: async () => { throw new Error(`database rejected ${PAYER_PROFILE.identification.number}`); },
+        delete: async () => false,
+      },
+    }));
+    const errorLog = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const response = await routePaymentsRequest(request('/api/payments/card', {
+      method: 'POST',
+      body: JSON.stringify({
+        orderId: 'order-1', cardToken: 'tok_123', paymentMethodId: 'master', savePayerProfile: true,
+        payer: PAYER_PROFILE,
+      }),
+    }));
+
+    const logged = errorLog.mock.calls.flat().join(' ');
+    errorLog.mockRestore();
+    expect(response.status).toBe(201);
+    expect(logged).toContain('PAYER_PROFILE_SAVE_FAILED');
+    expect(logged).not.toContain(PAYER_PROFILE.identification.number);
+  });
+
   it('não expõe PII quando o armazenamento do perfil falha', async () => {
     authenticate();
     sql.use([{

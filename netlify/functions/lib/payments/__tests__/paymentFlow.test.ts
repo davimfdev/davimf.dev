@@ -61,8 +61,8 @@ class FakeProvider implements PaymentProvider {
   }
 
   async createPixPayment(input: unknown) { this.inputs.push(input); return this.track('pix', this.nextPayment); }
-  async createCardPayment() { return this.track('card', this.nextPayment); }
-  async createBoletoPayment() { return this.track('boleto', this.nextPayment); }
+  async createCardPayment(input: unknown) { this.inputs.push(input); return this.track('card', this.nextPayment); }
+  async createBoletoPayment(input: unknown) { this.inputs.push(input); return this.track('boleto', this.nextPayment); }
   async getPayment() { return this.track('get', this.nextPayment); }
   async refundPayment(): Promise<RefundResult> {
     this.calls.push('refund');
@@ -407,6 +407,28 @@ describe('Pix', () => {
     expect(world.savedPayerProfiles).toEqual([{ userId: 'discord-1', profile: CONSENTED_PAYER }]);
     expect(world.provider.inputs[0]).not.toHaveProperty('savePayerProfile');
     expect(world.provider.inputs[0]).not.toHaveProperty('payerProfile');
+  });
+
+  it('salva o perfil na primeira cobrança consentida de cartão e de boleto', async () => {
+    const card = buildWorld();
+    const cardOrder = await card.orders.requireOrder('id');
+    const cardProduct = await card.orders.requireProduct('fmm-pro-monthly');
+    await card.payments.createCard({
+      order: cardOrder, product: cardProduct, payer: CONSENTED_PAYER,
+      cardToken: 'tok', paymentMethodId: 'master', installments: 1, savePayerProfile: true,
+    });
+
+    const boleto = buildWorld();
+    const boletoOrder = await boleto.orders.requireOrder('id');
+    const boletoProduct = await boleto.orders.requireProduct('fmm-pro-monthly');
+    await boleto.payments.createBoleto({
+      order: boletoOrder, product: boletoProduct, payer: CONSENTED_PAYER, savePayerProfile: true,
+    });
+
+    expect(card.savedPayerProfiles).toEqual([{ userId: 'discord-1', profile: CONSENTED_PAYER }]);
+    expect(boleto.savedPayerProfiles).toEqual([{ userId: 'discord-1', profile: CONSENTED_PAYER }]);
+    expect(card.provider.inputs[0]).not.toHaveProperty('savePayerProfile');
+    expect(boleto.provider.inputs[0]).not.toHaveProperty('savePayerProfile');
   });
 
   it('salva o perfil quando o retry Pix consentido reaproveita uma cobrança existente', async () => {

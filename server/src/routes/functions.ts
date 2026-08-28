@@ -59,6 +59,7 @@ export const PAYMENTS_PATHS: string[] = [
   '/api/payments/checkout',
   '/api/payments/orders',
   '/api/payments/orders/:orderId',
+  '/api/payments/orders/:orderId/refund-request',
   '/api/payments/pix',
   '/api/payments/card',
   '/api/payments/boleto',

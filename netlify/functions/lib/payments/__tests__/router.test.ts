@@ -609,6 +609,62 @@ describe('roteador de pagamentos', () => {
       expect((await response.json() as { error: { code: string } }).error.code).toBe('FIELD_INVALID');
     }
   });
+
+  it('reembolso de pedido alheio responde 404 do HANDLER, não de rota inexistente', async () => {
+    authenticate();
+
+    const response = await routePaymentsRequest(
+      request('/api/payments/orders/ord-alheio/refund-request', { method: 'POST' }),
+    );
+
+    expect(response.status).toBe(404);
+    const body = await response.json() as { error: { code: string } };
+    // A rota EXISTE: o código é ORDER_NOT_FOUND. Se viesse NOT_FOUND, o teste
+    // estaria passando porque a rota não foi registrada.
+    expect(body.error.code).toBe('ORDER_NOT_FOUND');
+    expect(JSON.stringify(body)).not.toContain('ord-alheio');
+  });
+
+  it('a rota está registrada nas duas listas de caminhos', async () => {
+    const { PAYMENTS_ROUTE_PATHS } = await import('../router');
+    expect(PAYMENTS_ROUTE_PATHS).toContain('/api/payments/orders/:orderId/refund-request');
+  });
+
+  it('aceita o pedido de reembolso sem corpo — descrição só importa fora da janela', async () => {
+    authenticate();
+    sql.use([
+      {
+        match: (q) => q.includes('INSERT INTO refund_requests'),
+        rows: [{
+          id: 'req-1', order_id: 'order-1', user_id: 'discord-1',
+          requested_at: '2026-08-28T12:00:00.000Z',
+          outcome: 'refunded', reason_code: null, description: null, provider_error: null,
+        }],
+      },
+    ]);
+    setOrderServiceForTesting({
+      requireOwnedOrder: async () => ({
+        id: 'order-1', reference: 'DVMF-1', userId: 'discord-1', userEmail: 'comprador@example.com',
+        productId: 1, productCode: 'fmm-pro-lifetime', quantity: 1,
+        amountCents: 20000, currency: 'BRL', status: 'PAID', autoRenew: false,
+        idempotencyKey: null, metadata: {}, createdAt: '2026-08-25T12:00:00.000Z',
+        // Dentro da janela: nenhum campo do corpo é exigido do cliente.
+        paidAt: new Date().toISOString(), fulfilledAt: null,
+      }),
+    } as never);
+    setPaymentServiceForTesting({
+      listForOrder: async () => [{ id: 'pay-1', status: 'PAID' }],
+      refund: async () => ({ id: 'pay-1' }),
+    } as never);
+
+    // Sem `body`: não pode lançar erro de parse — o corpo é opcional.
+    const response = await routePaymentsRequest(
+      request('/api/payments/orders/order-1/refund-request', { method: 'POST' }),
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ outcome: 'refunded' });
+  });
 });
 
 describe('rejeição de dados sensíveis de cartão', () => {

@@ -20,12 +20,14 @@
  *   GET  /api/payments/licenses
  *   POST /api/payments/webhooks/mercadopago
  *   POST /api/payments/admin/refund
+ *   POST /api/payments/orders/:orderId/refund-request
  */
 
 import { getFmmLicenseService } from './application/FmmLicenseService';
 import { getOrderService } from './application/OrderService';
 import { getPaymentService } from './application/PaymentService';
 import { getPayerProfileService } from './application/PayerProfileService';
+import { getRefundRequestService, type RefundRejectionCode } from './application/RefundRequestService';
 import { getSubscriptionService } from './application/SubscriptionService';
 import { FMM_DOWNLOAD_URL, mercadoPagoPublicKey } from './config';
 import { ForbiddenError, ValidationError } from './domain/errors';
@@ -372,6 +374,31 @@ async function handleOrderById(request: Request, orderId: string): Promise<Respo
   });
 }
 
+/** Mensagem de negócio de cada recusa (409) — o 404 é sempre a mesma frase, sem eco do id. */
+const REFUND_REJECTION_MESSAGES: Record<RefundRejectionCode, string> = {
+  ORDER_NOT_REFUNDABLE: 'Este pedido não está elegível a reembolso.',
+  REFUND_ALREADY_PROCESSED: 'Este pedido já foi reembolsado.',
+  REFUND_UNDER_DISPUTE: 'Há uma contestação em análise. Fale com financeiro@davimf.dev.',
+};
+
+/**
+ * Pedido de reembolso feito PELO CLIENTE (distinto de `handleRefund`, que é
+ * o estorno manual do admin). `description` só é lida — nunca exigida: fora
+ * da janela ela dá contexto para a análise humana; dentro da janela o
+ * direito é incondicional (Art. 49 do CDC) e nada é perguntado.
+ */
+async function handleRefundRequest(request: Request, orderId: string): Promise<Response> {
+  const user = await requireUser(request);
+  const body = await readJson(request);
+  const description = optionalString(body, 'description', 2000);
+
+  const result = await getRefundRequestService().request({ orderId, userId: user.id, description });
+
+  if (result.status === 404) return errorJson('ORDER_NOT_FOUND', 'Pedido não encontrado.', 404);
+  if (result.status === 409) return errorJson(result.code, REFUND_REJECTION_MESSAGES[result.code], 409);
+  return json({ outcome: result.outcome }, result.status);
+}
+
 /** Painel do cliente: a chave continua recuperável fora do e-mail. */
 async function handleLicenses(request: Request): Promise<Response> {
   const user = await requireUser(request);
@@ -464,6 +491,7 @@ const ROUTES: Route[] = [
 export const PAYMENTS_ROUTE_PATHS: string[] = [
   ...new Set(ROUTES.map((route) => route.path)),
   '/api/payments/orders/:orderId',
+  '/api/payments/orders/:orderId/refund-request',
 ];
 
 export async function routePaymentsRequest(request: Request): Promise<Response> {
@@ -479,6 +507,11 @@ export async function routePaymentsRequest(request: Request): Promise<Response> 
   }
 
   try {
+    const refundMatch = /^\/api\/payments\/orders\/([^/]+)\/refund-request$/.exec(path);
+    if (refundMatch && method === 'POST') {
+      return await handleRefundRequest(request, decodeURIComponent(refundMatch[1]));
+    }
+
     const orderMatch = /^\/api\/payments\/orders\/([^/]+)$/.exec(path);
     if (orderMatch && method === 'GET') return await handleOrderById(request, decodeURIComponent(orderMatch[1]));
 

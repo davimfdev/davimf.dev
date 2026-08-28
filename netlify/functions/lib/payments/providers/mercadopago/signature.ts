@@ -1,13 +1,22 @@
 /**
  * Validação da assinatura `x-signature` das notificações do Mercado Pago.
  *
- * Manifesto oficial: `id:<data.id>;request-id:<x-request-id>;ts:<ts>;`
- * — `data.id` vem da QUERY STRING e preserva o case exato recebido;
+ * Manifesto oficial: `id:[data.id_url];request-id:[x-request-id_header];ts:[ts_header];`
+ * — `data.id` vem da QUERY STRING (nunca do corpo);
+ * — a documentação manda usar o `data.id` em MINÚSCULAS quando ele é
+ *   alfanumérico (`ORD01...` → `ord01...`); o simulador do painel, porém,
+ *   assina preservando o case. As duas formas são testadas, e ambas continuam
+ *   exigindo HMAC-SHA256 válido com um segredo configurado;
  * — partes ausentes são OMITIDAS do manifesto (inclusive o rótulo);
- * — HMAC-SHA256 hex com MERCADOPAGO_WEBHOOK_SECRET, comparado a `v1`.
+ * — HMAC-SHA256 hex comparado a `v1` em tempo constante.
+ *
+ * Diagnóstico: falhas devolvem `diagnostics` com dados NÃO sensíveis
+ * (rótulos lógicos e fingerprints irreversíveis dos segredos, idade do `ts`,
+ * origem do id, variantes testadas). Segredo, manifesto e assinatura nunca
+ * saem daqui.
  */
 
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
 /** Tolerância de relógio; barra replay de notificações antigas capturadas. */
 const MAX_SKEW_MS = Number(process.env.MERCADOPAGO_WEBHOOK_MAX_SKEW_MS ?? 15 * 60_000);
@@ -34,13 +43,59 @@ export function buildManifest(input: {
   ts: string | null;
 }): string {
   const segments: string[] = [];
-  // O validador oficial Node 3.6.0 NÃO normaliza o case. Isto é essencial
-  // para Orders, cujos IDs chegam como `ORD...` em maiúsculas.
   if (input.dataId) segments.push(`id:${input.dataId};`);
   if (input.requestId) segments.push(`request-id:${input.requestId};`);
   if (input.ts) segments.push(`ts:${input.ts};`);
   return segments.join('');
 }
+
+/**
+ * Impressão digital curta e irreversível de um segredo, só para o operador
+ * conferir NO LOG se teste e produção são valores distintos e se o valor mudou
+ * depois de um deploy. 8 hex de um SHA-256 com separação de domínio: não
+ * permite recuperar nem comparar contra o painel sem o segredo em mãos.
+ */
+export function secretFingerprint(secret: string): string {
+  return createHash('sha256').update(`mp-webhook-secret:${secret}`).digest('hex').slice(0, 8);
+}
+
+type SecretSource = { label: string; value: string };
+
+/**
+ * Teste e produção podem apontar para a MESMA URL, mas o painel gera um
+ * segredo independente por aplicação/modo. Validamos contra todos os
+ * configurados sem jamais registrar qual deles conferiu. A variável legada
+ * continua aceita para instalações de ambiente único.
+ */
+function configuredSecrets(explicit?: string): SecretSource[] {
+  const candidates: SecretSource[] =
+    explicit !== undefined
+      ? [{ label: 'explicit', value: explicit }]
+      : [
+          { label: 'test', value: process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST ?? '' },
+          { label: 'production', value: process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION ?? '' },
+          { label: 'legacy', value: process.env.MERCADOPAGO_WEBHOOK_SECRET ?? '' },
+        ];
+  // O `trim` cobre o erro mais comum de painel de deploy: valor colado com
+  // espaço ou quebra de linha no fim.
+  return candidates
+    .map((candidate) => ({ label: candidate.label, value: candidate.value.trim() }))
+    .filter((candidate) => candidate.value.length > 0);
+}
+
+/** Tudo aqui é seguro de registrar: nenhum campo deriva do segredo ou da assinatura. */
+export type SignatureDiagnostics = {
+  /** Conjunto lógico tentado, como `test:1a2b3c4d` — rótulo + fingerprint. */
+  secrets: string[];
+  /** Idade da assinatura em segundos (negativa = relógio do servidor atrasado). */
+  tsAgeSeconds: number | null;
+  /** De onde saiu o id do manifesto. */
+  idSource: 'query' | 'absent';
+  /** Variantes canônicas testadas para o `data.id`. */
+  variants: string[];
+  /** Valores em `x-request-id`; >1 denuncia proxy duplicando o cabeçalho. */
+  requestIdValues: number;
+};
 
 function safeEqualHex(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
@@ -58,9 +113,11 @@ export type VerifyInput = {
   now?: number;
 };
 
+export type VerifyFailureReason = 'NOT_CONFIGURED' | 'MISSING_SIGNATURE' | 'STALE' | 'MISMATCH';
+
 export type VerifyResult =
-  | { ok: true; dataId: string | null; ts: string | null }
-  | { ok: false; reason: 'NOT_CONFIGURED' | 'MISSING_SIGNATURE' | 'STALE' | 'MISMATCH' };
+  | { ok: true; dataId: string | null; resourceId: string | null; ts: string | null }
+  | { ok: false; reason: VerifyFailureReason; diagnostics: SignatureDiagnostics };
 
 function headerValue(headers: Record<string, string | undefined>, name: string): string | null {
   const direct = headers[name] ?? headers[name.toLowerCase()];
@@ -71,57 +128,77 @@ function headerValue(headers: Record<string, string | undefined>, name: string):
   return null;
 }
 
+/** `Headers` junta cabeçalhos repetidos com vírgula; contamos os valores. */
+function countHeaderValues(value: string | null): number {
+  if (!value) return 0;
+  return value.split(',').filter((part) => part.trim().length > 0).length;
+}
+
+function timestampToMs(ts: string): number | null {
+  const parsed = Number(ts);
+  if (!Number.isFinite(parsed)) return null;
+  // O Mercado Pago envia `ts` em SEGUNDOS (ex.: 1704908010); aceitamos também
+  // milissegundos para não depender do formato de um painel específico.
+  return ts.trim().length <= 10 ? parsed * 1000 : parsed;
+}
+
 export function verifyWebhookSignature(input: VerifyInput): VerifyResult {
-  // Teste e produção podem apontar para a mesma URL, mas o painel gera um
-  // segredo independente para cada modo. Validamos contra ambos sem jamais
-  // identificar no log qual deles conferiu. A variável legada continua
-  // aceita para instalações com apenas um ambiente.
-  const secrets = (input.secret !== undefined
-    ? [input.secret]
-    : [
-        process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST,
-        process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION,
-        process.env.MERCADOPAGO_WEBHOOK_SECRET,
-      ])
-    .map((value) => value?.trim())
-    .filter((value): value is string => Boolean(value));
-  if (secrets.length === 0) return { ok: false, reason: 'NOT_CONFIGURED' };
-
-  const { ts, v1 } = parseXSignature(headerValue(input.headers, 'x-signature'));
-  if (!ts || !v1) return { ok: false, reason: 'MISSING_SIGNATURE' };
-
-  const timestamp = Number(ts);
-  if (Number.isFinite(timestamp)) {
-    // O MP envia ts em milissegundos; alguns painéis antigos mandam em segundos.
-    const asMs = ts.length <= 10 ? timestamp * 1000 : timestamp;
-    const now = input.now ?? Date.now();
-    if (Math.abs(now - asMs) > MAX_SKEW_MS) return { ok: false, reason: 'STALE' };
-  }
+  const secrets = configuredSecrets(input.secret);
+  const rawRequestId = headerValue(input.headers, 'x-request-id');
 
   let dataId: string | null = null;
+  let legacyId: string | null = null;
   try {
     const parsed = new URL(input.url, 'https://davimf.dev');
-    dataId = parsed.searchParams.get('data.id') ?? parsed.searchParams.get('id');
+    // Só `data.id` entra no manifesto — é o que a documentação define. O `id`
+    // das notificações legadas serve apenas para localizar o recurso depois.
+    dataId = parsed.searchParams.get('data.id');
+    legacyId = parsed.searchParams.get('id');
   } catch {
     dataId = null;
   }
 
-  const requestId = headerValue(input.headers, 'x-request-id');
+  const lowercased = dataId ? dataId.toLowerCase() : null;
+  const diagnostics: SignatureDiagnostics = {
+    secrets: secrets.map((secret) => `${secret.label}:${secretFingerprint(secret.value)}`),
+    tsAgeSeconds: null,
+    idSource: dataId ? 'query' : 'absent',
+    variants: dataId ? (dataId === lowercased ? ['exact'] : ['exact', 'lowercase']) : ['none'],
+    requestIdValues: countHeaderValues(rawRequestId),
+  };
+
+  const { ts, v1 } = parseXSignature(headerValue(input.headers, 'x-signature'));
+
+  if (ts) {
+    const asMs = timestampToMs(ts);
+    if (asMs !== null) {
+      diagnostics.tsAgeSeconds = Math.round(((input.now ?? Date.now()) - asMs) / 1000);
+    }
+  }
+
+  if (secrets.length === 0) return { ok: false, reason: 'NOT_CONFIGURED', diagnostics };
+  if (!ts || !v1) return { ok: false, reason: 'MISSING_SIGNATURE', diagnostics };
+
+  if (diagnostics.tsAgeSeconds !== null && Math.abs(diagnostics.tsAgeSeconds * 1000) > MAX_SKEW_MS) {
+    return { ok: false, reason: 'STALE', diagnostics };
+  }
+
+  const requestId = rawRequestId;
+  // Ordem: primeiro o case exato (o que o simulador do painel assina), depois a
+  // normalização minúscula documentada para IDs alfanuméricos de Order.
   const manifests = [buildManifest({ dataId, requestId, ts })];
-  // Compatibilidade observada entre pipelines do próprio Mercado Pago: o
-  // simulador assina `ORD...` preservando case, enquanto algumas notificações
-  // reais/legadas normalizam o mesmo ID para minúsculas. Ambas continuam
-  // exigindo HMAC-SHA256 válido com um segredo configurado.
-  if (dataId && dataId !== dataId.toLowerCase()) {
-    manifests.push(buildManifest({ dataId: dataId.toLowerCase(), requestId, ts }));
+  if (lowercased && lowercased !== dataId) {
+    manifests.push(buildManifest({ dataId: lowercased, requestId, ts }));
   }
 
   const received = v1.toLowerCase();
-  const matches = secrets.some((secret) => manifests.some((manifest) => {
-    const expected = createHmac('sha256', secret).update(manifest).digest('hex');
-    return safeEqualHex(expected, received);
-  }));
-  if (!matches) return { ok: false, reason: 'MISMATCH' };
+  const matches = secrets.some((secret) =>
+    manifests.some((manifest) => {
+      const expected = createHmac('sha256', secret.value).update(manifest).digest('hex');
+      return safeEqualHex(expected, received);
+    }),
+  );
+  if (!matches) return { ok: false, reason: 'MISMATCH', diagnostics };
 
-  return { ok: true, dataId, ts };
+  return { ok: true, dataId, resourceId: dataId ?? legacyId, ts };
 }

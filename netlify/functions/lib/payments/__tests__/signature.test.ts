@@ -1,6 +1,11 @@
 import { createHmac } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { buildManifest, parseXSignature, verifyWebhookSignature } from '../providers/mercadopago/signature';
+import {
+  buildManifest,
+  parseXSignature,
+  secretFingerprint,
+  verifyWebhookSignature,
+} from '../providers/mercadopago/signature';
 
 const SECRET = 'segredo-de-teste-do-webhook';
 const REQUEST_ID = 'req-abc-123';
@@ -42,7 +47,7 @@ describe('assinatura do webhook Mercado Pago', () => {
       url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-1&type=order',
       now: NOW,
     });
-    expect(result).toEqual({ ok: true, dataId: 'ORD-1', ts: String(NOW) });
+    expect(result).toEqual({ ok: true, dataId: 'ORD-1', resourceId: 'ORD-1', ts: String(NOW) });
   });
 
   it('aceita assinaturas distintas de teste e produção na mesma URL', () => {
@@ -72,7 +77,112 @@ describe('assinatura do webhook Mercado Pago', () => {
       now: NOW,
     });
 
-    expect(result).toEqual({ ok: true, dataId, ts });
+    expect(result).toEqual({ ok: true, dataId, resourceId: dataId, ts });
+  });
+
+  it('monta o manifesto apenas com `data.id`, ignorando o `id` legado da query', () => {
+    const ts = String(NOW);
+    // Documentação: partes ausentes saem do manifesto. `?id=` NÃO substitui
+    // `data.id`, ele só localiza o recurso depois da assinatura conferir.
+    const manifest = buildManifest({ dataId: null, requestId: REQUEST_ID, ts });
+    const v1 = createHmac('sha256', SECRET).update(manifest).digest('hex');
+
+    const result = verifyWebhookSignature({
+      headers: { 'x-signature': `ts=${ts},v1=${v1}`, 'x-request-id': REQUEST_ID },
+      url: 'https://davimf.dev/api/payments/webhooks/mercadopago?id=123456&topic=payment',
+      now: NOW,
+    });
+
+    expect(result).toEqual({ ok: true, dataId: null, resourceId: '123456', ts });
+  });
+
+  it('não aceita o `id` legado no lugar de `data.id` dentro do manifesto', () => {
+    const ts = String(NOW);
+    const v1 = createHmac('sha256', SECRET)
+      .update(buildManifest({ dataId: '123456', requestId: REQUEST_ID, ts }))
+      .digest('hex');
+
+    const result = verifyWebhookSignature({
+      headers: { 'x-signature': `ts=${ts},v1=${v1}`, 'x-request-id': REQUEST_ID },
+      url: 'https://davimf.dev/api/payments/webhooks/mercadopago?id=123456&topic=payment',
+      now: NOW,
+    });
+
+    expect(result).toMatchObject({ ok: false, reason: 'MISMATCH' });
+  });
+
+  it('diagnostica a rejeição sem expor segredo, manifesto ou assinatura', () => {
+    delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST = 'segredo-webhook-teste';
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION = 'segredo-webhook-producao';
+
+    const result = verifyWebhookSignature({
+      headers: signedHeaders('ORD-1', String(NOW - 120_000), 'segredo-errado'),
+      url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-1&type=order',
+      now: NOW,
+    });
+
+    expect(result).toMatchObject({
+      ok: false,
+      reason: 'MISMATCH',
+      diagnostics: {
+        secrets: [
+          `test:${secretFingerprint('segredo-webhook-teste')}`,
+          `production:${secretFingerprint('segredo-webhook-producao')}`,
+        ],
+        tsAgeSeconds: 120,
+        idSource: 'query',
+        variants: ['exact', 'lowercase'],
+        requestIdValues: 1,
+      },
+    });
+
+    const serialized = JSON.stringify(result);
+    expect(serialized).not.toContain('segredo-webhook-teste');
+    expect(serialized).not.toContain('segredo-webhook-producao');
+  });
+
+  it('denuncia teste e produção configurados com o MESMO valor', () => {
+    delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST = 'mesmo-valor-colado-duas-vezes';
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION = 'mesmo-valor-colado-duas-vezes';
+
+    const result = verifyWebhookSignature({
+      headers: signedHeaders('ORD-1', String(NOW), 'segredo-errado'),
+      url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-1',
+      now: NOW,
+    });
+
+    expect(result).toMatchObject({ ok: false, reason: 'MISMATCH' });
+    const [test, production] = (result as { diagnostics: { secrets: string[] } }).diagnostics.secrets;
+    expect(test.split(':')[1]).toBe(production.split(':')[1]);
+  });
+
+  it('conta os valores de x-request-id para flagrar proxy duplicando o cabeçalho', () => {
+    const ts = String(NOW);
+    const result = verifyWebhookSignature({
+      // `Headers` junta cabeçalhos repetidos com vírgula: o manifesto passa a
+      // usar "a, b" e nenhuma assinatura confere.
+      headers: { 'x-signature': `ts=${ts},v1=deadbeef`, 'x-request-id': `${REQUEST_ID}, proxy-gerado` },
+      url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-1',
+      now: NOW,
+    });
+
+    expect(result).toMatchObject({ ok: false, reason: 'MISMATCH', diagnostics: { requestIdValues: 2 } });
+  });
+
+  it('ignora espaços e quebras de linha coladas no segredo do painel de deploy', () => {
+    delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION = `  ${SECRET}
+`;
+
+    const result = verifyWebhookSignature({
+      headers: signedHeaders('ORD-1'),
+      url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-1',
+      now: NOW,
+    });
+
+    expect(result).toMatchObject({ ok: true, dataId: 'ORD-1' });
   });
 
   it('rejeita assinatura inválida (segredo errado)', () => {
@@ -81,7 +191,7 @@ describe('assinatura do webhook Mercado Pago', () => {
       url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-1',
       now: NOW,
     });
-    expect(result).toEqual({ ok: false, reason: 'MISMATCH' });
+    expect(result).toMatchObject({ ok: false, reason: 'MISMATCH' });
   });
 
   it('rejeita quando o data.id do manifesto não bate com o da query', () => {
@@ -91,7 +201,7 @@ describe('assinatura do webhook Mercado Pago', () => {
       url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-2',
       now: NOW,
     });
-    expect(result).toEqual({ ok: false, reason: 'MISMATCH' });
+    expect(result).toMatchObject({ ok: false, reason: 'MISMATCH' });
   });
 
   it('rejeita notificação sem cabeçalho de assinatura', () => {
@@ -100,7 +210,7 @@ describe('assinatura do webhook Mercado Pago', () => {
       url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-1',
       now: NOW,
     });
-    expect(result).toEqual({ ok: false, reason: 'MISSING_SIGNATURE' });
+    expect(result).toMatchObject({ ok: false, reason: 'MISSING_SIGNATURE' });
   });
 
   it('rejeita replay de notificação antiga', () => {
@@ -109,7 +219,7 @@ describe('assinatura do webhook Mercado Pago', () => {
       url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-1',
       now: NOW,
     });
-    expect(result).toEqual({ ok: false, reason: 'STALE' });
+    expect(result).toMatchObject({ ok: false, reason: 'STALE' });
   });
 
   it('recusa tudo quando o segredo não está configurado', () => {
@@ -119,6 +229,6 @@ describe('assinatura do webhook Mercado Pago', () => {
       url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-1',
       now: NOW,
     });
-    expect(result).toEqual({ ok: false, reason: 'NOT_CONFIGURED' });
+    expect(result).toMatchObject({ ok: false, reason: 'NOT_CONFIGURED' });
   });
 });

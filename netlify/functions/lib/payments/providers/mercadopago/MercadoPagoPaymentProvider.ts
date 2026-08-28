@@ -31,6 +31,7 @@ import { verifyWebhookSignature } from './signature';
 
 const DEFAULT_PIX_EXPIRY_MINUTES = 30;
 const DEFAULT_BOLETO_EXPIRY_DAYS = 3;
+type MercadoPagoEnvironment = 'sandbox' | 'production';
 
 type OrderPayer = {
   email: string;
@@ -69,6 +70,22 @@ function buildPayer(payer: Payer, options: { requireIdentification?: boolean; re
   return out;
 }
 
+/**
+ * A Orders API usa compradores sintéticos em teste. O e-mail real continua no
+ * pedido local (entrega/licença); somente o payload enviado ao MP é trocado.
+ */
+function sandboxPayer(payer: Payer, method: 'pix' | 'card' | 'boleto'): OrderPayer {
+  const built = buildPayer(payer, {
+    requireIdentification: method !== 'pix',
+    requireAddress: method === 'boleto',
+  });
+  return {
+    ...built,
+    email: method === 'card' ? 'test@testuser.com' : 'test_user_br@testuser.com',
+    ...(method === 'pix' ? { first_name: 'APRO' } : {}),
+  };
+}
+
 /** Duração ISO-8601, formato aceito por `expiration_time` na Orders API. */
 function isoDuration(minutes: number): string {
   if (minutes % (24 * 60) === 0) return `P${minutes / (24 * 60)}D`;
@@ -80,11 +97,21 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
   readonly name = 'mercadopago';
 
   private readonly client: MercadoPagoClient;
+  private readonly environment: MercadoPagoEnvironment;
 
-  constructor(options: MpClientOptions | { client: MercadoPagoClient } = {}) {
+  constructor(options: (MpClientOptions | { client: MercadoPagoClient }) & { environment?: MercadoPagoEnvironment } = {}) {
     this.client = 'client' in options && options.client
       ? options.client
       : new MercadoPagoClient(options as MpClientOptions);
+    this.environment = options.environment ?? 'production';
+  }
+
+  private payer(payer: Payer, method: 'pix' | 'card' | 'boleto'): OrderPayer {
+    if (this.environment === 'sandbox') return sandboxPayer(payer, method);
+    return buildPayer(payer, {
+      requireIdentification: method !== 'pix',
+      requireAddress: method === 'boleto',
+    });
   }
 
   // ------------------------------------------------------------ cobranças --
@@ -113,7 +140,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
         total_amount: amount,
         external_reference: input.reference,
         description: input.description,
-        payer: buildPayer(input.payer),
+        payer: this.payer(input.payer, 'pix'),
         transactions: {
           payments: [
             {
@@ -141,7 +168,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
         total_amount: amount,
         external_reference: input.reference,
         description: input.description,
-        payer: buildPayer(input.payer, { requireIdentification: true }),
+        payer: this.payer(input.payer, 'card'),
         transactions: {
           payments: [
             {
@@ -172,7 +199,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
         total_amount: amount,
         external_reference: input.reference,
         description: input.description,
-        payer: buildPayer(input.payer, { requireIdentification: true, requireAddress: true }),
+        payer: this.payer(input.payer, 'boleto'),
         transactions: {
           payments: [
             {
@@ -334,7 +361,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
         reason: input.reason,
         external_reference: input.reference,
         back_url: input.backUrl,
-        payer_email: input.payer.email,
+        payer_email: this.environment === 'sandbox' ? 'test@testuser.com' : input.payer.email,
         card_token_id: input.cardToken,
         // "authorized" = já autorizada com o cartão tokenizado, sem redirect.
         status: 'authorized',

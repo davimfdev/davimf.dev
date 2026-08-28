@@ -13,7 +13,7 @@ import { MercadoPagoPaymentProvider } from './mercadopago/MercadoPagoPaymentProv
 export type PaymentsEnv = 'sandbox' | 'production';
 
 const FACTORIES: Record<string, () => PaymentProvider> = {
-  mercadopago: () => new MercadoPagoPaymentProvider(),
+  mercadopago: () => new MercadoPagoPaymentProvider({ environment: paymentsEnv() }),
 };
 
 let cached: { name: string; provider: PaymentProvider } | null = null;

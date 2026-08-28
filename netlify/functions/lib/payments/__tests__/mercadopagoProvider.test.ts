@@ -17,8 +17,11 @@ function stubFetch(responder: (call: FetchCall) => { status?: number; body: unkn
   return { impl, calls };
 }
 
-function provider(fetchImpl: typeof fetch) {
-  return new MercadoPagoPaymentProvider({ client: new MercadoPagoClient({ accessToken: 'TEST-token', fetchImpl }) });
+function provider(fetchImpl: typeof fetch, environment: 'sandbox' | 'production' = 'production') {
+  return new MercadoPagoPaymentProvider({
+    client: new MercadoPagoClient({ accessToken: 'TEST-token', fetchImpl }),
+    environment,
+  });
 }
 
 const PAYER = { email: 'comprador@example.com', identification: { type: 'CPF', number: '12345678909' } };
@@ -76,6 +79,40 @@ describe('MercadoPagoPaymentProvider', () => {
     expect(result.amountCents).toBe(3500);
     expect(result.display.pixQrCode).toBe('00020126_PIX_COPIA_E_COLA');
     expect(result.display.pixQrCodeBase64).toBe('aGVsbG8=');
+  });
+
+  it('usa o pagador sintético exigido pelo Mercado Pago para Pix em sandbox', async () => {
+    const { impl, calls } = stubFetch(() => ({
+      body: {
+        id: 'ORD-PIX-SANDBOX',
+        total_amount: '35.00',
+        transactions: { payments: [{ id: 'PAY-SANDBOX', amount: '35.00', status: 'action_required' }] },
+      },
+    }));
+
+    await provider(impl, 'sandbox').createPixPayment(BASE);
+
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.payer).toMatchObject({
+      email: 'test_user_br@testuser.com',
+      first_name: 'APRO',
+    });
+  });
+
+  it('preserva o pagador real em produção', async () => {
+    const { impl, calls } = stubFetch(() => ({
+      body: {
+        id: 'ORD-PIX-PRODUCTION',
+        total_amount: '35.00',
+        transactions: { payments: [{ id: 'PAY-PRODUCTION', amount: '35.00', status: 'action_required' }] },
+      },
+    }));
+
+    await provider(impl, 'production').createPixPayment(BASE);
+
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.payer.email).toBe(PAYER.email);
+    expect(body.payer.first_name).toBeUndefined();
   });
 
   it('cria pagamento com cartão enviando SÓ o token, nunca PAN/CVV', async () => {
@@ -212,6 +249,28 @@ describe('MercadoPagoPaymentProvider', () => {
 
     expect(result.status).toBe('ACTIVE');
     expect(result.providerSubscriptionId).toBe('PREAPP-1');
+  });
+
+  it('usa o e-mail de teste do Mercado Pago em assinaturas sandbox', async () => {
+    const { impl, calls } = stubFetch(() => ({
+      body: { id: 'PREAPP-SANDBOX', status: 'authorized' },
+    }));
+
+    await provider(impl, 'sandbox').createSubscription({
+      reference: 'DVMF-1',
+      amountCents: 3500,
+      currency: 'BRL',
+      reason: 'FMM Pro — Mensal',
+      payer: PAYER,
+      cardToken: 'tok_recorrente',
+      intervalUnit: 'months',
+      intervalCount: 1,
+      backUrl: 'https://davimf.dev/fmm-activated?order=1',
+      idempotencyKey: 'sub-sandbox',
+    });
+
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.payer_email).toBe('test@testuser.com');
   });
 
   it('cancela assinatura sem apagar nada no provider', async () => {

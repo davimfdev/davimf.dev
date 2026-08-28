@@ -1,6 +1,6 @@
 // netlify/functions/ticket-get.ts
 import { Config, Context } from '@netlify/functions';
-import { neon } from '@netlify/neon';
+import { ticketsDbSql } from './lib/db.js';
 
 export default async (req: Request, _context: Context) => {
   const json = (b: unknown, status: number) =>
@@ -10,7 +10,7 @@ export default async (req: Request, _context: Context) => {
   if (!id) return json({ error: 'id é obrigatório.' }, 400);
 
   try {
-    const sql = neon(process.env.TICKETS_NEON!);
+    const sql = ticketsDbSql;
     const rows = await sql`
       SELECT guild_name, channel_name, salt_key, salt_hash, iv, ciphertext, password_hash, iterations
       FROM tickets WHERE id = ${id} LIMIT 1`;

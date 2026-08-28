@@ -1,6 +1,6 @@
 import { Config, Context } from '@netlify/functions';
-import { neon } from '@netlify/neon';
 import jwt from 'jsonwebtoken';
+import { authDbSql } from './lib/db.js';
 
 interface UserPayload {
   userId: number;
@@ -37,7 +37,7 @@ export default async (req: Request, context: Context) => {
     });
   }
 
-  const sql = neon(process.env.NETLIFY_DATABASE_URL!);
+  const sql = authDbSql;
 
   try {
     switch (req.method) {

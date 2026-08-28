@@ -1,163 +1,115 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle, Copy, Check, Download, AlertCircle, Loader } from 'lucide-react';
+/**
+ * Resultado da compra do FMM.
+ *
+ * A tela lê o PEDIDO no backend (`?order=<id>`); a chave só aparece porque o
+ * backend já confirmou PAID e persistiu a licença — nunca porque o frontend
+ * "achou" que o pagamento deu certo.
+ *
+ * `?ref=` continua aceito para não quebrar links antigos do fluxo AbacatePay.
+ */
 
-interface ClaimResult {
-  key?: string;
-  plan?: string;
-  period?: string;
-  status?: string;
-}
+import { useEffect, useRef, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { AlertCircle, Loader } from 'lucide-react';
+import { ApiError, paymentsApi, type PaymentView } from '../features/checkout/api';
+import { PaymentResult } from '../features/checkout/PaymentResult';
 
-const PERIOD_LABEL: Record<string, string> = {
-  monthly: 'Mensal (30 dias)',
-  quarterly: 'Trimestral (90 dias)',
-  lifetime: 'Vitalício',
-};
+const SETTLED = new Set(['PAID', 'DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED', 'REFUNDED', 'CHARGEBACK']);
 
 const FmmActivated = () => {
   const [params] = useSearchParams();
-  const ref = params.get('ref');
+  const orderId = params.get('order');
+  const legacyRef = params.get('ref');
 
-  const [result, setResult] = useState<ClaimResult | null>(null);
+  const [payment, setPayment] = useState<PaymentView | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const settled = useRef(false);
 
   useEffect(() => {
-    if (!ref) {
-      setError('Link inválido. Verifique o e-mail de confirmação.');
+    if (!orderId) {
+      setLoading(false);
+      setError(
+        legacyRef
+          ? 'Este link é de um pedido antigo. Suas chaves estão em Minhas Chaves.'
+          : 'Link inválido. Abra o pedido a partir de Minhas Chaves.',
+      );
       return;
     }
 
-    let attempts = 0;
-    const MAX = 20;
+    let active = true;
 
-    const poll = async () => {
+    const load = async () => {
       try {
-        const discordToken = localStorage.getItem('discord_token');
-        const res = await fetch(`/api/fmm-claim?ref=${ref}`, {
-          headers: discordToken ? { Authorization: `Bearer ${discordToken}` } : {},
-        });
-        const data: ClaimResult & { error?: string } = await res.json();
-
-        if (!res.ok) {
-          setError(data.error || 'Erro ao verificar pagamento.');
-          clearInterval(interval);
+        const { payment: current } = await paymentsApi.order(orderId);
+        if (!active) return;
+        if (!current) {
+          setError('Este pedido ainda não tem pagamento registrado.');
           return;
         }
-
-        if (data.key) {
-          setResult(data);
-          clearInterval(interval);
-          return;
+        setPayment(current);
+        if (SETTLED.has(current.status)) settled.current = true;
+      } catch (caught) {
+        if (!active) return;
+        if (caught instanceof ApiError && caught.status === 401) {
+          setError('Faça login com Discord para ver este pedido.');
+        } else if (caught instanceof ApiError && caught.status === 404) {
+          setError('Pedido não encontrado.');
+        } else {
+          setError('Não foi possível carregar o pedido. Tente recarregar a página.');
         }
-
-        attempts++;
-        if (attempts >= MAX) {
-          clearInterval(interval);
-          setError('Pagamento ainda não confirmado. Aguarde alguns minutos e recarregue a página.');
-        }
-      } catch {
-        attempts++;
-        if (attempts >= MAX) {
-          clearInterval(interval);
-          setError('Erro de conexão. Recarregue a página.');
-        }
+      } finally {
+        if (active) setLoading(false);
       }
     };
 
-    poll();
-    const interval = setInterval(poll, 3000);
-    return () => clearInterval(interval);
-  }, [ref]);
+    void load();
 
-  const copyKey = () => {
-    if (!result?.key) return;
-    navigator.clipboard.writeText(result.key);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    // Polling apenas de UX: a confirmação definitiva vem do backend/webhook.
+    const interval = setInterval(() => {
+      if (settled.current) return clearInterval(interval);
+      void load();
+    }, 5000);
 
-  if (error) {
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, [orderId, legacyRef]);
+
+  if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in relative z-10 px-4">
         <div className="glass-panel p-10 max-w-md w-full text-center">
-          <AlertCircle className="text-red-400 mx-auto mb-4" size={48} />
-          <h2 className="text-2xl font-bold text-white mb-3">Algo deu errado</h2>
-          <p className="text-gray-400 mb-6">{error}</p>
-          <Link to="/contact" className="btn-primary inline-block">Entrar em Contato</Link>
+          <Loader className="text-accent mx-auto mb-4 animate-spin" size={44} />
+          <h2 className="text-xl font-display font-bold text-[#F5F3EF] mb-2">Carregando pedido…</h2>
         </div>
       </div>
     );
   }
 
-  if (!result?.key) {
+  if (error || !payment) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in relative z-10 px-4">
         <div className="glass-panel p-10 max-w-md w-full text-center">
-          <Loader className="text-accent mx-auto mb-4 animate-spin" size={48} />
-          <h2 className="text-2xl font-bold text-white mb-3">Confirmando pagamento...</h2>
-          <p className="text-gray-400">Isso pode levar alguns segundos.</p>
+          <AlertCircle className="text-red-400 mx-auto mb-4" size={44} />
+          <h2 className="text-2xl font-display font-bold text-[#F5F3EF] mb-3">Não foi possível abrir o pedido</h2>
+          <p className="text-[#A8A8A4] mb-6">{error}</p>
+          <div className="flex gap-3 justify-center">
+            <Link to="/my-keys" className="btn-primary">Minhas Chaves</Link>
+            <Link to="/contact" className="btn-secondary">Contato</Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in relative z-10 px-4">
-      <div className="glass-panel p-10 max-w-lg w-full">
-        <div className="text-center mb-8">
-          <CheckCircle className="text-green-400 mx-auto mb-4" size={52} />
-          <h2 className="text-3xl font-bold text-white mb-1">Pagamento Confirmado!</h2>
-          <p className="text-gray-400">
-            Plano <span className="text-accent font-semibold capitalize">{result.plan}</span>{' '}
-            — {PERIOD_LABEL[result.period ?? ''] ?? result.period}
-          </p>
-        </div>
-
-        <div className="mb-6">
-          <p className="text-sm text-gray-400 mb-2 font-medium">Sua chave de licença:</p>
-          <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-xl px-4 py-3">
-            <code className="text-accent font-mono text-lg tracking-widest flex-grow select-all">
-              {result.key}
-            </code>
-            <button
-              onClick={copyKey}
-              className="text-gray-400 hover:text-white transition-colors flex-shrink-0"
-              title="Copiar chave"
-            >
-              {copied ? <Check size={20} className="text-green-400" /> : <Copy size={20} />}
-            </button>
-          </div>
-          <p className="text-xs text-gray-500 mt-2">
-            Guarde esta chave em local seguro. Ela não será exibida novamente.
-          </p>
-        </div>
-
-        <div className="mb-8">
-          <p className="text-sm text-gray-400 mb-3 font-medium">Download do aplicativo:</p>
-          <a
-            href="https://github.com/davimfdev/FMM-Releases/releases/latest/download/FMM.exe"
-            className="w-full flex items-center justify-center gap-2 btn-primary"
-            download
-          >
-            <Download size={18} />
-            Baixar FMM.exe
-          </a>
-        </div>
-
-        <div className="bg-accent/10 border border-accent/20 rounded-xl p-4 text-sm text-gray-300">
-          <p className="font-semibold text-accent mb-1">Como ativar:</p>
-          <ol className="list-decimal list-inside space-y-1 text-gray-400">
-            <li>Baixe e abra o FiveM Mod Manager</li>
-            <li>Vá em <span className="text-white">Configurações → Ativar Licença</span></li>
-            <li>Cole a chave acima e confirme</li>
-          </ol>
-        </div>
-
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Dúvidas?{' '}
-          <Link to="/contact" className="text-accent hover:underline">Entre em contato</Link>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in relative z-10 px-4 py-12">
+      <div className="glass-panel bg-[#121211] p-8 sm:p-10 max-w-lg w-full">
+        <PaymentResult payment={payment} />
+        <p className="text-center text-sm text-[#6B6B67] mt-8">
+          Dúvidas? <Link to="/contact" className="text-accent hover:underline">Entre em contato</Link>
         </p>
       </div>
     </div>

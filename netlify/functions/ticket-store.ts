@@ -1,6 +1,6 @@
 // netlify/functions/ticket-store.ts
 import { Config, Context } from '@netlify/functions';
-import { neon } from '@netlify/neon';
+import { ticketsDbSql } from './lib/db.js';
 
 const REQUIRED = [
   'id', 'source', 'guildName', 'channelName',
@@ -23,7 +23,7 @@ export default async (req: Request, _context: Context) => {
   }
 
   try {
-    const sql = neon(process.env.TICKETS_NEON!);
+    const sql = ticketsDbSql;
     await sql`
       INSERT INTO tickets
         (id, source, guild_name, channel_name, salt_key, salt_hash, iv, ciphertext, password_hash, iterations)

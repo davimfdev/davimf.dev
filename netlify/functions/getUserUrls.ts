@@ -1,7 +1,7 @@
 import { Handler } from '@netlify/functions';
-import { neon } from '@neondatabase/serverless';
+import { siteDbSql } from './lib/db.js';
 
-const sql = neon(process.env.DATABASE_URL!);
+const sql = siteDbSql;
 
 export const handler: Handler = async (event) => {
     const authHeader = event.headers.authorization;

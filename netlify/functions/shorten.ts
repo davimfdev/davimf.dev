@@ -1,5 +1,5 @@
-import { neon } from '@neondatabase/serverless';
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
+import { siteDbSql } from './lib/db.js';
 
 // The Handler type is important for type-checking and auto-completion
 const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
@@ -12,7 +12,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
   }
 
   // Initialize Neon connection
-  const sql = neon(process.env.DATABASE_URL!);
+  const sql = siteDbSql;
 
   try {
     const body = JSON.parse(event.body || "{}");

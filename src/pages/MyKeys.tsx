@@ -1,60 +1,112 @@
+/**
+ * Minhas Chaves — a licença permanece recuperável fora do e-mail.
+ *
+ * O backend devolve a chave completa quando ela é decifrável (cópia cifrada
+ * gravada na compra); chaves antigas, geradas antes do módulo de pagamentos,
+ * só têm o prefixo — e a tela diz isso em vez de fingir que sumiu.
+ */
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Key, Copy, Check, ShieldCheck, Zap } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
+import { Check, Copy, Download, Key, RefreshCw, ShieldCheck, XCircle, Zap } from 'lucide-react';
+import { ApiError, paymentsApi } from '../features/checkout/api';
 
-interface LicenseKey {
-  key_prefix: string;
+interface LicenseRow {
+  id: number;
+  key: string | null;
+  keyPrefix: string;
   level: string;
-  duration_days: number;
-  expires_at: string;
-  notes: string | null;
-  created_at: string;
+  status: string;
+  durationDays: number;
+  expiresAt: string | null;
+  activatedAt: string | null;
+  createdAt: string;
+  orderId: string | null;
 }
 
-const MyKeys = () => {
-  const { translations } = useLanguage();
-  const t = translations as any;
+interface SubscriptionRow {
+  id: string;
+  status: string;
+  autoRenew: boolean;
+  nextBillingDate: string | null;
+  amountCents: number;
+  currency: string;
+}
 
-  const [keys, setKeys] = useState<LicenseKey[]>([]);
+const STATUS_STYLE: Record<string, { label: string; className: string }> = {
+  ACTIVE: { label: 'Ativa', className: 'text-green-400 bg-green-500/10' },
+  EXPIRED: { label: 'Expirada', className: 'text-[#A8A8A4] bg-white/[0.06]' },
+  SUSPENDED: { label: 'Suspensa', className: 'text-amber-400 bg-amber-500/10' },
+  REVOKED: { label: 'Revogada', className: 'text-red-400 bg-red-500/10' },
+};
+
+const isLifetime = (days: number) => days >= 36500;
+
+const formatDate = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleDateString('pt-BR') : '—';
+
+const MyKeys = () => {
+  const [licenses, setLicenses] = useState<LicenseRow[]>([]);
+  const [subscriptions, setSubscriptions] = useState<SubscriptionRow[]>([]);
+  const [downloadUrl, setDownloadUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState<string | null>(null);
+  const [copied, setCopied] = useState<number | null>(null);
+  const [cancelling, setCancelling] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('discord_token');
-    if (!token) {
-      setError('Faça login com Discord para ver suas chaves.');
-      setLoading(false);
-      return;
-    }
+    let active = true;
 
-    fetch('/api/fmm-my-keys', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) { setError(data.error || 'Erro ao carregar chaves.'); return; }
-        setKeys(data);
+    Promise.all([paymentsApi.licenses(), paymentsApi.subscriptions().catch(() => ({ subscriptions: [] }))])
+      .then(([licenseData, subscriptionData]) => {
+        if (!active) return;
+        setLicenses(licenseData.licenses);
+        setDownloadUrl(licenseData.downloadUrl);
+        setSubscriptions(subscriptionData.subscriptions as SubscriptionRow[]);
       })
-      .catch(() => setError('Erro de conexão.'))
-      .finally(() => setLoading(false));
+      .catch((caught: unknown) => {
+        if (!active) return;
+        setError(
+          caught instanceof ApiError && caught.status === 401
+            ? 'Faça login com Discord para ver suas chaves.'
+            : 'Não foi possível carregar suas chaves.',
+        );
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const copyPrefix = (prefix: string) => {
-    navigator.clipboard.writeText(prefix);
-    setCopied(prefix);
+  const copyKey = (license: LicenseRow) => {
+    if (!license.key) return;
+    navigator.clipboard.writeText(license.key);
+    setCopied(license.id);
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const isExpired = (expires_at: string) => new Date(expires_at) < new Date();
-  const isLifetime = (days: number) => days >= 36500;
+  const cancelSubscription = async (id: string) => {
+    setCancelling(id);
+    try {
+      await paymentsApi.cancelSubscription(id);
+      setSubscriptions((current) =>
+        current.map((item) => (item.id === id ? { ...item, status: 'CANCELLED', autoRenew: false } : item)),
+      );
+    } catch {
+      setError('Não foi possível cancelar a renovação. Tente novamente.');
+    } finally {
+      setCancelling(null);
+    }
+  };
 
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-20 text-center animate-fade-in relative z-10">
         <div className="inline-block w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-gray-400">Carregando suas chaves...</p>
+        <p className="text-[#A8A8A4]">Carregando suas chaves…</p>
       </div>
     );
   }
@@ -71,60 +123,74 @@ const MyKeys = () => {
   return (
     <div className="container mx-auto px-4 py-12 animate-fade-in relative z-10 max-w-3xl">
       <div className="flex items-center gap-3 mb-8">
-        <Key size={28} className="text-accent" />
-        <h1 className="text-3xl font-extrabold text-white">Minhas Chaves FMM</h1>
+        <Key size={26} className="text-accent" />
+        <h1 className="text-3xl font-display font-extrabold text-[#F5F3EF]">Minhas Chaves FMM</h1>
       </div>
 
-      {keys.length === 0 ? (
+      {licenses.length === 0 ? (
         <div className="glass-panel p-10 text-center">
-          <Key size={48} className="text-gray-600 mx-auto mb-4" />
-          <p className="text-gray-400">Nenhuma chave encontrada.</p>
+          <Key size={44} className="text-[#3A3A36] mx-auto mb-4" />
+          <p className="text-[#A8A8A4]">Nenhuma chave encontrada.</p>
           <Link to="/fmm" className="mt-4 inline-block text-accent hover:underline">Ver planos</Link>
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {keys.map((k) => {
-            const expired = isExpired(k.expires_at);
-            const lifetime = isLifetime(k.duration_days);
-            const levelColor = k.level === 'pro' ? 'text-accent' : 'text-accent';
-            const levelBorder = k.level === 'pro' ? 'border-accent/30' : 'border-accent/30';
-            const levelBg = k.level === 'pro' ? 'bg-accent/5' : 'bg-accent/5';
+          {licenses.map((license) => {
+            const status = STATUS_STYLE[license.status] ?? STATUS_STYLE.ACTIVE;
+            const lifetime = isLifetime(license.durationDays);
 
             return (
-              <div key={k.key_prefix} className={`glass-panel p-5 border ${levelBorder} ${levelBg}`}>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      {k.level === 'pro'
-                        ? <ShieldCheck size={16} className="text-accent" />
-                        : <Zap size={16} className="text-accent" />}
-                      <span className={`text-xs font-bold uppercase tracking-widest ${levelColor}`}>
-                        {k.level}
-                      </span>
-                      {expired && (
-                        <span className="text-xs font-semibold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">
-                          Expirada
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <code className="font-mono text-gray-300 text-sm">{k.key_prefix}…</code>
-                      <button
-                        onClick={() => copyPrefix(k.key_prefix)}
-                        className="text-gray-600 hover:text-gray-300 transition-colors"
-                        title="Copiar prefixo"
-                      >
-                        {copied === k.key_prefix
-                          ? <Check size={14} className="text-green-400" />
-                          : <Copy size={14} />}
-                      </button>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                      {lifetime ? 'Vitalício' : `Expira: ${new Date(k.expires_at).toLocaleDateString('pt-BR')}`}
-                      {' · '}
-                      Criada em {new Date(k.created_at).toLocaleDateString('pt-BR')}
-                    </p>
-                  </div>
+              <div key={license.id} className="glass-panel p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  {license.level === 'pro'
+                    ? <ShieldCheck size={15} className="text-accent" />
+                    : <Zap size={15} className="text-accent" />}
+                  <span className="text-xs font-bold uppercase tracking-widest text-accent">FMM {license.level}</span>
+                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${status.className}`}>
+                    {status.label}
+                  </span>
+                </div>
+
+                <div className="bg-black/30 border border-white/10 rounded-lg px-3.5 py-2.5 flex items-center gap-3">
+                  <code className="font-mono text-sm text-[#F5F3EF] tracking-wider flex-grow break-all select-all">
+                    {license.key ?? `${license.keyPrefix}…`}
+                  </code>
+                  {license.key && (
+                    <button
+                      onClick={() => copyKey(license)}
+                      className="text-[#6B6B67] hover:text-[#F5F3EF] transition-colors flex-shrink-0"
+                      title="Copiar chave"
+                      aria-label="Copiar chave"
+                    >
+                      {copied === license.id
+                        ? <Check size={16} className="text-green-400" />
+                        : <Copy size={16} />}
+                    </button>
+                  )}
+                </div>
+
+                {!license.key && (
+                  <p className="text-[11px] text-[#6B6B67] mt-2">
+                    Esta chave foi emitida antes do painel guardar a cópia completa — use a chave
+                    recebida por e-mail, ou fale com o suporte.
+                  </p>
+                )}
+
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs text-[#6B6B67]">
+                  <span>Validade: {lifetime ? 'Vitalícia' : formatDate(license.expiresAt)}</span>
+                  <span>Emitida em {formatDate(license.createdAt)}</span>
+                  {license.activatedAt && <span>Ativada em {formatDate(license.activatedAt)}</span>}
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-4">
+                  <a href={downloadUrl} download className="btn-secondary text-sm py-2 px-4">
+                    <Download size={14} className="mr-1.5" /> Baixar FMM
+                  </a>
+                  {license.orderId && (
+                    <Link to={`/fmm-activated?order=${license.orderId}`} className="btn-secondary text-sm py-2 px-4">
+                      Ver pedido
+                    </Link>
+                  )}
                 </div>
               </div>
             );
@@ -132,9 +198,41 @@ const MyKeys = () => {
         </div>
       )}
 
-      <p className="text-xs text-gray-600 mt-8 text-center">
-        Só o prefixo da chave é exibido por segurança. Guarde a chave completa recebida no e-mail.
-      </p>
+      {subscriptions.length > 0 && (
+        <section className="mt-10">
+          <h2 className="flex items-center gap-2 text-lg font-display font-bold text-[#F5F3EF] mb-4">
+            <RefreshCw size={17} className="text-accent" /> Renovação automática
+          </h2>
+          <div className="flex flex-col gap-3">
+            {subscriptions.map((subscription) => (
+              <div key={subscription.id} className="glass-panel p-4 flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                  <p className="text-sm text-[#F5F3EF] font-medium">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: subscription.currency })
+                      .format(subscription.amountCents / 100)}
+                    <span className="text-[#6B6B67] font-normal"> · {subscription.status === 'ACTIVE' ? 'ativa' : subscription.status.toLowerCase()}</span>
+                  </p>
+                  <p className="text-xs text-[#6B6B67] mt-0.5">
+                    {subscription.autoRenew
+                      ? `Próxima cobrança: ${formatDate(subscription.nextBillingDate)}`
+                      : 'Sem cobranças futuras. Sua licença continua válida até expirar.'}
+                  </p>
+                </div>
+                {subscription.autoRenew && (
+                  <button
+                    onClick={() => cancelSubscription(subscription.id)}
+                    disabled={cancelling === subscription.id}
+                    className="btn-secondary text-sm py-2 px-4 disabled:opacity-60"
+                  >
+                    <XCircle size={14} className="mr-1.5" />
+                    {cancelling === subscription.id ? 'Cancelando…' : 'Cancelar renovação'}
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 };

@@ -1,9 +1,9 @@
 import { Config, Context } from '@netlify/functions';
-import { neon } from '@netlify/neon';
 import { randomBytes, createHash } from 'crypto';
+import { authDbSql } from './lib/db.js';
 // import { Resend } from 'resend'; // Email sending is disabled for now
 
-const sql = neon(process.env.NETLIFY_DATABASE_URL!);
+const sql = authDbSql;
 // const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export default async (req: Request, context: Context) => {

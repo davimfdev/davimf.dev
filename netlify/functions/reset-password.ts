@@ -1,9 +1,9 @@
 import { Config, Context } from '@netlify/functions';
-import { neon } from '@netlify/neon';
 import bcrypt from 'bcryptjs';
 import { createHash } from 'crypto';
+import { authDbSql } from './lib/db.js';
 
-const sql = neon(process.env.NETLIFY_DATABASE_URL!);
+const sql = authDbSql;
 
 export default async (req: Request, context: Context) => {
   if (req.method !== 'POST') {

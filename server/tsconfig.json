@@ -32,5 +32,5 @@
     "types": ["node"]
   },
   "include": ["src/**/*.ts", "../netlify/functions/**/*.ts"],
-  "exclude": ["../netlify/functions/**/__tests__/**", "dist", "node_modules"]
+  "exclude": ["../netlify/functions/**/__tests__/**", "src/**/__tests__/**", "dist", "node_modules"]
 }

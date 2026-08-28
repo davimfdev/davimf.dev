@@ -23,7 +23,7 @@ export default async (req: Request, _context: Context) => {
   if (rows.length === 0) return errorResponse('Key not found', 404);
   const key = rows[0];
   if (!key.is_active) return errorResponse('Key revoked', 403);
-  if (key.expires_at && new Date(key.expires_at) < new Date())
+  if (key.expires_at && new Date(key.expires_at as string | Date) < new Date())
     return errorResponse('Key expired', 403);
   if (!key.activation_hwid || key.activation_hwid !== hwid_hash)
     return errorResponse('HWID mismatch', 403);

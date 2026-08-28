@@ -12,9 +12,7 @@
     "typecheck:functions": "tsc --noEmit -p tsconfig.functions.json"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.4",
     "@netlify/functions": "^5.2.0",
-    "@netlify/neon": "^0.1.0",
     "@tailwindcss/typography": "^0.5.19",
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",

@@ -1,5 +1,5 @@
 import { Config, Context } from '@netlify/functions';
-import { neon } from '@netlify/neon';
+import { siteDbSql } from './lib/db.js';
 
 export default async (req: Request, context: Context) => {
     if (req.method !== 'GET') return new Response('Method Not Allowed', { status: 405 });
@@ -16,7 +16,7 @@ export default async (req: Request, context: Context) => {
         if (!userRes.ok) return new Response(JSON.stringify({ error: 'Invalid Token' }), { status: 401 });
 
         const user = await userRes.json();
-        const sql = neon(process.env.DATABASE_URL!);
+        const sql = siteDbSql;
 
         const urls = await sql`SELECT * FROM urls WHERE user_id = ${user.id} ORDER BY created_at DESC`;
 

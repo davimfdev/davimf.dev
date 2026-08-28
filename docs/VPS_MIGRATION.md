@@ -28,12 +28,110 @@ o browser sempre chama `/api/...` na mesma origem da página.
 | `netlify/functions/*.ts` executadas como funções serverless | as **mesmas** `netlify/functions/*.ts`, importadas pelo Express em `server/` |
 | redirect `/api/* → /.netlify/functions/:splat` | rotas registradas em `server/src/routes/functions.ts` |
 | redirect SPA `/* → /index.html` | `try_files $uri $uri/ /index.html` no `nginx.conf` |
-| `process.env.URL` injetada pela plataforma | variável `URL` cadastrada manualmente |
-| um banco por variável mágica da Netlify | as 4 connection strings cadastradas explicitamente |
+| `process.env.URL` injetada pela plataforma | variável `URL` resolvida no arranque por `server/src/utils/env.ts` |
+| um banco por variável mágica da Netlify | connection strings cadastradas explicitamente |
+| driver HTTP da Neon (`@neondatabase/serverless`, `@netlify/neon`) | **PostgreSQL por TCP com pool** (`postgres.js`), ver abaixo |
 
 **Nenhum arquivo dentro de `netlify/functions/` foi alterado.** O backend adapta
 os handlers antigos em vez de reescrevê-los, o que mantém os 126 testes
 existentes válidos e o comportamento idêntico.
+
+### Banco: do driver HTTP da Neon para TCP
+
+O driver da Neon fala com o banco por **HTTP** (`fetch` para um endpoint da
+Neon). Depois da mudança para o VPS, o Postgres passou a ser um servidor comum
+em `postgres:5432` e não existe endpoint HTTP nenhum — daí o erro visto em
+produção:
+
+```
+NeonDbError: Error connecting to database: fetch failed
+  ECONNREFUSED
+  em createDashboardSession() ← handleCallback()   (/api/callback)
+```
+
+O mesmo atingia `/api/bot-guilds`, `/api/notes`, `/api/tasks`,
+`/api/getAccounts` e `/api/getTransactions`.
+
+**Driver escolhido: `postgres.js`.** A API é a mesma template tag que os ~25
+handlers já usavam (``await sql`SELECT ...` `` devolve array de linhas), então
+nenhuma query precisou ser reescrita. Com `pg` seria preciso converter toda
+query para `$1` + `.rows` — diff enorme, inclusive sobre o código financeiro.
+
+Tudo passa por `netlify/functions/lib/db.ts`:
+
+| Acessor | Variáveis (em ordem) | Banco |
+| --- | --- | --- |
+| `siteDbSql` | `DATABASE_URL` → `NETLIFY_DATABASE_URL` | `davimf_dev` |
+| `authDbSql` | `NETLIFY_DATABASE_URL` → `DATABASE_URL` | `davimf_dev` |
+| `botDbSql` | `POSTGRES_URL` → `BOT_CONFIG_DATABASE_URL` | `bot_configs` |
+| `ticketsDbSql` | `TICKETS_NEON` → `TICKETS_DATABASE_URL` | tickets |
+
+`siteDbSql` e `authDbSql` existem separados de propósito: os handlers antigos
+liam variáveis diferentes para o mesmo banco. Apontando as duas para a mesma
+URL — o caso normal — o **pool é o mesmo objeto**; apontando para bancos
+diferentes, cada handler continua indo aonde os dados dele estão. Unificar as
+duas listas poderia fazer tabela "sumir".
+
+**Um pool por connection string.** Vários handlers criavam o cliente *dentro*
+do handler (`const sql = neon(...)`). Com HTTP isso era grátis; com TCP,
+criar um cliente por requisição vazaria conexões até esgotar o
+`max_connections`. Os clientes são memoizados pela connection string, e
+`closeAllPools()` é chamado no `SIGTERM`/`SIGINT`.
+
+**Compatibilidade de comportamento** (o que foi conferido antes de trocar):
+
+- `transform: { undefined: null }` — o driver antigo (via `pg`) mandava
+  `undefined` como NULL; sem essa opção o `postgres.js` lança
+  `UNDEFINED_VALUE`, e handlers que interpolam campos crus do corpo da
+  requisição (`accounts.ts`) quebrariam;
+- os parsers padrão coincidem: `int8`/`numeric` → string, `jsonb` → objeto,
+  `timestamptz` → `Date`, `bool` → boolean;
+- arrays em `= ANY(${...})` e `text[]` continuam funcionando nativamente;
+- o erro de env var ausente continua sendo **síncrono**, como antes.
+
+Ajustes de pool por ambiente: `DB_POOL_MAX` (10), `DB_IDLE_TIMEOUT` (30),
+`DB_CONNECT_TIMEOUT` (10), `DB_MAX_LIFETIME` (1800), `DB_LOG_NOTICES`. Atrás de
+PgBouncer em modo `transaction`, desligue prepared statements com
+`DB_PREPARE=false` ou `PGBOUNCER=true`.
+
+### Configuração de ambiente no arranque
+
+`server/src/index.ts` executa, nesta ordem:
+
+1. **`loadEnvFileIfPresent()`** — procura um `.env` subindo até 4 níveis a
+   partir do CWD (e, se preciso, do diretório do módulo). Antes, só
+   `npm run dev` lia o arquivo, via `tsx --env-file-if-exists=../.env`;
+   `npm start` e o `CMD` do Docker não liam nada, então uma variável definida
+   **apenas** no `.env` sumia fora do modo dev. `process.loadEnvFile` não
+   sobrescreve o que já existe no ambiente, então **a env da plataforma continua
+   ganhando do arquivo**. Na imagem Docker o `.env` é excluído de propósito
+   (`.dockerignore`) e a função vira no-op. `ENV_FILE=/caminho/para/.env`
+   força um arquivo específico.
+
+2. **`applyCompatibilityEnv()`** — resolve a URL pública e grava o valor
+   normalizado em `process.env.URL`, que é o nome lido por `shorten`,
+   `abacate-checkout` e pelo módulo de pagamentos. Ordem de precedência:
+
+   `URL` › `PUBLIC_SITE_URL` › `SITE_URL` › `APP_URL` › `COOLIFY_URL` ›
+   `COOLIFY_FQDN` › `SERVICE_FQDN_*`
+
+   A normalização acrescenta `https://` quando a plataforma expõe só o host
+   (é o caso dos `SERVICE_FQDN_*` do Coolify) e remove a barra final — os
+   consumidores concatenam direto (`${URL}/r/${code}`), então
+   `https://davimf.dev/` geraria `//r/...`.
+
+   **O domínio não está embutido no código**: sai sempre do ambiente. Um valor
+   presente porém inválido é descartado, para não propagar link quebrado.
+
+3. **`warnMissingEnv()`** — separa obrigatórias de opcionais. `ABACATEPAY_KEY`
+   (checkout legado) e `PAYMENTS_PROVIDER`/`PAYMENTS_ENV` (têm padrão no
+   código) saíram da lista de ausentes e viraram uma linha informativa.
+
+O boot imprime de onde a configuração veio:
+
+```
+[api] configuração: .env em /app/.env; URL pública = https://davimf.dev
+```
 
 ### Como a compatibilidade funciona
 

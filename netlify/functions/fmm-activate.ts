@@ -21,7 +21,7 @@ export default async (req: Request, _context: Context) => {
   if (keys.length === 0) return errorResponse('Key not found', 404);
   const key = keys[0];
   if (!key.is_active) return errorResponse('Key revoked', 403);
-  if (key.expires_at && new Date(key.expires_at) < new Date())
+  if (key.expires_at && new Date(key.expires_at as string | Date) < new Date())
     return errorResponse('Key expired', 403);
 
   const activations = await sql`

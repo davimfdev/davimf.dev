@@ -1,7 +1,12 @@
+import { closeAllPools } from '../../netlify/functions/lib/db';
 import { createApp } from './app';
-import { applyCompatibilityEnv, warnMissingEnv } from './utils/env';
+import { applyCompatibilityEnv, loadEnvFileIfPresent, logEnvSummary, warnMissingEnv } from './utils/env';
 
-applyCompatibilityEnv();
+// Ordem importa: ler o .env (quando existe) antes de resolver a URL pública,
+// e resolver a URL antes de reportar o que está faltando.
+const envFile = loadEnvFileIfPresent();
+const siteUrl = applyCompatibilityEnv();
+logEnvSummary(envFile, siteUrl);
 warnMissingEnv();
 
 const port = Number(process.env.PORT || 3000);
@@ -14,7 +19,12 @@ const server = createApp().listen(port, host, () => {
 for (const signal of ['SIGTERM', 'SIGINT'] as const) {
   process.on(signal, () => {
     console.log(`[api] ${signal} recebido, encerrando...`);
-    server.close(() => process.exit(0));
+    // Para de aceitar requisição, depois devolve as conexões do pool ao
+    // Postgres. Com o driver HTTP da Neon não havia socket para fechar; com TCP,
+    // sair sem encerrar deixa conexões penduradas até o timeout do servidor.
+    server.close(() => {
+      void closeAllPools().finally(() => process.exit(0));
+    });
     setTimeout(() => process.exit(0), 10_000).unref();
   });
 }

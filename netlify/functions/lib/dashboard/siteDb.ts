@@ -1,14 +1,8 @@
-import { neon } from '@neondatabase/serverless';
-import type { DashboardSql, SqlRow } from '../botDb';
+// Banco do site (`davimf_dev`) na ótica do dashboard: precedência
+// `NETLIFY_DATABASE_URL` → `DATABASE_URL`, a mesma de antes.
+//
+// Conexão TCP com pool via lib/db.ts (ver o porquê da migração lá).
+import { authDbSql } from '../db';
+import type { DashboardSql } from '../botDb';
 
-type NeonSql = ReturnType<typeof neon>;
-let cached: NeonSql | null = null;
-
-function client(): NeonSql {
-  const url = process.env.NETLIFY_DATABASE_URL ?? process.env.DATABASE_URL;
-  if (!url) throw new Error('NETLIFY_DATABASE_URL or DATABASE_URL is required');
-  return (cached ??= neon(url));
-}
-
-export const siteSql = ((strings: TemplateStringsArray, ...values: unknown[]) =>
-  client()(strings, ...values) as Promise<SqlRow[]>) as DashboardSql;
+export const siteSql: DashboardSql = authDbSql;

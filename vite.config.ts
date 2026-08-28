@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 // URL do backend local (server/). Em produção o Nginx Proxy Manager é quem
@@ -8,6 +8,12 @@ const devApiTarget = process.env.VITE_DEV_API_PROXY ?? 'http://localhost:3000';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  test: {
+    // O vitest 4 não exclui `dist/` sozinho. Sem isto, uma build antiga em
+    // server/dist ou dist/ é coletada como suíte e roda o mesmo teste
+    // recompilado para CommonJS — que o vitest não consegue importar.
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.git/**'],
+  },
   optimizeDeps: {
     include: ['lucide-react'],
   },

@@ -1,5 +1,5 @@
 import { Config, Context } from '@netlify/functions';
-import { neon } from '@netlify/neon';
+import { siteDbSql } from './lib/db.js';
 
 export default async (req: Request, context: Context) => {
   const url = new URL(req.url);
@@ -14,7 +14,7 @@ export default async (req: Request, context: Context) => {
 
   try {
     // AJUSTE: Usando DATABASE_URL que é o padrão que configuramos no Neon
-    const sql = neon(process.env.DATABASE_URL!);
+    const sql = siteDbSql;
 
     // AJUSTE: Buscando por short_code (o texto) e não pelo id (o número)
     const result = await sql`SELECT original_url FROM urls WHERE short_code = ${shortCode} LIMIT 1`;

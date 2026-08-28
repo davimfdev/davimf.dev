@@ -1,7 +1,15 @@
-import { neon } from '@netlify/neon';
-import { createHmac, createHash, timingSafeEqual } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
+import { authDbSql } from './db.js';
+import { generateKeyString, keyPrefixOf, sha256Hex } from './fmm-keygen.js';
 
-export const sql = neon();
+// Banco do site (`davimf_dev`) por TCP com pool. Antes era `neon()` do
+// @netlify/neon, que lia NETLIFY_DATABASE_URL e falhava com o banco no VPS.
+// A resolução agora é preguiçosa: importar este módulo não exige a env var.
+export const sql = authDbSql;
+
+// Gerador/derivação de chave vivem em lib/fmm-keygen.ts (sem dependência de
+// banco), e são reexportados aqui para os handlers que já os importavam.
+export { generateKeyString, keyPrefixOf, sha256Hex };
 
 export type LicenseLevel = 'basic' | 'pro';
 
@@ -38,16 +46,6 @@ export function verifyHmac(
   } catch {
     return false;
   }
-}
-
-export function generateKeyString(): string {
-  const hex8 = () =>
-    [...Array(8)].map(() => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
-  return `FMM-${hex8()}-${hex8()}`;
-}
-
-export function sha256Hex(input: string): string {
-  return createHash('sha256').update(input).digest('hex');
 }
 
 export function jsonResponse(data: unknown, status = 200): Response {

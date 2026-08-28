@@ -1,5 +1,5 @@
 import { Config, Context } from '@netlify/functions';
-import { neon } from '@netlify/neon';
+import { siteDbSql } from './lib/db.js';
 
 export default async (req: Request, context: Context) => {
     // 1. Bloqueia se não for DELETE
@@ -30,7 +30,7 @@ export default async (req: Request, context: Context) => {
         const discordId = user.id;
 
         // 3. Conecta no Neon e deleta
-        const sql = neon(process.env.DATABASE_URL!);
+        const sql = siteDbSql;
         const result = await sql`
         DELETE FROM urls 
         WHERE id = ${urlId} AND user_id = ${discordId}

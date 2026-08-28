@@ -1,6 +1,6 @@
 import { Config, Context } from '@netlify/functions';
-import { neon } from '@netlify/neon';
 import jwt from 'jsonwebtoken';
+import { authDbSql } from './lib/db.js';
 
 interface UserPayload {
   userId: number;
@@ -9,7 +9,7 @@ interface UserPayload {
   exp: number;
 }
 
-const sql = neon(process.env.NETLIFY_DATABASE_URL!);
+const sql = authDbSql;
 
 const getUserIdFromToken = async (req: Request): Promise<number | null> => {
   const authHeader = req.headers.get('Authorization');

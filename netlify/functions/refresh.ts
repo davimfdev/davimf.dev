@@ -1,11 +1,11 @@
 import { Context } from '@netlify/functions';
-import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
 import { createHash, randomBytes } from 'crypto';
 import cookie from 'cookie';
+import { authDbSql } from './lib/db.js';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
-const sql = neon(process.env.NETLIFY_DATABASE_URL!);
+const sql = authDbSql;
 
 export default async (req: Request, context: Context) => {
   if (req.method !== 'POST') {

@@ -47,8 +47,33 @@ export const NETLIFY_STYLE_ROUTES: NetlifyStyleRoute[] = [
   { name: 'tasks', paths: ['/api/tasks'], load: () => import('../../../netlify/functions/tasks') },
 ];
 
+/**
+ * Módulo de pagamentos: um único handler cobre `/api/payments/*`, e o roteador
+ * interno (netlify/functions/lib/payments/router.ts) decide o subcaminho. Os
+ * caminhos ficam listados aqui para o Express registrá-los explicitamente —
+ * nada de wildcard engolindo rota nova por acidente.
+ */
+export const PAYMENTS_PATHS: string[] = [
+  '/api/payments/config',
+  '/api/payments/products',
+  '/api/payments/checkout',
+  '/api/payments/orders',
+  '/api/payments/orders/:orderId',
+  '/api/payments/pix',
+  '/api/payments/card',
+  '/api/payments/boleto',
+  '/api/payments/subscription',
+  '/api/payments/subscriptions',
+  '/api/payments/subscription/cancel',
+  '/api/payments/status',
+  '/api/payments/licenses',
+  '/api/payments/webhooks/mercadopago',
+  '/api/payments/admin/refund',
+];
+
 export const WEB_STYLE_ROUTES: WebStyleRoute[] = [
   { name: 'abacate-checkout', paths: ['/api/abacate-checkout'], load: () => import('../../../netlify/functions/abacate-checkout') },
+  { name: 'payments', paths: PAYMENTS_PATHS, load: () => import('../../../netlify/functions/payments') },
   { name: 'callback', paths: ['/api/callback'], load: () => import('../../../netlify/functions/callback') },
   // `config.path` era "/api/deleteurl"; "/api/delete-url" é o caminho que o
   // UrlShortener.tsx sempre chamou (e que estava 404 na Netlify por causa do hífen).

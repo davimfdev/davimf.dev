@@ -1,8 +1,8 @@
 import { Handler } from '@netlify/functions';
-import { neon } from '@neondatabase/serverless';
+import { siteDbSql } from './lib/db.js';
 
 // Conexão com o banco (Neon)
-const sql = neon(process.env.DATABASE_URL!);
+const sql = siteDbSql;
 
 // Função para validar o token e pegar o ID do Discord
 const getDiscordId = async (authHeader: string | null | undefined): Promise<string | null> => {
@@ -22,7 +22,7 @@ const getDiscordId = async (authHeader: string | null | undefined): Promise<stri
 };
 
 // Lógica de recorrência simplificada (sem Google)
-const getNextDueDate = (currentDueDate: string, recurrence: string): string => {
+const getNextDueDate = (currentDueDate: string | Date, recurrence: string): string => {
     const date = new Date(currentDueDate);
     const correctedDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
 
@@ -77,7 +77,7 @@ export const handler: Handler = async (event) => {
                 let newRecurringTask = null;
                 // Se a tarefa foi concluída e tem recorrência, cria a próxima
                 if (body.completed && !existingTask.completed && existingTask.recurrence !== 'None' && existingTask.due_date) {
-                    const nextDate = getNextDueDate(existingTask.due_date, existingTask.recurrence);
+                    const nextDate = getNextDueDate(existingTask.due_date as string | Date, String(existingTask.recurrence));
                     [newRecurringTask] = await sql`
                 INSERT INTO tasks (text, user_id, due_date, priority, recurrence, is_all_day, due_time)
                 VALUES (${existingTask.text}, ${discordId}, ${nextDate}, ${existingTask.priority}, ${existingTask.recurrence}, ${existingTask.is_all_day}, ${existingTask.due_time})

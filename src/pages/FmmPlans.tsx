@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLanguage } from "../context/LanguageContext.tsx";
 import {
   Check, Minus, Download,
   Package, Server, Settings, Zap, Layers, RefreshCw,
 } from 'lucide-react';
+import { CheckoutModal } from '../features/checkout/CheckoutModal';
+import { paymentsApi, type CatalogProduct } from '../features/checkout/api';
 
 type Period = 'monthly' | 'quarterly' | 'lifetime';
 type PlanKey = 'basic' | 'pro';
@@ -43,8 +45,9 @@ const FmmPlans = () => {
   const t = translations as any;
 
   const [period, setPeriod] = useState<Period>('monthly');
-  const [loading, setLoading] = useState<PlanKey | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [catalog, setCatalog] = useState<CatalogProduct[]>([]);
+  const [checkoutProduct, setCheckoutProduct] = useState<CatalogProduct | null>(null);
 
   const periods: { key: Period; label: string }[] = [
     { key: 'monthly',   label: t.monthly },
@@ -52,26 +55,25 @@ const FmmPlans = () => {
     { key: 'lifetime',  label: t.lifetime },
   ];
 
-  const handleBuy = async (planKey: PlanKey) => {
-    setLoading(planKey);
+  // Catálogo do backend: o preço mostrado no botão de compra vem do BANCO,
+  // nunca desta tela. A tabela comparativa continua usando as traduções.
+  useEffect(() => {
+    paymentsApi
+      .products('fmm')
+      .then(({ products }) => setCatalog(products))
+      .catch(() => setError('Não foi possível carregar os planos. Recarregue a página.'));
+  }, []);
+
+  const handleBuy = (planKey: PlanKey) => {
     setError(null);
-    try {
-      const res = await fetch('/api/abacate-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: planKey, period }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.url) {
-        setError(data.error || 'Erro ao processar pagamento.');
-        return;
-      }
-      window.location.href = data.url;
-    } catch {
-      setError('Erro de conexão. Tente novamente.');
-    } finally {
-      setLoading(null);
+    const code = `fmm-${planKey}-${period}`;
+    const product = catalog.find((item) => item.code === code);
+    if (!product) {
+      setError('Plano indisponível no momento. Tente novamente em instantes.');
+      return;
     }
+    // Checkout acontece DENTRO do site — sem redirect para página do provedor.
+    setCheckoutProduct(product);
   };
 
   const priceSuffix = () => {
@@ -265,10 +267,10 @@ const FmmPlans = () => {
             <div className="flex justify-center py-6 px-3">
               <button
                 onClick={() => handleBuy('basic')}
-                disabled={loading !== null}
+                disabled={catalog.length === 0}
                 className="w-full px-3 py-2.5 rounded-lg text-sm font-semibold text-accent border border-accent/50 hover:bg-accent-soft/10 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {loading === 'basic' ? '...' : t.subscribe}
+                {t.subscribe}
               </button>
             </div>
 
@@ -276,19 +278,23 @@ const FmmPlans = () => {
             <div className="flex justify-center py-6 px-3">
               <button
                 onClick={() => handleBuy('pro')}
-                disabled={loading !== null}
+                disabled={catalog.length === 0}
                 className="w-full px-3 py-2.5 rounded-lg text-sm font-bold text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 style={{ background: 'linear-gradient(90deg,#2563eb,#7c3aed)' }}
                 onMouseEnter={e => (e.currentTarget.style.filter = 'brightness(1.15)')}
                 onMouseLeave={e => (e.currentTarget.style.filter = '')}
               >
-                {loading === 'pro' ? '...' : t.subscribe}
+                {t.subscribe}
               </button>
             </div>
           </div>
 
         </div>
       </div>
+
+      {checkoutProduct && (
+        <CheckoutModal product={checkoutProduct} onClose={() => setCheckoutProduct(null)} />
+      )}
     </div>
   );
 };

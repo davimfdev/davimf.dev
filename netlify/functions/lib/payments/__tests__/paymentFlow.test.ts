@@ -5,11 +5,12 @@
  * licença sai só depois de PAID, webhook repetido não faz nada duas vezes.
  */
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FmmLicenseService } from '../application/FmmLicenseService';
 import { NotificationService } from '../application/NotificationService';
 import { OrderService } from '../application/OrderService';
 import { PaymentService } from '../application/PaymentService';
+import type { PayerProfileData } from '../repositories/PayerProfileRepository';
 import { ConflictError, ProviderTimeoutError, ValidationError } from '../domain/errors';
 import type { EmailProvider } from '../email/EmailProvider';
 import type {
@@ -48,6 +49,7 @@ function pixResult(overrides: Partial<ProviderPaymentResult> = {}): ProviderPaym
 class FakeProvider implements PaymentProvider {
   readonly name = 'mercadopago';
   readonly calls: string[] = [];
+  readonly inputs: unknown[] = [];
   nextPayment: ProviderPaymentResult = pixResult();
   nextWebhook: NormalizedWebhook | null = null;
   failWith: Error | null = null;
@@ -58,7 +60,7 @@ class FakeProvider implements PaymentProvider {
     return value;
   }
 
-  async createPixPayment() { return this.track('pix', this.nextPayment); }
+  async createPixPayment(input: unknown) { this.inputs.push(input); return this.track('pix', this.nextPayment); }
   async createCardPayment() { return this.track('card', this.nextPayment); }
   async createBoletoPayment() { return this.track('boleto', this.nextPayment); }
   async getPayment() { return this.track('get', this.nextPayment); }
@@ -94,10 +96,11 @@ type World = {
   payments: PaymentService;
   orders: OrderService;
   emails: Array<{ template: string; to: string }>;
+  savedPayerProfiles: Array<{ userId: string; profile: PayerProfileData }>;
   state: { order: SqlRow; payment: SqlRow | null; license: SqlRow | null; events: Set<string>; dispatches: Set<string> };
 };
 
-function buildWorld(options: { product?: Partial<SqlRow>; order?: Partial<SqlRow> } = {}): World {
+function buildWorld(options: { product?: Partial<SqlRow>; order?: Partial<SqlRow>; profileSaveFails?: boolean } = {}): World {
   const emails: Array<{ template: string; to: string }> = [];
   const state = {
     order: orderRow(options.order),
@@ -237,9 +240,16 @@ function buildWorld(options: { product?: Partial<SqlRow>; order?: Partial<SqlRow
   const provider = new FakeProvider();
   const orders = new OrderService();
   const notifications = new NotificationService(emailProvider);
-  const payments = new PaymentService(provider, orders, new FmmLicenseService(), notifications);
+  const savedPayerProfiles: Array<{ userId: string; profile: PayerProfileData }> = [];
+  const payerProfiles = {
+    saveFromCharge: async (userId: string, profile: PayerProfileData) => {
+      if (options.profileSaveFails) throw new Error('encrypted profile storage failed');
+      savedPayerProfiles.push({ userId, profile });
+    },
+  };
+  const payments = new PaymentService(provider, orders, new FmmLicenseService(), notifications, payerProfiles as never);
 
-  return { sql, provider, payments, orders, emails, state };
+  return { sql, provider, payments, orders, emails, savedPayerProfiles, state };
 }
 
 beforeEach(() => {
@@ -281,6 +291,15 @@ describe('preço', () => {
 // ----------------------------------------------------------------- Pix ----
 
 describe('Pix', () => {
+  const CONSENTED_PAYER: PayerProfileData = {
+    firstName: 'Davi', lastName: 'Moraes', email: 'comprador@example.com', phone: '+5511999999999',
+    identification: { type: 'CPF', number: '12345678909' },
+    address: {
+      zipCode: '01310100', streetName: 'Avenida Paulista', streetNumber: '1000',
+      neighborhood: 'Bela Vista', city: 'Sao Paulo', state: 'SP', complement: 'Apto 42',
+    },
+  };
+
   it('cria a cobrança, devolve QR e NÃO entrega licença antes de PAID', async () => {
     const world = buildWorld();
     const order = await world.orders.requireOrder('id');
@@ -357,6 +376,54 @@ describe('Pix', () => {
       'webhook',
     );
     expect(world.emails).toHaveLength(before + 1);
+  });
+
+  it('não salva perfil quando o consentimento está ausente ou é false', async () => {
+    const omitted = buildWorld();
+    const omittedOrder = await omitted.orders.requireOrder('id');
+    const omittedProduct = await omitted.orders.requireProduct('fmm-pro-monthly');
+    await omitted.payments.createPix({ order: omittedOrder, product: omittedProduct, payer: CONSENTED_PAYER });
+
+    const declined = buildWorld();
+    const declinedOrder = await declined.orders.requireOrder('id');
+    const declinedProduct = await declined.orders.requireProduct('fmm-pro-monthly');
+    await declined.payments.createPix({
+      order: declinedOrder, product: declinedProduct, payer: CONSENTED_PAYER, savePayerProfile: false,
+    });
+
+    expect(omitted.savedPayerProfiles).toEqual([]);
+    expect(declined.savedPayerProfiles).toEqual([]);
+  });
+
+  it('salva o perfil completo do dono quando o consentimento é exatamente true sem enviar flags ao provider', async () => {
+    const world = buildWorld();
+    const order = await world.orders.requireOrder('id');
+    const product = await world.orders.requireProduct('fmm-pro-monthly');
+
+    await world.payments.createPix({
+      order, product, payer: CONSENTED_PAYER, savePayerProfile: true,
+    });
+
+    expect(world.savedPayerProfiles).toEqual([{ userId: 'discord-1', profile: CONSENTED_PAYER }]);
+    expect(world.provider.inputs[0]).not.toHaveProperty('savePayerProfile');
+    expect(world.provider.inputs[0]).not.toHaveProperty('payerProfile');
+  });
+
+  it('mantém o resultado do pagamento quando salvar o perfil falha', async () => {
+    const world = buildWorld({ profileSaveFails: true });
+    const order = await world.orders.requireOrder('id');
+    const product = await world.orders.requireProduct('fmm-pro-monthly');
+    const errorLog = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const view = await world.payments.createPix({
+      order, product, payer: CONSENTED_PAYER, savePayerProfile: true,
+    });
+
+    expect(view.status).toBe('PENDING');
+    expect(world.state.payment?.status).toBe('PENDING');
+    expect(errorLog.mock.calls.flat().join(' ')).toContain('PAYER_PROFILE_SAVE_FAILED');
+    expect(errorLog.mock.calls.flat().join(' ')).not.toContain(CONSENTED_PAYER.identification.number);
+    errorLog.mockRestore();
   });
 });
 

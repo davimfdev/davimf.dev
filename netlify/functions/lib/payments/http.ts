@@ -12,6 +12,8 @@ import { describeDatabases, isMissingRelationError } from '../db';
 import { configuredSupportIds } from '../dashboard/guildAccess';
 import { requireDashboardSession } from '../dashboard/session';
 import { PaymentError, UnauthorizedError, ValidationError } from './domain/errors';
+import type { PayerProfileData } from './repositories/PayerProfileRepository';
+import type { Payer, PayerAddress, PayerIdentification } from './providers/PaymentProvider';
 
 const ALLOWED_ORIGINS = [
   'https://davimf.dev',
@@ -188,39 +190,128 @@ export function rejectRawCardData(body: Record<string, unknown>): void {
   }
 }
 
-export function parsePayer(body: Record<string, unknown>, fallbackEmail: string) {
-  const payer = (body.payer && typeof body.payer === 'object' ? body.payer : {}) as Record<string, unknown>;
-  rejectRawCardData(payer);
+function payerBody(body: Record<string, unknown>): Record<string, unknown> {
+  return (body.payer && typeof body.payer === 'object' && !Array.isArray(body.payer) ? body.payer : body) as Record<string, unknown>;
+}
 
-  const identificationRaw = (payer.identification && typeof payer.identification === 'object'
-    ? payer.identification
-    : {}) as Record<string, unknown>;
+function optionalPayerString(payer: Record<string, unknown>, field: string, maxLength: number): string | undefined {
+  const value = payer[field];
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== 'string' || value.trim() === '' || value.length > maxLength) {
+    throw new ValidationError(`Campo "${field}" inválido.`, 'FIELD_INVALID');
+  }
+  return value.trim();
+}
 
-  const documentNumber = typeof identificationRaw.number === 'string'
-    ? identificationRaw.number.replace(/\D/g, '')
-    : undefined;
+function requirePayerString(payer: Record<string, unknown>, field: string, maxLength: number): string {
+  return requireString(payer, field, maxLength);
+}
 
-  const addressRaw = (payer.address && typeof payer.address === 'object' ? payer.address : null) as Record<string, unknown> | null;
+function normalizeDigits(value: unknown, field: string, min: number, max: number): string {
+  if (typeof value !== 'string') throw new ValidationError(`Campo "${field}" inválido.`, 'FIELD_INVALID');
+  const digits = value.replace(/\D/g, '');
+  if (digits.length < min || digits.length > max) {
+    throw new ValidationError(`Campo "${field}" inválido.`, 'FIELD_INVALID');
+  }
+  return digits;
+}
 
+function parseIdentification(payer: Record<string, unknown>, required: boolean): PayerIdentification | undefined {
+  const raw = payer.identification;
+  if (raw === undefined || raw === null) {
+    if (required) throw new ValidationError('CPF/CNPJ é obrigatório.', 'PAYER_IDENTIFICATION_REQUIRED');
+    return undefined;
+  }
+  if (typeof raw !== 'object' || Array.isArray(raw)) throw new ValidationError('CPF/CNPJ inválido.', 'INVALID_IDENTIFICATION');
+  const identification = raw as Record<string, unknown>;
+  const number = normalizeDigits(identification.number, 'identification.number', 11, 14);
+  if (number.length !== 11 && number.length !== 14) throw new ValidationError('CPF/CNPJ inválido.', 'INVALID_IDENTIFICATION');
+  const type = typeof identification.type === 'string' ? identification.type.trim().toUpperCase() : number.length === 11 ? 'CPF' : 'CNPJ';
+  if ((type !== 'CPF' && type !== 'CNPJ') || (type === 'CPF' && number.length !== 11) || (type === 'CNPJ' && number.length !== 14)) {
+    throw new ValidationError('CPF/CNPJ inválido.', 'INVALID_IDENTIFICATION');
+  }
+  return { type, number };
+}
+
+function parseAddress(payer: Record<string, unknown>, required: boolean): PayerAddress | undefined {
+  const raw = payer.address;
+  if (raw === undefined || raw === null) {
+    if (required) throw new ValidationError('Endereço é obrigatório.', 'PAYER_ADDRESS_REQUIRED');
+    return undefined;
+  }
+  if (typeof raw !== 'object' || Array.isArray(raw)) throw new ValidationError('Endereço inválido.', 'INVALID_ADDRESS');
+  const address = raw as Record<string, unknown>;
+  const state = requirePayerString(address, 'state', 2).toUpperCase();
+  if (!/^[A-Z]{2}$/.test(state)) throw new ValidationError('Endereço inválido.', 'INVALID_ADDRESS');
   return {
-    email: typeof payer.email === 'string' && EMAIL_RE.test(payer.email) ? payer.email.toLowerCase() : fallbackEmail,
-    firstName: optionalString(payer, 'firstName', 60),
-    lastName: optionalString(payer, 'lastName', 60),
-    identification: documentNumber
-      ? {
-          type: typeof identificationRaw.type === 'string' ? identificationRaw.type : documentNumber.length > 11 ? 'CNPJ' : 'CPF',
-          number: documentNumber,
-        }
-      : undefined,
-    address: addressRaw
-      ? {
-          zipCode: String(addressRaw.zipCode ?? '').replace(/\D/g, ''),
-          streetName: String(addressRaw.streetName ?? ''),
-          streetNumber: String(addressRaw.streetNumber ?? ''),
-          neighborhood: addressRaw.neighborhood ? String(addressRaw.neighborhood) : undefined,
-          city: addressRaw.city ? String(addressRaw.city) : undefined,
-          state: addressRaw.state ? String(addressRaw.state) : undefined,
-        }
-      : undefined,
+    zipCode: normalizeDigits(address.zipCode, 'address.zipCode', 8, 8),
+    streetName: requirePayerString(address, 'streetName', 120),
+    streetNumber: requirePayerString(address, 'streetNumber', 20),
+    neighborhood: requirePayerString(address, 'neighborhood', 100),
+    city: requirePayerString(address, 'city', 100),
+    state,
+    complement: optionalPayerString(address, 'complement', 120),
   };
+}
+
+function payerEmail(payer: Record<string, unknown>, fallbackEmail?: string): string {
+  if (payer.email === undefined || payer.email === null || payer.email === '') {
+    if (fallbackEmail) return fallbackEmail;
+    throw new ValidationError('E-mail é obrigatório.', 'FIELD_REQUIRED');
+  }
+  return requireEmail(payer);
+}
+
+/** Parses optional payer details for a charge, validating every supplied field. */
+export function parsePayer(body: Record<string, unknown>, fallbackEmail: string): Payer {
+  const payer = payerBody(body);
+  rejectRawCardData(body);
+  rejectRawCardData(payer);
+  return {
+    email: payerEmail(payer, fallbackEmail),
+    firstName: optionalPayerString(payer, 'firstName', 60),
+    lastName: optionalPayerString(payer, 'lastName', 60),
+    phone: payer.phone === undefined || payer.phone === null || payer.phone === ''
+      ? undefined
+      : normalizeDigits(payer.phone, 'phone', 10, 15),
+    identification: parseIdentification(payer, false),
+    address: parseAddress(payer, false),
+  };
+}
+
+/** Parses a complete profile before it can be stored through explicit consent. */
+export function parsePayerProfile(body: Record<string, unknown>): PayerProfileData {
+  const payer = payerBody(body);
+  rejectRawCardData(body);
+  rejectRawCardData(payer);
+  const address = parseAddress(payer, true);
+  if (!address?.neighborhood || !address.city || !address.state) {
+    throw new ValidationError('Endereço inválido.', 'INVALID_ADDRESS');
+  }
+  return {
+    firstName: requirePayerString(payer, 'firstName', 60),
+    lastName: requirePayerString(payer, 'lastName', 60),
+    email: payerEmail(payer),
+    phone: payer.phone === undefined || payer.phone === null || payer.phone === ''
+      ? undefined
+      : normalizeDigits(payer.phone, 'phone', 10, 15),
+    identification: parseIdentification(payer, true)!,
+    address: {
+      zipCode: address.zipCode,
+      streetName: address.streetName,
+      streetNumber: address.streetNumber,
+      neighborhood: address.neighborhood,
+      city: address.city,
+      state: address.state,
+      complement: address.complement,
+    },
+  };
+}
+
+/** Only the literal true records reusable payer details. */
+export function parseSavePayerProfile(body: Record<string, unknown>): boolean {
+  const value = body.savePayerProfile;
+  if (value === undefined) return false;
+  if (typeof value !== 'boolean') throw new ValidationError('Consentimento de perfil inválido.', 'INVALID_PAYER_PROFILE_CONSENT');
+  return value;
 }

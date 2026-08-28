@@ -25,6 +25,7 @@
 import { getFmmLicenseService } from './application/FmmLicenseService';
 import { getOrderService } from './application/OrderService';
 import { getPaymentService } from './application/PaymentService';
+import { getPayerProfileService } from './application/PayerProfileService';
 import { getSubscriptionService } from './application/SubscriptionService';
 import { FMM_DOWNLOAD_URL, mercadoPagoPublicKey } from './config';
 import { ForbiddenError, ValidationError } from './domain/errors';
@@ -37,6 +38,8 @@ import {
   optionalString,
   originAllowed,
   parsePayer,
+  parsePayerProfile,
+  parseSavePayerProfile,
   readJson,
   rejectRawCardData,
   requireEmail,
@@ -135,7 +138,15 @@ async function loadChargeContext(request: Request) {
   const order = await orders.requireOwnedOrder(requireString(body, 'orderId', 64), user.id);
   const product = await orders.requireProduct(order.productCode);
 
-  return { user, body, order, product, payer: parsePayer(body, order.userEmail) };
+  const savePayerProfile = parseSavePayerProfile(body);
+  return {
+    user,
+    body,
+    order,
+    product,
+    payer: savePayerProfile ? parsePayerProfile(body) : parsePayer(body, order.userEmail),
+    savePayerProfile,
+  };
 }
 
 async function respondWithPayment(context: ChargeContext, view: Awaited<ReturnType<ReturnType<typeof getPaymentService>['createPix']>>) {
@@ -185,6 +196,7 @@ async function handlePix(request: Request): Promise<Response> {
     order: context.order,
     product: context.product,
     payer: context.payer,
+    savePayerProfile: context.savePayerProfile,
     idempotencyKey: optionalString(context.body, 'idempotencyKey', 120),
   });
   return respondWithPayment(context, view);
@@ -196,6 +208,7 @@ async function handleBoleto(request: Request): Promise<Response> {
     order: context.order,
     product: context.product,
     payer: context.payer,
+    savePayerProfile: context.savePayerProfile,
     idempotencyKey: optionalString(context.body, 'idempotencyKey', 120),
   });
   return respondWithPayment(context, view);
@@ -241,6 +254,7 @@ async function handleCard(request: Request): Promise<Response> {
     order: context.order,
     product: context.product,
     payer: context.payer,
+    savePayerProfile: context.savePayerProfile,
     cardToken,
     paymentMethodId,
     installments,
@@ -372,6 +386,23 @@ async function handleRefund(request: Request): Promise<Response> {
   return json({ payment: serializePayment(view) });
 }
 
+async function handlePayerProfileGet(request: Request): Promise<Response> {
+  const user = await requireUser(request);
+  return json(await getPayerProfileService().get(user.id));
+}
+
+async function handlePayerProfilePut(request: Request): Promise<Response> {
+  const user = await requireUser(request);
+  const body = await readJson(request);
+  const profile = await getPayerProfileService().upsert(user.id, parsePayerProfile(body));
+  return json({ profile });
+}
+
+async function handlePayerProfileDelete(request: Request): Promise<Response> {
+  const user = await requireUser(request);
+  return json({ deleted: await getPayerProfileService().delete(user.id) });
+}
+
 // ---------------------------------------------------------------- roteador --
 
 type Route = { method: string; path: string; handler: (request: Request) => Promise<Response> };
@@ -389,6 +420,9 @@ const ROUTES: Route[] = [
   { method: 'POST', path: '/api/payments/subscription/cancel', handler: handleSubscriptionCancel },
   { method: 'GET', path: '/api/payments/status', handler: handleStatus },
   { method: 'GET', path: '/api/payments/licenses', handler: handleLicenses },
+  { method: 'GET', path: '/api/payments/payer-profile', handler: handlePayerProfileGet },
+  { method: 'PUT', path: '/api/payments/payer-profile', handler: handlePayerProfilePut },
+  { method: 'DELETE', path: '/api/payments/payer-profile', handler: handlePayerProfileDelete },
   { method: 'POST', path: '/api/payments/webhooks/mercadopago', handler: handleWebhook },
   { method: 'POST', path: '/api/payments/admin/refund', handler: handleRefund },
 ];
@@ -415,9 +449,13 @@ export async function routePaymentsRequest(request: Request): Promise<Response> 
     const orderMatch = /^\/api\/payments\/orders\/([^/]+)$/.exec(path);
     if (orderMatch && method === 'GET') return await handleOrderById(request, decodeURIComponent(orderMatch[1]));
 
-    const route = ROUTES.find((candidate) => candidate.path === path);
-    if (!route) return errorJson('NOT_FOUND', `Rota ${method} ${path} não existe.`, 404);
-    if (route.method !== method) return errorJson('METHOD_NOT_ALLOWED', 'Método não permitido.', 405);
+    const route = ROUTES.find((candidate) => candidate.path === path && candidate.method === method);
+    if (!route) {
+      if (ROUTES.some((candidate) => candidate.path === path)) {
+        return errorJson('METHOD_NOT_ALLOWED', 'Método não permitido.', 405);
+      }
+      return errorJson('NOT_FOUND', `Rota ${method} ${path} não existe.`, 404);
+    }
 
     return await route.handler(request);
   } catch (error) {

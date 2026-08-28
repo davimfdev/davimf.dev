@@ -3,12 +3,29 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { rejectRawCardData } from '../http';
+import { requireDashboardSession } from '../../dashboard/session';
+import { parsePayer, rejectRawCardData } from '../http';
+import { upsertPayerProfile, type PayerProfileData } from '../repositories/PayerProfileRepository';
 import { ValidationError } from '../domain/errors';
 import { routePaymentsRequest } from '../router';
 import { FakeSql, productRow, uninstallSql } from './helpers';
 
+vi.mock('../../dashboard/session', () => ({
+  requireDashboardSession: vi.fn(),
+}));
+
 const ORIGIN = 'https://davimf.dev';
+const PAYER_PROFILE: PayerProfileData = {
+  firstName: 'Davi',
+  lastName: 'Moraes',
+  email: 'davi@example.com',
+  phone: '+5511999999999',
+  identification: { type: 'CPF', number: '12345678909' },
+  address: {
+    zipCode: '01310100', streetName: 'Avenida Paulista', streetNumber: '1000',
+    neighborhood: 'Bela Vista', city: 'Sao Paulo', state: 'SP', complement: 'Apto 42',
+  },
+};
 
 function request(path: string, init: RequestInit & { origin?: string } = {}): Request {
   const headers = new Headers(init.headers);
@@ -23,22 +40,56 @@ function request(path: string, init: RequestInit & { origin?: string } = {}): Re
 
 describe('roteador de pagamentos', () => {
   let sql: FakeSql;
+  let payerProfiles = new Map<string, Record<string, unknown>>();
 
   beforeEach(() => {
+    payerProfiles = new Map();
     sql = new FakeSql([
       { match: (q) => q.includes('FROM products'), rows: [productRow()] },
+      {
+        match: (q) => q.includes('INSERT INTO payer_profiles'),
+        rows: (_query, values) => {
+          const row = {
+            user_id: String(values[0]), first_name: String(values[1]), email: String(values[3]),
+            last_name: String(values[2]), sensitive_ciphertext: String(values[4]), cipher_version: 1,
+          };
+          payerProfiles.set(row.user_id, row);
+          return [row];
+        },
+      },
+      {
+        match: (q) => q.trimStart().startsWith('SELECT') && q.includes('FROM payer_profiles'),
+        rows: (_query, values) => {
+          const row = payerProfiles.get(String(values[0]));
+          return row ? [row] : [];
+        },
+      },
+      {
+        match: (q) => q.includes('DELETE FROM payer_profiles'),
+        rows: (_query, values) => payerProfiles.delete(String(values[0])) ? [{ user_id: values[0] }] : [],
+      },
     ]);
     sql.install();
     process.env.MERCADOPAGO_PUBLIC_KEY = 'TEST-public-key';
     process.env.PAYMENTS_ENV = 'sandbox';
+    process.env.PAYMENTS_PAYER_ENCRYPTION_KEY = Buffer.alloc(32, 11).toString('base64');
+    vi.mocked(requireDashboardSession).mockResolvedValue({ ok: false, status: 401, code: 'SESSION_INVALID' });
   });
 
   afterEach(() => {
     uninstallSql();
     delete process.env.MERCADOPAGO_PUBLIC_KEY;
     delete process.env.PAYMENTS_ENV;
+    delete process.env.PAYMENTS_PAYER_ENCRYPTION_KEY;
     vi.restoreAllMocks();
   });
+
+  function authenticate(userId = 'discord-1'): void {
+    vi.mocked(requireDashboardSession).mockResolvedValue({
+      ok: true,
+      session: { userId, accessToken: 'test-access-token', scopes: [], expiresAt: new Date('2027-01-01') },
+    });
+  }
 
   it('expõe a public key (é pública) e nunca o access token', async () => {
     process.env.MERCADOPAGO_ACCESS_TOKEN = 'TEST-SECRET-ACCESS-TOKEN';
@@ -110,6 +161,88 @@ describe('roteador de pagamentos', () => {
     expect((await response.json() as { error: { code: string } }).error.code).toBe('INVALID_SIGNATURE');
     delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
   });
+
+  it('expõe somente o perfil do usuário autenticado e sua disponibilidade de persistência', async () => {
+    await upsertPayerProfile('discord-1', PAYER_PROFILE);
+    await upsertPayerProfile('discord-2', { ...PAYER_PROFILE, email: 'other@example.com' });
+    authenticate('discord-1');
+
+    const response = await routePaymentsRequest(request('/api/payments/payer-profile'));
+    const body = await response.json() as { persistenceAvailable: boolean; profile: PayerProfileData | null };
+
+    expect(response.status).toBe(200);
+    expect(body).toEqual({ persistenceAvailable: true, profile: PAYER_PROFILE });
+    expect(JSON.stringify(body)).not.toContain('other@example.com');
+  });
+
+  it('exige sessão para ler, salvar ou apagar o perfil', async () => {
+    expect((await routePaymentsRequest(request('/api/payments/payer-profile'))).status).toBe(401);
+    expect((await routePaymentsRequest(request('/api/payments/payer-profile', {
+      method: 'PUT', body: JSON.stringify(PAYER_PROFILE),
+    }))).status).toBe(401);
+    expect((await routePaymentsRequest(request('/api/payments/payer-profile', { method: 'DELETE' }))).status).toBe(401);
+  });
+
+  it('recusa PUT e DELETE do perfil vindos de origem não autorizada', async () => {
+    authenticate();
+    for (const method of ['PUT', 'DELETE']) {
+      const response = await routePaymentsRequest(request('/api/payments/payer-profile', {
+        method, origin: 'https://evil.example', body: method === 'PUT' ? JSON.stringify(PAYER_PROFILE) : undefined,
+      }));
+      expect(response.status).toBe(403);
+    }
+  });
+
+  it('recusa salvar quando a chave de criptografia não está disponível sem expor dados do perfil', async () => {
+    delete process.env.PAYMENTS_PAYER_ENCRYPTION_KEY;
+    authenticate();
+    const errorLog = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const response = await routePaymentsRequest(request('/api/payments/payer-profile', {
+      method: 'PUT', body: JSON.stringify(PAYER_PROFILE),
+    }));
+    const body = await response.text();
+
+    expect(response.status).toBe(503);
+    expect(body).toContain('PAYER_PROFILE_PERSISTENCE_UNAVAILABLE');
+    expect(body).not.toContain(PAYER_PROFILE.identification.number);
+    expect(errorLog.mock.calls.flat().join(' ')).not.toContain(PAYER_PROFILE.identification.number);
+  });
+
+  it('não expõe PII quando o armazenamento do perfil falha', async () => {
+    authenticate();
+    sql.use([{
+      match: (query) => query.includes('INSERT INTO payer_profiles'),
+      rows: () => { throw new Error(`database rejected ${PAYER_PROFILE.identification.number}`); },
+    }]);
+    const errorLog = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const response = await routePaymentsRequest(request('/api/payments/payer-profile', {
+      method: 'PUT', body: JSON.stringify(PAYER_PROFILE),
+    }));
+    const body = await response.text();
+
+    expect(response.status).toBe(503);
+    expect(body).toContain('PAYER_PROFILE_PERSISTENCE_FAILED');
+    expect(body).not.toContain(PAYER_PROFILE.identification.number);
+    expect(errorLog.mock.calls.flat().join(' ')).not.toContain(PAYER_PROFILE.identification.number);
+  });
+
+  it('apaga o perfil de quem chamou de forma idempotente', async () => {
+    await upsertPayerProfile('discord-1', PAYER_PROFILE);
+    await upsertPayerProfile('discord-2', { ...PAYER_PROFILE, email: 'other@example.com' });
+    authenticate('discord-1');
+
+    const first = await routePaymentsRequest(request('/api/payments/payer-profile', { method: 'DELETE' }));
+    const second = await routePaymentsRequest(request('/api/payments/payer-profile', { method: 'DELETE' }));
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
+    expect((await first.json() as { deleted: boolean }).deleted).toBe(true);
+    expect((await second.json() as { deleted: boolean }).deleted).toBe(false);
+    authenticate('discord-2');
+    expect((await (await routePaymentsRequest(request('/api/payments/payer-profile'))).json() as { profile: unknown }).profile).toMatchObject({ email: 'other@example.com' });
+  });
 });
 
 describe('rejeição de dados sensíveis de cartão', () => {
@@ -132,6 +265,10 @@ describe('rejeição de dados sensíveis de cartão', () => {
     expect(() =>
       rejectRawCardData({ cardToken: 'tok_abc', paymentMethodId: 'master', installments: 3 }),
     ).not.toThrow();
+  });
+
+  it('rejeita nome vazio quando ele é enviado no pagador da cobrança', () => {
+    expect(() => parsePayer({ payer: { firstName: '' } }, 'comprador@example.com')).toThrow(ValidationError);
   });
 });
 
@@ -165,4 +302,5 @@ describe('migração ausente', () => {
     errorLog.mockRestore();
     uninstallSql();
   });
+
 });

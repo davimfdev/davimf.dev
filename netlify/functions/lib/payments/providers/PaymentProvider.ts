@@ -23,12 +23,14 @@ export type PayerAddress = {
   neighborhood?: string;
   city?: string;
   state?: string;
+  complement?: string;
 };
 
 export type Payer = {
   email: string;
   firstName?: string;
   lastName?: string;
+  phone?: string;
   identification?: PayerIdentification;
   address?: PayerAddress;
 };

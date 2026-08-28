@@ -51,6 +51,7 @@ import { getPaymentProvider } from '../providers/registry';
 import { FmmLicenseService, getFmmLicenseService } from './FmmLicenseService';
 import { getNotificationService, NotificationService } from './NotificationService';
 import { getOrderService, OrderService } from './OrderService';
+import { getPayerProfileService, PayerProfileService } from './PayerProfileService';
 
 /** Origem da atualização — decide se pode notificar. */
 export type UpdateSource = 'checkout' | 'webhook' | 'polling' | 'admin';
@@ -69,6 +70,8 @@ export type CreateChargeRequest = {
   payer: Payer;
   /** Chave da TENTATIVA (não do pedido). Duplo clique reaproveita a cobrança. */
   idempotencyKey?: string;
+  /** Explicit consent; this value is consumed here and never reaches the provider. */
+  savePayerProfile?: boolean;
 };
 
 export type CreateCardChargeRequest = CreateChargeRequest & {
@@ -85,7 +88,18 @@ export class PaymentService {
     private readonly orders: OrderService = getOrderService(),
     private readonly licenses: FmmLicenseService = getFmmLicenseService(),
     private readonly notifications: NotificationService = getNotificationService(),
+    private readonly payerProfiles: Pick<PayerProfileService, 'saveFromCharge'> = getPayerProfileService(),
   ) {}
+
+  private async savePayerProfileIfConsented(request: CreateChargeRequest): Promise<void> {
+    if (request.savePayerProfile !== true) return;
+    try {
+      await this.payerProfiles.saveFromCharge(request.order.userId, request.payer);
+    } catch {
+      // Best effort only: profile storage never changes a payment outcome.
+      console.error('[payments] PAYER_PROFILE_SAVE_FAILED');
+    }
+  }
 
   // ---------------------------------------------------------- criação -----
 
@@ -157,6 +171,7 @@ export class PaymentService {
     );
 
     const saved = await this.persist(payment, result);
+    await this.savePayerProfileIfConsented(request);
     await this.afterUpdate(saved, request.order, request.product, 'checkout');
     // Relê o pedido: um pagamento aprovado na hora (cartão) já virou PAID e
     // ganhou licença — a resposta reflete o estado final, não o pré-cobrança.
@@ -176,6 +191,7 @@ export class PaymentService {
     );
 
     const saved = await this.persist(payment, result);
+    await this.savePayerProfileIfConsented(request);
     await this.afterUpdate(saved, request.order, request.product, 'checkout');
     // Relê o pedido: um pagamento aprovado na hora (cartão) já virou PAID e
     // ganhou licença — a resposta reflete o estado final, não o pré-cobrança.
@@ -207,6 +223,7 @@ export class PaymentService {
     );
 
     const saved = await this.persist(payment, result);
+    await this.savePayerProfileIfConsented(request);
     await this.afterUpdate(saved, request.order, request.product, 'checkout');
     // Relê o pedido: um pagamento aprovado na hora (cartão) já virou PAID e
     // ganhou licença — a resposta reflete o estado final, não o pré-cobrança.

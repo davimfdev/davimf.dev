@@ -35,7 +35,12 @@ export type LegalCompany = {
   name: string;
   cnpj: string;
   address: string;
+  /** Canal do titular de dados (LGPD). */
   privacyEmail: string;
+  /** Atendimento comercial exigido pelo Decreto 7.962/2013. */
+  supportEmail: string;
+  /** Pedidos de reembolso: assunto financeiro, não de privacidade. */
+  billingEmail: string;
 };
 
 export type ConsentCopy = {

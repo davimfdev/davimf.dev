@@ -145,6 +145,7 @@ export const legalEn: LegalContent = {
         heading: 'Who you are contracting with',
         paragraphs: [
           `The products and services on this site are provided by ${IDENTIFICATION}.`,
+          `Customer support: ${COMPANY.supportEmail}. Billing and refunds: ${COMPANY.billingEmail}. Personal data and LGPD rights: ${COMPANY.privacyEmail}.`,
           'By using the site or making a purchase you agree to these Terms. If you do not agree, please do not use the service.',
         ],
       },
@@ -153,8 +154,10 @@ export const legalEn: LegalContent = {
         paragraphs: [
           'We sell software licences. A purchase grants you a personal, non-transferable activation key for the period stated on the product, and transfers neither ownership of the software nor any copyright in it.',
           'The software installer is distributed free of charge. What you buy is the licence that enables it.',
-          'Each key activates the software on ONE computer. The first activation binds the key to that machine, and attempts to activate it on another are refused. If you need to move to a different computer, talk to us.',
-          'Products described as lifetime are licences with no periodic renewal and no further charge, valid for the period stated on the product itself. They do not depend on an active subscription.',
+          'Each key activates the software on ONE computer. The first activation binds the key to that machine, and attempts to activate it on another are refused.',
+          `Changed computer, reinstalled the system or swapped hardware? Ask for an unbind at ${COMPANY.supportEmail} and the key can be activated again. While the product is supported, unbinding is free and has no limit on how many times you can request it.`,
+          'Products described as lifetime are licences with no periodic renewal, no further charge and no expiry date. They do not depend on an active subscription.',
+          'Should the software be discontinued — that is, should we stop shipping updates — we will publish a final version beforehand and stop selling new licences. Anyone already holding a lifetime licence receives a permanent key for that version, with no expiry and not tied to a particular machine.',
         ],
       },
       {
@@ -238,7 +241,7 @@ export const legalEn: LegalContent = {
       {
         heading: 'How to request',
         paragraphs: [
-          `Send a request to ${COMPANY.privacyEmail} with your account email and the order number. The order number is in your purchase confirmation email and in the "My orders" area.`,
+          `Send a request to ${COMPANY.billingEmail} with your account email and the order number. The order number is in your purchase confirmation email and in the "My orders" area.`,
           'We confirm receipt and process the refund through the same payment method used for the purchase.',
         ],
       },

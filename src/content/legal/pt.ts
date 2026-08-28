@@ -3,8 +3,10 @@ import type { LegalContent } from './types';
 const COMPANY = {
   name: '66.482.628 DAVI MONTEIRO FONSECA',
   cnpj: '66.482.628/0001-89',
-  address: 'Rua 1, nº 281, Casa 2, Lote 22, Quadra 9, Jardim Santo Antônio, CEP 74853-130, Goiás',
+  address: 'Rua 1, nº 281, Casa 2, Lote 22, Quadra 9, Jardim Santo Antônio, Goiânia - GO, CEP 74853-130',
   privacyEmail: 'privacidade@davimf.dev',
+  supportEmail: 'contato@davimf.dev',
+  billingEmail: 'financeiro@davimf.dev',
 };
 
 const IDENTIFICATION = `${COMPANY.name}, inscrita no CNPJ sob o nº ${COMPANY.cnpj}, com endereço em ${COMPANY.address}`;
@@ -150,6 +152,7 @@ export const legalPt: LegalContent = {
         heading: 'Quem contrata com você',
         paragraphs: [
           `Os produtos e serviços deste site são fornecidos por ${IDENTIFICATION}.`,
+          `Atendimento ao consumidor: ${COMPANY.supportEmail}. Assuntos financeiros e reembolso: ${COMPANY.billingEmail}. Dados pessoais e direitos da LGPD: ${COMPANY.privacyEmail}.`,
           'Ao usar o site ou realizar uma compra, você concorda com estes Termos. Se não concordar, não utilize o serviço.',
         ],
       },
@@ -158,8 +161,10 @@ export const legalPt: LegalContent = {
         paragraphs: [
           'Vendemos licenças de uso de software. A compra dá a você uma chave de ativação pessoal e intransferível, pelo prazo indicado no produto adquirido, e não transfere a propriedade do software nem qualquer direito autoral sobre ele.',
           'O instalador do software é distribuído gratuitamente. O que você adquire é a licença que o habilita.',
-          'Cada chave ativa o software em UM único computador. A primeira ativação vincula a chave àquela máquina, e tentativas de ativar em outra são recusadas. Se você precisar trocar de computador, fale conosco.',
-          'Produtos identificados como vitalícios são licenças sem renovação periódica e sem nova cobrança, válidas pelo prazo indicado no próprio produto. Não dependem de assinatura ativa.',
+          'Cada chave ativa o software em UM único computador. A primeira ativação vincula a chave àquela máquina, e tentativas de ativar em outra são recusadas.',
+          `Trocou de computador, formatou ou mudou de hardware? Peça a desvinculação em ${COMPANY.supportEmail} e a chave volta a poder ser ativada. Enquanto houver suporte ao produto, a desvinculação é gratuita e não tem limite de vezes.`,
+          'Produtos identificados como vitalícios são licenças sem renovação periódica, sem nova cobrança e sem data de expiração. Não dependem de assinatura ativa.',
+          'Se o software for descontinuado, ou seja, se deixarmos de publicar atualizações, antes disso publicaremos uma versão final e deixaremos de vender novas licenças. Quem já tiver licença vitalícia receberá uma chave definitiva para essa versão, sem prazo e sem vínculo a uma máquina específica.',
         ],
       },
       {
@@ -243,7 +248,7 @@ export const legalPt: LegalContent = {
       {
         heading: 'Como solicitar',
         paragraphs: [
-          `Envie um pedido para ${COMPANY.privacyEmail} informando o e-mail da conta e o número do pedido. O número do pedido está no e-mail de confirmação da compra e na área "Meus pedidos".`,
+          `Envie um pedido para ${COMPANY.billingEmail} informando o e-mail da conta e o número do pedido. O número do pedido está no e-mail de confirmação da compra e na área "Meus pedidos".`,
           'Confirmamos o recebimento e processamos o reembolso pelo mesmo meio de pagamento utilizado na compra.',
         ],
       },

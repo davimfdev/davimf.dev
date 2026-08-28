@@ -33,8 +33,12 @@ describe('conteúdo legal', () => {
       const { company } = legal[locale];
       expect(company.cnpj).toBe('66.482.628/0001-89');
       expect(company.name).toContain('DAVI MONTEIRO FONSECA');
+      // Município e UF explícitos: exigência de identificação do fornecedor.
+      expect(company.address).toContain('Goiânia - GO');
       expect(company.address).toContain('CEP');
       expect(company.privacyEmail).toBe('privacidade@davimf.dev');
+      expect(company.supportEmail).toBe('contato@davimf.dev');
+      expect(company.billingEmail).toBe('financeiro@davimf.dev');
     }
   });
 
@@ -70,11 +74,22 @@ describe('conteúdo legal', () => {
     expect(en).toContain('suspended');
   });
 
-  it('os termos declaram a restrição de uma máquina por chave', () => {
+  it('os termos declaram a restrição de uma máquina e a saída gratuita', () => {
     // fmm-activate.ts recusa a segunda máquina com 409. Restrição à fruição
-    // da oferta precisa estar escrita, não descoberta depois da compra.
-    expect(allText(legal.pt.terms).join(' ')).toContain('UM único computador');
-    expect(allText(legal.en.terms).join(' ')).toContain('ONE computer');
+    // da oferta precisa estar escrita, não descoberta depois da compra — e
+    // fmm-admin-keys.ts consegue desvincular, então a saída também é escrita.
+    const pt = allText(legal.pt.terms).join(' ');
+    expect(pt).toContain('UM único computador');
+    expect(pt).toContain('desvinculação é gratuita');
+
+    const en = allText(legal.en.terms).join(' ');
+    expect(en).toContain('ONE computer');
+    expect(en).toContain('unbinding is free');
+  });
+
+  it('reembolso é pedido ao canal financeiro, não ao de privacidade', () => {
+    expect(allText(legal.pt.refund).join(' ')).toContain('financeiro@davimf.dev');
+    expect(allText(legal.en.refund).join(' ')).toContain('financeiro@davimf.dev');
   });
 
   it('a privacidade declara transferência internacional', () => {

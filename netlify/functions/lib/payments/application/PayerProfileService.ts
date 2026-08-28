@@ -69,8 +69,11 @@ export class PayerProfileService {
   async upsert(userId: string, profile: PayerProfileData): Promise<PayerProfileData> {
     if (!this.persistenceAvailable()) throw new PayerProfilePersistenceUnavailableError();
     try {
-      return (await this.repository.upsert(userId, profile)) ?? profile;
+      const saved = await this.repository.upsert(userId, profile);
+      if (!saved) throw new PayerProfilePersistenceFailedError();
+      return saved;
     } catch (error) {
+      if (error instanceof PayerProfilePersistenceFailedError) throw error;
       if (!this.persistenceAvailable()) throw new PayerProfilePersistenceUnavailableError();
       // Repository/provider error strings can include bound values; keep the
       // application boundary deliberately non-sensitive.

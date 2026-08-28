@@ -4,6 +4,10 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { requireDashboardSession } from '../../dashboard/session';
+import { setOrderServiceForTesting } from '../application/OrderService';
+import { PayerProfileService, setPayerProfileServiceForTesting } from '../application/PayerProfileService';
+import { setPaymentServiceForTesting } from '../application/PaymentService';
+import { setSubscriptionServiceForTesting } from '../application/SubscriptionService';
 import { parsePayer, rejectRawCardData } from '../http';
 import { upsertPayerProfile, type PayerProfileData } from '../repositories/PayerProfileRepository';
 import { ValidationError } from '../domain/errors';
@@ -81,6 +85,10 @@ describe('roteador de pagamentos', () => {
     delete process.env.MERCADOPAGO_PUBLIC_KEY;
     delete process.env.PAYMENTS_ENV;
     delete process.env.PAYMENTS_PAYER_ENCRYPTION_KEY;
+    setOrderServiceForTesting(null);
+    setPaymentServiceForTesting(null);
+    setSubscriptionServiceForTesting(null);
+    setPayerProfileServiceForTesting(null);
     vi.restoreAllMocks();
   });
 
@@ -207,6 +215,69 @@ describe('roteador de pagamentos', () => {
     expect(body).toContain('PAYER_PROFILE_PERSISTENCE_UNAVAILABLE');
     expect(body).not.toContain(PAYER_PROFILE.identification.number);
     expect(errorLog.mock.calls.flat().join(' ')).not.toContain(PAYER_PROFILE.identification.number);
+  });
+
+  it('degrada GET para indisponível quando a chave de perfil não existe', async () => {
+    delete process.env.PAYMENTS_PAYER_ENCRYPTION_KEY;
+    authenticate();
+
+    const response = await routePaymentsRequest(request('/api/payments/payer-profile'));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ persistenceAvailable: false, profile: null });
+  });
+
+  it('trata INSERT sem RETURNING como falha estável de persistência', async () => {
+    authenticate();
+    sql.use([{
+      match: (query) => query.includes('INSERT INTO payer_profiles'),
+      rows: [],
+    }]);
+
+    const response = await routePaymentsRequest(request('/api/payments/payer-profile', {
+      method: 'PUT', body: JSON.stringify(PAYER_PROFILE),
+    }));
+
+    expect(response.status).toBe(503);
+    expect((await response.json() as { error: { code: string } }).error.code).toBe('PAYER_PROFILE_PERSISTENCE_FAILED');
+  });
+
+  it('salva o perfil consentido pela cobrança /card com renovação automática', async () => {
+    authenticate();
+    const saved: Array<{ userId: string; profile: PayerProfileData }> = [];
+    setOrderServiceForTesting({
+      requireOwnedOrder: async () => ({
+        id: 'order-1', userId: 'discord-1', userEmail: 'comprador@example.com', productCode: 'fmm-pro-monthly',
+        autoRenew: true,
+      }),
+      requireProduct: async () => productRow(),
+    } as never);
+    setSubscriptionServiceForTesting({
+      create: async () => ({ id: 'sub-1', status: 'ACTIVE', nextBillingDate: null, autoRenew: true }),
+    } as never);
+    setPaymentServiceForTesting({ listForOrder: async () => [] } as never);
+    setPayerProfileServiceForTesting(new PayerProfileService({
+      persistenceAvailable: () => true,
+      repository: {
+        find: async () => null,
+        upsert: async (userId, profile) => {
+          saved.push({ userId, profile });
+          return profile;
+        },
+        delete: async () => false,
+      },
+    }));
+
+    const response = await routePaymentsRequest(request('/api/payments/card', {
+      method: 'POST',
+      body: JSON.stringify({
+        orderId: 'order-1', cardToken: 'tok_123', paymentMethodId: 'master', savePayerProfile: true,
+        payer: PAYER_PROFILE,
+      }),
+    }));
+
+    expect(response.status).toBe(201);
+    expect(saved).toMatchObject([{ userId: 'discord-1', profile: { email: 'davi@example.com' } }]);
   });
 
   it('não expõe PII quando o armazenamento do perfil falha', async () => {

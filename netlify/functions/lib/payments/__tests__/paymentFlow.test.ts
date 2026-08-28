@@ -409,6 +409,44 @@ describe('Pix', () => {
     expect(world.provider.inputs[0]).not.toHaveProperty('payerProfile');
   });
 
+  it('salva o perfil quando o retry Pix consentido reaproveita uma cobrança existente', async () => {
+    const world = buildWorld();
+    const order = await world.orders.requireOrder('id');
+    const product = await world.orders.requireProduct('fmm-pro-monthly');
+    await world.payments.createPix({ order, product, payer: CONSENTED_PAYER });
+
+    await world.payments.createPix({ order, product, payer: CONSENTED_PAYER, savePayerProfile: true });
+
+    expect(world.savedPayerProfiles).toEqual([{ userId: 'discord-1', profile: CONSENTED_PAYER }]);
+  });
+
+  it('salva o perfil quando o retry cartão consentido reaproveita uma cobrança existente', async () => {
+    const world = buildWorld();
+    const order = await world.orders.requireOrder('id');
+    const product = await world.orders.requireProduct('fmm-pro-monthly');
+    await world.payments.createCard({
+      order, product, payer: CONSENTED_PAYER, cardToken: 'tok', paymentMethodId: 'master', installments: 1,
+    });
+
+    await world.payments.createCard({
+      order, product, payer: CONSENTED_PAYER, cardToken: 'tok', paymentMethodId: 'master', installments: 1,
+      savePayerProfile: true,
+    });
+
+    expect(world.savedPayerProfiles).toEqual([{ userId: 'discord-1', profile: CONSENTED_PAYER }]);
+  });
+
+  it('salva o perfil quando o retry boleto consentido reaproveita uma cobrança existente', async () => {
+    const world = buildWorld();
+    const order = await world.orders.requireOrder('id');
+    const product = await world.orders.requireProduct('fmm-pro-monthly');
+    await world.payments.createBoleto({ order, product, payer: CONSENTED_PAYER });
+
+    await world.payments.createBoleto({ order, product, payer: CONSENTED_PAYER, savePayerProfile: true });
+
+    expect(world.savedPayerProfiles).toEqual([{ userId: 'discord-1', profile: CONSENTED_PAYER }]);
+  });
+
   it('mantém o resultado do pagamento quando salvar o perfil falha', async () => {
     const world = buildWorld({ profileSaveFails: true });
     const order = await world.orders.requireOrder('id');

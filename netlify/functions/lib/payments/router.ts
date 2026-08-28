@@ -149,6 +149,16 @@ async function loadChargeContext(request: Request) {
   };
 }
 
+async function savePayerProfileAfterSubscription(context: ChargeContext): Promise<void> {
+  if (context.savePayerProfile !== true) return;
+  try {
+    await getPayerProfileService().saveFromCharge(context.user.id, context.payer);
+  } catch {
+    // Profile persistence is optional and must not alter a completed charge.
+    console.error('[payments] PAYER_PROFILE_SAVE_FAILED');
+  }
+}
+
 async function respondWithPayment(context: ChargeContext, view: Awaited<ReturnType<ReturnType<typeof getPaymentService>['createPix']>>) {
   return json({ payment: serializePayment(view), order: { id: context.order.id, reference: context.order.reference } }, 201);
 }
@@ -231,6 +241,7 @@ async function handleCard(request: Request): Promise<Response> {
       cardToken,
       idempotencyKey: optionalString(context.body, 'idempotencyKey', 120),
     });
+    await savePayerProfileAfterSubscription(context);
     const payments = await getPaymentService().listForOrder(context.order.id);
     const latest = payments[0];
     const view = latest

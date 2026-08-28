@@ -163,6 +163,7 @@ export class PaymentService {
     // Retry/refresh: a tentativa já foi cobrada. Relê o pedido para devolver o
     // estado atual (inclusive a licença, se o pagamento já foi confirmado).
     if (payment.providerPaymentId) {
+      await this.savePayerProfileIfConsented(request);
       return this.view(payment, await this.orders.requireOrder(request.order.id), request.product);
     }
 
@@ -183,6 +184,7 @@ export class PaymentService {
     // Retry/refresh: a tentativa já foi cobrada. Relê o pedido para devolver o
     // estado atual (inclusive a licença, se o pagamento já foi confirmado).
     if (payment.providerPaymentId) {
+      await this.savePayerProfileIfConsented(request);
       return this.view(payment, await this.orders.requireOrder(request.order.id), request.product);
     }
 
@@ -209,6 +211,7 @@ export class PaymentService {
     // Retry/refresh: a tentativa já foi cobrada. Relê o pedido para devolver o
     // estado atual (inclusive a licença, se o pagamento já foi confirmado).
     if (payment.providerPaymentId) {
+      await this.savePayerProfileIfConsented(request);
       return this.view(payment, await this.orders.requireOrder(request.order.id), request.product);
     }
 

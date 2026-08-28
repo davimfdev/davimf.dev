@@ -132,15 +132,10 @@
       rel="stylesheet"
     />
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P30JRK5C81"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-P30JRK5C81');
-    </script>
+    <!-- O Google Analytics NÃO é carregado aqui de propósito. Cookie de
+         audiência depende de consentimento (LGPD), e aqui ele rodaria antes
+         de qualquer escolha do usuário. Quem injeta o script, apenas depois do
+         aceite, é src/features/consent/analyticsConsent.ts. -->
 
   </head>
   <body>

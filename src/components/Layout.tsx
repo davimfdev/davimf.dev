@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 // MODIFICADO: Adicionado LogOut na lista de imports
 import { Menu, X, Github, Linkedin, Mail, Globe, MessageCircle, Phone, User, ChevronDown, LogOut, Bot } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import ConsentBanner, { useConsentPreferences } from '../features/consent/ConsentBanner';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,7 +24,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     window.location.href = `/api/dashboard-login?returnTo=${encodeURIComponent(location.pathname)}`;
   };
 
-  const { language, setLanguage, translations } = useLanguage();
+  const { language, setLanguage, translations, legal } = useLanguage();
+  const consent = useConsentPreferences();
 
   const navigation = [
     { name: translations.home, href: '/' },
@@ -267,9 +269,34 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
         <footer className="glass-nav relative z-10 mt-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Documentos obrigatórios para venda a consumidor, sempre a um clique. */}
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-6 text-sm">
+              <Link to="/terms-of-service" className="text-gray-400 hover:text-white transition-colors">
+                {legal.footer.terms}
+              </Link>
+              <Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
+                {legal.footer.privacy}
+              </Link>
+              <Link to="/refund-policy" className="text-gray-400 hover:text-white transition-colors">
+                {legal.footer.refund}
+              </Link>
+              {/* Revogar precisa ser tão fácil quanto consentir (LGPD, art. 8º §5º). */}
+              <button
+                type="button"
+                onClick={consent.reopen}
+                className="text-gray-400 hover:text-white transition-colors underline-offset-2 hover:underline"
+              >
+                {legal.consent.preferencesLabel}
+              </button>
+            </div>
+
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="text-gray-400 mb-6 md:mb-0 text-sm">
-                © {new Date().getFullYear()} Davi Monteiro Fonseca. {translations.rights}
+              <div className="text-gray-400 mb-6 md:mb-0 text-sm text-center md:text-left">
+                <div>© {new Date().getFullYear()} Davi Monteiro Fonseca. {translations.rights}</div>
+                {/* Identificação do fornecedor exigida pelo CDC. */}
+                <div className="text-xs text-gray-500 mt-1">
+                  {legal.company.name} — CNPJ {legal.company.cnpj}
+                </div>
               </div>
               <div className="flex space-x-4">
                 {[
@@ -290,6 +317,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </div>
           </div>
         </footer>
+
+        <ConsentBanner visible={consent.visible} onDecide={consent.decide} />
       </div>
   );
 };

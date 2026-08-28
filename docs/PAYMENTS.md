@@ -197,8 +197,12 @@ Endpoint: `POST https://davimf.dev/api/payments/webhooks/mercadopago`
 No painel do Mercado Pago, cadastre manualmente essa URL e selecione como
 tópico principal **Order (Mercado Pago)**. Mantenha também os eventos já usados
 pelo projeto quando estiverem disponíveis para a conta: Planos e assinaturas,
-Alertas de fraude, Reclamações e Contestações. Copie o segredo gerado para
-`MERCADOPAGO_WEBHOOK_SECRET` no ambiente de produção e reinicie a aplicação.
+Alertas de fraude, Reclamações e Contestações. Como teste e produção podem
+apontar para a mesma URL, configure as duas assinaturas em
+`MERCADOPAGO_WEBHOOK_SECRET_TEST` e
+`MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION`, depois recrie a aplicação. A variável
+`MERCADOPAGO_WEBHOOK_SECRET` permanece apenas como compatibilidade legada para
+instalações de ambiente único.
 
 Depois do deploy, use a simulação do painel para validar uma assinatura e faça
 uma nova medição de qualidade da integração. A confirmação deve aparecer tanto
@@ -208,10 +212,10 @@ pagamento; licença e e-mail continuam deduplicados nos dois casos.
 Validação (`providers/mercadopago/signature.ts`):
 
 1. lê `ts` e `v1` de `x-signature`;
-2. monta `id:<data.id>;request-id:<x-request-id>;ts:<ts>;` (`data.id` em
-   minúsculas; partes ausentes são omitidas);
-3. HMAC-SHA256 hex com `MERCADOPAGO_WEBHOOK_SECRET`, comparado em tempo
-   constante;
+2. monta `id:<data.id>;request-id:<x-request-id>;ts:<ts>;` preservando o case
+   oficial e, por compatibilidade com notificações legadas de Order, também
+   testa a normalização minúscula; partes ausentes são omitidas;
+3. HMAC-SHA256 hex com cada segredo configurado, comparado em tempo constante;
 4. `ts` fora da janela de 15 min → rejeitado (anti-replay).
 
 Assinatura inválida ⇒ **401**, nada processado.

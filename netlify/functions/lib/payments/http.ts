@@ -95,7 +95,7 @@ export function toErrorResponse(error: unknown): Response {
 
 // ------------------------------------------------------------ autenticação --
 
-export type AuthenticatedUser = { id: string; isAdmin: boolean };
+export type AuthenticatedUser = { id: string; isAdmin: boolean; registeredAt?: string };
 
 /**
  * Identidade a partir da sessão do site (cookie assinado do login Discord).
@@ -112,7 +112,11 @@ export async function requireUser(request: Request): Promise<AuthenticatedUser> 
   } catch {
     isAdmin = false;
   }
-  return { id: result.session.userId, isAdmin };
+  return {
+    id: result.session.userId,
+    isAdmin,
+    ...(result.session.registeredAt ? { registeredAt: result.session.registeredAt } : {}),
+  };
 }
 
 // --------------------------------------------------------------- validação --

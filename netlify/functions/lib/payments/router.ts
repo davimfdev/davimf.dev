@@ -156,6 +156,9 @@ async function loadChargeContext(request: Request) {
     // Device ID real do SDK do navegador. Só existe em memória durante esta
     // requisição: vira header do provider e nada mais.
     deviceId: parseDeviceId(body),
+    // Primeiro login autenticado registrado no site; fonte real para o
+    // antifraude, nunca uma data fabricada pelo checkout.
+    payerMetadata: user.registeredAt ? { registrationDate: user.registeredAt } : undefined,
   };
 }
 
@@ -219,6 +222,7 @@ async function handlePix(request: Request): Promise<Response> {
     savePayerProfile: context.savePayerProfile,
     payerProfile: context.payerProfile,
     deviceId: context.deviceId,
+    payerMetadata: context.payerMetadata,
     idempotencyKey: optionalString(context.body, 'idempotencyKey', 120),
   });
   return respondWithPayment(context, view);
@@ -233,6 +237,7 @@ async function handleBoleto(request: Request): Promise<Response> {
     savePayerProfile: context.savePayerProfile,
     payerProfile: context.payerProfile,
     deviceId: context.deviceId,
+    payerMetadata: context.payerMetadata,
     idempotencyKey: optionalString(context.body, 'idempotencyKey', 120),
   });
   return respondWithPayment(context, view);
@@ -282,6 +287,7 @@ async function handleCard(request: Request): Promise<Response> {
     savePayerProfile: context.savePayerProfile,
     payerProfile: context.payerProfile,
     deviceId: context.deviceId,
+    payerMetadata: context.payerMetadata,
     cardToken,
     paymentMethodId,
     installments,

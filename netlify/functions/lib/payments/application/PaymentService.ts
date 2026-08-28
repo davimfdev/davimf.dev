@@ -83,6 +83,8 @@ export type CreateChargeRequest = {
    * request-scoped: só é repassado ao provider e nunca persistido nem logado.
    */
   deviceId?: string;
+  /** Metadados reais derivados da conta autenticada no site. */
+  payerMetadata?: { registrationDate?: string };
 };
 
 export type CreateCardChargeRequest = CreateChargeRequest & {
@@ -174,9 +176,9 @@ export class PaymentService {
    * O Device ID é a única exceção request-scoped: atravessa em memória, não
    * entra em `payments.details` nem em log.
    *
-   * `payerMetadata` fica ausente de propósito: nenhuma fonte autenticada do
-   * projeto expõe data de cadastro ou de compra anterior confiável, e inventar
-   * esses campos para pontuar seria mentira ao provider.
+   * `payerMetadata` só atravessa quando veio de uma fonte autenticada. Hoje a
+   * data de cadastro é o primeiro login registrado em dashboard_sessions;
+   * compra anterior continua ausente enquanto não houver fonte confiável.
    */
   private baseInput(request: CreateChargeRequest, payment: Payment) {
     return {
@@ -192,6 +194,7 @@ export class PaymentService {
       // Único campo request-scoped: só viaja quando o SDK gerou um Device ID
       // de verdade, e morre no header do provider — nunca é persistido.
       ...(request.deviceId ? { deviceId: request.deviceId } : {}),
+      ...(request.payerMetadata ? { payerMetadata: request.payerMetadata } : {}),
       metadata: { orderId: request.order.id, productCode: request.product.code },
     };
   }

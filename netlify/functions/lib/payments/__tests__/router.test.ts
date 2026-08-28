@@ -113,7 +113,13 @@ describe('roteador de pagamentos', () => {
   function authenticate(userId = 'discord-1'): void {
     vi.mocked(requireDashboardSession).mockResolvedValue({
       ok: true,
-      session: { userId, accessToken: 'test-access-token', scopes: [], expiresAt: new Date('2027-01-01') },
+      session: {
+        userId,
+        accessToken: 'test-access-token',
+        scopes: [],
+        expiresAt: new Date('2027-01-01'),
+        registeredAt: '2026-01-15T12:30:00.000Z',
+      },
     });
   }
 
@@ -499,7 +505,10 @@ describe('roteador de pagamentos', () => {
     const body = await response.text();
 
     expect(response.status).toBe(201);
-    expect(providerInputs[0]).toMatchObject({ deviceId });
+    expect(providerInputs[0]).toMatchObject({
+      deviceId,
+      payerMetadata: { registrationDate: '2026-01-15T12:30:00.000Z' },
+    });
     // Nunca ecoado na resposta…
     expect(body).not.toContain(deviceId);
     // …e nunca gravado: nenhum valor ligado a nenhuma query o contém.

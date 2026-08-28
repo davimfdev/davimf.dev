@@ -20,11 +20,12 @@ function memorySql() {
         refresh_token_ciphertext: values[3],
         granted_scopes: values[4],
         token_expires_at: values[5],
+        user_registered_at: '2026-01-15T12:30:00.000Z',
         revoked_at: null,
       });
       return [];
     }
-    if (query.includes('SELECT session_id_hash')) {
+    if (query.includes('FROM dashboard_sessions current_session')) {
       const row = rows.get(String(values[0]));
       return row ? [row] : [];
     }
@@ -60,7 +61,11 @@ describe('dashboard sessions', () => {
     const result = await requireDashboardSession({ headers: { cookie: `bot_dashboard_session=${cookieValue}` } }, { sql: db.sql as never });
     expect(result).toMatchObject({
       ok: true,
-      session: { userId: '344214477069221888', accessToken: 'access-secret' },
+      session: {
+        userId: '344214477069221888',
+        accessToken: 'access-secret',
+        registeredAt: '2026-01-15T12:30:00.000Z',
+      },
     });
   });
 

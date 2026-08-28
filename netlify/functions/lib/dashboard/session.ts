@@ -22,6 +22,8 @@ export type SessionInput = {
 
 export type DashboardSession = {
   userId: string;
+  /** Primeiro login autenticado registrado para este usuário no site. */
+  registeredAt?: string;
   accessToken: string;
   refreshToken?: string;
   scopes: string[];
@@ -65,10 +67,15 @@ export async function requireDashboardSession(event: SessionEvent, deps: Deps = 
   if (!id) return { ok: false, status: 401, code: 'SESSION_INVALID' };
   const sql = deps.sql ?? siteSql;
   const rows = await sql`
-    SELECT session_id_hash, discord_user_id, access_token_ciphertext,
-           refresh_token_ciphertext, granted_scopes, token_expires_at, revoked_at
-      FROM dashboard_sessions
-     WHERE session_id_hash = ${hashSessionId(id)}
+    SELECT current_session.session_id_hash, current_session.discord_user_id,
+           current_session.access_token_ciphertext, current_session.refresh_token_ciphertext,
+           current_session.granted_scopes, current_session.token_expires_at,
+           current_session.revoked_at,
+           (SELECT MIN(first_session.created_at)
+              FROM dashboard_sessions first_session
+             WHERE first_session.discord_user_id = current_session.discord_user_id) AS user_registered_at
+      FROM dashboard_sessions current_session
+     WHERE current_session.session_id_hash = ${hashSessionId(id)}
      LIMIT 1`;
   const row = rows[0];
   if (!row || row.revoked_at) return { ok: false, status: 401, code: 'SESSION_INVALID' };
@@ -120,6 +127,7 @@ export async function requireDashboardSession(event: SessionEvent, deps: Deps = 
     ok: true,
     session: {
       userId: String(row.discord_user_id),
+      ...(row.user_registered_at ? { registeredAt: new Date(String(row.user_registered_at)).toISOString() } : {}),
       accessToken,
       refreshToken,
       scopes,

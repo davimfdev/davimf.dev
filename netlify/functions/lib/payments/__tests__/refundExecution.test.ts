@@ -247,3 +247,85 @@ describe('execução do pedido de reembolso', () => {
     );
   });
 });
+
+describe('fix round 2: nada escapa de request() depois de tentar o estorno', () => {
+  it('C3: record que lança de forma SÍNCRONA na degradação não escapa de request()', async () => {
+    // Simula wiring incompleto: `deps.record` nem retorna uma promise, só
+    // lança na hora — é o caso realista de um dep mal ligado.
+    const record = vi.fn(() => {
+      throw new Error('record indisponível');
+    });
+    const { service, alertOperator } = build({ record });
+
+    await expect(
+      service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW }),
+    ).resolves.toEqual({ status: 202, outcome: 'reconciliation_required' });
+    expect(alertOperator).toHaveBeenCalledWith(
+      expect.anything(), 'reconciliation_required', 'record indisponível',
+    );
+  });
+
+  it('C3: alertOperator que lança de forma SÍNCRONA não escapa de request()', async () => {
+    const refund = vi.fn().mockRejectedValue(
+      Object.assign(new Error('recusado'), { retryable: false }),
+    );
+    const alertOperator = vi.fn(() => {
+      throw new Error('alertOperator indisponível');
+    });
+    const { service, record } = build({ refund, alertOperator });
+
+    await expect(
+      service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW }),
+    ).resolves.toEqual({ status: 202, outcome: 'manual' });
+    expect(record).toHaveBeenCalledWith(expect.objectContaining({ outcome: 'manual' }));
+  });
+
+  it('C2/C3: erro sem protótipo (Object.create(null)) não derruba a resposta', async () => {
+    // `String()` sobre um objeto sem protótipo lança
+    // "Cannot convert object to primitive value" — precisa de coerção segura.
+    const refund = vi.fn().mockRejectedValue(Object.create(null));
+    const { service, record } = build({ refund });
+
+    const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 202, outcome: 'reconciliation_required' });
+    expect(record).toHaveBeenCalledWith(
+      expect.objectContaining({ outcome: 'reconciliation_required', providerError: 'erro não representável' }),
+    );
+  });
+
+  it('C1: falha ao gravar a recusa por falta de pagamento PAID ainda responde 409', async () => {
+    // Nenhum dinheiro se moveu neste caminho — uma falha de auditoria aqui
+    // não pode virar 500 no lugar de um 409 determinístico.
+    const record = vi.fn().mockRejectedValue(new Error('db down'));
+    const { service } = build({
+      listPayments: vi.fn().mockResolvedValue([{ id: 'pay-1', status: 'PENDING' }]),
+      record,
+    });
+
+    const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 409, code: 'ORDER_NOT_REFUNDABLE' });
+  });
+
+  it('grava antes de confirmar por e-mail também no caminho degradado', async () => {
+    const calls: string[] = [];
+    const record = vi.fn()
+      .mockImplementationOnce(async () => {
+        calls.push('record');
+        throw new Error('db down');
+      })
+      .mockImplementationOnce(async () => {
+        calls.push('record');
+        return { id: 'req-1' };
+      });
+    const acknowledge = vi.fn().mockImplementation(async () => {
+      calls.push('acknowledge');
+    });
+    const { service } = build({ record, acknowledge });
+
+    await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(calls).toEqual(['record', 'record', 'acknowledge']);
+  });
+});

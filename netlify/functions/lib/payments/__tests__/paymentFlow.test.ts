@@ -688,6 +688,51 @@ describe('reembolso e contestação', () => {
     expect(world.provider.calls.filter((call) => call === 'refund')).toHaveLength(1);
   });
 
+  it('marca refundAccepted quando a gravação local falha depois do provider aceitar', async () => {
+    // Task 5: o provider JÁ aceitou o estorno; a gravação local falha depois.
+    // A flag impede o chamador de repetir um estorno que já ocorreu.
+    const world = buildWorld();
+    const order = await world.orders.requireOrder('id');
+    const product = await world.orders.requireProduct('fmm-pro-monthly');
+    world.provider.nextPayment = pixResult({ status: 'PAID', statusDetail: 'accredited', method: 'card' });
+    await world.payments.createCard({
+      order, product, payer: { email: 'a@b.com' }, cardToken: 'tok', paymentMethodId: 'master', installments: 1,
+    });
+
+    const paymentId = world.state.payment!.id as string;
+    // Lança um valor NÃO-Error de propósito: exercita o embrulho (`new
+    // Error(...)`), não o caminho em que o erro já é um Error de verdade.
+    world.sql.prepend({
+      match: (q) => q.includes('UPDATE payments SET'),
+      rows: () => { throw 'db indisponível (string crua)'; },
+    });
+
+    await expect(world.payments.refund(paymentId)).rejects.toMatchObject({
+      refundAccepted: true,
+      // O conteúdo original não pode ser descartado ao embrulhar: quem lê o
+      // alerta de reconciliação precisa da causa real, não de um genérico.
+      message: expect.stringContaining('db indisponível (string crua)'),
+    });
+  });
+
+  it('erro ANTES da chamada ao provider nunca carrega refundAccepted', async () => {
+    // Guarda contra um refactor futuro que marque `refundAccepted` cedo
+    // demais: um pagamento que nunca chegou a PAID recusa antes de o
+    // provider ser chamado, e o erro não pode carregar a flag.
+    const world = buildWorld();
+    const order = await world.orders.requireOrder('id');
+    const product = await world.orders.requireProduct('fmm-pro-monthly');
+    // PIX criado, mas ainda PENDING: nunca chegou a PAID.
+    await world.payments.createPix({ order, product, payer: { email: 'a@b.com' } });
+
+    const paymentId = world.state.payment!.id as string;
+    const error: unknown = await world.payments.refund(paymentId).catch((caught: unknown) => caught);
+
+    expect(error).toBeInstanceOf(ConflictError);
+    expect(error).not.toHaveProperty('refundAccepted');
+    expect(world.provider.calls).not.toContain('refund');
+  });
+
   it('chargeback suspende a licença e mantém histórico', async () => {
     const world = buildWorld();
     const order = await world.orders.requireOrder('id');

@@ -127,11 +127,18 @@ export class RefundRequestService {
     const paid = payments.find((payment) => payment.status === 'PAID');
     if (!paid) {
       // Também passou pela posse: mesma regra de "toda recusa é registrada",
-      // mesmo sem pagamento PAID para estornar.
-      await this.deps.record({
-        orderId: order.id, userId: input.userId,
-        outcome: 'rejected', reasonCode: 'ORDER_NOT_REFUNDABLE',
-      });
+      // mesmo sem pagamento PAID para estornar. Nenhum dinheiro se moveu
+      // aqui, então uma falha ao gravar não pode transformar um 409
+      // determinístico em 500 — melhor esforço (try/catch, não `.catch()`,
+      // para cobrir também uma falha síncrona do dep).
+      try {
+        await this.deps.record({
+          orderId: order.id, userId: input.userId,
+          outcome: 'rejected', reasonCode: 'ORDER_NOT_REFUNDABLE',
+        });
+      } catch {
+        // A resposta 409 é determinística e não depende deste registro.
+      }
       return { status: 409, code: 'ORDER_NOT_REFUNDABLE' };
     }
 
@@ -165,8 +172,8 @@ export class RefundRequestService {
   /**
    * Nunca deixa `.slice` estourar: um erro pode ser string, objeto sem
    * contrato ou nem `Error`. Prioriza `providerDetail` (erro do provider),
-   * depois `.message` de um `Error` de verdade, e só então `String(error)`
-   * para o que sobrar (string crua, objeto sem contrato).
+   * depois `.message` de um `Error` de verdade, e só então uma versão segura
+   * de `String(error)` para o que sobrar (string crua, objeto sem contrato).
    */
   private extractProviderError(error: unknown): string {
     const providerDetail = typeof error === 'object' && error !== null
@@ -174,10 +181,23 @@ export class RefundRequestService {
       : undefined;
     const raw = typeof providerDetail === 'string'
       ? providerDetail
-      : error instanceof Error ? error.message : String(error);
+      : error instanceof Error ? error.message : this.safeString(error);
     // O provider não controla quanto gravamos: mesmo limite de
     // `markEventFailed` (PaymentEventRepository) para provider_error.
     return raw.slice(0, MAX_PROVIDER_ERROR_LENGTH);
+  }
+
+  /**
+   * `String(valor)` pode lançar — objeto sem protótipo (`Object.create(null)`)
+   * ou com `Symbol.toPrimitive` que lança. Estamos no caminho pós-estorno:
+   * isso NUNCA pode escapar.
+   */
+  private safeString(value: unknown): string {
+    try {
+      return String(value);
+    } catch {
+      return 'erro não representável';
+    }
   }
 
   /**
@@ -206,16 +226,29 @@ export class RefundRequestService {
       // detalhe relevante agora é essa falha, não a original (se houve).
       finalOutcome = 'reconciliation_required';
       finalProviderError = this.extractProviderError(bookkeepingError);
-      // Melhor esforço: a resposta ao cliente segue estruturada mesmo que
-      // esta segunda tentativa também falhe.
-      await this.deps.record({
-        orderId: order.id, userId, outcome: finalOutcome, providerError: finalProviderError,
-      }).catch(() => undefined);
-      await this.deps.acknowledge(order, finalOutcome).catch(() => undefined);
+      // A PARTIR DAQUI o provider já foi chamado: NADA pode escapar, nem uma
+      // falha SÍNCRONA de um dep mal ligado (ex.: "record is not a
+      // function"). `try/catch` — não `.catch()` — porque `.catch` só
+      // protege uma promise rejeitada; uma falha síncrona nunca chega a
+      // devolver uma. Melhor esforço absoluto: a resposta ao cliente segue
+      // estruturada mesmo que esta segunda tentativa também falhe.
+      try {
+        await this.deps.record({
+          orderId: order.id, userId, outcome: finalOutcome, providerError: finalProviderError,
+        });
+        await this.deps.acknowledge(order, finalOutcome);
+      } catch {
+        // Nada além de seguir — o resultado ao cliente é estruturado de
+        // qualquer forma.
+      }
     }
 
     if (finalOutcome !== 'refunded') {
-      await this.deps.alertOperator(order, finalOutcome, finalProviderError).catch(() => undefined);
+      try {
+        await this.deps.alertOperator(order, finalOutcome, finalProviderError);
+      } catch {
+        // Falha ao avisar o financeiro não pode derrubar a resposta ao cliente.
+      }
     }
 
     return finalOutcome === 'refunded'

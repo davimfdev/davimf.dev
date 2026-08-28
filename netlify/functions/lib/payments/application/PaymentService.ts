@@ -96,6 +96,19 @@ export type CreateCardChargeRequest = CreateChargeRequest & {
 const MAX_INSTALLMENTS = 12;
 
 /**
+ * `String(valor)` pode lançar (objeto sem protótipo, `Symbol.toPrimitive`
+ * que lança). Usada para preservar o conteúdo original de um erro não-Error
+ * ao embrulhá-lo, sem arriscar lançar de novo no processo.
+ */
+function safeString(value: unknown): string {
+  try {
+    return String(value);
+  } catch {
+    return 'erro não representável';
+  }
+}
+
+/**
  * Categoria do item no catálogo do provider. O produto é software licenciado;
  * `software` é a categoria genérica e verdadeira. NÃO trocar por um id de
  * catálogo MLB inventado só para pontuar em qualidade.
@@ -587,7 +600,12 @@ export class PaymentService {
     } catch (error) {
       // A chamada ao provider já retornou sucesso. Marcar explicitamente a
       // ambiguidade impede o solicitante de repetir um estorno que já ocorreu.
-      const wrapped = error instanceof Error ? error : new Error('Falha local após o estorno.');
+      // Um valor não-Error é embrulhado (a flag precisa de um objeto para
+      // sobreviver), mas o conteúdo original vai para a mensagem — descartá-lo
+      // deixaria quem lê o alerta de reconciliação sem a causa real.
+      const wrapped = error instanceof Error
+        ? error
+        : new Error(`Falha local após o estorno: ${safeString(error)}`);
       Object.assign(wrapped, { refundAccepted: true });
       throw wrapped;
     }

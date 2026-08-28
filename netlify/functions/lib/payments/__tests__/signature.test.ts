@@ -60,6 +60,21 @@ describe('assinatura do webhook Mercado Pago', () => {
     }
   });
 
+  it('aceita a normalização minúscula usada por notificações legadas de Order', () => {
+    const dataId = 'ORDTST01ABCDEF';
+    const ts = String(NOW);
+    const legacyManifest = buildManifest({ dataId: dataId.toLowerCase(), requestId: REQUEST_ID, ts });
+    const v1 = createHmac('sha256', SECRET).update(legacyManifest).digest('hex');
+
+    const result = verifyWebhookSignature({
+      headers: { 'x-signature': `ts=${ts},v1=${v1}`, 'x-request-id': REQUEST_ID },
+      url: `https://davimf.dev/api/payments/webhooks/mercadopago?data.id=${dataId}&type=order`,
+      now: NOW,
+    });
+
+    expect(result).toEqual({ ok: true, dataId, ts });
+  });
+
   it('rejeita assinatura inválida (segredo errado)', () => {
     const result = verifyWebhookSignature({
       headers: signedHeaders('ORD-1', String(NOW), 'segredo-errado'),

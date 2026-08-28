@@ -106,17 +106,21 @@ export function verifyWebhookSignature(input: VerifyInput): VerifyResult {
     dataId = null;
   }
 
-  const manifest = buildManifest({
-    dataId,
-    requestId: headerValue(input.headers, 'x-request-id'),
-    ts,
-  });
+  const requestId = headerValue(input.headers, 'x-request-id');
+  const manifests = [buildManifest({ dataId, requestId, ts })];
+  // Compatibilidade observada entre pipelines do próprio Mercado Pago: o
+  // simulador assina `ORD...` preservando case, enquanto algumas notificações
+  // reais/legadas normalizam o mesmo ID para minúsculas. Ambas continuam
+  // exigindo HMAC-SHA256 válido com um segredo configurado.
+  if (dataId && dataId !== dataId.toLowerCase()) {
+    manifests.push(buildManifest({ dataId: dataId.toLowerCase(), requestId, ts }));
+  }
 
   const received = v1.toLowerCase();
-  const matches = secrets.some((secret) => {
+  const matches = secrets.some((secret) => manifests.some((manifest) => {
     const expected = createHmac('sha256', secret).update(manifest).digest('hex');
     return safeEqualHex(expected, received);
-  });
+  }));
   if (!matches) return { ok: false, reason: 'MISMATCH' };
 
   return { ok: true, dataId, ts };

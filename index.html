@@ -6,10 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Davimf.dev — Bots de Discord Personalizados, Bot de Facção FiveM & Gerenciador de Mods FiveM</title>
 
-    <!-- Instalação explícita do MercadoPago.js V2. O checkout reutiliza esta
-         mesma instância; o loader React não injeta uma segunda cópia. -->
-    <script id="mercadopago-sdk-v2" src="https://sdk.mercadopago.com/js/v2" async></script>
-
     <!-- Primary SEO -->
     <meta name="description" content="Davimf.dev: desenvolvedor especialista em bots de Discord personalizados e profissionais, bots de facção para FiveM e o FiveM Mod Manager — gerenciador de mods FiveM com instalação em 1 clique, backup automático e otimização de desempenho. Bots robustos de moderação e segurança sob medida." />
     <meta name="keywords" content="gerenciador de mods FiveM, FiveM mod manager, bot personalizado, bot profissional, bot de facção FiveM, bot Discord personalizado, bot de Discord, bot de moderação, bot de segurança, desenvolvedor de bots, bot FiveM, mods FiveM, RPF mods, QBCore, Davimf, Davi Monteiro Fonseca" />
@@ -149,6 +145,9 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Formato oficial da Orders API: SDK V2 no body, carregado antes da
+         aplicação que o inicializa com a Public Key. -->
+    <script id="mercadopago-sdk-v2" src="https://sdk.mercadopago.com/js/v2"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

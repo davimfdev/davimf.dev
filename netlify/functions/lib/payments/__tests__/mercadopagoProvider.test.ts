@@ -364,13 +364,17 @@ describe('MercadoPagoPaymentProvider', () => {
 
   it('recusa a notificação quando a assinatura não confere', async () => {
     process.env.MERCADOPAGO_WEBHOOK_SECRET = 'segredo';
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const { impl } = stubFetch(() => ({ body: {} }));
     const result = await provider(impl).processWebhook({
       rawBody: JSON.stringify({ type: 'payment', data: { id: '1' } }),
-      headers: { 'x-signature': 'ts=1,v1=deadbeef', 'x-request-id': 'r' },
+      headers: { 'x-signature': `ts=${Date.now()},v1=deadbeef`, 'x-request-id': 'r' },
       url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=1',
     });
     expect(result).toBeNull();
+    expect(warning).toHaveBeenCalledWith('[payments] webhook Mercado Pago rejeitado: MISMATCH');
+    expect(warning.mock.calls.flat().join(' ')).not.toContain('deadbeef');
+    expect(warning.mock.calls.flat().join(' ')).not.toContain('segredo');
     delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
   });
 });

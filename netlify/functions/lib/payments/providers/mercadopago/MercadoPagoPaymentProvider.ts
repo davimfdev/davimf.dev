@@ -498,7 +498,13 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
 
   async processWebhook(request: WebhookRequest): Promise<NormalizedWebhook | null> {
     const verification = verifyWebhookSignature({ headers: request.headers, url: request.url });
-    if (!verification.ok) return null;
+    if (!verification.ok) {
+      // Diagnóstico operacional sem registrar assinatura, segredo, URL ou
+      // payload. Permite distinguir segredo divergente, header ausente e
+      // timestamp expirado no simulador do painel.
+      console.warn(`[payments] webhook Mercado Pago rejeitado: ${verification.reason}`);
+      return null;
+    }
 
     let body: Record<string, unknown> = {};
     if (request.rawBody) {

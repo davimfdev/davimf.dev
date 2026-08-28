@@ -4,7 +4,7 @@ import { ProviderError, ProviderTimeoutError, ValidationError } from '../domain/
 import { MercadoPagoClient } from '../providers/mercadopago/client';
 import { MercadoPagoPaymentProvider } from '../providers/mercadopago/MercadoPagoPaymentProvider';
 import { mapPaymentStatus } from '../providers/mercadopago/mapping';
-import { buildManifest } from '../providers/mercadopago/signature';
+import { buildManifest, secretFingerprint } from '../providers/mercadopago/signature';
 
 type FetchCall = { url: string; init: RequestInit };
 
@@ -379,11 +379,75 @@ describe('MercadoPagoPaymentProvider', () => {
     });
     expect(result).toBeNull();
     expect(warning).toHaveBeenCalledWith(expect.stringMatching(
-      /^\[payments\] webhook Mercado Pago rejeitado: MISMATCH \(application_id=missing, live_mode=missing, data\.id=present, body_id=present, ids_match=yes, x-request-id=present, secrets=1, lengths=7\)$/,
+      /^\[payments\] webhook Mercado Pago rejeitado: MISMATCH \(application=unknown, application_id=missing, live_mode=missing, type=payment, action=missing, data\.id=present, id_source=query, body_id=present, ids_match=yes, x-request-id=present\(1\), ts_age_s=-?\d+, variants=exact, secrets=legacy:[0-9a-f]{8}\)$/,
     ));
     expect(warning.mock.calls.flat().join(' ')).not.toContain('deadbeef');
     expect(warning.mock.calls.flat().join(' ')).not.toContain('segredo');
     delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
+  });
+
+  it('rotula a aplicação de origem quando MERCADOPAGO_APPLICATION_ID está configurada', async () => {
+    process.env.MERCADOPAGO_WEBHOOK_SECRET = 'segredo';
+    process.env.MERCADOPAGO_APPLICATION_ID = '1111111111111111';
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { impl } = stubFetch(() => ({ body: {} }));
+
+    const result = await provider(impl).processWebhook({
+      rawBody: JSON.stringify({
+        application_id: 3276309109538538, live_mode: false, type: 'order', action: 'order.updated', data: { id: 'ORD-9' },
+      }),
+      headers: { 'x-signature': `ts=${Date.now()},v1=deadbeef`, 'x-request-id': 'r' },
+      url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-9&type=order',
+    });
+
+    expect(result).toBeNull();
+    const line = warning.mock.calls.flat().join(' ');
+    expect(line).toContain('application=foreign');
+    expect(line).toContain('application_id=3276309109538538');
+    expect(line).toContain('live_mode=false');
+    expect(line).toContain('action=order.updated');
+    expect(line).toContain(`secrets=legacy:${secretFingerprint('segredo')}`);
+    expect(line).not.toContain('segredo');
+    expect(line).not.toContain('deadbeef');
+
+    delete process.env.MERCADOPAGO_APPLICATION_ID;
+    delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
+  });
+
+  it('registra a aplicação de uma notificação aceita para comparar com as recusadas', async () => {
+    const secret = 'segredo-aceito';
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION = secret;
+    process.env.MERCADOPAGO_APPLICATION_ID = '3276309109538538';
+    const info = vi.spyOn(console, 'info').mockImplementation(() => undefined);
+    const ts = String(Date.now());
+    const requestId = 'accepted-request-id';
+    const dataId = 'ORD01JQ4S4KY8';
+    const signature = createHmac('sha256', secret)
+      .update(buildManifest({ dataId, requestId, ts }))
+      .digest('hex');
+    const { impl } = stubFetch(() => ({ body: orderResponse() }));
+
+    const result = await provider(impl).processWebhook({
+      rawBody: JSON.stringify({
+        id: 'notification-2', application_id: '3276309109538538', live_mode: true,
+        type: 'order', action: 'order.processed', data: { id: dataId },
+      }),
+      headers: { 'x-signature': `ts=${ts},v1=${signature}`, 'x-request-id': requestId },
+      url: `https://davimf.dev/api/payments/webhooks/mercadopago?data.id=${dataId}&type=order`,
+    });
+
+    expect(result).toMatchObject({ resource: 'payment', resourceId: dataId });
+    const line = info.mock.calls.flat().join(' ');
+    expect(line).toContain('[payments] webhook Mercado Pago aceito');
+    expect(line).toContain('application=match');
+    expect(line).toContain('application_id=3276309109538538');
+    expect(line).toContain('live_mode=true');
+    expect(line).toContain('action=order.processed');
+    expect(line).not.toContain(secret);
+    expect(line).not.toContain(signature);
+
+    delete process.env.MERCADOPAGO_APPLICATION_ID;
+    delete process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION;
   });
 
   it('aceita simulador assinado mesmo quando o Data ID fictício não existe', async () => {

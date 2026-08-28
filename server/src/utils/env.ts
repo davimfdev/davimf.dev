@@ -57,6 +57,13 @@ const OPTIONAL: EnvGroup[] = [
     vars: ['PAYMENTS_PAYER_ENCRYPTION_KEY'],
     optional: true,
   },
+  // Só rotula o log do webhook (`application=match/foreign`) para separar
+  // notificações de outra aplicação do Mercado Pago. Não autentica nada.
+  {
+    label: 'Pagamentos — aplicação dona do webhook (diagnóstico)',
+    vars: ['MERCADOPAGO_APPLICATION_ID'],
+    optional: true,
+  },
 ];
 
 // --------------------------------------------------------------- .env ------

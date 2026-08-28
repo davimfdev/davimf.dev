@@ -65,6 +65,7 @@ Obrigatórias (já em `.env.example`, sem valores):
 | `MERCADOPAGO_WEBHOOK_SECRET_TEST` | Assinatura da aba Modo de teste |
 | `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION` | Assinatura da aba Modo de produção |
 | `MERCADOPAGO_WEBHOOK_SECRET` | Compatibilidade legada para ambiente único |
+| `MERCADOPAGO_APPLICATION_ID` | Opcional. `application_id` da aplicação dona do webhook; só rotula o log como `application=match/foreign` |
 | `RESEND_API_KEY` | Chave do Resend; sem ela o envio vira no-op logado |
 
 Opcionais com padrão no código: `MERCADOPAGO_TIMEOUT_MS` (12000),
@@ -209,19 +210,105 @@ uma nova medição de qualidade da integração. A confirmação deve aparecer t
 quando o webhook chega primeiro quanto quando o polling já conciliou o
 pagamento; licença e e-mail continuam deduplicados nos dois casos.
 
-Validação (`providers/mercadopago/signature.ts`):
+Validação (`providers/mercadopago/signature.ts`), conforme a documentação
+oficial de *Webhooks → Validação da origem da notificação*:
 
 1. lê `ts` e `v1` de `x-signature`;
-2. monta `id:<data.id>;request-id:<x-request-id>;ts:<ts>;` preservando o case
-   oficial e, por compatibilidade com notificações legadas de Order, também
-   testa a normalização minúscula; partes ausentes são omitidas;
-3. HMAC-SHA256 hex com cada segredo configurado, comparado em tempo constante;
-4. `ts` fora da janela de 15 min → rejeitado (anti-replay).
+2. monta `id:[data.id_url];request-id:[x-request-id_header];ts:[ts_header];`
+   — `data.id` sai **da query string**, nunca do corpo; o `id` das notificações
+   legadas (`?id=…&topic=…`) **não** entra no manifesto, ele só localiza o
+   recurso depois; partes ausentes são omitidas junto com o rótulo;
+3. a documentação manda usar o `data.id` alfanumérico em minúsculas
+   (`ORD01JQ…` → `ord01jq…`), mas o simulador do painel assina preservando o
+   case: as duas formas são testadas, e **ambas** exigem HMAC válido;
+4. HMAC-SHA256 hex com cada segredo configurado, comparado em tempo constante;
+5. `ts` fora da janela de 15 min → rejeitado (anti-replay).
 
-Assinatura inválida ⇒ **401**, nada processado.
+Assinatura inválida ⇒ **401**, nada processado. Não existe fallback permissivo:
+mais variantes de manifesto não afrouxam nada, cada uma continua precisando do
+HMAC correto com um segredo configurado.
 
 Depois da validação o payload **não** é fonte de verdade: o provider é
 reconsultado (`getPayment`/`getSubscription`) para obter o estado real.
+
+#### Respostas e retries
+
+O Mercado Pago considera entregue com **HTTP 200/201 em até 22 s** e reenvia a
+cada 15 min (espaçando após a terceira tentativa) enquanto não receber isso.
+Por isso o endpoint responde 2xx em todos os casos *reconhecidos*:
+
+| Situação | Resposta | Log |
+|---|---|---|
+| Assinatura válida, pagamento aplicado | 200 `processed` | `aceito (…)` |
+| Assinatura válida, evento repetido | 200 `duplicate` | — |
+| Assinatura válida, recurso inexistente (simulador) | 200 `unknown_resource` | `válido para recurso inexistente` |
+| Assinatura inválida | 401 | `rejeitado: <motivo>` |
+| Falha ao consultar o provider | 500 | `falha ao consultar o provedor` |
+
+Várias notificações para a mesma compra são **normais**: cada evento marcado no
+painel (`order.created`, `order.updated`, `order.processed`, …) é uma entrega
+distinta. A dedup é por `payment_events(provider, event_key)`, então repetição
+não gera segunda licença nem segundo e-mail.
+
+Assinatura inválida continua devolvendo 401 de propósito — devolver 2xx só para
+parar retry aceitaria notificação não autenticada.
+
+#### Diagnóstico das rejeições
+
+Uma rejeição vira **uma linha** com o motivo específico e nada sensível
+(segredo, manifesto, assinatura, URL e payload nunca são registrados):
+
+```
+[payments] webhook Mercado Pago rejeitado: MISMATCH (application=foreign,
+application_id=…, live_mode=false, type=order, action=order.updated,
+data.id=present, id_source=query, body_id=present, ids_match=yes,
+x-request-id=present(1), ts_age_s=2, variants=exact+lowercase,
+secrets=test:1a2b3c4d/production:9f8e7d6c)
+```
+
+Como ler:
+
+| Campo | O que decide |
+|---|---|
+| `application` / `application_id` | notificação de OUTRA aplicação do MP (exige `MERCADOPAGO_APPLICATION_ID` para rotular) |
+| `live_mode` | credencial de teste (`false`) ou de produção (`true`) |
+| `id_source` | `query` = `data.id` presente; `absent` = manifesto sem o rótulo `id` |
+| `ids_match` | query vs. corpo — `no` denuncia proxy reescrevendo a URL |
+| `x-request-id=present(N)` | **N > 1** = proxy duplicou/injetou o cabeçalho e quebrou o manifesto |
+| `ts_age_s` | idade da assinatura; valor grande = relógio fora de hora ou replay |
+| `variants` | quais canonicalizações de `data.id` foram testadas |
+| `secrets` | conjunto lógico tentado, como `rótulo:fingerprint`. O fingerprint é irreversível (8 hex de SHA-256 com separação de domínio) e serve só para responder duas perguntas: *teste e produção estão com valores diferentes?* (fingerprints iguais = mesmo valor colado duas vezes) e *o valor mudou depois do deploy?* |
+
+A contrapartida aparece nas notificações aceitas, no mesmo formato, para
+comparar as duas na mesma busca:
+
+```
+[payments] webhook Mercado Pago aceito (application=match, application_id=…,
+live_mode=true, type=order, action=order.processed, data.id=present)
+```
+
+`MISMATCH` com `ids_match=yes`, `x-request-id=present(1)` e `ts_age_s` pequeno
+significa que o manifesto está certo e o HMAC foi calculado com um segredo que
+**não** está configurado aqui — ou seja, a notificação é de outra aplicação/modo,
+ou o segredo do painel foi regerado sem atualizar o ambiente.
+
+#### Rotação da assinatura secreta
+
+Cada aplicação tem a sua assinatura, e teste e produção têm a sua. Ao gerar uma
+nova no painel:
+
+1. gere a nova assinatura (Modo de teste e Modo de produção separadamente);
+2. atualize `MERCADOPAGO_WEBHOOK_SECRET_TEST` e
+   `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION` no Coolify — cole **sem** espaço ou
+   quebra de linha (o código faz `trim`, mas o painel pode truncar);
+3. faça deploy/restart: as variáveis são lidas do ambiente no arranque;
+4. confira nos logs que o `fingerprint` de cada segredo mudou e que os dois são
+   **diferentes** entre si;
+5. rode o simulador do painel e confirme o `aceito (…)`.
+
+Notificações que já estavam na fila de retry foram assinadas antes da troca e
+vão continuar caindo em `MISMATCH` até o Mercado Pago desistir delas. Isso é o
+comportamento correto — nenhuma delas deve ser aceita.
 
 ---
 
@@ -451,7 +538,9 @@ Antes de virar a chave:
 1. aplicar `db/005_payments.sql` no banco de produção;
 2. conferir/ajustar os preços em `products` — o banco é a fonte de verdade;
 3. trocar as credenciais de teste pelas de produção e `PAYMENTS_ENV=production`;
-4. cadastrar o webhook de produção e colar o novo `MERCADOPAGO_WEBHOOK_SECRET`;
+4. cadastrar o webhook de produção e colar as assinaturas em
+   `MERCADOPAGO_WEBHOOK_SECRET_TEST`/`MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION`
+   (e, opcionalmente, `MERCADOPAGO_APPLICATION_ID` para rotular o log);
 5. verificar o domínio `davimf.dev` no Resend (SPF/DKIM) e criar as caixas
    `noreply@`, `financeiro@` e `contato@`;
 6. definir `PAYMENTS_LICENSE_ENCRYPTION_KEY` (32 bytes base64) e **guardá-la**:

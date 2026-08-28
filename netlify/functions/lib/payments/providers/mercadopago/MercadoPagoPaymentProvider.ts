@@ -72,7 +72,10 @@ function buildAddress(address: NonNullable<Payer['address']>): Record<string, st
   if (address.neighborhood) out.neighborhood = address.neighborhood;
   if (address.city) out.city = address.city;
   if (address.state) out.state = address.state;
-  if (address.complement) out.complement = address.complement;
+  // A Orders API limita complemento a 20 caracteres. Como o campo é
+  // opcional, omitir um valor maior preserva o perfil original sem enviar
+  // texto truncado ou inventado ao provider.
+  if (address.complement && address.complement.length <= 20) out.complement = address.complement;
   return out;
 }
 

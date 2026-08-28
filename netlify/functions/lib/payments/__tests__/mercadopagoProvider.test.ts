@@ -472,6 +472,24 @@ describe('dados comerciais da Order', () => {
     expect(address).toEqual({ zip_code: '06233903', street_name: 'Av. das Nações Unidas', street_number: '3003' });
   });
 
+  it('omite complemento acima do limite de 20 caracteres sem alterar o perfil salvo', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-BOL-LONG-COMPLEMENT' }) }));
+    const complement = 'Apartamento 123, bloco azul';
+
+    await provider(impl).createBoletoPayment({
+      ...BASE,
+      payer: {
+        ...FULL_PAYER,
+        address: { ...FULL_PAYER.address!, complement },
+      },
+    });
+
+    const address = JSON.parse(String(calls[0].init.body)).payer.address;
+    expect(address).not.toHaveProperty('complement');
+    expect(FULL_PAYER.address?.complement).toBe('Sala 2');
+    expect(complement).toHaveLength(27);
+  });
+
   it('envia capture_mode automático e 3DS completo apenas no cartão', async () => {
     const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-CARD' }) }));
 

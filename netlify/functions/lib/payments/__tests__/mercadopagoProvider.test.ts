@@ -192,7 +192,7 @@ describe('MercadoPagoPaymentProvider', () => {
     // (`number` existe no corpo apenas como o CPF do pagador.)
     const sent = JSON.parse(raw);
     expect(Object.keys(sent.transactions.payments[0].payment_method).sort())
-      .toEqual(['id', 'installments', 'statement_descriptor', 'token', 'type']);
+      .toEqual(['id', 'installments', 'token', 'type']);
 
     expect(result.status).toBe('PAID');
     expect(result.installments).toBe(3);
@@ -545,7 +545,18 @@ describe('dados comerciais da Order', () => {
     }
   });
 
+  it('não envia statement_descriptor sem MERCADOPAGO_STATEMENT_DESCRIPTOR', async () => {
+    delete process.env.MERCADOPAGO_STATEMENT_DESCRIPTOR;
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
+
+    await provider(impl).createCardPayment({ ...BASE, ...CARD });
+
+    // Padrão desligado: um campo de fatura não pode bloquear cobrança.
+    expect(String(calls[0].init.body)).not.toContain('statement_descriptor');
+  });
+
   it('envia statement_descriptor no payment_method do cartão, nunca no topo', async () => {
+    process.env.MERCADOPAGO_STATEMENT_DESCRIPTOR = '  DAVIMFDEV  ';
     const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
 
     await provider(impl).createCardPayment({ ...BASE, ...CARD });
@@ -557,9 +568,11 @@ describe('dados comerciais da Order', () => {
       statement_descriptor: 'DAVIMFDEV',
     });
     expect(body).not.toHaveProperty('statement_descriptor');
+    delete process.env.MERCADOPAGO_STATEMENT_DESCRIPTOR;
   });
 
-  it('não manda statement_descriptor em Pix nem boleto', async () => {
+  it('não manda statement_descriptor em Pix nem boleto nem com a env definida', async () => {
+    process.env.MERCADOPAGO_STATEMENT_DESCRIPTOR = 'DAVIMFDEV';
     const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
     const target = provider(impl);
 
@@ -571,6 +584,7 @@ describe('dados comerciais da Order', () => {
       // ou ticket é o tipo de extra que a Orders API rejeita.
       expect(String(call.init.body)).not.toContain('statement_descriptor');
     }
+    delete process.env.MERCADOPAGO_STATEMENT_DESCRIPTOR;
   });
 
   it('envia os dados comerciais do Pix e nunca capture_mode', async () => {

@@ -66,6 +66,7 @@ Obrigatórias (já em `.env.example`, sem valores):
 | `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION` | Assinatura da aba Modo de produção |
 | `MERCADOPAGO_WEBHOOK_SECRET` | Compatibilidade legada para ambiente único |
 | `MERCADOPAGO_APPLICATION_ID` | Opcional. `application_id` da aplicação dona do webhook; só rotula o log como `application=match/foreign` |
+| `MERCADOPAGO_STATEMENT_DESCRIPTOR` | Opcional, **desligado por padrão**. Nome na fatura do cartão; sem ela use "Nome para extratos" na conta |
 | `MERCADOPAGO_WEBHOOK_DEBUG` | Opcional, `1` liga. Publica as entradas do manifesto de cada rejeição para reproduzir o HMAC fora do servidor. **Temporário**: desligue depois de usar |
 | `RESEND_API_KEY` | Chave do Resend; sem ela o envio vira no-op logado |
 
@@ -411,8 +412,17 @@ tratamento próprio; 3DS, quando o emissor exige, redireciona (exceção permiti
 O nome que aparece na fatura vai em
 `transactions.payments[].payment_method.statement_descriptor` — **não** no topo
 da Order, onde a Orders API recusa o campo. Só o contrato de cartão o
-documenta: Pix e boleto seguem sem ele, e para esses vale o **"Nome para
-extratos"** configurado na conta do Mercado Pago.
+documenta.
+
+**O envio está desligado por padrão.** Com o campo preenchido, pagamentos de
+cartão em teste passaram a falhar em `processing_error`, e um rótulo de fatura
+não justifica bloquear cobrança. Ele só entra no payload quando
+`MERCADOPAGO_STATEMENT_DESCRIPTOR` estiver definida — útil para reisolar a
+causa ou depois que o suporte do MP confirmar um valor aceito.
+
+A alternativa oficial cobre o requisito sem risco: configure **"Nome para
+extratos"** na conta do Mercado Pago. Vale também para Pix e boleto, que não
+aceitam o campo de forma alguma.
 
 ### Perfil de cobrança reutilizável
 

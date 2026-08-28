@@ -36,11 +36,20 @@ const DEFAULT_BOLETO_EXPIRY_DAYS = 3;
 /**
  * Nome exibido na fatura do cartão. Na Orders API ele vive em
  * `transactions.payments[].payment_method.statement_descriptor` — NÃO no topo
- * da Order, que é onde a tentativa anterior o colocou e por isso foi
- * rejeitada. Documentado apenas no contrato de cartão: Pix e boleto seguem
- * sem o campo, e para eles vale o "Nome para extratos" da conta.
+ * da Order, que é onde uma tentativa anterior o colocou e por isso foi
+ * rejeitada. Documentado apenas no contrato de cartão.
+ *
+ * DESLIGADO por padrão. Enviá-lo com valor fixo coincidiu com pagamentos de
+ * cartão falhando em `processing_error`, e um campo de fatura não vale
+ * bloquear cobrança: só entra no payload quando
+ * `MERCADOPAGO_STATEMENT_DESCRIPTOR` estiver definida. Sem ela, o requisito
+ * "Fatura do cartão" é atendido pelo "Nome para extratos" da conta, que é a
+ * alternativa oficial e cobre também Pix e boleto.
  */
-const STATEMENT_DESCRIPTOR = 'DAVIMFDEV';
+function statementDescriptor(): Record<string, string> {
+  const value = process.env.MERCADOPAGO_STATEMENT_DESCRIPTOR?.trim();
+  return value ? { statement_descriptor: value } : {};
+}
 type MercadoPagoEnvironment = 'sandbox' | 'production';
 
 type OrderPhone = { area_code: string; number: string };
@@ -343,7 +352,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
                 type: 'credit_card',
                 token: input.cardToken,
                 installments: input.installments,
-                statement_descriptor: STATEMENT_DESCRIPTOR,
+                ...statementDescriptor(),
               },
             },
           ],
@@ -501,7 +510,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
                 type: 'credit_card',
                 token: input.cardToken,
                 installments: input.installments ?? 1,
-                statement_descriptor: STATEMENT_DESCRIPTOR,
+                ...statementDescriptor(),
               },
             },
           ],

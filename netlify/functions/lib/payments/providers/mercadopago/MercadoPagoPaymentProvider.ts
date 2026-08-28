@@ -494,9 +494,19 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
         queryId = new URL(request.url, 'https://davimf.dev').searchParams.get('data.id');
       } catch { /* diagnóstico fica como ausente */ }
       let bodyId: string | null = null;
+      let applicationId: string | null = null;
+      let liveMode: boolean | null = null;
       try {
-        const diagnosticBody = JSON.parse(request.rawBody || '{}') as { data?: { id?: unknown } };
+        const diagnosticBody = JSON.parse(request.rawBody || '{}') as {
+          application_id?: unknown;
+          live_mode?: unknown;
+          data?: { id?: unknown };
+        };
         if (typeof diagnosticBody.data?.id === 'string') bodyId = diagnosticBody.data.id;
+        if (typeof diagnosticBody.application_id === 'string' || typeof diagnosticBody.application_id === 'number') {
+          applicationId = String(diagnosticBody.application_id);
+        }
+        if (typeof diagnosticBody.live_mode === 'boolean') liveMode = diagnosticBody.live_mode;
       } catch { /* corpo inválido será tratado depois de uma assinatura válida */ }
       const hasRequestId = Object.entries(request.headers)
         .some(([key, value]) => key.toLowerCase() === 'x-request-id' && Boolean(value));
@@ -506,7 +516,8 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
         process.env.MERCADOPAGO_WEBHOOK_SECRET,
       ].map((value) => value?.trim()).filter((value): value is string => Boolean(value)).map((value) => value.length);
       const context = verification.reason === 'MISMATCH'
-        ? ` (data.id=${queryId ? 'present' : 'missing'}, body_id=${bodyId ? 'present' : 'missing'}, ` +
+        ? ` (application_id=${applicationId ?? 'missing'}, live_mode=${liveMode === null ? 'missing' : String(liveMode)}, ` +
+          `data.id=${queryId ? 'present' : 'missing'}, body_id=${bodyId ? 'present' : 'missing'}, ` +
           `ids_match=${queryId && bodyId ? (queryId.toLowerCase() === bodyId.toLowerCase() ? 'yes' : 'no') : 'unknown'}, ` +
           `x-request-id=${hasRequestId ? 'present' : 'missing'}, secrets=${secretLengths.length}, lengths=${secretLengths.join('/') || 'none'})`
         : '';

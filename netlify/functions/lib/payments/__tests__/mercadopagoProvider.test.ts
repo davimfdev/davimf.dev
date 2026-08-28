@@ -373,7 +373,7 @@ describe('MercadoPagoPaymentProvider', () => {
     });
     expect(result).toBeNull();
     expect(warning).toHaveBeenCalledWith(expect.stringMatching(
-      /^\[payments\] webhook Mercado Pago rejeitado: MISMATCH \(data\.id=present, body_id=present, ids_match=yes, x-request-id=present, secrets=1, lengths=7\)$/,
+      /^\[payments\] webhook Mercado Pago rejeitado: MISMATCH \(application_id=missing, live_mode=missing, data\.id=present, body_id=present, ids_match=yes, x-request-id=present, secrets=1, lengths=7\)$/,
     ));
     expect(warning.mock.calls.flat().join(' ')).not.toContain('deadbeef');
     expect(warning.mock.calls.flat().join(' ')).not.toContain('segredo');

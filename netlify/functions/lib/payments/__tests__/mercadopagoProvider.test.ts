@@ -399,7 +399,9 @@ describe('dados comerciais da Order', () => {
         category_id: 'software',
       }]);
       expect(body.description).toBe('FMM Pro — Mensal');
-      expect(body.statement_descriptor).toBe('DAVIMFDEV');
+      // Checkout Transparente via Orders rejeita este campo no payload; o
+      // nome deve ser configurado em "Nome para extratos" no painel.
+      expect(body).not.toHaveProperty('statement_descriptor');
       expect(body).not.toHaveProperty('additional_info');
       expect(body).toMatchObject({
         type: 'online',
@@ -420,7 +422,7 @@ describe('dados comerciais da Order', () => {
       title: 'FMM Pro — Mensal', quantity: 1, unit_price: '35.00',
       external_code: 'fmm-pro-monthly', category_id: 'software',
     });
-    expect(body.statement_descriptor).toBe('DAVIMFDEV');
+    expect(body).not.toHaveProperty('statement_descriptor');
     expect(body.total_amount).toBe('35.00');
     expect(body.external_reference).toBe('DVMF-1');
     expect(body.processing_mode).toBe('automatic');
@@ -534,7 +536,7 @@ describe('dados comerciais da Order', () => {
       config: { online: { transaction_security: { validation: 'on_fraud_risk', liability_shift: 'required' } } },
     });
     expect(body.items[0]).toMatchObject({ quantity: 1, unit_price: '35.00' });
-    expect(body.statement_descriptor).toBe('DAVIMFDEV');
+    expect(body).not.toHaveProperty('statement_descriptor');
     // O cartão salvo continua amarrado ao cliente do provider.
     expect(body.payer).toMatchObject({ email: PAYER.email, customer_id: 'CUS-1' });
 

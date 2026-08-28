@@ -34,8 +34,6 @@ const DEFAULT_PIX_EXPIRY_MINUTES = 30;
 const DEFAULT_BOLETO_EXPIRY_DAYS = 3;
 type MercadoPagoEnvironment = 'sandbox' | 'production';
 
-const STATEMENT_DESCRIPTOR = 'DAVIMFDEV';
-
 type OrderPhone = { area_code: string; number: string };
 
 type OrderPayer = {
@@ -208,7 +206,6 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
       processing_mode: 'automatic',
       total_amount: centsToDecimalString(input.amountCents),
       external_reference: input.reference,
-      statement_descriptor: STATEMENT_DESCRIPTOR,
       description: input.description,
       items: buildItems(input),
       payer: this.payer(input.payer, method),

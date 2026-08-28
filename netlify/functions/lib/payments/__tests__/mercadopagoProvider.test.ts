@@ -472,6 +472,73 @@ describe('dados comerciais da Order', () => {
     });
     expect(cardBody.items[0].category_id).toBe('software');
   });
+
+  it('cobra o cartão SALVO com a mesma Order enriquecida e o mesmo 3DS completo', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-SAVED' }) }));
+
+    await provider(impl).chargeSavedPaymentMethod({
+      ...BASE,
+      providerCustomerId: 'CUS-1',
+      providerMethodId: 'CARD-1',
+      cardToken: 'tok_cvv_novo',
+      installments: 2,
+      deviceId: 'saved-card-device-id',
+    });
+
+    const body = JSON.parse(String(calls[0].init.body));
+    // Nenhuma Order de cartão pode ficar de fora do 3DS completo.
+    expect(body).toMatchObject({
+      capture_mode: 'automatic',
+      config: { online: { transaction_security: { validation: 'on_fraud_risk', liability_shift: 'required' } } },
+      statement_descriptor: 'DAVIMFDEV',
+    });
+    expect(body.items).toEqual([
+      {
+        title: 'FMM Pro — Mensal',
+        description: 'FMM Pro — Mensal',
+        quantity: 1,
+        unit_price: '35.00',
+        external_code: 'fmm-pro-monthly',
+        category_id: 'software',
+      },
+    ]);
+    // O cartão salvo continua amarrado ao cliente do provider.
+    expect(body.payer).toMatchObject({ email: PAYER.email, customer_id: 'CUS-1' });
+
+    // Device ID: só header, nunca corpo — igual ao caminho do cartão novo.
+    expect((calls[0].init.headers as Record<string, string>)['X-meli-session-id']).toBe('saved-card-device-id');
+    expect(String(calls[0].init.body)).not.toContain('saved-card-device-id');
+  });
+});
+
+// ------------------------------------------------------- quantidade > 1 ----
+
+describe('quantidade do pedido', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('divide o total pelo preço unitário REAL quando a quantidade divide os centavos', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-QTY-2' }) }));
+
+    await provider(impl).createPixPayment({ ...BASE, quantity: 2, amountCents: 7000 });
+
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.total_amount).toBe('70.00');
+    expect(body.items[0]).toMatchObject({ quantity: 2, unit_price: '35.00' });
+    // A soma dos itens tem de bater com o total cobrado.
+    expect(body.items[0].quantity * Number(body.items[0].unit_price)).toBe(Number(body.total_amount));
+  });
+
+  it('colapsa em UM item em vez de inventar preço unitário arredondado', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse({ id: 'ORD-QTY-3' }) }));
+
+    // 3500 / 3 não fecha em centavos exatos.
+    await provider(impl).createPixPayment({ ...BASE, quantity: 3, amountCents: 3500 });
+
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.total_amount).toBe('35.00');
+    expect(body.items[0]).toMatchObject({ quantity: 1, unit_price: '35.00' });
+    expect(body.items[0].quantity * Number(body.items[0].unit_price)).toBe(Number(body.total_amount));
+  });
 });
 
 describe('Device ID', () => {

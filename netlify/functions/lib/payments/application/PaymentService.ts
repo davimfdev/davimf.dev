@@ -165,6 +165,10 @@ export class PaymentService {
    * `Order`/`Product` que vieram do banco — o corpo HTTP nunca é fonte disso.
    * O Device ID é a única exceção request-scoped: atravessa em memória, não
    * entra em `payments.details` nem em log.
+   *
+   * `payerMetadata` fica ausente de propósito: nenhuma fonte autenticada do
+   * projeto expõe data de cadastro ou de compra anterior confiável, e inventar
+   * esses campos para pontuar seria mentira ao provider.
    */
   private baseInput(request: CreateChargeRequest, payment: Payment) {
     return {
@@ -177,9 +181,8 @@ export class PaymentService {
       quantity: request.order.quantity,
       itemCode: request.product.code,
       itemCategoryId: PRODUCT_CATEGORY_ID,
-      // `payerMetadata` fica ausente de propósito: nenhuma fonte autenticada
-      // do projeto expõe data de cadastro ou de compra anterior confiável, e
-      // inventar esses campos para pontuar seria mentira ao provider.
+      // Único campo request-scoped: só viaja quando o SDK gerou um Device ID
+      // de verdade, e morre no header do provider — nunca é persistido.
       ...(request.deviceId ? { deviceId: request.deviceId } : {}),
       metadata: { orderId: request.order.id, productCode: request.product.code },
     };

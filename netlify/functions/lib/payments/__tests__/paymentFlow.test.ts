@@ -288,6 +288,75 @@ describe('preço', () => {
   });
 });
 
+// --------------------------------------------- dados comerciais / device ----
+
+describe('dados comerciais da cobrança', () => {
+  it('manda ao provider os valores do PEDIDO/PRODUTO e ignora os campos forjados no request', async () => {
+    // Pedido real do banco: 3 unidades, R$ 105,00.
+    const world = buildWorld({ order: { quantity: 3, amount_cents: 10500 } });
+    const order = await world.orders.requireOrder('id');
+    const product = await world.orders.requireProduct('fmm-pro-monthly');
+    world.provider.nextPayment = pixResult({ amountCents: 10500 });
+
+    // Adulteração: o cliente injeta dados comerciais no corpo. Nenhum caminho
+    // de código os lê — tudo sai do Order/Product que vieram do banco.
+    const forged = {
+      quantity: 99,
+      itemCode: 'fmm-pro-lifetime',
+      itemCategoryId: 'MLB1648',
+      description: 'Item forjado pelo cliente',
+      amountCents: 1,
+      price: 1,
+      priceCents: 1,
+      unitPrice: 1,
+    } as unknown as Record<string, never>;
+
+    await world.payments.createPix({
+      order, product, payer: { email: 'comprador@example.com' }, ...forged,
+    });
+    await world.payments.createCard({
+      order, product, payer: { email: 'comprador@example.com' },
+      cardToken: 'tok', paymentMethodId: 'master', installments: 1, ...forged,
+    });
+    await world.payments.createBoleto({
+      order, product, payer: { email: 'comprador@example.com' }, ...forged,
+    });
+
+    const expected = {
+      quantity: 3,
+      itemCode: 'fmm-pro-monthly',
+      // Constante de backend documentada — nunca um id de catálogo inventado.
+      itemCategoryId: 'software',
+      description: 'FMM Pro — Mensal',
+      amountCents: 10500,
+      currency: 'BRL',
+      reference: 'DVMF-TEST0001',
+    };
+    expect(world.provider.inputs).toHaveLength(3);
+    for (const input of world.provider.inputs) {
+      expect(input).toMatchObject(expected);
+      expect((input as { itemCategoryId: string }).itemCategoryId).toBe('software');
+    }
+  });
+
+  it('encaminha o Device ID ao provider e NÃO o persiste em lugar nenhum', async () => {
+    const world = buildWorld();
+    const order = await world.orders.requireOrder('id');
+    const product = await world.orders.requireProduct('fmm-pro-monthly');
+
+    const view = await world.payments.createPix({
+      order, product, payer: { email: 'comprador@example.com' }, deviceId: 'real-sdk-device-id',
+    });
+
+    expect(world.provider.inputs[0]).toMatchObject({ deviceId: 'real-sdk-device-id' });
+    // Request-scoped: nada dele chega a `payments.details`, à projeção do
+    // frontend, nem a qualquer valor enviado ao banco.
+    expect(JSON.stringify(world.state.payment!.details)).not.toContain('real-sdk-device-id');
+    expect(JSON.stringify(view)).not.toContain('real-sdk-device-id');
+    expect(JSON.stringify(world.sql.calls)).not.toContain('real-sdk-device-id');
+  });
+});
+
 // ----------------------------------------------------------------- Pix ----
 
 describe('Pix', () => {

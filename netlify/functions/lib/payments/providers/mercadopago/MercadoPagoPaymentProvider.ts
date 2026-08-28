@@ -233,6 +233,31 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
     };
   }
 
+  /**
+   * `baseOrder` + o contrato EXCLUSIVO de cartão.
+   *
+   * Toda Order de cartão passa por aqui — cartão novo e cartão salvo — para que
+   * nenhuma delas fique sem `capture_mode` nem sem o 3DS completo.
+   */
+  private cardOrder(input: BaseChargeInput): Record<string, unknown> {
+    return {
+      ...this.baseOrder(input, 'card'),
+      // `capture_mode` SÓ existe no contrato de cartão da Orders API. Não
+      // subir isto para `baseOrder`: Pix e boleto não aceitam o campo.
+      capture_mode: 'automatic',
+      config: {
+        online: {
+          // 3DS completo: o provider decide desafiar em risco de fraude e a
+          // responsabilidade migra para o emissor quando autenticado.
+          transaction_security: {
+            validation: 'on_fraud_risk',
+            liability_shift: 'required',
+          },
+        },
+      },
+    };
+  }
+
   async createPixPayment(input: CreatePixInput): Promise<ProviderPaymentResult> {
     const amount = centsToDecimalString(input.amountCents);
     const minutes = input.expiresInMinutes ?? DEFAULT_PIX_EXPIRY_MINUTES;
@@ -263,20 +288,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
 
     return this.createOrder(
       {
-        ...this.baseOrder(input, 'card'),
-        // `capture_mode` SÓ existe no contrato de cartão da Orders API. Não
-        // subir isto para `baseOrder`: Pix e boleto não aceitam o campo.
-        capture_mode: 'automatic',
-        config: {
-          online: {
-            // 3DS completo: o provider decide desafiar em risco de fraude e a
-            // responsabilidade migra para o emissor quando autenticado.
-            transaction_security: {
-              validation: 'on_fraud_risk',
-              liability_shift: 'required',
-            },
-          },
-        },
+        ...this.cardOrder(input),
         transactions: {
           payments: [
             {
@@ -427,15 +439,14 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
       );
     }
     const amount = centsToDecimalString(input.amountCents);
+    // Cartão salvo é cartão: mesma Order enriquecida, mesmo 3DS completo. A
+    // única diferença é o `customer_id` que amarra o meio salvo ao cliente.
+    const base = this.cardOrder(input);
 
     return this.createOrder(
       {
-        type: 'online',
-        processing_mode: 'automatic',
-        total_amount: amount,
-        external_reference: input.reference,
-        description: input.description,
-        payer: { ...buildPayer(input.payer), customer_id: input.providerCustomerId },
+        ...base,
+        payer: { ...(base.payer as OrderPayer), customer_id: input.providerCustomerId },
         transactions: {
           payments: [
             {
@@ -451,6 +462,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
         },
       },
       input.idempotencyKey,
+      input.deviceId,
     );
   }
 

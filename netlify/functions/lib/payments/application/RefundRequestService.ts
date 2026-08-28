@@ -52,6 +52,7 @@ export function decideRefund(order: Order, now: Date): RefundDecision {
 
 import { createRefundRequest, type RefundRequestOutcome } from '../repositories/RefundRequestRepository';
 import { logOrderAccessDenied } from '../infrastructure/securityLog';
+import { safeString } from '../infrastructure/safeString';
 import { getOrderService } from './OrderService';
 import { getPaymentService } from './PaymentService';
 
@@ -137,7 +138,9 @@ export class RefundRequestService {
           outcome: 'rejected', reasonCode: 'ORDER_NOT_REFUNDABLE',
         });
       } catch {
-        // A resposta 409 é determinística e não depende deste registro.
+        // A resposta 409 é determinística e não depende deste registro, mas
+        // uma falha sistemática aqui não pode ficar invisível.
+        console.error(`[payments] REFUND_REQUEST_AUDIT_WRITE_FAILED order=${order.id}`);
       }
       return { status: 409, code: 'ORDER_NOT_REFUNDABLE' };
     }
@@ -145,8 +148,19 @@ export class RefundRequestService {
     try {
       await this.deps.refund(paid.id);
     } catch (error) {
-      const outcome = this.classifyRefundFailure(error);
-      const providerError = this.extractProviderError(error);
+      // Ler propriedades do erro pode em si lançar (Proxy hostil, acessor
+      // que lança) — depois de chamar `refund`, isso também NÃO pode
+      // escapar. Sem conseguir sequer ler o erro, não há como afirmar que o
+      // dinheiro não se moveu: o default é reconciliação.
+      let outcome: 'manual' | 'reconciliation_required';
+      let providerError: string;
+      try {
+        outcome = this.classifyRefundFailure(error);
+        providerError = this.extractProviderError(error);
+      } catch {
+        outcome = 'reconciliation_required';
+        providerError = 'erro não representável';
+      }
       return this.settleAfterRefundAttempt(order, input.userId, outcome, providerError);
     }
 
@@ -179,25 +193,16 @@ export class RefundRequestService {
     const providerDetail = typeof error === 'object' && error !== null
       ? (error as { providerDetail?: unknown }).providerDetail
       : undefined;
-    const raw = typeof providerDetail === 'string'
+    const rawCandidate: unknown = typeof providerDetail === 'string'
       ? providerDetail
-      : error instanceof Error ? error.message : this.safeString(error);
+      : error instanceof Error ? error.message : undefined;
+    // `providerDetail` e `error.message` não são garantidamente strings —
+    // bibliotecas (e código nosso) já setaram `message` para outra coisa.
+    // Coage antes de `.slice`, nunca assuma.
+    const raw = typeof rawCandidate === 'string' ? rawCandidate : safeString(rawCandidate ?? error);
     // O provider não controla quanto gravamos: mesmo limite de
     // `markEventFailed` (PaymentEventRepository) para provider_error.
     return raw.slice(0, MAX_PROVIDER_ERROR_LENGTH);
-  }
-
-  /**
-   * `String(valor)` pode lançar — objeto sem protótipo (`Object.create(null)`)
-   * ou com `Symbol.toPrimitive` que lança. Estamos no caminho pós-estorno:
-   * isso NUNCA pode escapar.
-   */
-  private safeString(value: unknown): string {
-    try {
-      return String(value);
-    } catch {
-      return 'erro não representável';
-    }
   }
 
   /**

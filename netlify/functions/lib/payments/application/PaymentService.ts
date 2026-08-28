@@ -12,6 +12,7 @@
 import { randomUUID } from 'node:crypto';
 import { FMM_DOWNLOAD_URL, myKeysUrl } from '../config';
 import { ConflictError, ValidationError } from '../domain/errors';
+import { safeString } from '../infrastructure/safeString';
 import type { Cents } from '../domain/money';
 import type {
   Order,
@@ -94,19 +95,6 @@ export type CreateCardChargeRequest = CreateChargeRequest & {
 };
 
 const MAX_INSTALLMENTS = 12;
-
-/**
- * `String(valor)` pode lançar (objeto sem protótipo, `Symbol.toPrimitive`
- * que lança). Usada para preservar o conteúdo original de um erro não-Error
- * ao embrulhá-lo, sem arriscar lançar de novo no processo.
- */
-function safeString(value: unknown): string {
-  try {
-    return String(value);
-  } catch {
-    return 'erro não representável';
-  }
-}
 
 /**
  * Categoria do item no catálogo do provider. O produto é software licenciado;

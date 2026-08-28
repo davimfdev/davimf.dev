@@ -294,18 +294,22 @@ describe('fix round 2: nada escapa de request() depois de tentar o estorno', () 
     );
   });
 
-  it('C1: falha ao gravar a recusa por falta de pagamento PAID ainda responde 409', async () => {
+  it('C1: falha ao gravar a recusa por falta de pagamento PAID ainda responde 409 (e loga)', async () => {
     // Nenhum dinheiro se moveu neste caminho — uma falha de auditoria aqui
-    // não pode virar 500 no lugar de um 409 determinístico.
+    // não pode virar 500 no lugar de um 409 determinístico. Mas também não
+    // pode ficar invisível: uma linha de log é o mínimo (cleanup 2).
     const record = vi.fn().mockRejectedValue(new Error('db down'));
     const { service } = build({
       listPayments: vi.fn().mockResolvedValue([{ id: 'pay-1', status: 'PENDING' }]),
       record,
     });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
 
     expect(result).toEqual({ status: 409, code: 'ORDER_NOT_REFUNDABLE' });
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_AUDIT_WRITE_FAILED'));
+    errorSpy.mockRestore();
   });
 
   it('grava antes de confirmar por e-mail também no caminho degradado', async () => {
@@ -327,5 +331,64 @@ describe('fix round 2: nada escapa de request() depois de tentar o estorno', () 
     await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
 
     expect(calls).toEqual(['record', 'record', 'acknowledge']);
+  });
+
+  it('C3: um Proxy hostil (armadilhas que lançam) não escapa de request()', async () => {
+    // `classifyRefundFailure` lê `props.refundAccepted` antes de qualquer
+    // guarda — um Proxy cuja armadilha `get` lança derruba essa leitura.
+    const hostile = new Proxy(
+      {},
+      {
+        get() {
+          throw new Error('trap get hostil');
+        },
+      },
+    );
+    const refund = vi.fn().mockRejectedValue(hostile);
+    const { service, record } = build({ refund });
+
+    const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 202, outcome: 'reconciliation_required' });
+    expect(record).toHaveBeenCalledWith(
+      expect.objectContaining({ outcome: 'reconciliation_required' }),
+    );
+  });
+
+  it('C3: um acessor próprio que lança ao ser lido não escapa de request()', async () => {
+    const hostile: Record<string, unknown> = {};
+    Object.defineProperty(hostile, 'refundAccepted', {
+      get() {
+        throw new Error('accessor hostil');
+      },
+      enumerable: true,
+    });
+    const refund = vi.fn().mockRejectedValue(hostile);
+    const { service, record } = build({ refund });
+
+    const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 202, outcome: 'reconciliation_required' });
+    expect(record).toHaveBeenCalledWith(
+      expect.objectContaining({ outcome: 'reconciliation_required' }),
+    );
+  });
+
+  it('C3: Error com `message` que não é string não derruba a resposta (raw.slice)', async () => {
+    // Bibliotecas às vezes setam `message` para algo que não é string.
+    // `extractProviderError` assumia `error.message` como string antes de
+    // `.slice` — este teste prova o `TypeError` sem a coerção.
+    const weird = new Error('placeholder');
+    Object.defineProperty(weird, 'message', { value: { not: 'a string' }, enumerable: true });
+    const refund = vi.fn().mockRejectedValue(weird);
+    const { service, record } = build({ refund });
+
+    const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 202, outcome: 'reconciliation_required' });
+    expect(record).toHaveBeenCalledWith(expect.objectContaining({
+      outcome: 'reconciliation_required',
+      providerError: expect.any(String),
+    }));
   });
 });

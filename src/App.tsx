@@ -20,6 +20,8 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import UrlShortener from './components/UrlShortener';
 import UrlRedirectPage from './pages/UrlRedirectPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import RefundPolicy from './pages/RefundPolicy';
 import Test from './pages/Test';
 import Dashboard from './pages/Dashboard';
 import BotConfig from './pages/BotConfig';
@@ -76,6 +78,8 @@ function App() {
                 <Route path="modules" element={<ModulesSection/>} />
               </Route>
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/refund-policy" element={<RefundPolicy />} />
               <Route path="/fmm" element={<FmmPlans />} />
               <Route path="/fmm-activated" element={<FmmActivated />} />
               <Route path="/my-keys" element={<MyKeys />} />

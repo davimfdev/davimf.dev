@@ -1,11 +1,11 @@
 import React from 'react';
-import { Shield } from 'lucide-react';
+import { Undo2 } from 'lucide-react';
 import LegalPage from '../components/LegalPage';
 import { useLanguage } from '../context/LanguageContext';
 
-const PrivacyPolicy: React.FC = () => {
+const RefundPolicy: React.FC = () => {
   const { legal } = useLanguage();
-  return <LegalPage document={legal.privacy} icon={Shield} />;
+  return <LegalPage document={legal.refund} icon={Undo2} />;
 };
 
-export default PrivacyPolicy;
+export default RefundPolicy;

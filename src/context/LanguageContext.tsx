@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { legal, type LegalContent } from '../content/legal';
 
 type Language = 'pt' | 'en';
 
@@ -6,6 +7,12 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   translations: typeof translations[Language];
+  /**
+   * Textos legais. Vivem em `src/content/legal/` e não aqui: este arquivo já
+   * carrega navegação, catálogo de produtos e links de pagamento, e três
+   * documentos jurídicos o tornariam impossível de manter.
+   */
+  legal: LegalContent;
 }
 
 const translations = {
@@ -650,7 +657,9 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('pt');
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, translations: translations[language] }}>
+    <LanguageContext.Provider
+      value={{ language, setLanguage, translations: translations[language], legal: legal[language] }}
+    >
       {children}
     </LanguageContext.Provider>
   );

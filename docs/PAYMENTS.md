@@ -421,9 +421,16 @@ não justifica bloquear cobrança. Ele só entra no payload quando
 `MERCADOPAGO_STATEMENT_DESCRIPTOR` estiver definida — útil para reisolar a
 causa ou depois que o suporte do MP confirmar um valor aceito.
 
-A alternativa oficial cobre o requisito sem risco: configure **"Nome para
-extratos"** na conta do Mercado Pago. Vale também para Pix e boleto, que não
-aceitam o campo de forma alguma.
+A alternativa oficial cobre o requisito sem risco e **já está configurada** na
+conta real: *Perfil → Dados do negócio → **Nome para faturas*** (`DAVIMFDEV`).
+Vale também para Pix e boleto, que não aceitam o campo de forma alguma.
+
+Atenção ao efeito disso no relatório de qualidade: a configuração é **por
+conta**. Enquanto a medição roda sobre Orders da conta do usuário de teste, ela
+não enxerga o que está configurado na conta real, e o requisito "Fatura do
+cartão" segue pendente por mais correta que a integração esteja. Para fechar em
+teste, a mesma configuração precisa existir no painel do usuário de teste; em
+produção ele já está atendido.
 
 ### Perfil de cobrança reutilizável
 

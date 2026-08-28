@@ -70,8 +70,20 @@ function headerValue(headers: Record<string, string | undefined>, name: string):
 }
 
 export function verifyWebhookSignature(input: VerifyInput): VerifyResult {
-  const secret = input.secret ?? process.env.MERCADOPAGO_WEBHOOK_SECRET;
-  if (!secret) return { ok: false, reason: 'NOT_CONFIGURED' };
+  // Teste e produção podem apontar para a mesma URL, mas o painel gera um
+  // segredo independente para cada modo. Validamos contra ambos sem jamais
+  // identificar no log qual deles conferiu. A variável legada continua
+  // aceita para instalações com apenas um ambiente.
+  const secrets = (input.secret !== undefined
+    ? [input.secret]
+    : [
+        process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST,
+        process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION,
+        process.env.MERCADOPAGO_WEBHOOK_SECRET,
+      ])
+    .map((value) => value?.trim())
+    .filter((value): value is string => Boolean(value));
+  if (secrets.length === 0) return { ok: false, reason: 'NOT_CONFIGURED' };
 
   const { ts, v1 } = parseXSignature(headerValue(input.headers, 'x-signature'));
   if (!ts || !v1) return { ok: false, reason: 'MISSING_SIGNATURE' };
@@ -98,8 +110,12 @@ export function verifyWebhookSignature(input: VerifyInput): VerifyResult {
     ts,
   });
 
-  const expected = createHmac('sha256', secret).update(manifest).digest('hex');
-  if (!safeEqualHex(expected, v1.toLowerCase())) return { ok: false, reason: 'MISMATCH' };
+  const received = v1.toLowerCase();
+  const matches = secrets.some((secret) => {
+    const expected = createHmac('sha256', secret).update(manifest).digest('hex');
+    return safeEqualHex(expected, received);
+  });
+  if (!matches) return { ok: false, reason: 'MISMATCH' };
 
   return { ok: true, dataId, ts };
 }

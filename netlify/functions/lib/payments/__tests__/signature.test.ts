@@ -18,6 +18,8 @@ describe('assinatura do webhook Mercado Pago', () => {
   });
   afterEach(() => {
     delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
+    delete process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST;
+    delete process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION;
   });
 
   it('monta o manifesto no formato oficial e minúsculo', () => {
@@ -41,6 +43,21 @@ describe('assinatura do webhook Mercado Pago', () => {
       now: NOW,
     });
     expect(result).toEqual({ ok: true, dataId: 'ORD-1', ts: String(NOW) });
+  });
+
+  it('aceita assinaturas distintas de teste e produção na mesma URL', () => {
+    delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST = 'segredo-webhook-teste';
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION = 'segredo-webhook-producao';
+
+    for (const secret of [process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST, process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION]) {
+      const result = verifyWebhookSignature({
+        headers: signedHeaders('ORD-1', String(NOW), secret),
+        url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-1&type=order',
+        now: NOW,
+      });
+      expect(result).toMatchObject({ ok: true, dataId: 'ORD-1' });
+    }
   });
 
   it('rejeita assinatura inválida (segredo errado)', () => {

@@ -62,7 +62,9 @@ Obrigatórias (já em `.env.example`, sem valores):
 | `PAYMENTS_ENV` | `sandbox` ou `production` |
 | `MERCADOPAGO_PUBLIC_KEY` | Public key — vai para o frontend (é pública) |
 | `MERCADOPAGO_ACCESS_TOKEN` | Access token — **nunca sai do servidor** |
-| `MERCADOPAGO_WEBHOOK_SECRET` | Segredo da assinatura das notificações |
+| `MERCADOPAGO_WEBHOOK_SECRET_TEST` | Assinatura da aba Modo de teste |
+| `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION` | Assinatura da aba Modo de produção |
+| `MERCADOPAGO_WEBHOOK_SECRET` | Compatibilidade legada para ambiente único |
 | `RESEND_API_KEY` | Chave do Resend; sem ela o envio vira no-op logado |
 
 Opcionais com padrão no código: `MERCADOPAGO_TIMEOUT_MS` (12000),

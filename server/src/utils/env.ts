@@ -35,7 +35,11 @@ const REQUIRED: EnvGroup[] = [
   { label: 'Licenças FMM', vars: ['FMM_APP_SECRET', 'FMM_ADMIN_SECRET'] },
   {
     label: 'Pagamentos (Mercado Pago)',
-    vars: ['MERCADOPAGO_PUBLIC_KEY', 'MERCADOPAGO_ACCESS_TOKEN', 'MERCADOPAGO_WEBHOOK_SECRET'],
+    vars: ['MERCADOPAGO_PUBLIC_KEY', 'MERCADOPAGO_ACCESS_TOKEN'],
+  },
+  {
+    label: 'Webhooks Mercado Pago (mesma URL em teste e produção)',
+    vars: ['MERCADOPAGO_WEBHOOK_SECRET_TEST', 'MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION'],
   },
   { label: 'E-mails transacionais (Resend)', vars: ['RESEND_API_KEY'] },
   { label: 'Ingestão de tickets', vars: ['TICKET_INGEST_SECRET'] },

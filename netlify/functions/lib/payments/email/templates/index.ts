@@ -390,3 +390,92 @@ export function subscriptionCancelledEmail(input: SubscriptionEmailInput): Rende
     ]),
   };
 }
+
+// ------------------------------------------------- pedido de reembolso -----
+
+/**
+ * Confirmação IMEDIATA do recebimento do pedido de reembolso — obrigação
+ * legal (Decreto 7.962/2013), não cortesia. O caminho automático (dentro da
+ * janela do Art. 49 do CDC) já informa que o estorno foi solicitado ao
+ * Mercado Pago e que a licença foi revogada; o manual (fora da janela, ou
+ * desfecho incerto) NÃO promete reembolso algum — nenhum valor se moveu
+ * ainda — só confirma que o pedido será analisado, com a licença ativa
+ * enquanto isso.
+ */
+export function refundRequestedEmail(input: { reference: string; automatic: boolean }): RenderedEmail {
+  const reference = escapeHtml(input.reference);
+  const body = input.automatic
+    ? paragraph(`Confirmamos que recebemos seu pedido de reembolso do pedido <strong style="color:${BRAND.text};">${reference}</strong>.`) +
+      paragraph('O estorno foi solicitado ao Mercado Pago. O prazo até o valor aparecer para você depende do meio de pagamento usado na compra.') +
+      notice('A licença correspondente a este pedido foi revogada.', 'danger')
+    : paragraph(`Confirmamos que recebemos seu pedido de reembolso do pedido <strong style="color:${BRAND.text};">${reference}</strong>.`) +
+      paragraph('Vamos analisar o seu caso e responder por este mesmo e-mail.') +
+      notice('Sua licença continua ativa enquanto a análise não termina — nenhum estorno foi feito.');
+
+  return {
+    subject: `Recebemos seu pedido de reembolso — ${input.reference}`,
+    html: renderLayout({
+      title: 'Recebemos seu pedido de reembolso',
+      preheader: `Pedido ${input.reference}: confirmamos o recebimento do seu pedido de reembolso.`,
+      body,
+    }),
+    text: renderText(
+      input.automatic
+        ? [
+            `Confirmamos que recebemos seu pedido de reembolso do pedido ${input.reference}.`,
+            'O estorno foi solicitado ao Mercado Pago. O prazo depende do meio de pagamento usado na compra.',
+            'A licença correspondente a este pedido foi revogada.',
+          ]
+        : [
+            `Confirmamos que recebemos seu pedido de reembolso do pedido ${input.reference}.`,
+            'Vamos analisar o seu caso e responder por este mesmo e-mail.',
+            'Sua licença continua ativa enquanto a análise não termina — nenhum estorno foi feito.',
+          ],
+    ),
+  };
+}
+
+// --------------------------------------------- alerta interno de reembolso --
+
+/** Únicos dois desfechos que acionam o financeiro — `refunded` e `rejected` nunca chegam aqui. */
+export type RefundAlertOutcome = 'manual' | 'reconciliation_required';
+
+/**
+ * Aviso ao FINANCEIRO — nunca ao cliente. `reconciliation_required` é o
+ * único desfecho em que o dinheiro pode já ter se movido no Mercado Pago
+ * enquanto o registro local diverge disso: por isso ganha assunto e corpo
+ * próprios, urgentes, que não podem depender de alguém rolar log de
+ * container para notar. `manual` é o caminho de rotina (fora da janela do
+ * Art. 49) e usa um tom correspondente.
+ */
+export function refundAlertEmail(input: {
+  reference: string;
+  orderId: string;
+  outcome: RefundAlertOutcome;
+  detail: string | null;
+}): RenderedEmail {
+  const reference = escapeHtml(input.reference);
+  const orderId = escapeHtml(input.orderId);
+  const urgent = input.outcome === 'reconciliation_required';
+
+  const subject = urgent
+    ? `[URGENTE] Estorno pode ter sido feito e o registro diverge — pedido ${input.reference}`
+    : `Reembolso aguardando análise manual — pedido ${input.reference}`;
+
+  const body = urgent
+    ? paragraph(`O estorno do pedido <strong style="color:${BRAND.text};">${reference}</strong> (id ${orderId}) pode ter sido aceito pelo Mercado Pago, mas o nosso registro local não confirma isso.`) +
+      notice('Concilie manualmente com o extrato do Mercado Pago antes de tentar estornar de novo — repetir agora arrisca duplicar a devolução.', 'danger') +
+      (input.detail ? codeBlock(input.detail) : '')
+    : paragraph(`O pedido <strong style="color:${BRAND.text};">${reference}</strong> (id ${orderId}) está fora da janela automática de reembolso e aguarda análise manual.`) +
+      (input.detail ? codeBlock(input.detail) : '');
+
+  return {
+    subject,
+    html: renderLayout({
+      title: urgent ? 'Divergência de estorno' : 'Reembolso para análise manual',
+      preheader: subject,
+      body,
+    }),
+    text: renderText([subject, `Pedido: ${input.reference} (${input.orderId})`, input.detail]),
+  };
+}

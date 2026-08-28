@@ -53,8 +53,12 @@ export function decideRefund(order: Order, now: Date): RefundDecision {
 import { createRefundRequest, type RefundRequestOutcome } from '../repositories/RefundRequestRepository';
 import { logOrderAccessDenied } from '../infrastructure/securityLog';
 import { safeString } from '../infrastructure/safeString';
+import { ForbiddenError, NotFoundError } from '../domain/errors';
+import { EMAIL_REPLY_TO } from '../email/EmailProvider';
+import { refundAlertEmail, refundRequestedEmail } from '../email/templates';
 import { getOrderService } from './OrderService';
 import { getPaymentService } from './PaymentService';
+import { NotificationService } from './NotificationService';
 
 export type RefundRequestResult =
   | { status: 200; outcome: 'refunded' }
@@ -289,4 +293,58 @@ export class RefundRequestService {
       ? { status: 200, outcome: 'refunded' }
       : { status: 202, outcome: finalOutcome };
   }
+}
+
+/**
+ * Liga o serviço puro às implementações reais. Cada chamada busca as
+ * instâncias CORRENTES de `OrderService`/`PaymentService` (singletons já
+ * cacheados por seus próprios `get*Service()`) e cria uma `RefundRequestService`
+ * nova — a própria função não cacheia nada, para que um teste que troque
+ * esses singletons (`setOrderServiceForTesting` etc.) nunca herde um
+ * fechamento antigo apontando para o fake anterior.
+ */
+export function getRefundRequestService(): RefundRequestService {
+  const payments = getPaymentService();
+  const orders = getOrderService();
+  const notifications = new NotificationService();
+
+  return new RefundRequestService({
+    findOwnedOrder: async (orderId, userId) => {
+      try {
+        return await orders.requireOwnedOrder(orderId, userId);
+      } catch (error) {
+        // SÓ o esperado vira null (→ 404 idêntico ao de "pedido inexistente").
+        // Um banco fora do ar respondendo "pedido não encontrado" mentiria
+        // para quem pagou — precisa propagar e virar 500, nunca um 404 quieto.
+        if (error instanceof NotFoundError || error instanceof ForbiddenError) return null;
+        throw error;
+      }
+    },
+    listPayments: (orderId) => payments.listForOrder(orderId),
+    refund: (paymentId) => payments.refund(paymentId),
+    record: createRefundRequest,
+    acknowledge: (order, outcome) =>
+      notifications.notify({
+        // Um envio por desfecho: reenviar o mesmo desfecho não manda dois e-mails.
+        dedupeKey: `order:${order.id}:refund-request:${outcome}`,
+        template: 'refund-requested',
+        recipient: order.userEmail,
+        orderId: order.id,
+        email: refundRequestedEmail({ reference: order.reference, automatic: outcome === 'refunded' }),
+      }),
+    alertOperator: (order, outcome, detail) => {
+      // O tipo aceita qualquer RefundRequestOutcome, mas quem chama (settleAfterRefundAttempt)
+      // só usa 'manual' e 'reconciliation_required' — 'refunded'/'rejected' nunca alertam.
+      const alertOutcome = outcome === 'reconciliation_required' ? 'reconciliation_required' : 'manual';
+      return notifications.notify({
+        dedupeKey: `order:${order.id}:refund-alert:${outcome}`,
+        template: 'refund-alert',
+        // financeiro, não o comprador: log de container não é canal que alguém observa.
+        recipient: EMAIL_REPLY_TO,
+        orderId: order.id,
+        email: refundAlertEmail({ reference: order.reference, orderId: order.id, outcome: alertOutcome, detail }),
+      });
+    },
+    logAccessDenied: logOrderAccessDenied,
+  });
 }

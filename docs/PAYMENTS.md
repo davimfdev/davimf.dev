@@ -198,12 +198,20 @@ Endpoint: `POST https://davimf.dev/api/payments/webhooks/mercadopago`
 No painel do Mercado Pago, cadastre manualmente essa URL e selecione como
 tópico principal **Order (Mercado Pago)**. Mantenha também os eventos já usados
 pelo projeto quando estiverem disponíveis para a conta: Planos e assinaturas,
-Alertas de fraude, Reclamações e Contestações. Como teste e produção podem
-apontar para a mesma URL, configure as duas assinaturas em
-`MERCADOPAGO_WEBHOOK_SECRET_TEST` e
-`MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION`, depois recrie a aplicação. A variável
-`MERCADOPAGO_WEBHOOK_SECRET` permanece apenas como compatibilidade legada para
-instalações de ambiente único.
+Alertas de fraude, Reclamações e Contestações.
+
+**A assinatura secreta é vinculada à APLICAÇÃO, não ao modo**: o painel gera
+uma só, em *Suas integrações → a aplicação → Webhooks*, e ela assina tanto as
+notificações de teste (`live_mode=false`) quanto as de produção. Logo, colar o
+**mesmo** valor em `MERCADOPAGO_WEBHOOK_SECRET_TEST` e
+`MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION` é o normal. As duas variáveis existem
+para quem separa teste e produção em aplicações **diferentes**; nesse caso cada
+uma recebe a assinatura da sua aplicação. `MERCADOPAGO_WEBHOOK_SECRET`
+permanece como compatibilidade legada.
+
+O que precisa casar é a **aplicação**: a assinatura tem de vir da mesma
+aplicação dona do `MERCADOPAGO_ACCESS_TOKEN` que cria as Orders. É essa
+aplicação que aparece como `application_id` no corpo da notificação.
 
 Depois do deploy, use a simulação do painel para validar uma assinatura e faça
 uma nova medição de qualidade da integração. A confirmação deve aparecer tanto
@@ -270,23 +278,19 @@ Como ler:
 
 | Campo | O que decide |
 |---|---|
-| `application` / `application_id` | notificação de OUTRA aplicação do MP (exige `MERCADOPAGO_APPLICATION_ID` para rotular) |
+| `application` / `application_id` | `foreign(expected=X)` = chegou de uma aplicação e o ambiente esperava outra: a assinatura configurada é da aplicação errada (exige `MERCADOPAGO_APPLICATION_ID`) |
 | `live_mode` | credencial de teste (`false`) ou de produção (`true`) |
 | `id_source` | `query` = `data.id` presente; `absent` = manifesto sem o rótulo `id` |
 | `ids_match` | query vs. corpo — `no` denuncia proxy reescrevendo a URL |
 | `x-request-id=present(N)` | **N > 1** = proxy duplicou/injetou o cabeçalho e quebrou o manifesto |
 | `ts_age_s` | idade da assinatura; valor grande = relógio fora de hora ou replay |
 | `variants` | quais canonicalizações de `data.id` foram testadas |
-| `secrets` | conjunto lógico tentado, como `rótulo:fingerprint`. O fingerprint é irreversível (8 hex de SHA-256 com separação de domínio) e serve só para responder duas perguntas: *teste e produção estão com valores diferentes?* e *o valor mudou depois do deploy?* |
+| `secrets` | conjunto lógico tentado, como `rótulo:fingerprint`. O fingerprint é irreversível (8 hex de SHA-256 com separação de domínio) e responde a uma pergunta só: *o valor mudou depois do deploy?* |
 
-Rótulos agrupados em um único fingerprint — `secrets=test+production:ac346080`
-— significam que a **mesma** assinatura foi colada nas duas variáveis. Cada
-modo do painel gera a sua, então um dos dois fica sem assinatura válida
-nenhuma e rejeita tudo daquele modo. O arranque da API também avisa:
-
-```
-[api] MERCADOPAGO_WEBHOOK_SECRET_TEST e MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION têm o MESMO valor.
-```
+Rótulos agrupados num único fingerprint — `secrets=test+production:ac346080` —
+significam **uma** assinatura sob dois nomes. Isso é o esperado: o painel gera
+a assinatura por aplicação. Fingerprints diferentes só aparecem quando teste e
+produção estão em aplicações distintas.
 
 A contrapartida aparece nas notificações aceitas, no mesmo formato, para
 comparar as duas na mesma busca:
@@ -298,21 +302,24 @@ live_mode=true, type=order, action=order.processed, data.id=present)
 
 `MISMATCH` com `ids_match=yes`, `x-request-id=present(1)` e `ts_age_s` pequeno
 significa que o manifesto está certo e o HMAC foi calculado com um segredo que
-**não** está configurado aqui — ou seja, a notificação é de outra aplicação/modo,
-ou o segredo do painel foi regerado sem atualizar o ambiente.
+**não** está configurado aqui. Com `application=foreign(expected=…)` a linha já
+diz o resto: a notificação veio de uma aplicação diferente da esperada, e a
+assinatura configurada é a da aplicação errada. O conserto é copiar a
+assinatura da aplicação que aparece em `application_id` — a mesma dona do
+access token que criou a Order.
 
 #### Rotação da assinatura secreta
 
-Cada aplicação tem a sua assinatura, e teste e produção têm a sua. Ao gerar uma
-nova no painel:
+A assinatura é da aplicação. Ao gerar uma nova no painel:
 
-1. gere a nova assinatura (Modo de teste e Modo de produção separadamente);
-2. atualize `MERCADOPAGO_WEBHOOK_SECRET_TEST` e
-   `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION` no Coolify — cole **sem** espaço ou
-   quebra de linha (o código faz `trim`, mas o painel pode truncar);
+1. em *Suas integrações*, abra **a aplicação dona do `MERCADOPAGO_ACCESS_TOKEN`**
+   (é o `application_id` que aparece no log) → Webhooks → gerar assinatura;
+2. cole o valor em `MERCADOPAGO_WEBHOOK_SECRET_TEST` **e**
+   `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION` no Coolify — o mesmo valor nas duas
+   é o certo quando há uma aplicação só; sem espaço ou quebra de linha (o
+   código faz `trim`, mas o painel pode truncar);
 3. faça deploy/restart: as variáveis são lidas do ambiente no arranque;
-4. confira nos logs que o `fingerprint` de cada segredo mudou e que os dois são
-   **diferentes** entre si;
+4. confira no log que o `fingerprint` mudou;
 5. rode o simulador do painel e confirme o `aceito (…)`.
 
 Notificações que já estavam na fila de retry foram assinadas antes da troca e
@@ -547,9 +554,10 @@ Antes de virar a chave:
 1. aplicar `db/005_payments.sql` no banco de produção;
 2. conferir/ajustar os preços em `products` — o banco é a fonte de verdade;
 3. trocar as credenciais de teste pelas de produção e `PAYMENTS_ENV=production`;
-4. cadastrar o webhook de produção e colar as assinaturas em
-   `MERCADOPAGO_WEBHOOK_SECRET_TEST`/`MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION`
-   (e, opcionalmente, `MERCADOPAGO_APPLICATION_ID` para rotular o log);
+4. cadastrar o webhook na **mesma aplicação** do access token e colar a
+   assinatura dela em `MERCADOPAGO_WEBHOOK_SECRET_TEST` e
+   `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION`, mais o `application_id` dessa
+   aplicação em `MERCADOPAGO_APPLICATION_ID`;
 5. verificar o domínio `davimf.dev` no Resend (SPF/DKIM) e criar as caixas
    `noreply@`, `financeiro@` e `contato@`;
 6. definir `PAYMENTS_LICENSE_ENCRYPTION_KEY` (32 bytes base64) e **guardá-la**:

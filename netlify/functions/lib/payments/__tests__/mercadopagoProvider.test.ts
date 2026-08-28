@@ -402,7 +402,8 @@ describe('MercadoPagoPaymentProvider', () => {
 
     expect(result).toBeNull();
     const line = warning.mock.calls.flat().join(' ');
-    expect(line).toContain('application=foreign');
+    // Os dois lados na mesma linha: o que chegou e o que o ambiente esperava.
+    expect(line).toContain('application=foreign(expected=1111111111111111)');
     expect(line).toContain('application_id=3276309109538538');
     expect(line).toContain('live_mode=false');
     expect(line).toContain('action=order.updated');

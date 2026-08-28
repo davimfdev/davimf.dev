@@ -173,10 +173,14 @@ function webhookIdentity(body: Record<string, unknown>): WebhookIdentity {
  * sendo recusada, e uma de aplicação desconhecida com assinatura válida
  * continua sendo processada.
  */
-function describeApplication(applicationId: string | null): 'match' | 'foreign' | 'unknown' {
+function describeApplication(applicationId: string | null): string {
   const expected = process.env.MERCADOPAGO_APPLICATION_ID?.trim();
-  if (!expected || !applicationId) return 'unknown';
-  return expected === applicationId ? 'match' : 'foreign';
+  if (!expected) return 'unknown';
+  // Registra o esperado junto do recebido: `application_id` é o identificador
+  // público da aplicação (o mesmo que aparece em Suas integrações), então o
+  // log mostra os DOIS lados da divergência sem precisar consultar o ambiente.
+  if (!applicationId) return `unknown(expected=${expected})`;
+  return expected === applicationId ? 'match' : `foreign(expected=${expected})`;
 }
 
 export class MercadoPagoPaymentProvider implements PaymentProvider {

@@ -130,28 +130,17 @@ describe('warnMissingEnv', () => {
     expect(output).toContain('PUBLIC_SITE_URL');
   });
 
-  it('avisa quando as assinaturas de teste e produção são o MESMO valor', () => {
-    process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST = '  a-mesma-assinatura ';
-    process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION = 'a-mesma-assinatura';
+  it('a MESMA assinatura nas duas variáveis é normal: o MP gera uma por aplicação', () => {
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST = 'a-assinatura-da-aplicacao';
+    process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION = 'a-assinatura-da-aplicacao';
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     vi.spyOn(console, 'info').mockImplementation(() => undefined);
 
     warnMissingEnv();
 
     const output = warn.mock.calls.flat().join('\n');
-    expect(output).toContain('têm o MESMO valor');
-    expect(output).not.toContain('a-mesma-assinatura');
-  });
-
-  it('não avisa quando teste e produção têm assinaturas distintas', () => {
-    process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST = 'assinatura-de-teste';
-    process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION = 'assinatura-de-producao';
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    vi.spyOn(console, 'info').mockImplementation(() => undefined);
-
-    warnMissingEnv();
-
-    expect(warn.mock.calls.flat().join('\n')).not.toContain('MESMO valor');
+    expect(output).not.toContain('MERCADOPAGO_WEBHOOK_SECRET');
+    expect(output).not.toContain('a-assinatura-da-aplicacao');
   });
 
   it('ABACATEPAY_KEY é opcional: nunca entra na lista de ausentes', () => {

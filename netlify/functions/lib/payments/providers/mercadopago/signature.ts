@@ -84,10 +84,12 @@ function configuredSecrets(explicit?: string): SecretSource[] {
 }
 
 /**
- * Agrupa os segredos por VALOR: dois rótulos com o mesmo fingerprint viram
- * `test+production:ac346080`, que é como o log denuncia o erro mais caro do
- * painel de deploy — colar a mesma assinatura nas duas variáveis, deixando um
- * dos modos sem assinatura válida nenhuma.
+ * Agrupa os segredos por VALOR: rótulos com o mesmo fingerprint viram
+ * `test+production:ac346080`, deixando explícito no log que ali existe UMA
+ * assinatura sob dois nomes. Isso é o esperado — o painel gera a assinatura
+ * secreta vinculada à APLICAÇÃO, não ao modo, então teste e produção
+ * legitimamente compartilham o mesmo valor. Fingerprints diferentes só
+ * aparecem em conta com mais de uma aplicação configurada aqui.
  */
 function describeSecrets(secrets: SecretSource[]): string[] {
   const byFingerprint = new Map<string, string[]>();

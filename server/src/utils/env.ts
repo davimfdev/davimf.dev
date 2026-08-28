@@ -229,20 +229,6 @@ export function warnMissingEnv(): string[] {
     );
   }
 
-  // Colar a MESMA assinatura nas duas variáveis deixa um dos modos sem
-  // assinatura válida nenhuma, e o sintoma é indistinguível de segredo errado:
-  // todas as notificações daquele modo caem em MISMATCH. Só compara valores,
-  // nunca os registra.
-  const testSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST?.trim();
-  const productionSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION?.trim();
-  if (testSecret && productionSecret && testSecret === productionSecret) {
-    console.warn(
-      '[api] MERCADOPAGO_WEBHOOK_SECRET_TEST e MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION têm o MESMO valor.\n' +
-        '      Cada modo do painel gera a sua assinatura: um dos dois está sem assinatura válida e\n' +
-        '      vai rejeitar todas as notificações daquele modo.',
-    );
-  }
-
   const optionalMissing = missingFrom(OPTIONAL);
   if (optionalMissing.length > 0) {
     console.info(`[api] opcionais não definidas (sem impacto no arranque): ${optionalMissing.join(', ')}`);

@@ -391,4 +391,49 @@ describe('fix round 2: nada escapa de request() depois de tentar o estorno', () 
       providerError: expect.any(String),
     }));
   });
+
+  it('C3: bookkeeping que lança um Proxy hostil não escapa de request()', async () => {
+    // O erro do BOOKKEEPING (não o do provider) também é lido: o `catch` de
+    // `settleAfterRefundAttempt` chama `extractProviderError(bookkeepingError)`
+    // depois de `refund` já ter sido chamado. Um Proxy cuja armadilha `get`
+    // lança derruba a leitura de `providerDetail` ali dentro.
+    const hostile = new Proxy(
+      {},
+      {
+        get() {
+          throw new Error('trap get hostil no bookkeeping');
+        },
+      },
+    );
+    const record = vi.fn().mockRejectedValue(hostile);
+    const { service, alertOperator } = build({ record });
+
+    await expect(
+      service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW }),
+    ).resolves.toEqual({ status: 202, outcome: 'reconciliation_required' });
+    expect(alertOperator).toHaveBeenCalledWith(
+      expect.anything(), 'reconciliation_required', expect.any(String),
+    );
+  });
+
+  it('C3: bookkeeping cujo `providerDetail` é um acessor que lança não escapa de request()', async () => {
+    // `extractProviderError` lê `providerDetail` ANTES de coagir qualquer
+    // coisa — um acessor próprio que lança estoura nessa leitura.
+    const hostile: Record<string, unknown> = {};
+    Object.defineProperty(hostile, 'providerDetail', {
+      get() {
+        throw new Error('providerDetail hostil');
+      },
+      enumerable: true,
+    });
+    const record = vi.fn().mockRejectedValue(hostile);
+    const { service, alertOperator } = build({ record });
+
+    await expect(
+      service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW }),
+    ).resolves.toEqual({ status: 202, outcome: 'reconciliation_required' });
+    expect(alertOperator).toHaveBeenCalledWith(
+      expect.anything(), 'reconciliation_required', expect.any(String),
+    );
+  });
 });

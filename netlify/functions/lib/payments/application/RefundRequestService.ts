@@ -168,6 +168,22 @@ export class RefundRequestService {
   }
 
   /**
+   * Lê UMA propriedade de um valor lançado sem nunca lançar. Ler propriedade
+   * não é operação inócua: um `Proxy` com armadilha `get` hostil, ou um
+   * acessor próprio que lança, estoura na leitura — antes de qualquer
+   * coerção. Como todo leitor de erro aqui roda DEPOIS de `refund` já ter
+   * sido chamado, a ausência do dado é sempre preferível à exceção.
+   */
+  private readErrorProperty(error: unknown, key: string): unknown {
+    try {
+      if (typeof error !== 'object' || error === null) return undefined;
+      return (error as Record<string, unknown>)[key];
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
    * Classifica a falha do `refund`. SÓ a recusa CONFIRMADA (`retryable`
    * presente e explicitamente `false`) vira `manual` — ela é a única que
    * AFIRMA que o dinheiro não se moveu. Qualquer outra forma — aceito pelo
@@ -175,11 +191,13 @@ export class RefundRequestService {
    * 429), ou de formato desconhecido (string, objeto sem contrato, erro do
    * nosso próprio código) — vai para reconciliação: não sabemos se o
    * estorno ocorreu, e assumir que não é como um reembolso vira dois.
+   *
+   * TOTAL: nenhuma entrada faz esta função lançar. Erro ilegível cai no
+   * default (`reconciliation_required`), que é justamente o desfecho seguro.
    */
   private classifyRefundFailure(error: unknown): 'manual' | 'reconciliation_required' {
-    const props = typeof error === 'object' && error !== null ? (error as Record<string, unknown>) : {};
-    if (props.refundAccepted === true) return 'reconciliation_required';
-    if (props.retryable === false) return 'manual';
+    if (this.readErrorProperty(error, 'refundAccepted') === true) return 'reconciliation_required';
+    if (this.readErrorProperty(error, 'retryable') === false) return 'manual';
     return 'reconciliation_required';
   }
 
@@ -188,21 +206,32 @@ export class RefundRequestService {
    * contrato ou nem `Error`. Prioriza `providerDetail` (erro do provider),
    * depois `.message` de um `Error` de verdade, e só então uma versão segura
    * de `String(error)` para o que sobrar (string crua, objeto sem contrato).
+   *
+   * TOTAL: nenhuma entrada faz esta função lançar — nem a LEITURA das
+   * propriedades (via `readErrorProperty`), nem a coerção (via
+   * `safeString`). A garantia mora AQUI, no helper, e não em cada chamador:
+   * todo call site — presente e futuro — roda depois de `refund` ter sido
+   * chamado, e um `throw` ali faria o cliente repetir o pedido de estorno.
    */
   private extractProviderError(error: unknown): string {
-    const providerDetail = typeof error === 'object' && error !== null
-      ? (error as { providerDetail?: unknown }).providerDetail
-      : undefined;
-    const rawCandidate: unknown = typeof providerDetail === 'string'
-      ? providerDetail
-      : error instanceof Error ? error.message : undefined;
-    // `providerDetail` e `error.message` não são garantidamente strings —
-    // bibliotecas (e código nosso) já setaram `message` para outra coisa.
-    // Coage antes de `.slice`, nunca assuma.
-    const raw = typeof rawCandidate === 'string' ? rawCandidate : safeString(rawCandidate ?? error);
-    // O provider não controla quanto gravamos: mesmo limite de
-    // `markEventFailed` (PaymentEventRepository) para provider_error.
-    return raw.slice(0, MAX_PROVIDER_ERROR_LENGTH);
+    try {
+      const providerDetail = this.readErrorProperty(error, 'providerDetail');
+      const rawCandidate: unknown = typeof providerDetail === 'string'
+        ? providerDetail
+        : error instanceof Error ? this.readErrorProperty(error, 'message') : undefined;
+      // `providerDetail` e `error.message` não são garantidamente strings —
+      // bibliotecas (e código nosso) já setaram `message` para outra coisa.
+      // Coage antes de `.slice`, nunca assuma.
+      const raw = typeof rawCandidate === 'string' ? rawCandidate : safeString(rawCandidate ?? error);
+      // O provider não controla quanto gravamos: mesmo limite de
+      // `markEventFailed` (PaymentEventRepository) para provider_error.
+      return raw.slice(0, MAX_PROVIDER_ERROR_LENGTH);
+    } catch {
+      // Rede de segurança final para o que nem `readErrorProperty` cobre
+      // (ex.: `instanceof` sobre um Proxy com armadilha `getPrototypeOf`
+      // hostil). Sem conseguir inspecionar nada, resta o literal.
+      return 'erro não representável';
+    }
   }
 
   /**

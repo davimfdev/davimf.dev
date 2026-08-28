@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { RefundRequestService } from '../application/RefundRequestService';
 import type { Order } from '../domain/types';
+import { ProviderError } from '../domain/errors';
 
 const NOW = new Date('2026-08-28T12:00:00.000Z');
 
@@ -57,7 +58,7 @@ describe('execução do pedido de reembolso', () => {
 
   it('falha do provider vira manual, sem tocar na licença', async () => {
     const refund = vi.fn().mockRejectedValue(
-      Object.assign(new Error('recusado'), { providerDetail: 'HTTP 422 rejected' }),
+      new ProviderError('recusado', { code: 'PROVIDER_REJECTED', detail: 'HTTP 422 rejected' }),
     );
     const { service, record, alertOperator } = build({ refund });
 
@@ -106,7 +107,7 @@ describe('execução do pedido de reembolso', () => {
   it('erro do provider maior que 2000 caracteres é truncado antes de gravar', async () => {
     const hugeError = 'x'.repeat(5000);
     const refund = vi.fn().mockRejectedValue(
-      Object.assign(new Error('recusado'), { providerDetail: hugeError }),
+      new ProviderError('recusado', { code: 'PROVIDER_REJECTED', detail: hugeError }),
     );
     const { service, record } = build({ refund });
 
@@ -115,6 +116,36 @@ describe('execução do pedido de reembolso', () => {
     expect(result).toEqual({ status: 202, outcome: 'manual' });
     expect(record).toHaveBeenCalledWith(
       expect.objectContaining({ providerError: 'x'.repeat(2000) }),
+    );
+  });
+
+  it('erro desconhecido nunca afirma que o provider recusou', async () => {
+    const refund = vi.fn().mockRejectedValue('falha sem contrato');
+    const { service, record } = build({ refund });
+
+    const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 202, outcome: 'reconciliation_required' });
+    expect(record).toHaveBeenCalledWith(expect.objectContaining({
+      outcome: 'reconciliation_required', providerError: 'unknown_refund_error',
+    }));
+  });
+
+  it('falha de auditoria depois do estorno não escapa nem pede novo estorno', async () => {
+    const record = vi.fn()
+      .mockRejectedValueOnce(new Error('database unavailable'))
+      .mockResolvedValueOnce({ id: 'req-reconciliation' });
+    const { service, refund, alertOperator } = build({ record });
+
+    const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 202, outcome: 'reconciliation_required' });
+    expect(refund).toHaveBeenCalledTimes(1);
+    expect(record).toHaveBeenLastCalledWith(expect.objectContaining({
+      outcome: 'reconciliation_required', providerError: 'database unavailable',
+    }));
+    expect(alertOperator).toHaveBeenCalledWith(
+      expect.anything(), 'reconciliation_required', 'database unavailable',
     );
   });
 

@@ -574,15 +574,23 @@ export class PaymentService {
     const totalRefunded = Math.min(payment.amountCents, Math.max(result.refundedCents, payment.refundedCents));
     const status: PaymentStatus = totalRefunded >= payment.amountCents ? 'REFUNDED' : 'PARTIALLY_REFUNDED';
 
-    const saved = await updatePayment({
-      id: payment.id,
-      status,
-      statusDetail: 'refunded',
-      refundedCents: totalRefunded,
-    });
+    try {
+      const saved = await updatePayment({
+        id: payment.id,
+        status,
+        statusDetail: 'refunded',
+        refundedCents: totalRefunded,
+      });
 
-    await this.afterUpdate(saved, order, product, 'admin');
-    return this.view(saved, await this.orders.requireOrder(order.id), product);
+      await this.afterUpdate(saved, order, product, 'admin');
+      return this.view(saved, await this.orders.requireOrder(order.id), product);
+    } catch (error) {
+      // A chamada ao provider já retornou sucesso. Marcar explicitamente a
+      // ambiguidade impede o solicitante de repetir um estorno que já ocorreu.
+      const wrapped = error instanceof Error ? error : new Error('Falha local após o estorno.');
+      Object.assign(wrapped, { refundAccepted: true });
+      throw wrapped;
+    }
   }
 
   // ----------------------------------------------------------- consultas ---

@@ -6,6 +6,7 @@
  */
 
 import type { Order } from '../domain/types';
+import { ProviderError } from '../domain/errors';
 
 /** Art. 49 do CDC. */
 export const REFUND_WINDOW_DAYS = 7;
@@ -131,24 +132,39 @@ export class RefundRequestService {
       //    vezes.
       // Só a recusa CONFIRMADA (4xx, `retryable` false) vira `manual`. Em
       // nenhum dos três casos o estorno é pedido de novo ao provider.
-      const accepted = (error as { refundAccepted?: boolean }).refundAccepted === true;
-      const ambiguous = (error as { retryable?: boolean }).retryable === true;
+      const accepted = typeof error === 'object' && error !== null
+        && (error as { refundAccepted?: boolean }).refundAccepted === true;
+      const confirmedProviderRefusal = error instanceof ProviderError && error.retryable === false;
       const outcome: RefundRequestOutcome =
-        accepted || ambiguous ? 'reconciliation_required' : 'manual';
-      const rawProviderError = (error as { providerDetail?: string }).providerDetail
-        ?? (error as Error).message;
+        !accepted && confirmedProviderRefusal ? 'manual' : 'reconciliation_required';
+      const rawProviderError = error instanceof ProviderError && error.providerDetail
+        ? error.providerDetail
+        : error instanceof Error ? error.message : 'unknown_refund_error';
       // O provider não controla quanto gravamos: mesmo limite de
       // `markEventFailed` (PaymentEventRepository) para provider_error.
       const providerError = rawProviderError.slice(0, MAX_PROVIDER_ERROR_LENGTH);
 
-      await this.deps.record({ orderId: order.id, userId: input.userId, outcome, providerError });
-      await this.deps.acknowledge(order, outcome);
-      await this.deps.alertOperator(order, outcome, providerError);
+      await this.deps.record({ orderId: order.id, userId: input.userId, outcome, providerError }).catch(() => undefined);
+      await this.deps.acknowledge(order, outcome).catch(() => undefined);
+      await this.deps.alertOperator(order, outcome, providerError).catch(() => undefined);
       return { status: 202, outcome };
     }
 
-    await this.deps.record({ orderId: order.id, userId: input.userId, outcome: 'refunded' });
-    await this.deps.acknowledge(order, 'refunded');
-    return { status: 200, outcome: 'refunded' };
+    try {
+      await this.deps.record({ orderId: order.id, userId: input.userId, outcome: 'refunded' });
+      await this.deps.acknowledge(order, 'refunded');
+      return { status: 200, outcome: 'refunded' };
+    } catch (error) {
+      // O dinheiro já se moveu. Nunca propaga uma falha local ao cliente, pois
+      // isso o convidaria a repetir o pedido. Registra/alerta em best effort.
+      const detail = error instanceof Error ? error.message : 'unknown_post_refund_error';
+      const providerError = detail.slice(0, MAX_PROVIDER_ERROR_LENGTH);
+      await this.deps.record({
+        orderId: order.id, userId: input.userId,
+        outcome: 'reconciliation_required', providerError,
+      }).catch(() => undefined);
+      await this.deps.alertOperator(order, 'reconciliation_required', providerError).catch(() => undefined);
+      return { status: 202, outcome: 'reconciliation_required' };
+    }
   }
 }

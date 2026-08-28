@@ -28,6 +28,16 @@ describe('useMercadoPagoDeviceId', () => {
     vi.useRealTimers();
     setSessionId(undefined);
     vi.restoreAllMocks();
+    document.getElementById('mercadopago-security-device-id')?.remove();
+  });
+
+  it('instala o script oficial de segurança como fallback do SDK V2', () => {
+    renderHook(() => useMercadoPagoDeviceId(true, OPTIONS));
+
+    const script = document.getElementById('mercadopago-security-device-id') as HTMLScriptElement | null;
+    expect(script).not.toBeNull();
+    expect(script?.src).toBe('https://www.mercadopago.com/v2/security.js');
+    expect(script?.getAttribute('view')).toBe('checkout');
   });
 
   it('lê um Device ID que o SDK publicou com atraso, sem inventar fallback', async () => {

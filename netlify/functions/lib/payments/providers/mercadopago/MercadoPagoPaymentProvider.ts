@@ -34,6 +34,8 @@ const DEFAULT_PIX_EXPIRY_MINUTES = 30;
 const DEFAULT_BOLETO_EXPIRY_DAYS = 3;
 type MercadoPagoEnvironment = 'sandbox' | 'production';
 
+const STATEMENT_DESCRIPTOR = 'DAVIMFDEV';
+
 type OrderPhone = { area_code: string; number: string };
 
 type OrderPayer = {
@@ -77,6 +79,32 @@ function buildAddress(address: NonNullable<Payer['address']>): Record<string, st
   // texto truncado ou inventado ao provider.
   if (address.complement && address.complement.length <= 20) out.complement = address.complement;
   return out;
+}
+
+/** Dados comerciais verdadeiros, originados exclusivamente do pedido/produto. */
+function buildItems(input: BaseChargeInput): Array<Record<string, unknown>> {
+  const requested = Number(input.quantity);
+  const quantity = Number.isSafeInteger(requested) && requested > 0 ? requested : 1;
+  const units = input.amountCents % quantity === 0 ? quantity : 1;
+  return [{
+    title: input.description,
+    description: input.description,
+    quantity: units,
+    unit_price: centsToDecimalString(input.amountCents / units),
+    external_code: input.itemCode,
+    category_id: input.itemCategoryId,
+  }];
+}
+
+/** Metadados de risco somente quando existe uma fonte real no integrador. */
+function buildAdditionalInfo(input: BaseChargeInput): Record<string, unknown> | null {
+  const metadata = input.payerMetadata;
+  if (!metadata) return null;
+  const payer: Record<string, unknown> = {};
+  if (metadata.registrationDate) payer.registration_date = metadata.registrationDate;
+  if (metadata.lastPurchase) payer.last_purchase = metadata.lastPurchase;
+  if (metadata.authenticationType) payer.authentication_type = metadata.authenticationType;
+  return Object.keys(payer).length > 0 ? { payer } : null;
 }
 
 function buildPayer(payer: Payer, options: { requireIdentification?: boolean; requireAddress?: boolean } = {}): OrderPayer {
@@ -174,12 +202,17 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
    * contrato de cartão e não pode vazar para Pix/boleto.
    */
   private baseOrder(input: BaseChargeInput, method: 'pix' | 'card' | 'boleto'): Record<string, unknown> {
+    const additionalInfo = buildAdditionalInfo(input);
     return {
       type: 'online',
       processing_mode: 'automatic',
       total_amount: centsToDecimalString(input.amountCents),
       external_reference: input.reference,
+      statement_descriptor: STATEMENT_DESCRIPTOR,
+      description: input.description,
+      items: buildItems(input),
       payer: this.payer(input.payer, method),
+      ...(additionalInfo ? { additional_info: additionalInfo } : {}),
     };
   }
 

@@ -19,6 +19,8 @@ import { useEffect, useState } from 'react';
 
 const DEFAULT_ATTEMPTS = 8;
 const DEFAULT_INTERVAL_MS = 125;
+const SECURITY_SCRIPT_ID = 'mercadopago-security-device-id';
+const SECURITY_SCRIPT_SRC = 'https://www.mercadopago.com/v2/security.js';
 
 export type DeviceIdOptions = {
   /** Quantas releituras depois da imediata. */
@@ -36,6 +38,21 @@ function readSdkDeviceId(): string | null {
   return value === '' ? null : value;
 }
 
+/**
+ * Fallback oficial: embora o SDK V2 deva coletar o Device ID, o relatório de
+ * qualidade mostrou uma Order sem o header. O security.js publica a mesma
+ * variável oficial; não geramos nem substituímos o identificador.
+ */
+function ensureSecurityScript(): void {
+  if (typeof document === 'undefined' || document.getElementById(SECURITY_SCRIPT_ID)) return;
+  const script = document.createElement('script');
+  script.id = SECURITY_SCRIPT_ID;
+  script.src = SECURITY_SCRIPT_SRC;
+  script.async = true;
+  script.setAttribute('view', 'checkout');
+  document.head.appendChild(script);
+}
+
 export function useMercadoPagoDeviceId(active: boolean, options: DeviceIdOptions = {}): string | null {
   const attempts = options.attempts ?? DEFAULT_ATTEMPTS;
   const intervalMs = options.intervalMs ?? DEFAULT_INTERVAL_MS;
@@ -47,6 +64,8 @@ export function useMercadoPagoDeviceId(active: boolean, options: DeviceIdOptions
       setDeviceId(null);
       return;
     }
+
+    ensureSecurityScript();
 
     const immediate = readSdkDeviceId();
     setDeviceId(immediate);

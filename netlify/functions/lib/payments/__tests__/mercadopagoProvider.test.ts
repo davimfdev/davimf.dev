@@ -380,7 +380,7 @@ describe('MercadoPagoPaymentProvider', () => {
 describe('dados comerciais da Order', () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it('mantém Orders online no schema documentado e não mistura campos de QR/Payments API', async () => {
+  it('envia os campos de qualidade reconhecidos pela medição das Orders online', async () => {
     const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
     const target = provider(impl);
 
@@ -390,9 +390,16 @@ describe('dados comerciais da Order', () => {
 
     for (const call of calls) {
       const body = JSON.parse(String(call.init.body));
-      expect(body).not.toHaveProperty('items');
-      expect(body).not.toHaveProperty('description');
-      expect(body).not.toHaveProperty('statement_descriptor');
+      expect(body.items).toEqual([{
+        title: 'FMM Pro — Mensal',
+        description: 'FMM Pro — Mensal',
+        quantity: 1,
+        unit_price: '35.00',
+        external_code: 'fmm-pro-monthly',
+        category_id: 'software',
+      }]);
+      expect(body.description).toBe('FMM Pro — Mensal');
+      expect(body.statement_descriptor).toBe('DAVIMFDEV');
       expect(body).not.toHaveProperty('additional_info');
       expect(body).toMatchObject({
         type: 'online',
@@ -403,12 +410,17 @@ describe('dados comerciais da Order', () => {
     }
   });
 
-  it('envia os campos documentados do Pix e nunca capture_mode', async () => {
+  it('envia os dados comerciais do Pix e nunca capture_mode', async () => {
     const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
 
     await provider(impl).createPixPayment({ ...BASE, expiresInMinutes: 30 });
 
     const body = JSON.parse(String(calls[0].init.body));
+    expect(body.items[0]).toMatchObject({
+      title: 'FMM Pro — Mensal', quantity: 1, unit_price: '35.00',
+      external_code: 'fmm-pro-monthly', category_id: 'software',
+    });
+    expect(body.statement_descriptor).toBe('DAVIMFDEV');
     expect(body.total_amount).toBe('35.00');
     expect(body.external_reference).toBe('DVMF-1');
     expect(body.processing_mode).toBe('automatic');
@@ -500,7 +512,7 @@ describe('dados comerciais da Order', () => {
       capture_mode: 'automatic',
       config: { online: { transaction_security: { validation: 'on_fraud_risk', liability_shift: 'required' } } },
     });
-    expect(cardBody).not.toHaveProperty('items');
+    expect(cardBody.items[0].category_id).toBe('software');
   });
 
   it('cobra o cartão SALVO com a mesma Order enriquecida e o mesmo 3DS completo', async () => {
@@ -521,8 +533,8 @@ describe('dados comerciais da Order', () => {
       capture_mode: 'automatic',
       config: { online: { transaction_security: { validation: 'on_fraud_risk', liability_shift: 'required' } } },
     });
-    expect(body).not.toHaveProperty('items');
-    expect(body).not.toHaveProperty('statement_descriptor');
+    expect(body.items[0]).toMatchObject({ quantity: 1, unit_price: '35.00' });
+    expect(body.statement_descriptor).toBe('DAVIMFDEV');
     // O cartão salvo continua amarrado ao cliente do provider.
     expect(body.payer).toMatchObject({ email: PAYER.email, customer_id: 'CUS-1' });
 

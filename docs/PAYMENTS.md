@@ -279,6 +279,7 @@ Como ler:
 | Campo | O que decide |
 |---|---|
 | `application` / `application_id` | `foreign(expected=X)` = chegou de uma aplicação e o ambiente esperava outra: a assinatura configurada é da aplicação errada (exige `MERCADOPAGO_APPLICATION_ID`) |
+| `user_id` | conta dona do recurso. Igual ao *User ID* do painel = é outra aplicação **da sua conta**; diferente = usuário de teste ou outra conta, e a assinatura tem de sair do painel daquela conta |
 | `live_mode` | credencial de teste (`false`) ou de produção (`true`) |
 | `id_source` | `query` = `data.id` presente; `absent` = manifesto sem o rótulo `id` |
 | `ids_match` | query vs. corpo — `no` denuncia proxy reescrevendo a URL |

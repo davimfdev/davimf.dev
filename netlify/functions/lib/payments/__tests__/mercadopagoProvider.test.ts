@@ -379,7 +379,7 @@ describe('MercadoPagoPaymentProvider', () => {
     });
     expect(result).toBeNull();
     expect(warning).toHaveBeenCalledWith(expect.stringMatching(
-      /^\[payments\] webhook Mercado Pago rejeitado: MISMATCH \(application=unknown, application_id=missing, live_mode=missing, type=payment, action=missing, data\.id=present, id_source=query, body_id=present, ids_match=yes, x-request-id=present\(1\), ts_age_s=-?\d+, variants=exact, secrets=legacy:[0-9a-f]{8}\)$/,
+      /^\[payments\] webhook Mercado Pago rejeitado: MISMATCH \(application=unknown, application_id=missing, user_id=missing, live_mode=missing, type=payment, action=missing, data\.id=present, id_source=query, body_id=present, ids_match=yes, x-request-id=present\(1\), ts_age_s=-?\d+, variants=exact, secrets=legacy:[0-9a-f]{8}\)$/,
     ));
     expect(warning.mock.calls.flat().join(' ')).not.toContain('deadbeef');
     expect(warning.mock.calls.flat().join(' ')).not.toContain('segredo');
@@ -394,7 +394,8 @@ describe('MercadoPagoPaymentProvider', () => {
 
     const result = await provider(impl).processWebhook({
       rawBody: JSON.stringify({
-        application_id: 3276309109538538, live_mode: false, type: 'order', action: 'order.updated', data: { id: 'ORD-9' },
+        application_id: 3276309109538538, user_id: 402692511, live_mode: false,
+        type: 'order', action: 'order.updated', data: { id: 'ORD-9' },
       }),
       headers: { 'x-signature': `ts=${Date.now()},v1=deadbeef`, 'x-request-id': 'r' },
       url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-9&type=order',
@@ -405,6 +406,8 @@ describe('MercadoPagoPaymentProvider', () => {
     // Os dois lados na mesma linha: o que chegou e o que o ambiente esperava.
     expect(line).toContain('application=foreign(expected=1111111111111111)');
     expect(line).toContain('application_id=3276309109538538');
+    // Conta dona do recurso: separa "outra aplicação minha" de "outra conta".
+    expect(line).toContain('user_id=402692511');
     expect(line).toContain('live_mode=false');
     expect(line).toContain('action=order.updated');
     expect(line).toContain(`secrets=legacy:${secretFingerprint('segredo')}`);

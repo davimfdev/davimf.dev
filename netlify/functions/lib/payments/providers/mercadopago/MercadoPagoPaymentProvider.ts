@@ -148,17 +148,23 @@ function isoDuration(minutes: number): string {
  */
 type WebhookIdentity = {
   applicationId: string | null;
+  /** Conta do Mercado Pago dona do recurso — separa conta real de usuário de teste. */
+  userId: string | null;
   liveMode: boolean | null;
   type: string | null;
   action: string | null;
   dataId: string | null;
 };
 
+/** `application_id` e `user_id` chegam ora como número, ora como string. */
+function identifier(value: unknown): string | null {
+  return typeof value === 'string' || typeof value === 'number' ? String(value) : null;
+}
+
 function webhookIdentity(body: Record<string, unknown>): WebhookIdentity {
-  const applicationId = body.application_id;
   return {
-    applicationId:
-      typeof applicationId === 'string' || typeof applicationId === 'number' ? String(applicationId) : null,
+    applicationId: identifier(body.application_id),
+    userId: identifier(body.user_id),
     liveMode: typeof body.live_mode === 'boolean' ? body.live_mode : null,
     type: pickString(body, 'type') ?? pickString(body, 'topic'),
     action: pickString(body, 'action'),
@@ -553,6 +559,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
       const { secrets, tsAgeSeconds, idSource, variants, requestIdValues } = verification.diagnostics;
       const context =
         ` (application=${describeApplication(identity.applicationId)}, application_id=${identity.applicationId ?? 'missing'}, ` +
+        `user_id=${identity.userId ?? 'missing'}, ` +
         `live_mode=${identity.liveMode === null ? 'missing' : String(identity.liveMode)}, ` +
         `type=${identity.type ?? 'missing'}, action=${identity.action ?? 'missing'}, ` +
         `data.id=${queryId ? 'present' : 'missing'}, id_source=${idSource}, ` +
@@ -574,7 +581,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
     // aplicação de uma notificação aceita com a de uma recusada.
     console.info(
       `[payments] webhook Mercado Pago aceito (application=${describeApplication(identity.applicationId)}, ` +
-        `application_id=${identity.applicationId ?? 'missing'}, ` +
+        `application_id=${identity.applicationId ?? 'missing'}, user_id=${identity.userId ?? 'missing'}, ` +
         `live_mode=${identity.liveMode === null ? 'missing' : String(identity.liveMode)}, ` +
         `type=${topic}, action=${action}, data.id=${resourceId ? 'present' : 'missing'})`,
     );

@@ -192,7 +192,7 @@ describe('MercadoPagoPaymentProvider', () => {
     // (`number` existe no corpo apenas como o CPF do pagador.)
     const sent = JSON.parse(raw);
     expect(Object.keys(sent.transactions.payments[0].payment_method).sort())
-      .toEqual(['id', 'installments', 'token', 'type']);
+      .toEqual(['id', 'installments', 'statement_descriptor', 'token', 'type']);
 
     expect(result.status).toBe('PAID');
     expect(result.installments).toBe(3);
@@ -532,8 +532,8 @@ describe('dados comerciais da Order', () => {
         category_id: 'software',
       }]);
       expect(body.description).toBe('FMM Pro — Mensal');
-      // Checkout Transparente via Orders rejeita este campo no payload; o
-      // nome deve ser configurado em "Nome para extratos" no painel.
+      // No TOPO da Order o campo é rejeitado: o lugar dele na Orders API é
+      // `transactions.payments[].payment_method` — ver o teste dedicado.
       expect(body).not.toHaveProperty('statement_descriptor');
       expect(body).not.toHaveProperty('additional_info');
       expect(body).toMatchObject({
@@ -542,6 +542,34 @@ describe('dados comerciais da Order', () => {
         external_reference: BASE.reference,
         total_amount: '35.00',
       });
+    }
+  });
+
+  it('envia statement_descriptor no payment_method do cartão, nunca no topo', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
+
+    await provider(impl).createCardPayment({ ...BASE, ...CARD });
+
+    const body = JSON.parse(String(calls[0].init.body));
+    // O lugar documentado na Orders API. No topo da Order o campo é recusado.
+    expect(body.transactions.payments[0].payment_method).toMatchObject({
+      type: 'credit_card',
+      statement_descriptor: 'DAVIMFDEV',
+    });
+    expect(body).not.toHaveProperty('statement_descriptor');
+  });
+
+  it('não manda statement_descriptor em Pix nem boleto', async () => {
+    const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
+    const target = provider(impl);
+
+    await target.createPixPayment({ ...BASE });
+    await target.createBoletoPayment({ ...BASE, payer: FULL_PAYER });
+
+    for (const call of calls) {
+      // Só o contrato de cartão documenta o campo; inventar em bank_transfer
+      // ou ticket é o tipo de extra que a Orders API rejeita.
+      expect(String(call.init.body)).not.toContain('statement_descriptor');
     }
   });
 

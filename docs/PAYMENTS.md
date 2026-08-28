@@ -394,6 +394,12 @@ validade e CVV vivem em iframes do Mercado Pago. O backend recebe apenas
 `mp.getInstallments()` (máximo 12). Aprovado, recusado, processando e erro têm
 tratamento próprio; 3DS, quando o emissor exige, redireciona (exceção permitida).
 
+O nome que aparece na fatura vai em
+`transactions.payments[].payment_method.statement_descriptor` — **não** no topo
+da Order, onde a Orders API recusa o campo. Só o contrato de cartão o
+documenta: Pix e boleto seguem sem ele, e para esses vale o **"Nome para
+extratos"** configurado na conta do Mercado Pago.
+
 ### Perfil de cobrança reutilizável
 
 A migração `db/006_payer_profiles.sql` cria a tabela de perfis. A persistência

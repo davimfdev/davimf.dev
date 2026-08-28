@@ -32,6 +32,15 @@ import { verifyWebhookSignature } from './signature';
 
 const DEFAULT_PIX_EXPIRY_MINUTES = 30;
 const DEFAULT_BOLETO_EXPIRY_DAYS = 3;
+
+/**
+ * Nome exibido na fatura do cartão. Na Orders API ele vive em
+ * `transactions.payments[].payment_method.statement_descriptor` — NÃO no topo
+ * da Order, que é onde a tentativa anterior o colocou e por isso foi
+ * rejeitada. Documentado apenas no contrato de cartão: Pix e boleto seguem
+ * sem o campo, e para eles vale o "Nome para extratos" da conta.
+ */
+const STATEMENT_DESCRIPTOR = 'DAVIMFDEV';
 type MercadoPagoEnvironment = 'sandbox' | 'production';
 
 type OrderPhone = { area_code: string; number: string };
@@ -334,6 +343,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
                 type: 'credit_card',
                 token: input.cardToken,
                 installments: input.installments,
+                statement_descriptor: STATEMENT_DESCRIPTOR,
               },
             },
           ],
@@ -491,6 +501,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
                 type: 'credit_card',
                 token: input.cardToken,
                 installments: input.installments ?? 1,
+                statement_descriptor: STATEMENT_DESCRIPTOR,
               },
             },
           ],

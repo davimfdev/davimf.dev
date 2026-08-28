@@ -356,8 +356,9 @@ pagamento recusado · pagamento expirado · pagamento cancelado · reembolso
 (total/parcial) · assinatura criada · renovação aprovada · renovação falhou ·
 assinatura cancelada · chargeback.
 
-**Polling nunca dispara e-mail** (`source === 'polling'` retorna antes de
-notificar) — mas ainda entrega a licença, para o caso de webhook atrasado.
+O polling também envia a confirmação quando detecta o pagamento antes do
+webhook. A chave `order:<id>:paid` em `email_dispatches` garante que um webhook
+posterior não envie o mesmo e-mail novamente.
 
 O e-mail de aprovação do FMM ("FMM — Pagamento aprovado e sua chave") contém:
 confirmação, plano, valor, número do pedido, chave, validade, botão de download,
@@ -435,8 +436,7 @@ Pendências conhecidas:
 
 - `abacate-checkout` / `fmm-claim` continuam registrados para não quebrar links
   antigos; remover quando não houver mais pedidos AbacatePay em aberto;
-- webhook perdido: a licença é entregue pela reconciliação do polling, mas o
-  e-mail não é enviado por esse caminho (regra "polling nunca dispara e-mail").
-  Reenvio depende de ação administrativa;
+- webhook perdido: a licença e o e-mail de confirmação são entregues pela
+  reconciliação do polling; um webhook posterior é deduplicado;
 - cobrança de cartão salvo (`chargeSavedPaymentMethod`) exige um token novo do
   frontend — o Mercado Pago não permite cobrar só com o id do cartão.

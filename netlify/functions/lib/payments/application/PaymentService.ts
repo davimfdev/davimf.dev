@@ -329,17 +329,13 @@ export class PaymentService {
 
     if (product.fulfillmentKind !== 'fmm_license') {
       await this.orders.markFulfilled(order.id);
-      if (source !== 'polling') {
-        await this.notify(payment, paidOrder, product, 'paid', paymentApprovedEmail(this.summary(payment, paidOrder, product)));
-      }
+      await this.notify(payment, paidOrder, product, 'paid', paymentApprovedEmail(this.summary(payment, paidOrder, product)));
       return;
     }
 
     // Idempotente: reaproveita a licença do pedido se ela já existir.
     const issued = await this.licenses.issueForOrder(paidOrder, product);
     await this.orders.markFulfilled(order.id);
-
-    if (source === 'polling') return; // Polling entrega, mas nunca notifica.
 
     await this.notify(
       payment,

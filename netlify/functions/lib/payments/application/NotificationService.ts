@@ -4,7 +4,8 @@
  * Regras invioláveis:
  *  - todo evento financeiro relevante gera e-mail ao comprador;
  *  - a deduplicação é feita ANTES do envio, por chave estável do evento;
- *  - polling nunca chama este serviço (só webhook e ações do usuário);
+ *  - polling pode confirmar pagamento; a chave de deduplicação impede que um
+ *    webhook posterior envie o mesmo e-mail novamente;
  *  - falha de e-mail NUNCA invalida pedido ou licença — só marca FAILED.
  */
 

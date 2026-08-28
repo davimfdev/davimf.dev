@@ -274,8 +274,8 @@ async function handleSubscriptionList(request: Request): Promise<Response> {
 }
 
 /**
- * Polling do checkout. Reconsulta o PROVIDER (nunca acredita no frontend) e
- * nunca dispara e-mail — a notificação é do webhook.
+ * Polling do checkout. Reconsulta o PROVIDER (nunca acredita no frontend).
+ * Se confirmar o pagamento antes do webhook, envia a confirmação deduplicada.
  */
 async function handleStatus(request: Request): Promise<Response> {
   const user = await requireUser(request);

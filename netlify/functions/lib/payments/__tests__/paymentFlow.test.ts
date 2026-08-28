@@ -337,7 +337,7 @@ describe('Pix', () => {
     expect(world.state.license).toBeNull();
   });
 
-  it('polling reconcilia com o provider mas NUNCA dispara e-mail', async () => {
+  it('polling confirma o pagamento, envia e-mail e deduplica webhook posterior', async () => {
     const world = buildWorld();
     const order = await world.orders.requireOrder('id');
     const product = await world.orders.requireProduct('fmm-pro-monthly');
@@ -348,8 +348,15 @@ describe('Pix', () => {
     const view = await world.payments.reconcile(world.state.payment!.id as string, 'polling');
 
     expect(view.status).toBe('PAID');
-    expect(world.state.license).not.toBeNull(); // entrega acontece
-    expect(world.emails).toHaveLength(before);   // notificação não
+    expect(world.state.license).not.toBeNull();
+    expect(world.emails).toHaveLength(before + 1);
+
+    await world.payments.applyProviderResult(
+      'ORD-1',
+      pixResult({ status: 'PAID', statusDetail: 'accredited' }),
+      'webhook',
+    );
+    expect(world.emails).toHaveLength(before + 1);
   });
 });
 

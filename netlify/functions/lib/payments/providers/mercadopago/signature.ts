@@ -2,7 +2,7 @@
  * Validação da assinatura `x-signature` das notificações do Mercado Pago.
  *
  * Manifesto oficial: `id:<data.id>;request-id:<x-request-id>;ts:<ts>;`
- * — `data.id` vem da QUERY STRING da notificação (minúsculo se alfanumérico);
+ * — `data.id` vem da QUERY STRING e preserva o case exato recebido;
  * — partes ausentes são OMITIDAS do manifesto (inclusive o rótulo);
  * — HMAC-SHA256 hex com MERCADOPAGO_WEBHOOK_SECRET, comparado a `v1`.
  */
@@ -34,7 +34,9 @@ export function buildManifest(input: {
   ts: string | null;
 }): string {
   const segments: string[] = [];
-  if (input.dataId) segments.push(`id:${input.dataId.toLowerCase()};`);
+  // O validador oficial Node 3.6.0 NÃO normaliza o case. Isto é essencial
+  // para Orders, cujos IDs chegam como `ORD...` em maiúsculas.
+  if (input.dataId) segments.push(`id:${input.dataId};`);
   if (input.requestId) segments.push(`request-id:${input.requestId};`);
   if (input.ts) segments.push(`ts:${input.ts};`);
   return segments.join('');

@@ -22,9 +22,9 @@ describe('assinatura do webhook Mercado Pago', () => {
     delete process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION;
   });
 
-  it('monta o manifesto no formato oficial e minúsculo', () => {
+  it('monta o manifesto oficial preservando o case exato do Order ID', () => {
     expect(buildManifest({ dataId: 'ORD01JQ4S4KY8', requestId: 'r1', ts: '123' }))
-      .toBe('id:ord01jq4s4ky8;request-id:r1;ts:123;');
+      .toBe('id:ORD01JQ4S4KY8;request-id:r1;ts:123;');
   });
 
   it('omite do manifesto os campos ausentes', () => {

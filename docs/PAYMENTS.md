@@ -202,17 +202,33 @@ pelo projeto quando estiverem disponíveis para a conta: Planos e assinaturas,
 Alertas de fraude, Reclamações e Contestações.
 
 **A assinatura secreta é vinculada à APLICAÇÃO, não ao modo**: o painel gera
-uma só, em *Suas integrações → a aplicação → Webhooks*, e ela assina tanto as
-notificações de teste (`live_mode=false`) quanto as de produção. Logo, colar o
-**mesmo** valor em `MERCADOPAGO_WEBHOOK_SECRET_TEST` e
-`MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION` é o normal. As duas variáveis existem
-para quem separa teste e produção em aplicações **diferentes**; nesse caso cada
-uma recebe a assinatura da sua aplicação. `MERCADOPAGO_WEBHOOK_SECRET`
-permanece como compatibilidade legada.
+uma só, em *Suas integrações → a aplicação → Webhooks*, e as abas *Modo de
+teste* e *Modo produtivo* mostram o mesmo valor. Não existe "assinatura de
+teste" e "assinatura de produção" dentro de uma aplicação.
 
-O que precisa casar é a **aplicação**: a assinatura tem de vir da mesma
-aplicação dona do `MERCADOPAGO_ACCESS_TOKEN` que cria as Orders. É essa
-aplicação que aparece como `application_id` no corpo da notificação.
+**Mas existem duas CONTAS.** As credenciais de teste operam sob um *usuário de
+teste* — uma conta separada, com `user_id` próprio, criada pelo Mercado Pago
+junto das credenciais. As notificações `live_mode=false` são assinadas com a
+assinatura secreta **daquela conta**, que só aparece no painel logado como o
+usuário de teste. É por isso que a assinatura da conta real valida o simulador
+e a produção, mas rejeita toda notificação de uma compra de teste.
+
+É essa a divisão que as duas variáveis atendem:
+
+| Variável | Assinatura de |
+|---|---|
+| `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION` | sua conta real — notificações com `live_mode=true` |
+| `MERCADOPAGO_WEBHOOK_SECRET_TEST` | conta do usuário de teste — notificações com `live_mode=false` |
+| `MERCADOPAGO_WEBHOOK_SECRET` | compatibilidade legada, ambiente único |
+
+O diagnóstico distingue os dois casos sozinho: compare o `user_id` da linha de
+rejeição com o *User ID* que aparece em *Detalhes* no painel. Igual = mesma
+conta (problema é outro); diferente = notificação de usuário de teste, e falta
+a assinatura daquela conta em `MERCADOPAGO_WEBHOOK_SECRET_TEST`.
+
+Já o `application_id` tem de casar com a aplicação dona do
+`MERCADOPAGO_ACCESS_TOKEN` — é o número que aparece logo após `APP_USR-` no
+próprio token, e **não** o "N.º da aplicação" exibido em *Detalhes*.
 
 Depois do deploy, use a simulação do painel para validar uma assinatura e faça
 uma nova medição de qualidade da integração. A confirmação deve aparecer tanto
@@ -336,17 +352,22 @@ depois.
 
 #### Rotação da assinatura secreta
 
-A assinatura é da aplicação. Ao gerar uma nova no painel:
+São **duas** assinaturas, uma por conta:
 
-1. em *Suas integrações*, abra **a aplicação dona do `MERCADOPAGO_ACCESS_TOKEN`**
-   (é o `application_id` que aparece no log) → Webhooks → gerar assinatura;
-2. cole o valor em `MERCADOPAGO_WEBHOOK_SECRET_TEST` **e**
-   `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION` no Coolify — o mesmo valor nas duas
-   é o certo quando há uma aplicação só; sem espaço ou quebra de linha (o
-   código faz `trim`, mas o painel pode truncar);
-3. faça deploy/restart: as variáveis são lidas do ambiente no arranque;
-4. confira no log que o `fingerprint` mudou;
-5. rode o simulador do painel e confirme o `aceito (…)`.
+1. **Conta real** — *Suas integrações* → a aplicação dona do
+   `MERCADOPAGO_ACCESS_TOKEN` → Webhooks → gerar assinatura →
+   `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION`;
+2. **Conta do usuário de teste** — entre no Mercado Pago com o login do usuário
+   de teste (*Suas integrações → Contas de teste*, ou o link "Ver dados da
+   credencial" na aba Teste), crie/abra a aplicação dele, cadastre a **mesma
+   URL** do webhook, e copie a assinatura →
+   `MERCADOPAGO_WEBHOOK_SECRET_TEST`;
+3. cole sem espaço ou quebra de linha (o código faz `trim`, mas o painel pode
+   truncar);
+4. faça deploy/restart: as variáveis são lidas do ambiente no arranque;
+5. confira no log que os `fingerprint` mudaram — agora eles devem ser
+   **diferentes** entre si, porque são de contas diferentes;
+6. faça uma compra de teste e confirme o `aceito (…)` com `live_mode=false`.
 
 Notificações que já estavam na fila de retry foram assinadas antes da troca e
 vão continuar caindo em `MISMATCH` até o Mercado Pago desistir delas. Isso é o

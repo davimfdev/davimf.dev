@@ -8,9 +8,9 @@ import { setOrderServiceForTesting } from '../application/OrderService';
 import { PayerProfileService, setPayerProfileServiceForTesting } from '../application/PayerProfileService';
 import { PaymentService, setPaymentServiceForTesting } from '../application/PaymentService';
 import { setSubscriptionServiceForTesting } from '../application/SubscriptionService';
-import { parsePayer, rejectRawCardData } from '../http';
+import { parsePayer, rejectRawCardData, toErrorResponse } from '../http';
 import { upsertPayerProfile, type PayerProfileData } from '../repositories/PayerProfileRepository';
-import { ValidationError } from '../domain/errors';
+import { ProviderError, ValidationError } from '../domain/errors';
 import { routePaymentsRequest } from '../router';
 import { FakeSql, paymentRow, productRow, uninstallSql } from './helpers';
 import type { SqlRow } from '../infrastructure/db';
@@ -31,6 +31,23 @@ const PAYER_PROFILE: PayerProfileData = {
     neighborhood: 'Bela Vista', city: 'Sao Paulo', state: 'SP', complement: 'Apto 42',
   },
 };
+
+describe('diagnóstico seguro de erro do provider', () => {
+  it('registra o detalhe de uma recusa 4xx sem devolvê-lo ao comprador', async () => {
+    const errorLog = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const response = toErrorResponse(new ProviderError('O provedor recusou.', {
+      code: 'PROVIDER_REJECTED',
+      status: 422,
+      detail: 'HTTP 400 invalid_request:unsupported field payer.address',
+    }));
+
+    expect(response.status).toBe(422);
+    expect(await response.json()).toEqual({
+      error: { code: 'PROVIDER_REJECTED', message: 'O provedor recusou.' },
+    });
+    expect(errorLog.mock.calls.flat().join(' ')).toContain('unsupported field payer.address');
+  });
+});
 
 function request(path: string, init: RequestInit & { origin?: string } = {}): Request {
   const headers = new Headers(init.headers);

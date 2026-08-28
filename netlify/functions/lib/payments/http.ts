@@ -58,8 +58,13 @@ export function errorJson(code: string, message: string, status = 400): Response
 /** Converte erro de domínio em resposta. Detalhe interno só vai para o log. */
 export function toErrorResponse(error: unknown): Response {
   if (error instanceof PaymentError) {
-    if (error.status >= 500) {
-      console.error(`[payments] ${error.code}:`, (error as { providerDetail?: string }).providerDetail ?? error.message);
+    const providerDetail = (error as { providerDetail?: string }).providerDetail;
+    // Recusas do provider são 4xx/422 para o comprador, mas o detalhe técnico
+    // precisa existir no log operacional; sem ele todas as validações da API
+    // externa viram a mesma mensagem genérica e não há como identificar o
+    // campo/configuração rejeitado. O detalhe continua fora da resposta HTTP.
+    if (error.status >= 500 || providerDetail) {
+      console.error(`[payments] ${error.code}:`, providerDetail ?? error.message);
     }
     return errorJson(error.code, error.message, error.status);
   }

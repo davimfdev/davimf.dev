@@ -489,7 +489,28 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
       // Diagnóstico operacional sem registrar assinatura, segredo, URL ou
       // payload. Permite distinguir segredo divergente, header ausente e
       // timestamp expirado no simulador do painel.
-      console.warn(`[payments] webhook Mercado Pago rejeitado: ${verification.reason}`);
+      let queryId: string | null = null;
+      try {
+        queryId = new URL(request.url, 'https://davimf.dev').searchParams.get('data.id');
+      } catch { /* diagnóstico fica como ausente */ }
+      let bodyId: string | null = null;
+      try {
+        const diagnosticBody = JSON.parse(request.rawBody || '{}') as { data?: { id?: unknown } };
+        if (typeof diagnosticBody.data?.id === 'string') bodyId = diagnosticBody.data.id;
+      } catch { /* corpo inválido será tratado depois de uma assinatura válida */ }
+      const hasRequestId = Object.entries(request.headers)
+        .some(([key, value]) => key.toLowerCase() === 'x-request-id' && Boolean(value));
+      const secretLengths = [
+        process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST,
+        process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION,
+        process.env.MERCADOPAGO_WEBHOOK_SECRET,
+      ].map((value) => value?.trim()).filter((value): value is string => Boolean(value)).map((value) => value.length);
+      const context = verification.reason === 'MISMATCH'
+        ? ` (data.id=${queryId ? 'present' : 'missing'}, body_id=${bodyId ? 'present' : 'missing'}, ` +
+          `ids_match=${queryId && bodyId ? (queryId.toLowerCase() === bodyId.toLowerCase() ? 'yes' : 'no') : 'unknown'}, ` +
+          `x-request-id=${hasRequestId ? 'present' : 'missing'}, secrets=${secretLengths.length}, lengths=${secretLengths.join('/') || 'none'})`
+        : '';
+      console.warn(`[payments] webhook Mercado Pago rejeitado: ${verification.reason}${context}`);
       return null;
     }
 

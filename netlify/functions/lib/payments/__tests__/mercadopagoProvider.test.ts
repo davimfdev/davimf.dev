@@ -372,7 +372,9 @@ describe('MercadoPagoPaymentProvider', () => {
       url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=1',
     });
     expect(result).toBeNull();
-    expect(warning).toHaveBeenCalledWith('[payments] webhook Mercado Pago rejeitado: MISMATCH');
+    expect(warning).toHaveBeenCalledWith(expect.stringMatching(
+      /^\[payments\] webhook Mercado Pago rejeitado: MISMATCH \(data\.id=present, body_id=present, ids_match=yes, x-request-id=present, secrets=1, lengths=7\)$/,
+    ));
     expect(warning.mock.calls.flat().join(' ')).not.toContain('deadbeef');
     expect(warning.mock.calls.flat().join(' ')).not.toContain('segredo');
     delete process.env.MERCADOPAGO_WEBHOOK_SECRET;

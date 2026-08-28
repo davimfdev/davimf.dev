@@ -785,6 +785,56 @@ describe('webhook', () => {
     expect(world.sql.queriesMatching('INSERT INTO fmm_license_keys')).toHaveLength(1);
   });
 
+  it('webhook depois do polling mantém uma licença e um e-mail de aprovação', async () => {
+    const world = webhookWorld();
+    const order = await world.orders.requireOrder('id');
+    const product = await world.orders.requireProduct('fmm-pro-monthly');
+    await world.payments.createPix({ order, product, payer: { email: 'comprador@example.com' } });
+
+    world.provider.nextPayment = pixResult({ status: 'PAID', statusDetail: 'accredited' });
+    await world.payments.reconcile(world.state.payment!.id as string, 'polling');
+
+    world.provider.nextWebhook = {
+      eventKey: 'mp:evt-after-polling',
+      eventType: 'order.updated',
+      resource: 'payment',
+      resourceId: 'ORD-1',
+      payment: pixResult({ status: 'PAID', statusDetail: 'accredited' }),
+      raw: {},
+    };
+    expect(await world.webhooks.handle(REQUEST)).toEqual({ status: 200, result: 'processed' });
+
+    expect(world.sql.queriesMatching('INSERT INTO fmm_license_keys')).toHaveLength(1);
+    expect([...world.state.dispatches]
+      .filter((key) => /^order:.+:fmm-license$/.test(key))).toHaveLength(1);
+    expect(world.emails.filter((email) => email.template === 'FMM — Pagamento aprovado e sua chave')).toHaveLength(1);
+  });
+
+  it('polling depois do webhook mantém uma licença e um e-mail de aprovação', async () => {
+    const world = webhookWorld();
+    const order = await world.orders.requireOrder('id');
+    const product = await world.orders.requireProduct('fmm-pro-monthly');
+    await world.payments.createPix({ order, product, payer: { email: 'comprador@example.com' } });
+
+    world.provider.nextWebhook = {
+      eventKey: 'mp:evt-before-polling',
+      eventType: 'order.updated',
+      resource: 'payment',
+      resourceId: 'ORD-1',
+      payment: pixResult({ status: 'PAID', statusDetail: 'accredited' }),
+      raw: {},
+    };
+    expect(await world.webhooks.handle(REQUEST)).toEqual({ status: 200, result: 'processed' });
+
+    world.provider.nextPayment = pixResult({ status: 'PAID', statusDetail: 'accredited' });
+    await world.payments.reconcile(world.state.payment!.id as string, 'polling');
+
+    expect(world.sql.queriesMatching('INSERT INTO fmm_license_keys')).toHaveLength(1);
+    expect([...world.state.dispatches]
+      .filter((key) => /^order:.+:fmm-license$/.test(key))).toHaveLength(1);
+    expect(world.emails.filter((email) => email.template === 'FMM — Pagamento aprovado e sua chave')).toHaveLength(1);
+  });
+
   it('falha transitória libera o evento para o retry do provider', async () => {
     const world = webhookWorld();
     world.provider.nextWebhook = {

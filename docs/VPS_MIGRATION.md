@@ -530,7 +530,27 @@ Nada a fazer: **o projeto não usa Stripe**. Se um dia entrar, o webhook deve se
 registrado em `https://davimf.dev/api/<nome-do-endpoint>` e o corpo cru já está
 disponível (`express.raw`), sem `JSON.parse` prévio.
 
-### 7.4 Bot do Discord (ingestão de tickets)
+### 7.4 Mercado Pago — perfil e webhook
+
+Antes do deploy, aplique `db/006_payer_profiles.sql` no mesmo banco usado pela
+API. Gere uma única chave de 32 bytes em base64 e configure-a como
+`PAYMENTS_PAYER_ENCRYPTION_KEY`. Ela é opcional para cobrar, mas obrigatória
+para persistir o perfil de cobrança. Guarde-a em backup seguro: perdê-la impede
+descriptografar os perfis existentes; nunca gere uma substituta no boot.
+
+No painel do Mercado Pago, cadastre manualmente:
+
+```text
+https://davimf.dev/api/payments/webhooks/mercadopago
+```
+
+Selecione **Order (Mercado Pago)** e preserve os demais eventos definidos para
+o projeto (planos/assinaturas, fraude, reclamações e contestações, conforme
+disponibilidade da conta). Publique o segredo como
+`MERCADOPAGO_WEBHOOK_SECRET`, reinicie a API, execute a simulação do painel e
+refaça a medição de qualidade da integração.
+
+### 7.5 Bot do Discord (ingestão de tickets)
 
 O bot que envia tickets precisa apontar para
 `https://davimf.dev/api/ticket-store` com o header `x-ticket-secret`. A URL não

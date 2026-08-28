@@ -6,6 +6,7 @@ const TOUCHED = [
   'URL', 'PUBLIC_SITE_URL', 'SITE_URL', 'APP_URL',
   'COOLIFY_URL', 'COOLIFY_FQDN', 'SERVICE_FQDN_API', 'SERVICE_FQDN_WEB',
   'ABACATEPAY_KEY', 'PAYMENTS_PROVIDER', 'PAYMENTS_ENV',
+  'PAYMENTS_PAYER_ENCRYPTION_KEY',
 ];
 
 let saved: Record<string, string | undefined>;
@@ -147,5 +148,20 @@ describe('warnMissingEnv', () => {
 
     expect(missing.some((entry) => entry.startsWith('PAYMENTS_PROVIDER'))).toBe(false);
     expect(missing.some((entry) => entry.startsWith('PAYMENTS_ENV'))).toBe(false);
+  });
+
+  it('a chave do perfil é opcional para pagamentos e informada sem revelar valor', () => {
+    process.env.PAYMENTS_PAYER_ENCRYPTION_KEY = 'segredo-que-nao-pode-aparecer';
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const info = vi.spyOn(console, 'info').mockImplementation(() => undefined);
+
+    const missingWithKey = warnMissingEnv();
+
+    expect(missingWithKey.some((entry) => entry.startsWith('PAYMENTS_PAYER_ENCRYPTION_KEY'))).toBe(false);
+    expect([...warn.mock.calls, ...info.mock.calls].flat().join('\n')).not.toContain(process.env.PAYMENTS_PAYER_ENCRYPTION_KEY);
+
+    delete process.env.PAYMENTS_PAYER_ENCRYPTION_KEY;
+    warnMissingEnv();
+    expect(info.mock.calls.flat().join('\n')).toContain('PAYMENTS_PAYER_ENCRYPTION_KEY');
   });
 });

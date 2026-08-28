@@ -192,8 +192,16 @@ Toda criação envia `X-Idempotency-Key`.
 
 Endpoint: `POST https://davimf.dev/api/payments/webhooks/mercadopago`
 
-Assinar os tópicos: Order, Planos e assinaturas, Alertas de fraude,
-Reclamações, Contestações.
+No painel do Mercado Pago, cadastre manualmente essa URL e selecione como
+tópico principal **Order (Mercado Pago)**. Mantenha também os eventos já usados
+pelo projeto quando estiverem disponíveis para a conta: Planos e assinaturas,
+Alertas de fraude, Reclamações e Contestações. Copie o segredo gerado para
+`MERCADOPAGO_WEBHOOK_SECRET` no ambiente de produção e reinicie a aplicação.
+
+Depois do deploy, use a simulação do painel para validar uma assinatura e faça
+uma nova medição de qualidade da integração. A confirmação deve aparecer tanto
+quando o webhook chega primeiro quanto quando o polling já conciliou o
+pagamento; licença e e-mail continuam deduplicados nos dois casos.
 
 Validação (`providers/mercadopago/signature.ts`):
 
@@ -229,6 +237,21 @@ validade e CVV vivem em iframes do Mercado Pago. O backend recebe apenas
 `cardToken` + `paymentMethodId` + `installments`. Parcelamento vem de
 `mp.getInstallments()` (máximo 12). Aprovado, recusado, processando e erro têm
 tratamento próprio; 3DS, quando o emissor exige, redireciona (exceção permitida).
+
+### Perfil de cobrança reutilizável
+
+A migração `db/006_payer_profiles.sql` cria a tabela de perfis. A persistência
+só ocorre com consentimento explícito e exige
+`PAYMENTS_PAYER_ENCRYPTION_KEY`, uma chave aleatória de 32 bytes em base64:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+Sem a variável, os pagamentos continuam funcionando, mas o perfil não é salvo.
+Não gere outra chave a cada boot: perder ou substituir essa chave torna os
+perfis existentes impossíveis de descriptografar. Aplique a migração antes de
+ativar a persistência e nunca registre o valor da chave nos logs.
 
 ### Recorrência
 Disponível quando `products.recurring_eligible = true` e

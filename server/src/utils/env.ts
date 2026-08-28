@@ -48,6 +48,11 @@ const OPTIONAL: EnvGroup[] = [
   { label: 'Pagamentos AbacatePay (legado, desativável)', vars: ['ABACATEPAY_KEY'], optional: true },
   // Têm padrão no código (mercadopago / sandbox).
   { label: 'Pagamentos — ajustes com padrão', vars: ['PAYMENTS_PROVIDER', 'PAYMENTS_ENV'], optional: true },
+  {
+    label: 'Pagamentos — perfil de cobrança criptografado',
+    vars: ['PAYMENTS_PAYER_ENCRYPTION_KEY'],
+    optional: true,
+  },
 ];
 
 // --------------------------------------------------------------- .env ------

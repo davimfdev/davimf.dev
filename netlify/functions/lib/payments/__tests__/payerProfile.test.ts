@@ -148,13 +148,21 @@ describe('payer-profile encryption', () => {
 
     await upsertPayerProfile('discord-owner', PROFILE);
 
-    const boundValues = JSON.stringify(sql.queriesMatching('INSERT INTO payer_profiles')[0].values);
+    const boundValues = sql.queriesMatching('INSERT INTO payer_profiles')[0].values;
     for (const pii of [
       SENSITIVE_PROFILE.identification.number,
       SENSITIVE_PROFILE.phone,
       ...Object.values(SENSITIVE_PROFILE.address),
     ]) {
+      // Valores curtos como estado ("SP") podem aparecer por acaso dentro do
+      // ciphertext aleatório. A fronteira relevante é que nenhum campo
+      // sensível seja vinculado como valor SQL em plaintext.
       expect(boundValues).not.toContain(pii);
     }
+
+    const ciphertext = String(boundValues[4]);
+    expect(ciphertext).not.toContain(SENSITIVE_PROFILE.identification.number);
+    expect(ciphertext).not.toContain(SENSITIVE_PROFILE.phone);
+    expect(ciphertext).not.toContain(SENSITIVE_PROFILE.address.streetName);
   });
 });

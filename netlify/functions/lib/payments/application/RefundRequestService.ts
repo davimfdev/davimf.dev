@@ -42,7 +42,10 @@ export function decideRefund(order: Order, now: Date): RefundDecision {
   if (instants.length === 0) return { kind: 'manual', reason: 'outside_window' };
 
   const elapsedDays = (now.getTime() - Math.max(...instants)) / 86_400_000;
-  if (elapsedDays > REFUND_WINDOW_DAYS) return { kind: 'manual', reason: 'outside_window' };
+  // Instante no futuro é anomalia (desincronização de relógio). Não chuta.
+  if (elapsedDays < 0 || elapsedDays > REFUND_WINDOW_DAYS) {
+    return { kind: 'manual', reason: 'outside_window' };
+  }
 
   return { kind: 'automatic' };
 }

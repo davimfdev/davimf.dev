@@ -68,4 +68,23 @@ describe('elegibilidade do reembolso', () => {
     expect(decideRefund(order({ paidAt: null, fulfilledAt: '2026-08-26T12:00:00.000Z' }), NOW))
       .toEqual({ kind: 'automatic' });
   });
+
+  it('paidAt uma hora no futuro não é automático, é manual', () => {
+    // Desincronização de relógio: data de pagamento é 1h no futuro. Não chuta,
+    // requer revisão.
+    const future = new Date('2026-08-28T13:00:00.000Z');
+    expect(decideRefund(order({ paidAt: '2026-08-28T13:00:00.000Z' }), NOW))
+      .toEqual({ kind: 'manual', reason: 'outside_window' });
+  });
+
+  it('paidAt um ano no futuro é manual, nunca automático', () => {
+    expect(decideRefund(order({ paidAt: '2027-08-28T12:00:00.000Z' }), NOW))
+      .toEqual({ kind: 'manual', reason: 'outside_window' });
+  });
+
+  it('data inválida em paidAt cai na entrega, quando houver', () => {
+    // Timestamp inválido: ignora paidAt, usa fulfilledAt se disponível.
+    expect(decideRefund(order({ paidAt: 'not-a-date', fulfilledAt: '2026-08-26T12:00:00.000Z' }), NOW))
+      .toEqual({ kind: 'automatic' });
+  });
 });

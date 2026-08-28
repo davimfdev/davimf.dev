@@ -45,6 +45,23 @@ export interface CheckoutOrder {
   productName: string;
 }
 
+/**
+ * Item da listagem "Meus pedidos" — espelha exatamente o que
+ * `GET /api/payments/orders` devolve (o `Order` bruto do domínio, sem o nome
+ * do produto: o join com o catálogo só existe em `GET /orders/:id`).
+ */
+export interface OrderSummary {
+  id: string;
+  reference: string;
+  status: PaymentStatus;
+  amountCents: number;
+  currency: string;
+  productCode: string;
+  createdAt: string;
+  paidAt: string | null;
+  fulfilledAt: string | null;
+}
+
 export interface LicenseView {
   key: string | null;
   keyPrefix: string;
@@ -238,6 +255,19 @@ export const paymentsApi = {
       method: 'POST',
       body: JSON.stringify({ subscriptionId }),
     }),
+
+  orders: () => call<{ orders: OrderSummary[] }>('/api/payments/orders'),
+
+  /**
+   * Pedido de reembolso do CLIENTE. `description` é opcional — dentro da
+   * janela de 7 dias o direito é incondicional (Art. 49 do CDC) e nada é
+   * perguntado; fora dela, o texto vira contexto para a análise humana.
+   */
+  refundRequest: (orderId: string, description?: string) =>
+    call<{ outcome: 'refunded' | 'manual' | 'reconciliation_required' }>(
+      `/api/payments/orders/${encodeURIComponent(orderId)}/refund-request`,
+      { method: 'POST', body: JSON.stringify({ description }) },
+    ),
 };
 
 export function formatMoney(cents: number, currency = 'BRL'): string {

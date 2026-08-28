@@ -122,9 +122,12 @@ const MyKeys = () => {
 
   return (
     <div className="container mx-auto px-4 py-12 animate-fade-in relative z-10 max-w-3xl">
-      <div className="flex items-center gap-3 mb-8">
-        <Key size={26} className="text-accent" />
-        <h1 className="text-3xl font-display font-extrabold text-[#F5F3EF]">Minhas Chaves FMM</h1>
+      <div className="flex items-center justify-between gap-3 mb-8 flex-wrap">
+        <div className="flex items-center gap-3">
+          <Key size={26} className="text-accent" />
+          <h1 className="text-3xl font-display font-extrabold text-[#F5F3EF]">Minhas Chaves FMM</h1>
+        </div>
+        <Link to="/my-orders" className="text-sm text-accent hover:underline">Meus pedidos</Link>
       </div>
 
       {licenses.length === 0 ? (

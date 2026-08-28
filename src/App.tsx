@@ -34,6 +34,7 @@ import { ModulesSection } from './features/bot-dashboard/sections/ModulesSection
 import FmmPlans from './pages/FmmPlans';
 import FmmActivated from './pages/FmmActivated';
 import MyKeys from './pages/MyKeys';
+import MyOrders from './pages/MyOrders';
 import FmmAdmin from './pages/FmmAdmin';
 import Notes from './pages/Notes';
 import PasswordGenerator from './pages/PasswordGenerator';
@@ -83,6 +84,7 @@ function App() {
               <Route path="/fmm" element={<FmmPlans />} />
               <Route path="/fmm-activated" element={<FmmActivated />} />
               <Route path="/my-keys" element={<MyKeys />} />
+              <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/fmm-admin" element={<FmmAdmin />} />
               <Route path="/notes" element={<Notes />} />
               <Route path="/password-generator" element={<PasswordGenerator />} />

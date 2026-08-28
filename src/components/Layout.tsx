@@ -184,6 +184,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                           <Link to="/my-keys" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
                             Minhas Chaves
                           </Link>
+                          <Link to="/my-orders" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                            Meus Pedidos
+                          </Link>
                           {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
                             <Link to="/fmm-admin" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-accent hover:text-accent hover:bg-accent-soft/10 transition-colors">
                               Admin FMM
@@ -243,6 +246,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         </Link>
                         <Link to="/my-keys" className="text-gray-300 hover:bg-white/10 hover:text-white block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
                           Minhas Chaves
+                        </Link>
+                        <Link to="/my-orders" className="text-gray-300 hover:bg-white/10 hover:text-white block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
+                          Meus Pedidos
                         </Link>
                         {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
                           <Link to="/fmm-admin" className="text-accent hover:bg-accent-soft/10 hover:text-accent block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>

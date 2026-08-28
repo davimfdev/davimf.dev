@@ -112,6 +112,20 @@ export type SignatureDiagnostics = {
   variants: string[];
   /** Valores em `x-request-id`; >1 denuncia proxy duplicando o cabeçalho. */
   requestIdValues: number;
+  /**
+   * Entradas EXATAS do manifesto mais um prefixo curto de `v1`, para reproduzir
+   * o HMAC fora do servidor quando todo o resto já foi descartado. Nenhuma
+   * delas é segredo: `data.id` e `x-request-id` são identificadores de
+   * requisição, `ts` é público no cabeçalho, e 8 hex de um HMAC-SHA256 não
+   * permitem forjar assinatura. Ainda assim, quem decide registrar isto é o
+   * chamador — ver `MERCADOPAGO_WEBHOOK_DEBUG`.
+   */
+  manifestInputs: {
+    dataId: string | null;
+    requestId: string | null;
+    ts: string | null;
+    v1Prefix: string | null;
+  };
 };
 
 function safeEqualHex(a: string, b: string): boolean {
@@ -182,9 +196,12 @@ export function verifyWebhookSignature(input: VerifyInput): VerifyResult {
     idSource: dataId ? 'query' : 'absent',
     variants: dataId ? (dataId === lowercased ? ['exact'] : ['exact', 'lowercase']) : ['none'],
     requestIdValues: countHeaderValues(rawRequestId),
+    manifestInputs: { dataId, requestId: rawRequestId, ts: null, v1Prefix: null },
   };
 
   const { ts, v1 } = parseXSignature(headerValue(input.headers, 'x-signature'));
+  diagnostics.manifestInputs.ts = ts;
+  diagnostics.manifestInputs.v1Prefix = v1 ? v1.toLowerCase().slice(0, 8) : null;
 
   if (ts) {
     const asMs = timestampToMs(ts);

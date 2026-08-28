@@ -454,6 +454,33 @@ describe('MercadoPagoPaymentProvider', () => {
     delete process.env.MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION;
   });
 
+  it('só publica as entradas do manifesto com MERCADOPAGO_WEBHOOK_DEBUG=1', async () => {
+    process.env.MERCADOPAGO_WEBHOOK_SECRET = 'segredo';
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { impl } = stubFetch(() => ({ body: {} }));
+    const request = {
+      rawBody: JSON.stringify({ type: 'order', data: { id: 'ORD-7' } }),
+      headers: { 'x-signature': `ts=${Date.now()},v1=deadbeefcafe1234`, 'x-request-id': 'req-7' },
+      url: 'https://davimf.dev/api/payments/webhooks/mercadopago?data.id=ORD-7&type=order',
+    };
+
+    await provider(impl).processWebhook(request);
+    expect(warning.mock.calls.flat().join(' ')).not.toContain('manifesto:');
+
+    warning.mockClear();
+    process.env.MERCADOPAGO_WEBHOOK_DEBUG = '1';
+    await provider(impl).processWebhook(request);
+    const line = warning.mock.calls.flat().join(' ');
+    expect(line).toContain('manifesto: data.id=ORD-7 x-request-id=req-7 ts=');
+    // Prefixo curto: nunca a assinatura inteira, nunca o segredo.
+    expect(line).toContain('v1[0..8]=deadbeef');
+    expect(line).not.toContain('deadbeefcafe1234');
+    expect(line).not.toContain('segredo');
+
+    delete process.env.MERCADOPAGO_WEBHOOK_DEBUG;
+    delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
+  });
+
   it('aceita simulador assinado mesmo quando o Data ID fictício não existe', async () => {
     const secret = 'segredo-simulador';
     process.env.MERCADOPAGO_WEBHOOK_SECRET_TEST = secret;

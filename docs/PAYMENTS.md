@@ -66,6 +66,7 @@ Obrigatórias (já em `.env.example`, sem valores):
 | `MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION` | Assinatura da aba Modo de produção |
 | `MERCADOPAGO_WEBHOOK_SECRET` | Compatibilidade legada para ambiente único |
 | `MERCADOPAGO_APPLICATION_ID` | Opcional. `application_id` da aplicação dona do webhook; só rotula o log como `application=match/foreign` |
+| `MERCADOPAGO_WEBHOOK_DEBUG` | Opcional, `1` liga. Publica as entradas do manifesto de cada rejeição para reproduzir o HMAC fora do servidor. **Temporário**: desligue depois de usar |
 | `RESEND_API_KEY` | Chave do Resend; sem ela o envio vira no-op logado |
 
 Opcionais com padrão no código: `MERCADOPAGO_TIMEOUT_MS` (12000),
@@ -308,6 +309,30 @@ diz o resto: a notificação veio de uma aplicação diferente da esperada, e a
 assinatura configurada é a da aplicação errada. O conserto é copiar a
 assinatura da aplicação que aparece em `application_id` — a mesma dona do
 access token que criou a Order.
+
+#### Reproduzir o HMAC fora do servidor
+
+Quando segredo, aplicação, proxy, relógio e canonicalização já foram
+descartados e o `MISMATCH` continua, ligue `MERCADOPAGO_WEBHOOK_DEBUG=1`. Cada
+rejeição passa a imprimir uma segunda linha com as entradas exatas do
+manifesto e um prefixo de 8 hex da assinatura recebida:
+
+```
+[payments] webhook Mercado Pago manifesto: data.id=ORD01… x-request-id=… ts=… v1[0..8]=ab6b3ce5
+```
+
+Nada aí é segredo — `data.id` e `x-request-id` identificam a requisição, `ts`
+já viaja no cabeçalho, e 8 hex de um HMAC-SHA256 não permitem forjar nada. Com
+esses quatro valores, o HMAC é recalculável em qualquer máquina:
+
+```powershell
+node -e "const c=require('crypto');const [s,id,rid,ts]=process.argv.slice(1);const m=i=>(i?'id:'+i+';':'')+(rid?'request-id:'+rid+';':'')+(ts?'ts:'+ts+';':'');for(const [n,i] of [['exact',id],['lower',id.toLowerCase()],['upper',id.toUpperCase()]])console.log(n.padEnd(6), c.createHmac('sha256',s).update(m(i)).digest('hex').slice(0,8))" "ASSINATURA" "DATA_ID" "X_REQUEST_ID" "TS"
+```
+
+Se alguma variante bater com o `v1[0..8]` do log, é essa a canonicalização que
+falta. Se **nenhuma** bater, a assinatura configurada não é a que assinou
+aquela notificação, e o caminho é o suporte do Mercado Pago. Desligue a flag
+depois.
 
 #### Rotação da assinatura secreta
 

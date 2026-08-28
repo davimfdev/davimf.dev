@@ -179,6 +179,27 @@ function webhookIdentity(body: Record<string, unknown>): WebhookIdentity {
  * sendo recusada, e uma de aplicação desconhecida com assinatura válida
  * continua sendo processada.
  */
+/**
+ * Última linha de diagnóstico, DESLIGADA por padrão: só sai com
+ * `MERCADOPAGO_WEBHOOK_DEBUG=1`. Publica as entradas exatas do manifesto para
+ * o operador recalcular o HMAC fora do servidor e descobrir QUAL entrada
+ * diverge, quando segredo, aplicação, proxy e relógio já foram descartados.
+ * Continua sem segredo e sem assinatura completa. Desligue depois de usar.
+ */
+function logManifestInputs(inputs: {
+  dataId: string | null;
+  requestId: string | null;
+  ts: string | null;
+  v1Prefix: string | null;
+}): void {
+  if (process.env.MERCADOPAGO_WEBHOOK_DEBUG?.trim() !== '1') return;
+  console.warn(
+    `[payments] webhook Mercado Pago manifesto: data.id=${inputs.dataId ?? 'missing'} ` +
+      `x-request-id=${inputs.requestId ?? 'missing'} ts=${inputs.ts ?? 'missing'} ` +
+      `v1[0..8]=${inputs.v1Prefix ?? 'missing'}`,
+  );
+}
+
 function describeApplication(applicationId: string | null): string {
   const expected = process.env.MERCADOPAGO_APPLICATION_ID?.trim();
   if (!expected) return 'unknown';
@@ -569,6 +590,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
         `ts_age_s=${tsAgeSeconds === null ? 'unknown' : String(tsAgeSeconds)}, ` +
         `variants=${variants.join('+')}, secrets=${secrets.join('/') || 'none'})`;
       console.warn(`[payments] webhook Mercado Pago rejeitado: ${verification.reason}${context}`);
+      logManifestInputs(verification.diagnostics.manifestInputs);
       return null;
     }
 

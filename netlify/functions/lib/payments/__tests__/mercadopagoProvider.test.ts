@@ -644,47 +644,31 @@ describe('dados comerciais da Order', () => {
     expect(raw).not.toContain('last_purchase');
   });
 
-  it('não envia additional_info.payer por padrão', async () => {
-    delete process.env.MERCADOPAGO_PAYER_ADDITIONAL_INFO;
+  it('nunca envia additional_info: a Orders API recusa em qualquer nível', async () => {
     const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
+    const target = provider(impl);
 
-    await provider(impl).createPixPayment({
-      ...BASE,
-      payerMetadata: { registrationDate: '2026-01-15T12:30:00.000Z' },
-    });
-
-    const raw = String(calls[0].init.body);
-    const body = JSON.parse(raw);
-    expect(body).not.toHaveProperty('additional_info');
-    expect(raw).not.toContain('registration_date');
-  });
-
-  it('com MERCADOPAGO_PAYER_ADDITIONAL_INFO=1 manda additional_info no PAGAMENTO, não no topo', async () => {
-    process.env.MERCADOPAGO_PAYER_ADDITIONAL_INFO = '1';
-    const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
-
-    await provider(impl).createPixPayment({
+    // Testado contra a API real nos dois lugares plausíveis, e recusado nos
+    // dois. No nível do pagamento a mensagem é explícita:
+    //   HTTP 400 unsupported_properties
+    //   '$.transactions.payments[0]' - additionalProperties 'additional_info' not allowed
+    // Logo `registration_date` não tem como ser enviado por esta API — o
+    // metadado continua existindo no domínio, só não vai para o Mercado Pago.
+    await target.createPixPayment({
       ...BASE,
       payerMetadata: { registrationDate: '2026-01-15T12:30:00.000Z', authenticationType: 'discord' },
     });
-
-    const body = JSON.parse(String(calls[0].init.body));
-    // O topo já foi rejeitado; a hipótese sob teste é o nível do pagamento.
-    expect(body).not.toHaveProperty('additional_info');
-    expect(body.transactions.payments[0].additional_info).toEqual({
-      payer: { registration_date: '2026-01-15T12:30:00.000Z', authentication_type: 'discord' },
+    await target.createCardPayment({
+      ...BASE,
+      ...CARD,
+      payerMetadata: { registrationDate: '2026-01-15T12:30:00.000Z' },
     });
-    delete process.env.MERCADOPAGO_PAYER_ADDITIONAL_INFO;
-  });
 
-  it('nunca fabrica metadados de pagador quando não há fonte autenticada', async () => {
-    process.env.MERCADOPAGO_PAYER_ADDITIONAL_INFO = '1';
-    const { impl, calls } = stubFetch(() => ({ body: orderResponse() }));
-
-    await provider(impl).createPixPayment({ ...BASE });
-
-    expect(String(calls[0].init.body)).not.toContain('additional_info');
-    delete process.env.MERCADOPAGO_PAYER_ADDITIONAL_INFO;
+    for (const call of calls) {
+      const raw = String(call.init.body);
+      expect(raw).not.toContain('additional_info');
+      expect(raw).not.toContain('registration_date');
+    }
   });
 
   it('não inventa endereço vazio quando só o CEP e o logradouro existem', async () => {

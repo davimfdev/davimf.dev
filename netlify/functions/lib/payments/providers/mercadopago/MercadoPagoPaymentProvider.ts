@@ -51,31 +51,6 @@ function statementDescriptor(): Record<string, string> {
   return value ? { statement_descriptor: value } : {};
 }
 
-/**
- * Metadados de risco do pagador (`registration_date`, `last_purchase`,
- * `authentication_type`), que o relatório de qualidade pede em
- * `additional_info.payer`.
- *
- * EXPERIMENTO, desligado por padrão. Enviado no TOPO da Order o objeto foi
- * rejeitado pelo schema; a única hipótese com fundamento é o nível do
- * pagamento, que foi onde o `statement_descriptor` acabou se revelando —
- * mas nenhuma referência publicada confirma isso para a Orders API. Só entra
- * com `MERCADOPAGO_PAYER_ADDITIONAL_INFO=1`, para ser ligado durante UMA
- * medição e desligado em seguida.
- *
- * Os valores continuam vindo só de fonte autenticada real; nada é fabricado.
- */
-function payerAdditionalInfo(input: BaseChargeInput): Record<string, unknown> {
-  if (process.env.MERCADOPAGO_PAYER_ADDITIONAL_INFO?.trim() !== '1') return {};
-  const metadata = input.payerMetadata;
-  if (!metadata) return {};
-  const payer: Record<string, unknown> = {};
-  if (metadata.registrationDate) payer.registration_date = metadata.registrationDate;
-  if (metadata.lastPurchase) payer.last_purchase = metadata.lastPurchase;
-  if (metadata.authenticationType) payer.authentication_type = metadata.authenticationType;
-  return Object.keys(payer).length > 0 ? { additional_info: { payer } } : {};
-}
-
 type MercadoPagoEnvironment = 'sandbox' | 'production';
 
 type OrderPhone = { area_code: string; number: string };
@@ -350,7 +325,6 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
               amount,
               expiration_time: isoDuration(minutes),
               payment_method: { id: 'pix', type: 'bank_transfer' },
-              ...payerAdditionalInfo(input),
             },
           ],
         },
@@ -381,7 +355,6 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
                 installments: input.installments,
                 ...statementDescriptor(),
               },
-              ...payerAdditionalInfo(input),
             },
           ],
         },
@@ -404,7 +377,6 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
               amount,
               expiration_time: isoDuration(days * 24 * 60),
               payment_method: { id: 'bolbradesco', type: 'ticket' },
-              ...payerAdditionalInfo(input),
             },
           ],
         },
@@ -541,7 +513,6 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
                 installments: input.installments ?? 1,
                 ...statementDescriptor(),
               },
-              ...payerAdditionalInfo(input),
             },
           ],
         },

@@ -67,7 +67,6 @@ Obrigatórias (já em `.env.example`, sem valores):
 | `MERCADOPAGO_WEBHOOK_SECRET` | Compatibilidade legada para ambiente único |
 | `MERCADOPAGO_APPLICATION_ID` | Opcional. `application_id` da aplicação dona do webhook; só rotula o log como `application=match/foreign` |
 | `MERCADOPAGO_STATEMENT_DESCRIPTOR` | Opcional, **desligado por padrão**. Nome na fatura do cartão; sem ela use "Nome para extratos" na conta |
-| `MERCADOPAGO_PAYER_ADDITIONAL_INFO` | Opcional, `1` liga. **Experimento**: manda `additional_info.payer` no nível do pagamento. No topo da Order o schema rejeita; o nível do pagamento é hipótese não confirmada. Ligue para UMA medição e desligue |
 | `MERCADOPAGO_WEBHOOK_DEBUG` | Opcional, `1` liga. Publica as entradas do manifesto de cada rejeição para reproduzir o HMAC fora do servidor. **Temporário**: desligue depois de usar |
 | `RESEND_API_KEY` | Chave do Resend; sem ela o envio vira no-op logado |
 
@@ -431,6 +430,26 @@ não enxerga o que está configurado na conta real, e o requisito "Fatura do
 cartão" segue pendente por mais correta que a integração esteja. Para fechar em
 teste, a mesma configuração precisa existir no painel do usuário de teste; em
 produção ele já está atendido.
+
+#### `additional_info` não existe na Orders API
+
+O relatório recomenda `additional_info.payer.registration_date`. Testado
+contra a API real nos dois lugares plausíveis e recusado nos dois — no nível do
+pagamento com mensagem explícita:
+
+```
+HTTP 400 unsupported_properties
+'$.transactions.payments[0]' - additionalProperties 'additional_info' not allowed
+```
+
+Ou seja, essa recomendação **não é alcançável** por esta API, e o campo não deve
+ser tentado de novo. O metadado continua existindo no domínio (`payerMetadata`,
+vindo da sessão autenticada); ele apenas não vai para o Mercado Pago.
+
+Vale a lição geral: a Orders API valida por schema estrito e **nomeia o caminho
+recusado** em `unsupported_properties`. Um `400` desses é resposta definitiva
+sobre suporte a um campo; um `402` não é — ali o schema passou e quem recusou
+foi o processamento.
 
 ### Perfil de cobrança reutilizável
 

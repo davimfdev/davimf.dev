@@ -12,6 +12,7 @@ import { OrderService } from '../application/OrderService';
 import { PaymentService } from '../application/PaymentService';
 import type { PayerProfileData } from '../repositories/PayerProfileRepository';
 import { ConflictError, ProviderTimeoutError, ValidationError } from '../domain/errors';
+import type { VerifiedLegalAcceptance } from '../domain/types';
 import type { EmailProvider } from '../email/EmailProvider';
 import type {
   NormalizedWebhook,
@@ -26,13 +27,17 @@ import { WebhookService } from '../webhooks/WebhookService';
 import { FakeSql, licenseRow, orderRow, paymentRow, productRow, uninstallSql } from './helpers';
 import type { SqlRow } from '../infrastructure/db';
 
+// Fixture de teste: só `requireLegalAcceptance` (router.ts) pode produzir um
+// `VerifiedLegalAcceptance` de verdade, então o cast aqui é o mesmo "eu juro
+// que verifiquei" que um teste de unidade sempre precisa fazer para simular
+// a saída de uma etapa anterior do pipeline.
 const LEGAL_ACCEPTANCE = {
   version: '2026-08-28-v1',
   acceptedAt: '2026-08-29T12:00:00.000Z',
   termsHash: 'a'.repeat(64),
   privacyHash: 'b'.repeat(64),
   refundHash: 'c'.repeat(64),
-};
+} as VerifiedLegalAcceptance;
 
 // ------------------------------------------------------------- provider ----
 

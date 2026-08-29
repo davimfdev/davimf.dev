@@ -81,6 +81,19 @@ export type LegalAcceptance = {
   refundHash: string;
 };
 
+/**
+ * Mesmo formato de `LegalAcceptance`, mas com uma marca que só existe em tempo
+ * de compilação — `verified` não é exportado, então nenhum módulo fora deste
+ * arquivo consegue montar um literal que satisfaça este tipo. Só quem
+ * verificou de fato a versão contra o registro (`requireLegalAcceptance`, em
+ * `router.ts`) pode produzir um, via cast no ponto exato da verificação. Isso
+ * torna "hash veio do nosso registro" inviável de contornar por acidente, e
+ * não só uma convenção — sem alterar o formato em runtime nem no que é
+ * gravado/serializado, já que a marca não tem representação em valor.
+ */
+declare const verified: unique symbol;
+export type VerifiedLegalAcceptance = LegalAcceptance & { readonly [verified]: true };
+
 export type Order = {
   id: string;
   reference: string;

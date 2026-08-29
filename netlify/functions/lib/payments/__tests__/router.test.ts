@@ -11,8 +11,9 @@ import { setSubscriptionServiceForTesting } from '../application/SubscriptionSer
 import { parsePayer, rejectRawCardData, toErrorResponse } from '../http';
 import { upsertPayerProfile, type PayerProfileData } from '../repositories/PayerProfileRepository';
 import { ProviderError, ValidationError } from '../domain/errors';
+import { CURRENT_LEGAL_VERSION, LEGAL_VERSION_HASHES } from '../../legal/versions';
 import { routePaymentsRequest } from '../router';
-import { FakeSql, paymentRow, productRow, uninstallSql } from './helpers';
+import { FakeSql, orderRow, paymentRow, productRow, uninstallSql } from './helpers';
 import type { SqlRow } from '../infrastructure/db';
 
 vi.mock('../../dashboard/session', () => ({
@@ -187,6 +188,70 @@ describe('roteador de pagamentos', () => {
     );
     expect(response.status).toBe(400);
     expect((await response.json() as { error: { code: string } }).error.code).toBe('LEGAL_VERSION_UNKNOWN');
+  });
+
+  it('grava o hash do NOSSO registro e o instante do servidor — nunca os que o corpo tenta ditar', async () => {
+    authenticate();
+    const before = Date.now();
+    sql.prepend({
+      match: (q) => q.startsWith('INSERT INTO orders'),
+      // Ecoa a referência sorteada de volta: sem isso o fake sempre pareceria
+      // um pedido REAPROVEITADO (referência fixa ≠ gerada) e a rota devolveria
+      // 200 em vez de 201 — irrelevante para o que este teste verifica, mas
+      // evitável.
+      rows: (_query, values) => [orderRow({
+        reference: String(values[0]), product_code: 'fmm-pro-monthly', idempotency_key: 'legal-ok',
+      })],
+    });
+
+    const response = await routePaymentsRequest(
+      request('/api/payments/checkout', {
+        method: 'POST',
+        body: JSON.stringify({
+          productCode: 'fmm-pro-monthly',
+          email: 'a@b.com',
+          idempotencyKey: 'legal-ok',
+          legalVersion: CURRENT_LEGAL_VERSION,
+          // Adulteração: o corpo tenta ditar o próprio aceite. Nenhum destes
+          // campos existe em `requireLegalAcceptance` — nada disso é lido.
+          acceptedAt: '2000-01-01T00:00:00.000Z',
+          termsHash: 'forjado-terms',
+          privacyHash: 'forjado-privacy',
+          refundHash: 'forjado-refund',
+          legalAcceptance: {
+            version: CURRENT_LEGAL_VERSION,
+            acceptedAt: '2000-01-01T00:00:00.000Z',
+            termsHash: 'forjado-terms',
+            privacyHash: 'forjado-privacy',
+            refundHash: 'forjado-refund',
+          },
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(201);
+
+    const insertCall = sql.calls.find((call) => call.query.startsWith('INSERT INTO orders'));
+    expect(insertCall).toBeDefined();
+    const values = insertCall!.values;
+    const expectedHashes = LEGAL_VERSION_HASHES[CURRENT_LEGAL_VERSION];
+
+    // As três impressões digitais gravadas são as do NOSSO registro, e os
+    // valores forjados não aparecem em lugar nenhum do que foi escrito.
+    expect(values).toContain(expectedHashes.terms);
+    expect(values).toContain(expectedHashes.privacy);
+    expect(values).toContain(expectedHashes.refund);
+    expect(values).not.toContain('forjado-terms');
+    expect(values).not.toContain('forjado-privacy');
+    expect(values).not.toContain('forjado-refund');
+    expect(values).not.toContain('2000-01-01T00:00:00.000Z');
+
+    // O instante gravado veio do RELÓGIO DO SERVIDOR — plausivelmente agora —
+    // e não do que o corpo tentou fornecer.
+    const acceptedAtMs = Date.parse(String(values[12]));
+    expect(Number.isNaN(acceptedAtMs)).toBe(false);
+    expect(acceptedAtMs).toBeGreaterThanOrEqual(before - 1000);
+    expect(acceptedAtMs).toBeLessThanOrEqual(Date.now() + 1000);
   });
 
   it('exige sessão para ler licenças', async () => {

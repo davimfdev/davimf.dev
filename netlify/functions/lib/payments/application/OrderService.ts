@@ -9,7 +9,7 @@
 import { randomUUID } from 'node:crypto';
 import { ConflictError, NotFoundError, ValidationError } from '../domain/errors';
 import { multiplyCents } from '../domain/money';
-import type { LegalAcceptance, Order, Product } from '../domain/types';
+import type { Order, Product, VerifiedLegalAcceptance } from '../domain/types';
 import {
   createOrder,
   findOrderById,
@@ -36,8 +36,10 @@ export type CreateOrderRequest = {
    * Aceite dos documentos legais desta compra. Obrigatório: o router é quem
    * valida a versão e busca os hashes no nosso registro (`legal/versions`) —
    * aqui só chega o resultado já verificado, nunca o corpo cru do cliente.
+   * O tipo `VerifiedLegalAcceptance` torna isso obrigatório em tempo de
+   * compilação: só `requireLegalAcceptance` (router.ts) consegue produzir um.
    */
-  legalAcceptance: LegalAcceptance;
+  legalAcceptance: VerifiedLegalAcceptance;
 };
 
 export type CreatedOrder = { order: Order; product: Product; reused: boolean };

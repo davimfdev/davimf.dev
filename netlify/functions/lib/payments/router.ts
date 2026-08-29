@@ -32,7 +32,7 @@ import { getRefundRequestService, type RefundRejectionCode } from './application
 import { getSubscriptionService } from './application/SubscriptionService';
 import { FMM_DOWNLOAD_URL, mercadoPagoPublicKey } from './config';
 import { ForbiddenError, ValidationError } from './domain/errors';
-import type { LegalAcceptance, Product } from './domain/types';
+import type { Product, VerifiedLegalAcceptance } from './domain/types';
 import {
   errorJson,
   headersOf,
@@ -103,7 +103,7 @@ async function handleProducts(request: Request): Promise<Response> {
  * texto que nunca publicamos; aceitar um hash vindo do corpo permitiria
  * alegar aceite de qualquer texto.
  */
-function requireLegalAcceptance(body: Record<string, unknown>): LegalAcceptance {
+function requireLegalAcceptance(body: Record<string, unknown>): VerifiedLegalAcceptance {
   const raw = body.legalVersion;
   if (typeof raw !== 'string' || raw.trim() === '') {
     throw new ValidationError(
@@ -117,6 +117,9 @@ function requireLegalAcceptance(body: Record<string, unknown>): LegalAcceptance 
   }
 
   const hashes = LEGAL_VERSION_HASHES[version];
+  // O cast é o único lugar do sistema onde a marca de "verificado" nasce —
+  // exatamente aqui, depois de confirmar a versão contra o registro e antes
+  // de qualquer outro campo do corpo ser lido.
   return {
     version,
     // Relógio do servidor — nunca um instante vindo do corpo da requisição.
@@ -124,7 +127,7 @@ function requireLegalAcceptance(body: Record<string, unknown>): LegalAcceptance 
     termsHash: hashes.terms,
     privacyHash: hashes.privacy,
     refundHash: hashes.refund,
-  };
+  } as VerifiedLegalAcceptance;
 }
 
 async function handleCheckout(request: Request): Promise<Response> {

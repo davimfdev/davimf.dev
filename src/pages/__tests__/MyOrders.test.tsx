@@ -41,6 +41,13 @@ const RECENT = { id: 'ord-1', reference: 'DVMF-1', productName: 'FMM Pro', amoun
   currency: 'BRL', status: 'PAID', createdAt: '2026-08-27T12:00:00.000Z', paidAt: '2026-08-27T12:00:00.000Z' };
 const OLD = { ...RECENT, id: 'ord-2', reference: 'DVMF-2', paidAt: '2026-07-01T12:00:00.000Z' };
 const REFUNDED = { ...RECENT, id: 'ord-3', reference: 'DVMF-3', status: 'REFUNDED' };
+// Relógio dessincronizado: pagamento datado no FUTURO. O servidor manda esse
+// pedido para análise humana (`decideRefund` recusa `elapsedDays < 0`), então a
+// tela não pode oferecer um reembolso que ele vai recusar.
+const FUTURE = {
+  ...RECENT, id: 'ord-4', reference: 'DVMF-4',
+  paidAt: new Date(Date.now() + 3 * 86_400_000).toISOString(),
+};
 
 function renderPage() {
   return render(
@@ -60,6 +67,16 @@ describe('Meus pedidos', () => {
   it('fora da janela oferece "Solicitar análise", não reembolso', async () => {
     vi.mocked(paymentsApi.orders).mockResolvedValue({ orders: [OLD] } as never);
     renderPage();
+    expect(await screen.findByRole('button', { name: 'Solicitar análise' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Solicitar reembolso' })).toBeNull();
+  });
+
+  it('pagamento datado no futuro oferece "Solicitar análise", nunca reembolso', async () => {
+    // S1: `days <= 7` também é verdade para `days` NEGATIVO. O cliente confirmava
+    // "sua licença será revogada" e recebia "enviada para análise".
+    vi.mocked(paymentsApi.orders).mockResolvedValue({ orders: [FUTURE] } as never);
+    renderPage();
+
     expect(await screen.findByRole('button', { name: 'Solicitar análise' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Solicitar reembolso' })).toBeNull();
   });

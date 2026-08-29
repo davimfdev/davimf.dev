@@ -68,7 +68,11 @@ function actionFor(order: OrderSummary): Action {
     .filter((value) => Number.isFinite(value));
   if (delivered.length === 0) return 'review';
   const days = (Date.now() - Math.max(...delivered)) / 86_400_000;
-  return days <= 7 ? 'refund' : 'review';
+  // `days` NEGATIVO é um pagamento datado no futuro (relógio dessincronizado):
+  // `days <= 7` sozinho oferecia reembolso para um pedido que o servidor manda
+  // para análise humana — o cliente confirmava "sua licença será revogada" e
+  // recebia "enviada para análise". Mesma anomalia, mesma saída que o servidor.
+  return days >= 0 && days <= 7 ? 'refund' : 'review';
 }
 
 const MyOrders = () => {

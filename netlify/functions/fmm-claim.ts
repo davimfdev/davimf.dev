@@ -1,35 +1,38 @@
+/**
+ * Resgate da chave de licença de um pedido ANTIGO, consultado pelo app do FMM
+ * (não pelo site) através de `?ref=`.
+ *
+ * O que restou aqui é só a LEITURA: encontra o pedido pela referência e devolve
+ * a chave já emitida. A metade que verificava o pagamento no AbacatePay e
+ * emitia a chave na hora foi removida junto com aquele provedor — não existem
+ * checkouts novos por lá, então nenhum pedido volta a transitar de "sem chave"
+ * para "pago". Um pedido sem chave agora é caso de emissão manual.
+ *
+ * Vendas atuais não passam por aqui: elas nascem em `orders` pelo módulo de
+ * pagamentos e a licença é entregue por `PaymentService`.
+ */
+
 import { Context } from '@netlify/functions';
-import {
-  sql, generateKeyString, sha256Hex, jsonResponse, errorResponse,
-} from './lib/fmm-license.js';
+import { sql, jsonResponse, errorResponse } from './lib/fmm-license.js';
 
-const ABACATE_BASE = "https://api.abacatepay.com/v2";
+export default async (req: Request, _context: Context) => {
+  if (req.method !== 'GET') return errorResponse('Method Not Allowed', 405);
 
-const DURATION_DAYS: Record<string, number> = {
-  monthly:   30,
-  quarterly: 90,
-  lifetime:  36500,
-};
-
-export default async (req: Request, context: Context) => {
-  if (req.method !== "GET") return errorResponse("Method Not Allowed", 405);
-
-  const ref = new URL(req.url).searchParams.get("ref");
-  if (!ref) return errorResponse("Missing ref", 400);
+  const ref = new URL(req.url).searchParams.get('ref');
+  if (!ref) return errorResponse('Missing ref', 400);
 
   const rows = await sql`
-    SELECT abacate_checkout_id, plan, period, license_key
+    SELECT plan, period, license_key
     FROM fmm_orders
     WHERE ref = ${ref}
     LIMIT 1
   ` as Array<{
-    abacate_checkout_id: string;
     plan: string;
     period: string;
     license_key: string | null;
   }>;
 
-  if (!rows.length) return errorResponse("Order not found", 404);
+  if (!rows.length) return errorResponse('Order not found', 404);
 
   const order = rows[0];
 
@@ -37,63 +40,10 @@ export default async (req: Request, context: Context) => {
     return jsonResponse({ key: order.license_key, plan: order.plan, period: order.period });
   }
 
-  const apiKey = process.env.ABACATEPAY_KEY;
-  if (!apiKey) return errorResponse("Payment not configured", 500);
-
-  const res = await fetch(`${ABACATE_BASE}/checkouts/list`, {
-    headers: { "Authorization": `Bearer ${apiKey}` },
-  });
-
-  const data = await res.json();
-  if (!data.success) return errorResponse("Failed to verify payment", 502);
-
-  const checkout = (data.data as any[]).find(
-    (c) => c.id === order.abacate_checkout_id || c.externalId === ref
+  // Pedido legado sem chave emitida. Não há mais como verificar o pagamento
+  // automaticamente; o cliente precisa falar com o suporte.
+  return errorResponse(
+    'Pedido antigo sem chave emitida. Fale com o suporte em contato@davimf.dev.',
+    409,
   );
-  if (!checkout) return jsonResponse({ status: "PENDING" });
-
-  const status = checkout.status;
-
-  if (status !== "PAID") {
-    return jsonResponse({ status: status ?? "PENDING" });
-  }
-
-  // Payment confirmed — generate key
-  const rawKey = generateKeyString();
-  const keyHash = sha256Hex(rawKey);
-  const keyPrefix = rawKey.substring(0, 12);
-  const durationDays = DURATION_DAYS[order.period] ?? 30;
-
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + durationDays);
-
-  const authHeader = req.headers.get('authorization');
-  let discordUserId: string | null = null;
-  if (authHeader?.startsWith('Bearer ')) {
-    try {
-      const discordRes = await fetch('https://discord.com/api/users/@me', {
-        headers: { Authorization: authHeader },
-      });
-      if (discordRes.ok) {
-        const u = await discordRes.json();
-        discordUserId = u.id ?? null;
-      }
-    } catch { /* non-fatal */ }
-  }
-
-  await sql`
-    INSERT INTO fmm_license_keys (key_hash, key_prefix, level, duration_days, expires_at, notes, discord_user_id)
-    VALUES (
-      ${keyHash}, ${keyPrefix}, ${order.plan}, ${durationDays},
-      ${expiresAt.toISOString()},
-      ${`Auto-generated via AbacatePay checkout ${order.abacate_checkout_id}`},
-      ${discordUserId}
-    )
-  `;
-
-  await sql`
-    UPDATE fmm_orders SET license_key = ${rawKey} WHERE ref = ${ref}
-  `;
-
-  return jsonResponse({ key: rawKey, plan: order.plan, period: order.period });
 };

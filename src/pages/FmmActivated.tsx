@@ -5,7 +5,8 @@
  * backend já confirmou PAID e persistiu a licença — nunca porque o frontend
  * "achou" que o pagamento deu certo.
  *
- * `?ref=` continua aceito para não quebrar links antigos do fluxo AbacatePay.
+ * `?ref=` continua aceito para não quebrar links antigos: em vez de erro seco,
+ * a página diz que o pedido é anterior e aponta o caminho de Minhas Chaves.
  */
 
 import { useEffect, useRef, useState } from 'react';

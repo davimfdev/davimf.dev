@@ -19,7 +19,7 @@ export const FMM_DOWNLOAD_URL =
  * `server/src/utils/env.ts` resolve os apelidos da plataforma e normaliza o
  * valor em `process.env.URL` no arranque; `PUBLIC_SITE_URL` fica como leitura
  * direta para quando um handler roda fora do servidor (testes, scripts). O
- * fallback de localhost é o mesmo já usado por shorten.ts e abacate-checkout.ts.
+ * fallback de localhost é o mesmo já usado por shorten.ts.
  */
 export function siteUrl(): string {
   const configured = process.env.URL ?? process.env.PUBLIC_SITE_URL;

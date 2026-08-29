@@ -5,7 +5,7 @@ import { applyCompatibilityEnv, normalizeSiteUrl, warnMissingEnv } from '../env'
 const TOUCHED = [
   'URL', 'PUBLIC_SITE_URL', 'SITE_URL', 'APP_URL',
   'COOLIFY_URL', 'COOLIFY_FQDN', 'SERVICE_FQDN_API', 'SERVICE_FQDN_WEB',
-  'ABACATEPAY_KEY', 'PAYMENTS_PROVIDER', 'PAYMENTS_ENV',
+  'PAYMENTS_PROVIDER', 'PAYMENTS_ENV',
   'PAYMENTS_PAYER_ENCRYPTION_KEY', 'MERCADOPAGO_APPLICATION_ID',
   'MERCADOPAGO_WEBHOOK_SECRET_TEST', 'MERCADOPAGO_WEBHOOK_SECRET_PRODUCTION',
 ];
@@ -143,15 +143,16 @@ describe('warnMissingEnv', () => {
     expect(output).not.toContain('a-assinatura-da-aplicacao');
   });
 
-  it('ABACATEPAY_KEY é opcional: nunca entra na lista de ausentes', () => {
+  it('não pede mais a chave do AbacatePay, removida junto com o provedor', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const info = vi.spyOn(console, 'info').mockImplementation(() => undefined);
 
     const missing = warnMissingEnv();
 
+    // Nem como ausente, nem como opcional: a variável não existe mais.
     expect(missing.some((entry) => entry.startsWith('ABACATEPAY_KEY'))).toBe(false);
-    expect(warn.mock.calls.flat().join('\n')).not.toContain('ABACATEPAY_KEY');
-    expect(info.mock.calls.flat().join('\n')).toContain('ABACATEPAY_KEY');
+    expect(warn.mock.calls.flat().join('\n')).not.toContain('ABACATEPAY');
+    expect(info.mock.calls.flat().join('\n')).not.toContain('ABACATEPAY');
   });
 
   it('PAYMENTS_PROVIDER e PAYMENTS_ENV são opcionais (têm padrão no código)', () => {

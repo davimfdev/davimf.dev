@@ -74,7 +74,6 @@ export const PAYMENTS_PATHS: string[] = [
 ];
 
 export const WEB_STYLE_ROUTES: WebStyleRoute[] = [
-  { name: 'abacate-checkout', paths: ['/api/abacate-checkout'], load: () => import('../../../netlify/functions/abacate-checkout') },
   { name: 'payments', paths: PAYMENTS_PATHS, load: () => import('../../../netlify/functions/payments') },
   { name: 'callback', paths: ['/api/callback'], load: () => import('../../../netlify/functions/callback') },
   // `config.path` era "/api/deleteurl"; "/api/delete-url" é o caminho que o

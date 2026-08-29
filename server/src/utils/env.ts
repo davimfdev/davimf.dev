@@ -49,7 +49,6 @@ const REQUIRED: EnvGroup[] = [
 
 const OPTIONAL: EnvGroup[] = [
   // Fluxo antigo de checkout, mantido só enquanto houver pedido em aberto.
-  { label: 'Pagamentos AbacatePay (legado, desativável)', vars: ['ABACATEPAY_KEY'], optional: true },
   // Têm padrão no código (mercadopago / sandbox).
   { label: 'Pagamentos — ajustes com padrão', vars: ['PAYMENTS_PROVIDER', 'PAYMENTS_ENV'], optional: true },
   {
@@ -179,7 +178,7 @@ function rawSiteUrl(): string | undefined {
 
 /**
  * Resolve a URL pública e grava o resultado normalizado em `process.env.URL`,
- * que é o nome que abacate-checkout, shorten e o módulo de pagamentos leem.
+ * que é o nome que shorten e o módulo de pagamentos leem.
  *
  * O valor NUNCA é embutido no código: sai sempre do ambiente.
  */

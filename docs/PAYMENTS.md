@@ -673,8 +673,11 @@ Antes de virar a chave:
 
 Pendências conhecidas:
 
-- `abacate-checkout` / `fmm-claim` continuam registrados para não quebrar links
-  antigos; remover quando não houver mais pedidos AbacatePay em aberto;
+- `fmm-claim` continua registrado porque o **app do FMM** o consulta por `?ref=`
+  para recuperar a chave de um pedido antigo. Só faz leitura: encontra o pedido
+  em `fmm_orders` e devolve a chave já emitida. Um pedido legado sem chave
+  responde 409 e vira emissão manual, já que não há mais como verificar aquele
+  pagamento;
 - webhook perdido: a licença e o e-mail de confirmação são entregues pela
   reconciliação do polling; um webhook posterior é deduplicado;
 - cobrança de cartão salvo (`chargeSavedPaymentMethod`) exige um token novo do

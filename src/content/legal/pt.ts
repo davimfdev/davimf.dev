@@ -249,8 +249,8 @@ export const legalPt: LegalContent = {
       {
         heading: 'Como solicitar',
         paragraphs: [
-          `Envie um pedido para ${COMPANY.billingEmail} informando o e-mail da conta e o número do pedido. O número do pedido está no e-mail de confirmação da compra e na área "Meus pedidos".`,
-          'Confirmamos o recebimento e processamos o reembolso pelo mesmo meio de pagamento utilizado na compra.',
+          `Você pode solicitar o exercício do direito de arrependimento diretamente na área "Meus pedidos", pelo botão "Solicitar reembolso", ou pelo e-mail ${COMPANY.billingEmail}, informando o e-mail da conta e o número do pedido.`,
+          'Confirmamos imediatamente o recebimento da solicitação.',
         ],
       },
       {

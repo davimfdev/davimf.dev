@@ -242,8 +242,8 @@ export const legalEn: LegalContent = {
       {
         heading: 'How to request',
         paragraphs: [
-          `Send a request to ${COMPANY.billingEmail} with your account email and the order number. The order number is in your purchase confirmation email and in the "My orders" area.`,
-          'We confirm receipt and process the refund through the same payment method used for the purchase.',
+          `You can exercise your right of withdrawal directly in the "Meus pedidos" area, using the "Solicitar reembolso" button, or by writing to ${COMPANY.billingEmail} with your account email and the order number.`,
+          'We confirm receipt of the request immediately.',
         ],
       },
       {

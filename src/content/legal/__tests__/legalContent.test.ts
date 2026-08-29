@@ -123,4 +123,11 @@ describe('conteúdo legal', () => {
     expect(pt).toContain('token');
     expect(pt).toMatch(/não armazenamos|nunca passam/i);
   });
+
+  it('a política aponta o caminho que existe no site', () => {
+    const pt = allText(legal.pt.refund).join(' ');
+    expect(pt).toContain('Meus pedidos');
+    expect(pt).toContain('Solicitar reembolso');
+    expect(pt).toContain('Confirmamos imediatamente o recebimento');
+  });
 });

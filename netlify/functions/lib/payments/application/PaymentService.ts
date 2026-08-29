@@ -472,6 +472,7 @@ export class PaymentService {
       amountCents: order.amountCents,
       currency: order.currency,
       method: payment.method,
+      legalAcceptance: order.legalAcceptance,
     };
   }
 

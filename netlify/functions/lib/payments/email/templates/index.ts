@@ -6,7 +6,9 @@
  * chega pronta, já persistida — o e-mail NUNCA é onde ela nasce.
  */
 
+import { siteUrl } from '../../config';
 import { formatMoney } from '../../domain/money';
+import type { LegalAcceptance } from '../../domain/types';
 import type { EmailMessage } from '../EmailProvider';
 import {
   BRAND,
@@ -40,6 +42,14 @@ export type OrderSummary = {
   amountCents: number;
   currency: string;
   method: string;
+  /**
+   * Versão dos documentos legais aceita neste pedido, com o hash calculado
+   * pelo nosso próprio registro. `undefined` quando o chamador ainda não foi
+   * atualizado para informar o dado; `null` quando o pedido é anterior à
+   * migração e nunca teve aceite registrado — os dois casos renderizam o
+   * e-mail igual, sem o bloco de links.
+   */
+  legalAcceptance?: LegalAcceptance | null;
 };
 
 function baseRows(order: OrderSummary, extra: DetailRow[] = []): DetailRow[] {
@@ -61,6 +71,45 @@ function formatDate(iso: string | null): string {
 
 // ---------------------------------------------------------- pedido criado --
 
+/**
+ * Links para o SNAPSHOT exato aceito neste pedido — não para os documentos
+ * atuais. `/legal/<versão>/...` é imutável, então o link continua mostrando
+ * o texto que o cliente realmente aceitou mesmo depois de os documentos
+ * serem revisados (Decreto 7.962/2013: o fornecedor tem que entregar o
+ * contrato num formato que o consumidor consiga guardar e reproduzir).
+ */
+function legalAcceptanceBlock(acceptance: LegalAcceptance | null | undefined): string {
+  if (!acceptance) return '';
+  const version = encodeURIComponent(acceptance.version);
+  const base = siteUrl();
+  const termsUrl = `${base}/legal/${version}/terms-of-service`;
+  const privacyUrl = `${base}/legal/${version}/privacy-policy`;
+  const refundUrl = `${base}/legal/${version}/refund-policy`;
+
+  return (
+    `<p style="margin:0 0 10px;font-size:14px;font-weight:600;color:${BRAND.accent};">Documentos aceitos neste pedido</p>` +
+    `<ul style="margin:0 0 16px;padding-left:20px;font-size:14px;line-height:1.8;color:${BRAND.muted};">
+       <li><a href="${escapeHtml(termsUrl)}" style="color:${BRAND.accent};">Termos de serviço</a></li>
+       <li><a href="${escapeHtml(privacyUrl)}" style="color:${BRAND.accent};">Política de privacidade</a></li>
+       <li><a href="${escapeHtml(refundUrl)}" style="color:${BRAND.accent};">Política de reembolso</a></li>
+     </ul>` +
+    notice('Estes links levam à versão exata que você aceitou nesta compra — mesmo que os documentos sejam revisados depois, o conteúdo aqui não muda.')
+  );
+}
+
+function legalAcceptanceLines(acceptance: LegalAcceptance | null | undefined): string[] {
+  if (!acceptance) return [];
+  const version = encodeURIComponent(acceptance.version);
+  const base = siteUrl();
+  return [
+    '',
+    'Documentos aceitos neste pedido:',
+    `Termos de serviço: ${base}/legal/${version}/terms-of-service`,
+    `Política de privacidade: ${base}/legal/${version}/privacy-policy`,
+    `Política de reembolso: ${base}/legal/${version}/refund-policy`,
+  ];
+}
+
 export function orderCreatedEmail(order: OrderSummary): RenderedEmail {
   const subject = `Pedido ${order.reference} criado`;
   return {
@@ -70,13 +119,15 @@ export function orderCreatedEmail(order: OrderSummary): RenderedEmail {
       preheader: `Pedido ${order.reference} aguardando pagamento.`,
       body:
         paragraph('Seu pedido foi registrado e está aguardando a confirmação do pagamento.') +
-        detailsTable(baseRows(order)),
+        detailsTable(baseRows(order)) +
+        legalAcceptanceBlock(order.legalAcceptance),
     }),
     text: renderText([
       'Recebemos seu pedido.',
       `Pedido: ${order.reference}`,
       `Produto: ${order.productName}`,
       `Valor: ${formatMoney(order.amountCents, order.currency)}`,
+      ...legalAcceptanceLines(order.legalAcceptance),
     ]),
   };
 }

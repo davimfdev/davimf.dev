@@ -297,6 +297,8 @@ describe('CheckoutModal com desafio 3DS embutido', () => {
     for (const [label, value] of values) {
       fireEvent.change(screen.getByLabelText(label), { target: { value } });
     }
+    // Aceite dos documentos legais — sem ele o botão fica desabilitado.
+    fireEvent.click(screen.getByLabelText(/Li e concordo com os/));
 
     fireEvent.click(screen.getByRole('button', { name: 'Continuar' }));
     fireEvent.click(await screen.findByRole('button', { name: /Cartão/ }));

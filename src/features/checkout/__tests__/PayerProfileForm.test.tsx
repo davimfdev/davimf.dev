@@ -13,9 +13,11 @@
 import type { ComponentProps } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { PayerProfileForm, emptyPayerProfileValues, type PayerProfileFormValues } from '../PayerProfileForm';
 import { CheckoutModal } from '../CheckoutModal';
 import type { CatalogProduct, PayerProfile } from '../api';
+import { CURRENT_LEGAL_VERSION } from '../../../content/legal';
 
 const { paymentsApiMock } = vi.hoisted(() => ({
   paymentsApiMock: {
@@ -286,8 +288,17 @@ describe('CheckoutModal com perfil reutilizável', () => {
   });
 
   async function openCheckout(): Promise<void> {
-    render(<CheckoutModal product={PRODUCT} onClose={() => undefined} />);
+    render(
+      <MemoryRouter>
+        <CheckoutModal product={PRODUCT} onClose={() => undefined} />
+      </MemoryRouter>,
+    );
     await waitFor(() => expect(paymentsApiMock.payerProfile.get).toHaveBeenCalledTimes(1));
+  }
+
+  /** Aceite dos documentos legais — nasce desmarcado, igual ao consentimento de perfil. */
+  function acceptLegal(): void {
+    fireEvent.click(screen.getByLabelText(/Li e concordo com os/));
   }
 
   function fillPayer(): void {
@@ -311,6 +322,7 @@ describe('CheckoutModal com perfil reutilizável', () => {
   }
 
   async function goToPix(): Promise<void> {
+    acceptLegal();
     fireEvent.click(screen.getByRole('button', { name: 'Continuar' }));
     const pixButton = await screen.findByRole('button', { name: /Gerar Pix/ });
     fireEvent.click(pixButton);
@@ -387,6 +399,7 @@ describe('CheckoutModal com perfil reutilizável', () => {
     setDeviceSessionId(undefined);
     await openCheckout();
     fillPayer();
+    acceptLegal();
 
     fireEvent.click(screen.getByRole('button', { name: 'Continuar' }));
     const pixButton = await screen.findByRole('button', { name: /Gerar Pix/ });
@@ -433,6 +446,7 @@ describe('CheckoutModal com perfil reutilizável', () => {
     await openCheckout();
     fillPayer();
     fireEvent.click(screen.getByLabelText('Salvar meus dados para próximas compras'));
+    acceptLegal();
     fireEvent.click(screen.getByRole('button', { name: 'Continuar' }));
 
     fireEvent.click(await screen.findByRole('button', { name: /Cartão/ }));
@@ -475,7 +489,11 @@ describe('CheckoutModal com perfil reutilizável', () => {
       }),
     );
 
-    render(<CheckoutModal product={PRODUCT} onClose={() => undefined} />);
+    render(
+      <MemoryRouter>
+        <CheckoutModal product={PRODUCT} onClose={() => undefined} />
+      </MemoryRouter>,
+    );
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Joana' } });
     fireEvent.change(screen.getByLabelText('Cidade'), { target: { value: 'Goiania' } });
 
@@ -487,5 +505,44 @@ describe('CheckoutModal com perfil reutilizável', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: 'Apagar dados salvos' })).toBeTruthy());
     expect((screen.getByLabelText('Nome') as HTMLInputElement).value).toBe('Joana');
     expect((screen.getByLabelText('Cidade') as HTMLInputElement).value).toBe('Goiania');
+  });
+
+  /**
+   * Aceite dos documentos legais. Igual ao consentimento de perfil, nasce
+   * desmarcado — mas aqui, diferente do perfil, sem ele NADA pode ser pago:
+   * o backend exige `legalVersion` para criar o pedido.
+   */
+  describe('aceite dos documentos legais', () => {
+    it('nasce desmarcado a cada abertura do modal', async () => {
+      await openCheckout();
+
+      expect((screen.getByLabelText(/Li e concordo com os/) as HTMLInputElement).checked).toBe(false);
+    });
+
+    it('impede pagar enquanto o aceite não é dado', async () => {
+      await openCheckout();
+      fillPayer();
+
+      expect((screen.getByRole('button', { name: 'Continuar' }) as HTMLButtonElement).disabled).toBe(true);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Continuar' }));
+      expect(paymentsApiMock.checkout).not.toHaveBeenCalled();
+    });
+
+    it('libera pagar e envia legalVersion assim que o aceite é marcado', async () => {
+      await openCheckout();
+      fillPayer();
+      await goToPix();
+
+      expect(paymentsApiMock.checkout.mock.calls[0][0]).toMatchObject({ legalVersion: CURRENT_LEGAL_VERSION });
+    });
+
+    it('vincula os três documentos legais no rótulo', async () => {
+      await openCheckout();
+
+      expect(screen.getByRole('link', { name: 'Termos de Uso' }).getAttribute('href')).toBe('/terms-of-service');
+      expect(screen.getByRole('link', { name: 'Política de Reembolso' }).getAttribute('href')).toBe('/refund-policy');
+      expect(screen.getByRole('link', { name: 'Política de Privacidade' }).getAttribute('href')).toBe('/privacy-policy');
+    });
   });
 });

@@ -14,6 +14,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Banknote, CreditCard, Loader2, QrCode, RefreshCw, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { CURRENT_LEGAL_VERSION } from '../../content/legal';
 import {
   ApiError,
   formatMoney,
@@ -57,6 +59,10 @@ export function CheckoutModal({ product, onClose }: Props) {
   const [step, setStep] = useState<Step>('identify');
   const [method, setMethod] = useState<Method>('pix');
   const [autoRenew, setAutoRenew] = useState(false);
+  // Aceite dos documentos legais. NASCE desmarcado — igual ao consentimento
+  // de perfil abaixo — e é o que o backend exige (`legalVersion`) para criar
+  // o pedido: sem ele, o clique nem chega a chamar a API.
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
 
   const [payerValues, setPayerValues] = useState<PayerProfileFormValues>(emptyPayerProfileValues);
   // Vira `true` no primeiro caractere digitado: o pré-preenchimento tardio do
@@ -170,6 +176,8 @@ export function CheckoutModal({ product, onClose }: Props) {
       quantity: 1,
       autoRenew: autoRenew && recurringAvailable,
       idempotencyKey: idempotencyKey.current,
+      // A versão vigente no momento do aceite — o backend recusa sem ela.
+      legalVersion: CURRENT_LEGAL_VERSION,
     });
     setOrder(created);
     return created;
@@ -384,11 +392,56 @@ export function CheckoutModal({ product, onClose }: Props) {
               </label>
             )}
 
+            {/* Aceite explícito dos documentos — a transação depende de contrato e
+                obrigação legal, não de consentimento, por isso "ciência" na
+                Política de Privacidade e não "consinto". */}
+            <label className="flex items-start gap-3 cursor-pointer rounded-lg border border-white/10 px-3.5 py-3 hover:border-white/20 transition-colors">
+              <input
+                type="checkbox"
+                checked={acceptedLegal}
+                onChange={(event) => setAcceptedLegal(event.target.checked)}
+                className="mt-0.5 accent-[#E6B566]"
+              />
+              <span className="text-xs text-[#A8A8A4]">
+                Li e concordo com os{' '}
+                <Link
+                  to="/terms-of-service"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(event) => event.stopPropagation()}
+                  className="font-medium text-[#F5F3EF] underline hover:text-accent"
+                >
+                  Termos de Uso
+                </Link>{' '}
+                e a{' '}
+                <Link
+                  to="/refund-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(event) => event.stopPropagation()}
+                  className="font-medium text-[#F5F3EF] underline hover:text-accent"
+                >
+                  Política de Reembolso
+                </Link>
+                , e declaro ter ciência da{' '}
+                <Link
+                  to="/privacy-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(event) => event.stopPropagation()}
+                  className="font-medium text-[#F5F3EF] underline hover:text-accent"
+                >
+                  Política de Privacidade
+                </Link>
+                .
+              </span>
+            </label>
+
             {error && (
               <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>
             )}
 
-            <button type="submit" disabled={submitting} className="btn-primary w-full disabled:opacity-60">
+            <button type="submit" disabled={submitting || !acceptedLegal} className="btn-primary w-full disabled:opacity-60">
               {submitting ? <><Loader2 size={16} className="animate-spin mr-2" /> Criando pedido…</> : 'Continuar'}
             </button>
           </form>

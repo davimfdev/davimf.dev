@@ -181,8 +181,20 @@ export const paymentsApi = {
   products: (family?: string) =>
     call<{ products: CatalogProduct[] }>(`/api/payments/products${family ? `?family=${encodeURIComponent(family)}` : ''}`),
 
-  /** Só produto + intenção. O valor final é decidido pelo backend. */
-  checkout: (input: { productCode: string; email: string; quantity?: number; autoRenew?: boolean; idempotencyKey: string }) =>
+  /**
+   * Só produto + intenção. O valor final é decidido pelo backend.
+   *
+   * `legalVersion` é o identificador do snapshot que o cliente viu e aceitou
+   * (a caixa de aceite do checkout) — sem ele o backend recusa o pedido.
+   */
+  checkout: (input: {
+    productCode: string;
+    email: string;
+    quantity?: number;
+    autoRenew?: boolean;
+    idempotencyKey: string;
+    legalVersion: string;
+  }) =>
     call<{ order: CheckoutOrder; product: CatalogProduct; reused: boolean }>('/api/payments/checkout', {
       method: 'POST',
       body: JSON.stringify(input),

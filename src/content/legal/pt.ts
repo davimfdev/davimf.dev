@@ -37,7 +37,6 @@ export const legalPt: LegalContent = {
           'Conta: ao entrar com o Discord, recebemos seu identificador, nome de usuário, avatar e e-mail.',
           'Compra: nome, sobrenome, e-mail, CPF ou CNPJ e telefone. Para boleto, também CEP, rua, número, bairro, cidade e estado.',
           'Pagamento: método, status, valor, e — no cartão — apenas bandeira e os quatro últimos dígitos.',
-          'Uso do site: métricas de audiência, somente se você consentir com os cookies de análise.',
           'Segurança: um identificador do dispositivo gerado pelo SDK do Mercado Pago no seu navegador, enviado junto da cobrança para prevenção a fraude.',
           'Dados técnicos: como todo servidor web, a infraestrutura que hospeda o site registra endereço IP, data e hora de acesso e informações básicas do navegador e do dispositivo, necessários à segurança, ao diagnóstico e à prevenção de abuso.',
           'Suporte: o conteúdo das mensagens que você nos envia.',
@@ -59,7 +58,6 @@ export const legalPt: LegalContent = {
           'Execução do contrato (art. 7º, V): processar a compra, entregar a licença, prestar suporte e gerenciar assinaturas.',
           'Obrigação legal e regulatória (art. 7º, II): guarda de registros fiscais e contábeis da venda.',
           'Legítimo interesse (art. 7º, IX): prevenção a fraude e segurança da operação, incluindo o identificador de dispositivo enviado ao Mercado Pago na cobrança.',
-          'Consentimento (art. 7º, I): cookies de análise de audiência, que só são carregados após você aceitar.',
         ],
       },
       {
@@ -72,16 +70,15 @@ export const legalPt: LegalContent = {
           'Mercado Pago: processamento de pagamento, prevenção a fraude e cumprimento de obrigações financeiras e regulatórias próprias. Recebe os dados do pagador necessários para autorizar a cobrança.',
           'Resend: infraestrutura de envio dos e-mails transacionais de confirmação e de entrega da licença.',
           'Discord: autenticação da sua conta, quando você escolhe entrar por ele.',
-          'Google: Google Analytics, exclusivamente após o seu consentimento com os cookies de análise.',
           'Provedor de infraestrutura: hospedagem do site e do banco de dados.',
         ],
       },
       {
         heading: 'Cookies e tecnologias semelhantes',
         paragraphs: [
-          'Usamos cookies estritamente necessários para manter você autenticado e proteger o formulário de pagamento. Eles não dependem de consentimento porque, sem eles, o site não funciona.',
-          'Usamos também cookies de análise de audiência (Google Analytics), que só são carregados depois que você aceita no aviso exibido na primeira visita. Se você recusar, o script não é carregado.',
-          'Você pode mudar de ideia quando quiser pelo link "Preferências de cookies" no rodapé. Revogar é tão simples quanto aceitar.',
+          'Usamos apenas cookies estritamente necessários: os que mantêm você autenticado e os que protegem o formulário de pagamento. Eles não dependem de consentimento porque, sem eles, o site não funciona.',
+          'Não usamos cookies de análise de audiência, publicidade ou rastreamento de terceiros. Nenhum script de medição é carregado neste site, e por isso não existe aviso de cookies a aceitar ou recusar.',
+          'Se um dia passarmos a medir audiência, esta seção será atualizada antes, e qualquer medição que dependa de consentimento só começará depois de você aceitar.',
         ],
       },
       {
@@ -123,9 +120,12 @@ export const legalPt: LegalContent = {
       {
         heading: 'Transferências internacionais de dados',
         paragraphs: [
-          'Parte dos serviços que utilizamos é operada por empresas sediadas fora do Brasil, e por isso seus dados podem ser tratados ou armazenados no exterior. É o caso de Google, Resend e Discord, e pode ser o caso do provedor de infraestrutura do site.',
-          'Essas transferências existem para viabilizar a execução do contrato, cumprir obrigações legais ou, no caso da análise de audiência, com base no seu consentimento, e se apoiam nos mecanismos previstos no capítulo V da LGPD.',
-          `Para saber a quais países seus dados podem ser transferidos em cada serviço, e sob qual mecanismo, escreva para ${COMPANY.privacyEmail}: respondemos com a informação atualizada de cada fornecedor.`,
+          'O site e o banco de dados são hospedados no BRASIL. Seu cadastro, seus pedidos e suas licenças ficam em território nacional, e essa parte do tratamento não envolve transferência internacional.',
+          'Dois serviços tratam dados no exterior, ambos nos Estados Unidos:',
+        ],
+        bullets: [
+          'Resend (Plus Five Five, Inc., São Francisco, Califórnia): envio dos e-mails transacionais. Recebe o endereço de destino e o conteúdo da mensagem, atua como operador, apoia a transferência nas cláusulas contratuais padrão e apaga os dados em até 90 dias após o encerramento da conta.',
+          'Discord (São Francisco, Califórnia): autenticação, quando você escolhe entrar com a conta Discord. Atua como controlador independente sobre os dados da sua conta Discord, com política de privacidade própria.',
         ],
       },
       {
@@ -287,15 +287,6 @@ export const legalPt: LegalContent = {
         ],
       },
     ],
-  },
-
-  consent: {
-    message:
-      'Usamos cookies necessários para o site funcionar e, com a sua permissão, cookies de análise para entender como o site é usado. Você pode recusar sem prejuízo de nenhuma funcionalidade.',
-    acceptLabel: 'Aceitar análise',
-    rejectLabel: 'Recusar',
-    policyLinkLabel: 'Política de Privacidade',
-    preferencesLabel: 'Preferências de cookies',
   },
 
   footer: {

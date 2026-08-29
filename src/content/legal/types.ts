@@ -43,14 +43,6 @@ export type LegalCompany = {
   billingEmail: string;
 };
 
-export type ConsentCopy = {
-  message: string;
-  acceptLabel: string;
-  rejectLabel: string;
-  policyLinkLabel: string;
-  preferencesLabel: string;
-};
-
 export type LegalFooterCopy = {
   terms: string;
   privacy: string;
@@ -62,6 +54,5 @@ export type LegalContent = {
   privacy: LegalDocument;
   terms: LegalDocument;
   refund: LegalDocument;
-  consent: ConsentCopy;
   footer: LegalFooterCopy;
 };

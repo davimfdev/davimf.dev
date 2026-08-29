@@ -102,20 +102,33 @@ describe('conteúdo legal', () => {
     expect(allText(legal.en.refund).join(' ')).toContain('financeiro@davimf.dev');
   });
 
-  it('a privacidade declara transferência internacional', () => {
-    // Google, Resend, Discord e Mercado Pago tratam dados fora do Brasil;
-    // silêncio aqui insinuaria que não há transferência.
-    expect(allText(legal.pt.privacy).join(' ')).toContain('fora do Brasil');
-    expect(allText(legal.en.privacy).join(' ')).toContain('outside Brazil');
+  it('a privacidade nomeia quem trata dados no exterior e quem não trata', () => {
+    // Hospedagem e banco são brasileiros (Magno Host); só Resend e Discord
+    // tratam nos EUA. Dizer "pode haver transferência" sem nomear seria vago,
+    // e omitir a hospedagem nacional daria a impressão oposta.
+    const pt = allText(legal.pt.privacy).join(' ');
+    expect(pt).toContain('hospedados no BRASIL');
+    expect(pt).toContain('Resend');
+    expect(pt).toContain('Discord');
+    expect(pt).toContain('Estados Unidos');
+
+    const en = allText(legal.en.privacy).join(' ');
+    expect(en).toContain('hosted in BRAZIL');
+    expect(en).toContain('United States');
   });
 
-  it('a política de privacidade declara o rastreamento em vez de negá-lo', () => {
+  it('a privacidade só nega rastreamento porque ele foi removido do código', () => {
+    // Esta afirmação já foi FALSA uma vez: o texto antigo negava rastreamento
+    // de terceiros enquanto o Google Analytics carregava em toda página. Ela
+    // só pode existir enquanto nenhum script de medição for carregado — ver o
+    // teste correspondente em components/__tests__/LegalFooter.test.tsx.
     const pt = allText(legal.pt.privacy).join(' ');
-    expect(pt).toContain('Google Analytics');
-    expect(pt).toContain('consentimento');
-    // O texto antigo afirmava que não havia rastreamento de terceiros enquanto
-    // o Google Analytics carregava em toda página.
-    expect(pt).not.toContain('Não vendemos ou usamos seus dados para rastreamento');
+    expect(pt).toContain('Não usamos cookies de análise de audiência');
+    expect(pt).not.toContain('Google Analytics');
+
+    const en = allText(legal.en.privacy).join(' ');
+    expect(en).toContain('no analytics, advertising or third-party tracking');
+    expect(en).not.toContain('Google Analytics');
   });
 
   it('a privacidade afirma que dado de cartão não chega ao servidor', () => {

@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 // MODIFICADO: Adicionado LogOut na lista de imports
 import { Menu, X, Github, Linkedin, Mail, Globe, MessageCircle, Phone, User, ChevronDown, LogOut, Bot } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import ConsentBanner, { useConsentPreferences } from '../features/consent/ConsentBanner';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -25,7 +24,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   const { language, setLanguage, translations, legal } = useLanguage();
-  const consent = useConsentPreferences();
 
   const navigation = [
     { name: translations.home, href: '/' },
@@ -286,14 +284,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <Link to="/refund-policy" className="text-gray-400 hover:text-white transition-colors">
                 {legal.footer.refund}
               </Link>
-              {/* Revogar precisa ser tão fácil quanto consentir (LGPD, art. 8º §5º). */}
-              <button
-                type="button"
-                onClick={consent.reopen}
-                className="text-gray-400 hover:text-white transition-colors underline-offset-2 hover:underline"
-              >
-                {legal.consent.preferencesLabel}
-              </button>
             </div>
 
             <div className="flex flex-col md:flex-row justify-between items-center">
@@ -323,8 +313,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </div>
           </div>
         </footer>
-
-        <ConsentBanner visible={consent.visible} onDecide={consent.decide} />
       </div>
   );
 };

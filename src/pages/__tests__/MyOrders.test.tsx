@@ -38,7 +38,8 @@ vi.mock('../../features/checkout/api', () => {
 });
 
 const RECENT = { id: 'ord-1', reference: 'DVMF-1', productName: 'FMM Pro', amountCents: 20000,
-  currency: 'BRL', status: 'PAID', createdAt: '2026-08-27T12:00:00.000Z', paidAt: '2026-08-27T12:00:00.000Z' };
+  currency: 'BRL', status: 'PAID', createdAt: '2026-08-27T12:00:00.000Z', paidAt: '2026-08-27T12:00:00.000Z',
+  legalAcceptance: null };
 const OLD = { ...RECENT, id: 'ord-2', reference: 'DVMF-2', paidAt: '2026-07-01T12:00:00.000Z' };
 const REFUNDED = { ...RECENT, id: 'ord-3', reference: 'DVMF-3', status: 'REFUNDED' };
 // Relógio dessincronizado: pagamento datado no FUTURO. O servidor manda esse
@@ -191,5 +192,36 @@ describe('Meus pedidos', () => {
 
     resolveRefund({ outcome: 'refunded' });
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('mostra a versão dos documentos aceita, com links para o snapshot exato', async () => {
+    const withAcceptance = {
+      ...RECENT,
+      legalAcceptance: {
+        version: '2026-08-28-v1',
+        acceptedAt: '2026-08-28T12:00:00.000Z',
+        termsHash: 'hash-terms',
+        privacyHash: 'hash-privacy',
+        refundHash: 'hash-refund',
+      },
+    };
+    vi.mocked(paymentsApi.orders).mockResolvedValue({ orders: [withAcceptance] } as never);
+    renderPage();
+
+    expect(await screen.findByText(/2026-08-28-v1/)).toBeTruthy();
+    const terms = screen.getByRole('link', { name: /termos de serviço/i });
+    const privacy = screen.getByRole('link', { name: /política de privacidade/i });
+    const refund = screen.getByRole('link', { name: /política de reembolso/i });
+    expect(terms.getAttribute('href')).toBe('/legal/2026-08-28-v1/terms-of-service');
+    expect(privacy.getAttribute('href')).toBe('/legal/2026-08-28-v1/privacy-policy');
+    expect(refund.getAttribute('href')).toBe('/legal/2026-08-28-v1/refund-policy');
+  });
+
+  it('pedido sem aceite registrado (anterior à migração) não mostra a linha de documentos', async () => {
+    vi.mocked(paymentsApi.orders).mockResolvedValue({ orders: [RECENT] } as never);
+    renderPage();
+
+    await screen.findByText(/DVMF-1/);
+    expect(screen.queryByRole('link', { name: /termos de serviço/i })).toBeNull();
   });
 });

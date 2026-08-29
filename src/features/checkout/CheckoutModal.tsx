@@ -405,7 +405,7 @@ export function CheckoutModal({ product, onClose }: Props) {
               <span className="text-xs text-[#A8A8A4]">
                 Li e concordo com os{' '}
                 <Link
-                  to="/terms-of-service"
+                  to={`/legal/${CURRENT_LEGAL_VERSION}/terms-of-service`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(event) => event.stopPropagation()}
@@ -415,7 +415,7 @@ export function CheckoutModal({ product, onClose }: Props) {
                 </Link>{' '}
                 e a{' '}
                 <Link
-                  to="/refund-policy"
+                  to={`/legal/${CURRENT_LEGAL_VERSION}/refund-policy`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(event) => event.stopPropagation()}
@@ -425,7 +425,7 @@ export function CheckoutModal({ product, onClose }: Props) {
                 </Link>
                 , e declaro ter ciência da{' '}
                 <Link
-                  to="/privacy-policy"
+                  to={`/legal/${CURRENT_LEGAL_VERSION}/privacy-policy`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(event) => event.stopPropagation()}

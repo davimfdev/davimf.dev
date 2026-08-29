@@ -207,6 +207,36 @@ const MyOrders = () => {
                   {order.paidAt && <span>Pago em {formatDate(order.paidAt)}</span>}
                 </div>
 
+                {/* Reconstrói o que o cliente aceitou nesta compra, sem depender
+                    de quem tem acesso ao banco. Os links levam ao SNAPSHOT
+                    exato (`/legal/<versão>/...`), não ao documento vigente. */}
+                {order.legalAcceptance && (
+                  <p className="mt-2 text-xs text-[#6B6B67]">
+                    Documentos aceitos (versão {order.legalAcceptance.version}):{' '}
+                    <Link
+                      to={`/legal/${order.legalAcceptance.version}/terms-of-service`}
+                      className="text-accent hover:underline"
+                    >
+                      Termos de serviço
+                    </Link>
+                    {', '}
+                    <Link
+                      to={`/legal/${order.legalAcceptance.version}/privacy-policy`}
+                      className="text-accent hover:underline"
+                    >
+                      Política de privacidade
+                    </Link>
+                    {' e '}
+                    <Link
+                      to={`/legal/${order.legalAcceptance.version}/refund-policy`}
+                      className="text-accent hover:underline"
+                    >
+                      Política de reembolso
+                    </Link>
+                    .
+                  </p>
+                )}
+
                 <div className="mt-4">
                   {outcome ? (
                     <p className="text-sm text-[#A8A8A4]">{OUTCOME_MESSAGE[outcome]}</p>

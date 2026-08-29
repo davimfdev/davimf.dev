@@ -537,12 +537,19 @@ describe('CheckoutModal com perfil reutilizável', () => {
       expect(paymentsApiMock.checkout.mock.calls[0][0]).toMatchObject({ legalVersion: CURRENT_LEGAL_VERSION });
     });
 
-    it('vincula os três documentos legais no rótulo', async () => {
+    // Linka o SNAPSHOT exato (`/legal/<versão>/...`), não o documento vigente:
+    // é a mesma versão enviada como `legalVersion` no checkout, então o que o
+    // cliente lê e o que fica registrado nunca podem divergir depois de uma
+    // revisão dos textos.
+    it('vincula a versão exata dos documentos legais no rótulo, não o documento vigente', async () => {
       await openCheckout();
 
-      expect(screen.getByRole('link', { name: 'Termos de Uso' }).getAttribute('href')).toBe('/terms-of-service');
-      expect(screen.getByRole('link', { name: 'Política de Reembolso' }).getAttribute('href')).toBe('/refund-policy');
-      expect(screen.getByRole('link', { name: 'Política de Privacidade' }).getAttribute('href')).toBe('/privacy-policy');
+      expect(screen.getByRole('link', { name: 'Termos de Uso' }).getAttribute('href'))
+        .toBe(`/legal/${CURRENT_LEGAL_VERSION}/terms-of-service`);
+      expect(screen.getByRole('link', { name: 'Política de Reembolso' }).getAttribute('href'))
+        .toBe(`/legal/${CURRENT_LEGAL_VERSION}/refund-policy`);
+      expect(screen.getByRole('link', { name: 'Política de Privacidade' }).getAttribute('href'))
+        .toBe(`/legal/${CURRENT_LEGAL_VERSION}/privacy-policy`);
     });
   });
 });

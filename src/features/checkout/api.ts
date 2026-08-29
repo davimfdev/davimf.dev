@@ -50,6 +50,19 @@ export interface CheckoutOrder {
  * `GET /api/payments/orders` devolve (o `Order` bruto do domínio, sem o nome
  * do produto: o join com o catálogo só existe em `GET /orders/:id`).
  */
+/**
+ * Versão dos documentos legais aceita neste pedido, com o hash calculado pelo
+ * nosso próprio registro. `null` quando o pedido é anterior à migração e
+ * nunca teve aceite registrado.
+ */
+export interface OrderLegalAcceptance {
+  version: string;
+  acceptedAt: string;
+  termsHash: string;
+  privacyHash: string;
+  refundHash: string;
+}
+
 export interface OrderSummary {
   id: string;
   reference: string;
@@ -60,6 +73,7 @@ export interface OrderSummary {
   createdAt: string;
   paidAt: string | null;
   fulfilledAt: string | null;
+  legalAcceptance: OrderLegalAcceptance | null;
 }
 
 export interface LicenseView {

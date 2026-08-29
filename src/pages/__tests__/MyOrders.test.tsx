@@ -15,11 +15,27 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { MemoryRouter } from 'react-router-dom';
 import MyOrders from '../MyOrders';
 import { LanguageProvider } from '../../context/LanguageContext';
-import { paymentsApi } from '../../features/checkout/api';
+import { ApiError, paymentsApi } from '../../features/checkout/api';
 
-vi.mock('../../features/checkout/api', () => ({
-  paymentsApi: { orders: vi.fn(), refundRequest: vi.fn() },
-}));
+// `ApiError` precisa ser uma classe de verdade no mock: o componente faz
+// `caught instanceof ApiError` para decidir se mostra a mensagem do servidor
+// ou uma mensagem genérica — sem isso o `instanceof` quebraria no teste.
+vi.mock('../../features/checkout/api', () => {
+  class ApiError extends Error {
+    code: string;
+    status: number;
+    constructor(code: string, message: string, status: number) {
+      super(message);
+      this.name = 'ApiError';
+      this.code = code;
+      this.status = status;
+    }
+  }
+  return {
+    paymentsApi: { orders: vi.fn(), refundRequest: vi.fn() },
+    ApiError,
+  };
+});
 
 const RECENT = { id: 'ord-1', reference: 'DVMF-1', productName: 'FMM Pro', amountCents: 20000,
   currency: 'BRL', status: 'PAID', createdAt: '2026-08-27T12:00:00.000Z', paidAt: '2026-08-27T12:00:00.000Z' };
@@ -83,5 +99,80 @@ describe('Meus pedidos', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Solicitar análise' }));
 
     expect(screen.queryByText(/revogad/i)).toBeNull();
+  });
+
+  it('depois do sucesso, a linha para de oferecer a ação e mostra o resultado', async () => {
+    vi.mocked(paymentsApi.orders).mockResolvedValue({ orders: [RECENT] } as never);
+    vi.mocked(paymentsApi.refundRequest).mockResolvedValue({ outcome: 'refunded' } as never);
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: 'Solicitar reembolso' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
+
+    // A mensagem de resultado aparece e o botão que dispararia um novo
+    // pedido (agora sem sentido — o pedido já foi reembolsado) some.
+    expect(await screen.findByText(/Reembolso confirmado/)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Solicitar reembolso' })).toBeNull();
+  });
+
+  it('mostra a mensagem do servidor quando a API recusa com 409', async () => {
+    vi.mocked(paymentsApi.orders).mockResolvedValue({ orders: [RECENT] } as never);
+    vi.mocked(paymentsApi.refundRequest).mockRejectedValue(
+      new ApiError('REFUND_ALREADY_PROCESSED', 'Este pedido já foi reembolsado.', 409),
+    );
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: 'Solicitar reembolso' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
+
+    expect(await screen.findByText('Este pedido já foi reembolsado.')).toBeTruthy();
+  });
+
+  it('mostra a mensagem do servidor quando a API falha com 500', async () => {
+    vi.mocked(paymentsApi.orders).mockResolvedValue({ orders: [RECENT] } as never);
+    vi.mocked(paymentsApi.refundRequest).mockRejectedValue(
+      new ApiError('INTERNAL_ERROR', 'Erro interno. Tente novamente em instantes.', 500),
+    );
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: 'Solicitar reembolso' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
+
+    expect(await screen.findByText('Erro interno. Tente novamente em instantes.')).toBeTruthy();
+  });
+
+  it('não envia a análise com descrição vazia ou só espaços', async () => {
+    vi.mocked(paymentsApi.orders).mockResolvedValue({ orders: [OLD] } as never);
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: 'Solicitar análise' }));
+
+    const submit = screen.getByRole('button', { name: 'Enviar' });
+    expect(submit.getAttribute('disabled')).not.toBeNull();
+
+    const textarea = screen.getByPlaceholderText('Descreva o problema…');
+    fireEvent.change(textarea, { target: { value: '   ' } });
+    expect(submit.getAttribute('disabled')).not.toBeNull();
+
+    fireEvent.click(submit);
+    expect(paymentsApi.refundRequest).not.toHaveBeenCalled();
+  });
+
+  it('clique duplo em Confirmar dispara só uma requisição', async () => {
+    vi.mocked(paymentsApi.orders).mockResolvedValue({ orders: [RECENT] } as never);
+    // Promessa controlada manualmente: mantém o pedido "em voo" durante os
+    // dois cliques, para provar que o segundo não dispara outra chamada.
+    let resolveRefund: (value: { outcome: 'refunded' }) => void = () => {};
+    const pending = new Promise<{ outcome: 'refunded' }>((resolve) => {
+      resolveRefund = resolve;
+    });
+    vi.mocked(paymentsApi.refundRequest).mockReturnValue(pending as never);
+
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: 'Solicitar reembolso' }));
+    const confirm = screen.getByRole('button', { name: 'Confirmar' });
+    fireEvent.click(confirm);
+    fireEvent.click(confirm);
+
+    expect(paymentsApi.refundRequest).toHaveBeenCalledTimes(1);
+
+    resolveRefund({ outcome: 'refunded' });
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 });

@@ -1,4 +1,4 @@
-import type { LegalContent } from './types';
+import type { LegalContent } from '../../types';
 
 const COMPANY = {
   name: '66.482.628 DAVI MONTEIRO FONSECA',

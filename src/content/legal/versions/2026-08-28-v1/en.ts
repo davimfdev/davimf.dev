@@ -1,4 +1,4 @@
-import type { LegalContent } from './types';
+import type { LegalContent } from '../../types';
 import { legalPt } from './pt';
 
 /**

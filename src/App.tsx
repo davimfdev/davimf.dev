@@ -81,6 +81,9 @@ function App() {
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
+              <Route path="/legal/:version/terms-of-service" element={<TermsOfService />} />
+              <Route path="/legal/:version/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/legal/:version/refund-policy" element={<RefundPolicy />} />
               <Route path="/fmm" element={<FmmPlans />} />
               <Route path="/fmm-activated" element={<FmmActivated />} />
               <Route path="/my-keys" element={<MyKeys />} />

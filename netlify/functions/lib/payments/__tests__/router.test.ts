@@ -162,6 +162,33 @@ describe('roteador de pagamentos', () => {
     expect(response.status).toBe(401);
   });
 
+  it('recusa checkout sem aceite dos documentos', async () => {
+    authenticate();
+    const response = await routePaymentsRequest(
+      request('/api/payments/checkout', {
+        method: 'POST',
+        body: JSON.stringify({ productCode: 'fmm-pro-lifetime', email: 'a@b.com', idempotencyKey: 'k1' }),
+      }),
+    );
+    expect(response.status).toBe(400);
+    expect((await response.json() as { error: { code: string } }).error.code).toBe('LEGAL_ACCEPTANCE_REQUIRED');
+  });
+
+  it('recusa uma versão de documentos que nunca publicamos', async () => {
+    authenticate();
+    const response = await routePaymentsRequest(
+      request('/api/payments/checkout', {
+        method: 'POST',
+        body: JSON.stringify({
+          productCode: 'fmm-pro-lifetime', email: 'a@b.com', idempotencyKey: 'k1',
+          legalVersion: '1999-01-01-v1',
+        }),
+      }),
+    );
+    expect(response.status).toBe(400);
+    expect((await response.json() as { error: { code: string } }).error.code).toBe('LEGAL_VERSION_UNKNOWN');
+  });
+
   it('exige sessão para ler licenças', async () => {
     const response = await routePaymentsRequest(request('/api/payments/licenses'));
     expect(response.status).toBe(401);

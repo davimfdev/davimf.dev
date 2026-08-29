@@ -26,6 +26,14 @@ import { WebhookService } from '../webhooks/WebhookService';
 import { FakeSql, licenseRow, orderRow, paymentRow, productRow, uninstallSql } from './helpers';
 import type { SqlRow } from '../infrastructure/db';
 
+const LEGAL_ACCEPTANCE = {
+  version: '2026-08-28-v1',
+  acceptedAt: '2026-08-29T12:00:00.000Z',
+  termsHash: 'a'.repeat(64),
+  privacyHash: 'b'.repeat(64),
+  refundHash: 'c'.repeat(64),
+};
+
 // ------------------------------------------------------------- provider ----
 
 function pixResult(overrides: Partial<ProviderPaymentResult> = {}): ProviderPaymentResult {
@@ -269,6 +277,7 @@ describe('preço', () => {
       userId: 'discord-1',
       userEmail: 'comprador@example.com',
       productCode: 'fmm-pro-monthly',
+      legalAcceptance: LEGAL_ACCEPTANCE,
       // Adulteração: o cliente tenta injetar valor. Nenhum caminho o lê.
       ...({ amountCents: 1, priceCents: 1, amount: 1 } as unknown as Record<string, never>),
     });
@@ -283,6 +292,7 @@ describe('preço', () => {
         userEmail: 'comprador@example.com',
         productCode: 'fmm-pro-lifetime',
         autoRenew: true,
+        legalAcceptance: LEGAL_ACCEPTANCE,
       }),
     ).rejects.toBeInstanceOf(ValidationError);
   });

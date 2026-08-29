@@ -23,6 +23,7 @@
  *   POST /api/payments/orders/:orderId/refund-request
  */
 
+import { knownLegalVersion, LEGAL_VERSION_HASHES } from '../legal/versions';
 import { getFmmLicenseService } from './application/FmmLicenseService';
 import { getOrderService } from './application/OrderService';
 import { getPaymentService } from './application/PaymentService';
@@ -31,7 +32,7 @@ import { getRefundRequestService, type RefundRejectionCode } from './application
 import { getSubscriptionService } from './application/SubscriptionService';
 import { FMM_DOWNLOAD_URL, mercadoPagoPublicKey } from './config';
 import { ForbiddenError, ValidationError } from './domain/errors';
-import type { Product } from './domain/types';
+import type { LegalAcceptance, Product } from './domain/types';
 import {
   errorJson,
   headersOf,
@@ -96,10 +97,41 @@ async function handleProducts(request: Request): Promise<Response> {
   return json({ products: products.map(publicProduct) });
 }
 
+/**
+ * O cliente só NOMEIA a versão que aceitou — hash e instante do aceite são
+ * nossos. Aceitar um id que não reconhecemos permitiria alegar aceite de um
+ * texto que nunca publicamos; aceitar um hash vindo do corpo permitiria
+ * alegar aceite de qualquer texto.
+ */
+function requireLegalAcceptance(body: Record<string, unknown>): LegalAcceptance {
+  const raw = body.legalVersion;
+  if (typeof raw !== 'string' || raw.trim() === '') {
+    throw new ValidationError(
+      'É necessário aceitar os Termos de Uso, a Política de Privacidade e a Política de Reembolso.',
+      'LEGAL_ACCEPTANCE_REQUIRED',
+    );
+  }
+  const version = raw.trim();
+  if (version.length > 40 || !knownLegalVersion(version)) {
+    throw new ValidationError('Essa versão dos documentos legais não é reconhecida.', 'LEGAL_VERSION_UNKNOWN');
+  }
+
+  const hashes = LEGAL_VERSION_HASHES[version];
+  return {
+    version,
+    // Relógio do servidor — nunca um instante vindo do corpo da requisição.
+    acceptedAt: new Date().toISOString(),
+    termsHash: hashes.terms,
+    privacyHash: hashes.privacy,
+    refundHash: hashes.refund,
+  };
+}
+
 async function handleCheckout(request: Request): Promise<Response> {
   const user = await requireUser(request);
   const body = await readJson(request);
   rejectRawCardData(body);
+  const legalAcceptance = requireLegalAcceptance(body);
 
   // Nenhum campo de valor é lido: só produto, quantidade e intenção.
   const created = await getOrderService().create({
@@ -109,6 +141,7 @@ async function handleCheckout(request: Request): Promise<Response> {
     quantity: optionalInt(body, 'quantity') ?? 1,
     autoRenew: body.autoRenew === true,
     idempotencyKey: optionalString(body, 'idempotencyKey', 120),
+    legalAcceptance,
   });
 
   return json(

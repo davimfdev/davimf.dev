@@ -9,7 +9,7 @@
 import { randomUUID } from 'node:crypto';
 import { ConflictError, NotFoundError, ValidationError } from '../domain/errors';
 import { multiplyCents } from '../domain/money';
-import type { Order, Product } from '../domain/types';
+import type { LegalAcceptance, Order, Product } from '../domain/types';
 import {
   createOrder,
   findOrderById,
@@ -32,6 +32,12 @@ export type CreateOrderRequest = {
   /** Enviada pelo frontend; protege contra duplo clique/refresh/retry. */
   idempotencyKey?: string;
   metadata?: Record<string, unknown>;
+  /**
+   * Aceite dos documentos legais desta compra. Obrigatório: o router é quem
+   * valida a versão e busca os hashes no nosso registro (`legal/versions`) —
+   * aqui só chega o resultado já verificado, nunca o corpo cru do cliente.
+   */
+  legalAcceptance: LegalAcceptance;
 };
 
 export type CreatedOrder = { order: Order; product: Product; reused: boolean };
@@ -93,6 +99,7 @@ export class OrderService {
       autoRenew,
       idempotencyKey,
       metadata: { ...(request.metadata ?? {}), productName: product.name },
+      legalAcceptance: request.legalAcceptance,
     });
 
     // O ON CONFLICT devolve a linha antiga: se a referência não é a que

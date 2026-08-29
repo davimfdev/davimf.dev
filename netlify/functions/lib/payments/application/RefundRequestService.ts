@@ -69,6 +69,9 @@ export type RefundRequestResult =
 /** Limite espelha `markEventFailed` (PaymentEventRepository): o provider não controla o tamanho do que gravamos. */
 const MAX_PROVIDER_ERROR_LENGTH = 2000;
 
+/** Desfechos que o comprador é avisado — `rejected` nunca confirma recebimento. */
+type RefundAcknowledgeOutcome = 'refunded' | 'manual' | 'reconciliation_required';
+
 type Deps = {
   findOwnedOrder: (orderId: string, userId: string) => Promise<Order | null>;
   listPayments: (orderId: string) => Promise<Array<{ id: string; status: string }>>;
@@ -77,7 +80,12 @@ type Deps = {
     orderId: string; userId: string; outcome: RefundRequestOutcome;
     reasonCode?: string | null; description?: string | null; providerError?: string | null;
   }) => Promise<unknown>;
-  acknowledge: (order: Order, outcome: RefundRequestOutcome) => Promise<unknown>;
+  /**
+   * Confirmação ao COMPRADOR. O tipo exclui `rejected` de propósito: recusa
+   * não gera confirmação de recebimento, e cada desfecho aqui tem um corpo
+   * próprio em `refundRequestedEmail` — nenhum herda o texto de outro.
+   */
+  acknowledge: (order: Order, outcome: RefundAcknowledgeOutcome) => Promise<unknown>;
   /** Avisa o financeiro. Log de container não é canal que alguém observa. */
   alertOperator: (order: Order, outcome: RefundRequestOutcome, detail: string | null) => Promise<unknown>;
   /**
@@ -109,10 +117,19 @@ export class RefundRequestService {
     if (decision.kind === 'rejected') {
       // Passou pela posse, então É registrável. Recusa repetida durante uma
       // contestação é justamente o que se quer enxergar depois.
-      await this.deps.record({
-        orderId: order.id, userId: input.userId,
-        outcome: 'rejected', reasonCode: decision.code,
-      });
+      //
+      // Mesma regra do caminho sem pagamento PAID: nenhum dinheiro se moveu
+      // aqui, então uma falha ao gravar não pode transformar um 409
+      // determinístico em 500 — melhor esforço (try/catch, não `.catch()`,
+      // para cobrir também uma falha síncrona do dep), mas nunca em silêncio.
+      try {
+        await this.deps.record({
+          orderId: order.id, userId: input.userId,
+          outcome: 'rejected', reasonCode: decision.code,
+        });
+      } catch {
+        console.error(`[payments] REFUND_REQUEST_AUDIT_WRITE_FAILED order=${order.id}`);
+      }
       return { status: 409, code: decision.code };
     }
 
@@ -120,11 +137,35 @@ export class RefundRequestService {
       // Fora da janela é o único caminho que pede análise humana — só aqui o
       // relato do cliente importa. Dentro da janela o direito é incondicional
       // (Art. 49 do CDC) e nada é perguntado.
-      await this.deps.record({
-        orderId: order.id, userId: input.userId,
-        outcome: 'manual', description: input.description ?? null,
-      });
-      await this.deps.acknowledge(order, 'manual');
+      const description = input.description ?? null;
+
+      // Gravar e confirmar são melhor esforço: uma intermitência do provedor
+      // de e-mail depois da linha gravada devolveria 500, o cliente repetiria
+      // e uma SEGUNDA linha entraria sem nenhuma confirmação ter saído — e
+      // confirmar o recebimento de imediato é o que a lei exige aqui
+      // (Decreto 7.962/2013). A falha não derruba a resposta, mas é logada.
+      try {
+        // Auditoria antes da confirmação por e-mail: nunca o contrário.
+        await this.deps.record({
+          orderId: order.id, userId: input.userId,
+          outcome: 'manual', description,
+        });
+        await this.deps.acknowledge(order, 'manual');
+      } catch {
+        console.error(`[payments] REFUND_REQUEST_MANUAL_NOTIFY_FAILED order=${order.id}`);
+      }
+
+      // O caso de ROTINA também precisa de gente: sem este aviso a análise
+      // manual vira uma linha numa tabela que ninguém consulta. Vai FORA do
+      // try acima de propósito — é justamente quando gravar ou confirmar
+      // falha que alguém mais precisa olhar este pedido. O relato do cliente
+      // é todo o conteúdo que o analista tem, então segue no alerta.
+      try {
+        await this.deps.alertOperator(order, 'manual', description);
+      } catch {
+        console.error(`[payments] REFUND_REQUEST_MANUAL_ALERT_FAILED order=${order.id}`);
+      }
+
       return { status: 202, outcome: 'manual' };
     }
 
@@ -330,11 +371,15 @@ export function getRefundRequestService(): RefundRequestService {
         template: 'refund-requested',
         recipient: order.userEmail,
         orderId: order.id,
-        email: refundRequestedEmail({ reference: order.reference, automatic: outcome === 'refunded' }),
+        // O DESFECHO decide o corpo. Um booleano `automatic` mandava a
+        // `reconciliation_required` o texto do `manual`, que nega ao cliente
+        // um estorno que pode ter acontecido.
+        email: refundRequestedEmail({ reference: order.reference, outcome }),
       }),
     alertOperator: (order, outcome, detail) => {
-      // O tipo aceita qualquer RefundRequestOutcome, mas quem chama (settleAfterRefundAttempt)
-      // só usa 'manual' e 'reconciliation_required' — 'refunded'/'rejected' nunca alertam.
+      // O tipo aceita qualquer RefundRequestOutcome, mas quem chama (o caminho
+      // fora da janela em `request` e `settleAfterRefundAttempt`) só usa
+      // 'manual' e 'reconciliation_required' — 'refunded'/'rejected' nunca alertam.
       const alertOutcome = outcome === 'reconciliation_required' ? 'reconciliation_required' : 'manual';
       return notifications.notify({
         dedupeKey: `order:${order.id}:refund-alert:${outcome}`,

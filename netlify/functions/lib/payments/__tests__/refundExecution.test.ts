@@ -220,16 +220,39 @@ describe('execução do pedido de reembolso', () => {
     expect(calls).toEqual(['record', 'acknowledge']);
   });
 
-  it('fora da janela grava manual e nunca chama o estorno', async () => {
-    const { service, record, refund } = build({
+  it('fora da janela grava manual, avisa o financeiro com o relato e nunca chama o estorno', async () => {
+    // B1: gravar a linha e confirmar ao cliente não avisa NINGUÉM que uma
+    // pessoa precisa agir. O relato do cliente é todo o conteúdo que o
+    // analista tem — precisa chegar no alerta.
+    const { service, record, refund, acknowledge, alertOperator } = build({
+      findOwnedOrder: vi.fn().mockResolvedValue(order({ paidAt: '2026-08-01T12:00:00.000Z' })),
+    });
+
+    const result = await service.request({
+      orderId: 'ord-1', userId: 'user-1', now: NOW,
+      description: 'a licença parou de funcionar depois da atualização',
+    });
+
+    expect(result).toEqual({ status: 202, outcome: 'manual' });
+    expect(refund).not.toHaveBeenCalled();
+    expect(record).toHaveBeenCalledWith(expect.objectContaining({
+      outcome: 'manual', description: 'a licença parou de funcionar depois da atualização',
+    }));
+    expect(acknowledge).toHaveBeenCalledWith(expect.anything(), 'manual');
+    expect(alertOperator).toHaveBeenCalledWith(
+      expect.anything(), 'manual', 'a licença parou de funcionar depois da atualização',
+    );
+  });
+
+  it('fora da janela sem relato ainda avisa o financeiro (detail nulo)', async () => {
+    const { service, alertOperator } = build({
       findOwnedOrder: vi.fn().mockResolvedValue(order({ paidAt: '2026-08-01T12:00:00.000Z' })),
     });
 
     const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
 
     expect(result).toEqual({ status: 202, outcome: 'manual' });
-    expect(refund).not.toHaveBeenCalled();
-    expect(record).toHaveBeenCalledWith(expect.objectContaining({ outcome: 'manual' }));
+    expect(alertOperator).toHaveBeenCalledWith(expect.anything(), 'manual', null);
   });
 
   it('contestação aberta responde 409 e grava a recusa (posse já confirmada)', async () => {
@@ -435,5 +458,87 @@ describe('fix round 2: nada escapa de request() depois de tentar o estorno', () 
     expect(alertOperator).toHaveBeenCalledWith(
       expect.anything(), 'reconciliation_required', expect.any(String),
     );
+  });
+});
+
+describe('fix round 3: os caminhos manual e rejected são tão guardados quanto os demais', () => {
+  const outOfWindow = () => ({
+    findOwnedOrder: vi.fn().mockResolvedValue(order({ paidAt: '2026-08-01T12:00:00.000Z' })),
+  });
+
+  it('S2: falha ao confirmar o recebimento fora da janela não vira 500 (e não fica invisível)', async () => {
+    // Uma intermitência do provedor de e-mail devolvia 500; o cliente
+    // repetia; uma SEGUNDA linha era gravada e nenhuma confirmação saía.
+    const acknowledge = vi.fn().mockRejectedValue(new Error('email indisponível'));
+    const { service, record } = build({ ...outOfWindow(), acknowledge });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 202, outcome: 'manual' });
+    expect(record).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_MANUAL_NOTIFY_FAILED'));
+    errorSpy.mockRestore();
+  });
+
+  it('S2: record que lança de forma SÍNCRONA no caminho manual não escapa de request()', async () => {
+    const record = vi.fn(() => {
+      throw new Error('record indisponível');
+    });
+    const { service } = build({ ...outOfWindow(), record });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    await expect(
+      service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW }),
+    ).resolves.toEqual({ status: 202, outcome: 'manual' });
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_MANUAL_NOTIFY_FAILED'));
+    errorSpy.mockRestore();
+  });
+
+  it('S2: falha de auditoria no caminho rejected ainda responde 409 (e loga)', async () => {
+    // Nenhum dinheiro se moveu: um 409 determinístico não pode virar 500 por
+    // causa do registro — mesma regra já aplicada ao caminho sem pagamento PAID.
+    const record = vi.fn().mockRejectedValue(new Error('db down'));
+    const { service } = build({
+      findOwnedOrder: vi.fn().mockResolvedValue(order({ status: 'CHARGEBACK' })),
+      record,
+    });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 409, code: 'REFUND_UNDER_DISPUTE' });
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_AUDIT_WRITE_FAILED'));
+    errorSpy.mockRestore();
+  });
+
+  it('S2: falha ao avisar o financeiro não derruba a resposta ao cliente (e loga)', async () => {
+    const alertOperator = vi.fn(() => {
+      throw new Error('alertOperator indisponível');
+    });
+    const { service, acknowledge } = build({ ...outOfWindow(), alertOperator });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    await expect(
+      service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW }),
+    ).resolves.toEqual({ status: 202, outcome: 'manual' });
+    expect(acknowledge).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_MANUAL_ALERT_FAILED'));
+    errorSpy.mockRestore();
+  });
+
+  it('B1/S2: mesmo com a confirmação ao cliente falhando, o financeiro é avisado', async () => {
+    // O alerta ao financeiro não pode depender do e-mail ao comprador: é
+    // exatamente quando algo falha que alguém precisa olhar o pedido.
+    const acknowledge = vi.fn().mockRejectedValue(new Error('email indisponível'));
+    const { service, alertOperator } = build({ ...outOfWindow(), acknowledge });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    await service.request({
+      orderId: 'ord-1', userId: 'user-1', now: NOW, description: 'comprei duplicado',
+    });
+
+    expect(alertOperator).toHaveBeenCalledWith(expect.anything(), 'manual', 'comprei duplicado');
+    errorSpy.mockRestore();
   });
 });

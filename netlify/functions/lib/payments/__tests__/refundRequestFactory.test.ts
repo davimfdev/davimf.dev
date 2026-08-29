@@ -168,6 +168,29 @@ describe('getRefundRequestService — alertOperator avisa o financeiro por e-mai
     );
   });
 
+  it('B2: no reconciliation_required o comprador NÃO recebe o corpo que nega o estorno', async () => {
+    // O desfecho significa que o Mercado Pago pode ter aceitado o estorno e a
+    // licença pode ter sido revogada. Mandar o corpo manual ("licença continua
+    // ativa — nenhum estorno foi feito") nega ao cliente algo que aconteceu.
+    wireFakeSql();
+    setOrderServiceForTesting({ requireOwnedOrder: async () => order() } as never);
+    setPaymentServiceForTesting({
+      listForOrder: async () => [{ id: 'pay-1', status: 'PAID' }],
+      refund: vi.fn().mockRejectedValue(Object.assign(new Error('write failed'), { refundAccepted: true })),
+    } as never);
+    const provider = collectingProvider();
+    setEmailProviderForTesting(provider);
+
+    const result = await getRefundRequestService().request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
+
+    expect(result).toEqual({ status: 202, outcome: 'reconciliation_required' });
+    const buyerMail = provider.sent.find((m) => m.to === 'comprador@example.com');
+    expect(buyerMail).toBeDefined();
+    expect(buyerMail?.html).not.toMatch(/nenhum estorno foi feito/i);
+    expect(buyerMail?.html).not.toMatch(/licença continua ativa/i);
+    expect(buyerMail?.html).toContain('estorno foi solicitado');
+  });
+
   it('caminho refunded NÃO aciona o alerta ao financeiro', async () => {
     wireFakeSql();
     setOrderServiceForTesting({ requireOwnedOrder: async () => order() } as never);
@@ -181,5 +204,32 @@ describe('getRefundRequestService — alertOperator avisa o financeiro por e-mai
     await getRefundRequestService().request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
 
     expect(provider.sent.some((m) => m.to === 'financeiro@davimf.dev')).toBe(false);
+  });
+});
+
+describe('getRefundRequestService — fora da janela (análise manual)', () => {
+  it('B1: o financeiro recebe o alerta com o relato do cliente, não só o banco', async () => {
+    wireFakeSql();
+    setOrderServiceForTesting({
+      requireOwnedOrder: async () => order({ paidAt: '2026-08-01T12:00:00.000Z' }),
+    } as never);
+    const refund = vi.fn();
+    setPaymentServiceForTesting({ listForOrder: async () => [], refund } as never);
+    const provider = collectingProvider();
+    setEmailProviderForTesting(provider);
+
+    const result = await getRefundRequestService().request({
+      orderId: 'ord-1', userId: 'user-1', now: NOW,
+      description: 'comprei duplicado por engano',
+    });
+
+    expect(result).toEqual({ status: 202, outcome: 'manual' });
+    expect(refund).not.toHaveBeenCalled();
+    const operatorMail = provider.sent.find((m) => m.to === 'financeiro@davimf.dev');
+    expect(operatorMail).toBeDefined();
+    expect(operatorMail?.idempotencyKey).toBe('order:ord-1:refund-alert:manual');
+    expect(operatorMail?.html).toContain('comprei duplicado por engano');
+    // O comprador também segue recebendo a confirmação de recebimento.
+    expect(provider.sent.some((m) => m.to === 'comprador@example.com')).toBe(true);
   });
 });

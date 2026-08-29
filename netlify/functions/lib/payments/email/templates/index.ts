@@ -395,22 +395,72 @@ export function subscriptionCancelledEmail(input: SubscriptionEmailInput): Rende
 
 /**
  * Confirmação IMEDIATA do recebimento do pedido de reembolso — obrigação
- * legal (Decreto 7.962/2013), não cortesia. O caminho automático (dentro da
- * janela do Art. 49 do CDC) já informa que o estorno foi solicitado ao
- * Mercado Pago e que a licença foi revogada; o manual (fora da janela, ou
- * desfecho incerto) NÃO promete reembolso algum — nenhum valor se moveu
- * ainda — só confirma que o pedido será analisado, com a licença ativa
- * enquanto isso.
+ * legal (Decreto 7.962/2013), não cortesia.
+ *
+ * O corpo vem do DESFECHO, nunca de um booleano: com `automatic: boolean`,
+ * `reconciliation_required` caía no corpo do `manual` e afirmava ao cliente
+ * que a licença seguia ativa e que nenhum estorno fora feito — justamente o
+ * desfecho em que o dinheiro pode ter se movido. Um quarto desfecho também
+ * não cai em corpo alheio: o `switch` é exaustivo e o compilador cobra o caso
+ * novo (`never`).
+ *
+ * - `refunded`: o estorno foi solicitado ao Mercado Pago e a licença foi revogada.
+ * - `manual` (fora da janela do Art. 49): nada se moveu, a licença segue ativa
+ *   e o caso vai para análise — nenhum reembolso é prometido.
+ * - `reconciliation_required`: o estorno foi PEDIDO e a conclusão está sendo
+ *   confirmada com o Mercado Pago. Não afirma que a licença continua ativa
+ *   nem que nenhum estorno foi feito — nenhuma das duas coisas é sabida aqui.
  */
-export function refundRequestedEmail(input: { reference: string; automatic: boolean }): RenderedEmail {
+export type RefundRequestedOutcome = 'refunded' | 'manual' | 'reconciliation_required';
+
+export function refundRequestedEmail(input: {
+  reference: string;
+  outcome: RefundRequestedOutcome;
+}): RenderedEmail {
   const reference = escapeHtml(input.reference);
-  const body = input.automatic
-    ? paragraph(`Confirmamos que recebemos seu pedido de reembolso do pedido <strong style="color:${BRAND.text};">${reference}</strong>.`) +
-      paragraph('O estorno foi solicitado ao Mercado Pago. O prazo até o valor aparecer para você depende do meio de pagamento usado na compra.') +
-      notice('A licença correspondente a este pedido foi revogada.', 'danger')
-    : paragraph(`Confirmamos que recebemos seu pedido de reembolso do pedido <strong style="color:${BRAND.text};">${reference}</strong>.`) +
-      paragraph('Vamos analisar o seu caso e responder por este mesmo e-mail.') +
-      notice('Sua licença continua ativa enquanto a análise não termina — nenhum estorno foi feito.');
+  const received = `Confirmamos que recebemos seu pedido de reembolso do pedido <strong style="color:${BRAND.text};">${reference}</strong>.`;
+  const receivedText = `Confirmamos que recebemos seu pedido de reembolso do pedido ${input.reference}.`;
+
+  let body: string;
+  let lines: string[];
+  switch (input.outcome) {
+    case 'refunded':
+      body = paragraph(received) +
+        paragraph('O estorno foi solicitado ao Mercado Pago. O prazo até o valor aparecer para você depende do meio de pagamento usado na compra.') +
+        notice('A licença correspondente a este pedido foi revogada.', 'danger');
+      lines = [
+        receivedText,
+        'O estorno foi solicitado ao Mercado Pago. O prazo depende do meio de pagamento usado na compra.',
+        'A licença correspondente a este pedido foi revogada.',
+      ];
+      break;
+    case 'manual':
+      body = paragraph(received) +
+        paragraph('Vamos analisar o seu caso e responder por este mesmo e-mail.') +
+        notice('Sua licença continua ativa enquanto a análise não termina — nenhum estorno foi feito.');
+      lines = [
+        receivedText,
+        'Vamos analisar o seu caso e responder por este mesmo e-mail.',
+        'Sua licença continua ativa enquanto a análise não termina — nenhum estorno foi feito.',
+      ];
+      break;
+    case 'reconciliation_required':
+      body = paragraph(received) +
+        paragraph('O estorno foi solicitado ao Mercado Pago e estamos confirmando a conclusão dele junto ao provedor. Assim que a confirmação chegar, avisamos por este mesmo e-mail.') +
+        notice('Não é preciso pedir de novo: um segundo pedido pode duplicar a solicitação. Qualquer dúvida, basta responder a este e-mail.');
+      lines = [
+        receivedText,
+        'O estorno foi solicitado ao Mercado Pago e estamos confirmando a conclusão dele junto ao provedor. Assim que a confirmação chegar, avisamos por este mesmo e-mail.',
+        'Não é preciso pedir de novo: um segundo pedido pode duplicar a solicitação. Qualquer dúvida, basta responder a este e-mail.',
+      ];
+      break;
+    default: {
+      // Desfecho novo sem corpo próprio não compila — foi o silêncio do
+      // booleano que fez `reconciliation_required` herdar o corpo do `manual`.
+      const exhaustive: never = input.outcome;
+      throw new Error(`desfecho de reembolso sem corpo próprio: ${String(exhaustive)}`);
+    }
+  }
 
   return {
     subject: `Recebemos seu pedido de reembolso — ${input.reference}`,
@@ -419,19 +469,7 @@ export function refundRequestedEmail(input: { reference: string; automatic: bool
       preheader: `Pedido ${input.reference}: confirmamos o recebimento do seu pedido de reembolso.`,
       body,
     }),
-    text: renderText(
-      input.automatic
-        ? [
-            `Confirmamos que recebemos seu pedido de reembolso do pedido ${input.reference}.`,
-            'O estorno foi solicitado ao Mercado Pago. O prazo depende do meio de pagamento usado na compra.',
-            'A licença correspondente a este pedido foi revogada.',
-          ]
-        : [
-            `Confirmamos que recebemos seu pedido de reembolso do pedido ${input.reference}.`,
-            'Vamos analisar o seu caso e responder por este mesmo e-mail.',
-            'Sua licença continua ativa enquanto a análise não termina — nenhum estorno foi feito.',
-          ],
-    ),
+    text: renderText(lines),
   };
 }
 

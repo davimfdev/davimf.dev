@@ -60,9 +60,13 @@ describe('aceite legal no pedido', () => {
 
     // O INSERT termina em ON CONFLICT DO UPDATE. O aceite não pode entrar
     // nesse UPDATE: o que vale é o que a pessoa aceitou da primeira vez.
-    const conflictClause = statements[0].slice(statements[0].indexOf('ON CONFLICT'));
-    expect(conflictClause).not.toContain('legal_version');
-    expect(conflictClause).not.toContain('terms_hash');
+    // Recorta só o fragmento DO UPDATE SET (até o RETURNING) — o RETURNING
+    // legitimamente lista as colunas de aceite, então não pode entrar na checagem.
+    const doUpdateStart = statements[0].indexOf('DO UPDATE');
+    const returningStart = statements[0].indexOf('RETURNING');
+    const doUpdateClause = statements[0].slice(doUpdateStart, returningStart);
+    expect(doUpdateClause).not.toContain('legal_version');
+    expect(doUpdateClause).not.toContain('terms_hash');
   });
 
   it('pedido antigo sem aceite devolve null em vez de inventar um', async () => {

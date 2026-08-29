@@ -50,11 +50,6 @@ export function rowToOrder(row: SqlRow): Order {
   };
 }
 
-const SELECT = `id, reference, user_id, user_email, product_id, product_code, quantity,
-                amount_cents, currency, status, auto_renew, idempotency_key, metadata,
-                created_at, paid_at, fulfilled_at, legal_version, legal_accepted_at,
-                terms_hash, privacy_policy_hash, refund_policy_hash`;
-
 export type CreateOrderInput = {
   reference: string;
   userId: string;
@@ -92,7 +87,10 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
     )
     ON CONFLICT (user_id, idempotency_key) WHERE idempotency_key IS NOT NULL
     DO UPDATE SET updated_at = now()
-    RETURNING *`;
+    RETURNING id, reference, user_id, user_email, product_id, product_code, quantity,
+              amount_cents, currency, status, auto_renew, idempotency_key, metadata,
+              created_at, paid_at, fulfilled_at, legal_version, legal_accepted_at,
+              terms_hash, privacy_policy_hash, refund_policy_hash`;
   return rowToOrder(rows[0]);
 }
 
@@ -160,5 +158,3 @@ export async function markOrderFulfilled(orderId: string): Promise<void> {
     UPDATE orders SET fulfilled_at = COALESCE(fulfilled_at, now()), updated_at = now()
      WHERE id = ${orderId}`;
 }
-
-export { SELECT as ORDER_COLUMNS };

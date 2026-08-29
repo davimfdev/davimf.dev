@@ -7,6 +7,11 @@
  * dos ARRAYS é preservada de propósito: a sequência de seções e parágrafos é
  * conteúdo, não formatação.
  *
+ * A string canônica é normalizada para NFC antes de virar hash: "é" escrito
+ * como um único codepoint ou como "e" + acento combinante são bytes
+ * diferentes para o mesmo texto lido, e isso não pode virar um alarme falso
+ * de "documento alterado".
+ *
  * USA `node:crypto` — só testes e a geração do registro importam este arquivo.
  * Importá-lo de um componente arrastaria `node:crypto` para o bundle.
  */
@@ -24,14 +29,14 @@ export function canonicalise(value: unknown): string {
 }
 
 export function hashDocument(document: LegalDocument): string {
-  return createHash('sha256').update(canonicalise(document), 'utf8').digest('hex');
+  return createHash('sha256').update(canonicalise(document).normalize('NFC'), 'utf8').digest('hex');
 }
 
 /** Um par pt/en do mesmo documento — a unidade que de fato é hasheada. */
 type BilingualDocument = { pt: LegalDocument; en: LegalDocument };
 
 function hashBilingualDocument(document: BilingualDocument): string {
-  return createHash('sha256').update(canonicalise(document), 'utf8').digest('hex');
+  return createHash('sha256').update(canonicalise(document).normalize('NFC'), 'utf8').digest('hex');
 }
 
 /**

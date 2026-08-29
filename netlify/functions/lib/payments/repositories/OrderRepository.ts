@@ -1,5 +1,5 @@
 import type { Cents } from '../domain/money';
-import type { Order, PaymentStatus } from '../domain/types';
+import type { LegalAcceptance, Order, PaymentStatus } from '../domain/types';
 import { isPaymentStatus } from '../domain/types';
 import {
   bool,
@@ -12,6 +12,20 @@ import {
   str,
 } from '../infrastructure/db';
 import type { SqlRow } from '../infrastructure/db';
+
+/**
+ * Só existe aceite se as CINCO colunas vierem preenchidas — um registro
+ * parcial não é um registro, e pedidos anteriores à migração não têm nenhuma.
+ */
+function rowToLegalAcceptance(row: SqlRow): LegalAcceptance | null {
+  const version = optionalStr(row.legal_version);
+  const acceptedAt = isoDate(row.legal_accepted_at);
+  const termsHash = optionalStr(row.terms_hash);
+  const privacyHash = optionalStr(row.privacy_policy_hash);
+  const refundHash = optionalStr(row.refund_policy_hash);
+  if (!version || !acceptedAt || !termsHash || !privacyHash || !refundHash) return null;
+  return { version, acceptedAt, termsHash, privacyHash, refundHash };
+}
 
 export function rowToOrder(row: SqlRow): Order {
   const status = str(row.status);
@@ -32,12 +46,14 @@ export function rowToOrder(row: SqlRow): Order {
     createdAt: requiredIsoDate(row.created_at),
     paidAt: isoDate(row.paid_at),
     fulfilledAt: isoDate(row.fulfilled_at),
+    legalAcceptance: rowToLegalAcceptance(row),
   };
 }
 
 const SELECT = `id, reference, user_id, user_email, product_id, product_code, quantity,
                 amount_cents, currency, status, auto_renew, idempotency_key, metadata,
-                created_at, paid_at, fulfilled_at`;
+                created_at, paid_at, fulfilled_at, legal_version, legal_accepted_at,
+                terms_hash, privacy_policy_hash, refund_policy_hash`;
 
 export type CreateOrderInput = {
   reference: string;
@@ -51,6 +67,8 @@ export type CreateOrderInput = {
   autoRenew: boolean;
   idempotencyKey: string;
   metadata?: Record<string, unknown>;
+  /** Qual versão dos documentos a pessoa aceitou nesta compra, e os hashes do texto exato. */
+  legalAcceptance?: LegalAcceptance;
 };
 
 /**
@@ -59,20 +77,22 @@ export type CreateOrderInput = {
  */
 export async function createOrder(input: CreateOrderInput): Promise<Order> {
   const metadata = JSON.stringify(input.metadata ?? {});
+  const legal = input.legalAcceptance ?? null;
   const rows = await paymentsSql`
     INSERT INTO orders (
       reference, user_id, user_email, product_id, product_code, quantity,
-      amount_cents, currency, status, auto_renew, idempotency_key, metadata
+      amount_cents, currency, status, auto_renew, idempotency_key, metadata,
+      legal_version, legal_accepted_at, terms_hash, privacy_policy_hash, refund_policy_hash
     ) VALUES (
       ${input.reference}, ${input.userId}, ${input.userEmail}, ${input.productId},
       ${input.productCode}, ${input.quantity}, ${input.amountCents}, ${input.currency},
-      'PENDING', ${input.autoRenew}, ${input.idempotencyKey}, ${metadata}::jsonb
+      'PENDING', ${input.autoRenew}, ${input.idempotencyKey}, ${metadata}::jsonb,
+      ${legal?.version ?? null}, ${legal?.acceptedAt ?? null}::timestamptz,
+      ${legal?.termsHash ?? null}, ${legal?.privacyHash ?? null}, ${legal?.refundHash ?? null}
     )
     ON CONFLICT (user_id, idempotency_key) WHERE idempotency_key IS NOT NULL
     DO UPDATE SET updated_at = now()
-    RETURNING id, reference, user_id, user_email, product_id, product_code, quantity,
-              amount_cents, currency, status, auto_renew, idempotency_key, metadata,
-              created_at, paid_at, fulfilled_at`;
+    RETURNING *`;
   return rowToOrder(rows[0]);
 }
 
@@ -80,7 +100,8 @@ export async function findOrderById(id: string): Promise<Order | null> {
   const rows = await paymentsSql`
     SELECT id, reference, user_id, user_email, product_id, product_code, quantity,
            amount_cents, currency, status, auto_renew, idempotency_key, metadata,
-           created_at, paid_at, fulfilled_at
+           created_at, paid_at, fulfilled_at, legal_version, legal_accepted_at,
+           terms_hash, privacy_policy_hash, refund_policy_hash
       FROM orders WHERE id = ${id} LIMIT 1`;
   return rows[0] ? rowToOrder(rows[0]) : null;
 }
@@ -89,7 +110,8 @@ export async function findOrderByReference(reference: string): Promise<Order | n
   const rows = await paymentsSql`
     SELECT id, reference, user_id, user_email, product_id, product_code, quantity,
            amount_cents, currency, status, auto_renew, idempotency_key, metadata,
-           created_at, paid_at, fulfilled_at
+           created_at, paid_at, fulfilled_at, legal_version, legal_accepted_at,
+           terms_hash, privacy_policy_hash, refund_policy_hash
       FROM orders WHERE reference = ${reference} LIMIT 1`;
   return rows[0] ? rowToOrder(rows[0]) : null;
 }
@@ -98,7 +120,8 @@ export async function listOrdersByUser(userId: string, limit = 50): Promise<Orde
   const rows = await paymentsSql`
     SELECT id, reference, user_id, user_email, product_id, product_code, quantity,
            amount_cents, currency, status, auto_renew, idempotency_key, metadata,
-           created_at, paid_at, fulfilled_at
+           created_at, paid_at, fulfilled_at, legal_version, legal_accepted_at,
+           terms_hash, privacy_policy_hash, refund_policy_hash
       FROM orders WHERE user_id = ${userId}
      ORDER BY created_at DESC LIMIT ${limit}`;
   return rows.map(rowToOrder);
@@ -116,7 +139,8 @@ export async function markOrderPaid(orderId: string, paidAt: string): Promise<Or
      WHERE id = ${orderId} AND status <> 'PAID'
     RETURNING id, reference, user_id, user_email, product_id, product_code, quantity,
               amount_cents, currency, status, auto_renew, idempotency_key, metadata,
-              created_at, paid_at, fulfilled_at`;
+              created_at, paid_at, fulfilled_at, legal_version, legal_accepted_at,
+              terms_hash, privacy_policy_hash, refund_policy_hash`;
   return rows[0] ? rowToOrder(rows[0]) : null;
 }
 
@@ -126,7 +150,8 @@ export async function updateOrderStatus(orderId: string, status: PaymentStatus):
      WHERE id = ${orderId} AND status <> ${status}
     RETURNING id, reference, user_id, user_email, product_id, product_code, quantity,
               amount_cents, currency, status, auto_renew, idempotency_key, metadata,
-              created_at, paid_at, fulfilled_at`;
+              created_at, paid_at, fulfilled_at, legal_version, legal_accepted_at,
+              terms_hash, privacy_policy_hash, refund_policy_hash`;
   return rows[0] ? rowToOrder(rows[0]) : null;
 }
 

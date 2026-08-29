@@ -10,7 +10,7 @@ function order(overrides: Partial<Order> = {}): Order {
     productId: 1, productCode: 'fmm-pro-lifetime', quantity: 1,
     amountCents: 20000, currency: 'BRL', status: 'PAID', autoRenew: false,
     idempotencyKey: null, metadata: {}, createdAt: '2026-08-25T12:00:00.000Z',
-    paidAt: '2026-08-25T12:00:00.000Z', fulfilledAt: null,
+    paidAt: '2026-08-25T12:00:00.000Z', fulfilledAt: null, legalAcceptance: null,
     ...overrides,
   };
 }

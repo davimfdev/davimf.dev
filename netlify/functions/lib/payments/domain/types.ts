@@ -69,6 +69,18 @@ export type Product = {
   active: boolean;
 };
 
+/**
+ * Qual versão dos documentos legais o cliente aceitou, e o hash do texto exato
+ * (calculado pela nossa própria cópia, não informado pelo cliente).
+ */
+export type LegalAcceptance = {
+  version: string;
+  acceptedAt: string;
+  termsHash: string;
+  privacyHash: string;
+  refundHash: string;
+};
+
 export type Order = {
   id: string;
   reference: string;
@@ -86,6 +98,8 @@ export type Order = {
   createdAt: string;
   paidAt: string | null;
   fulfilledAt: string | null;
+  /** null para pedidos anteriores à migração — não há como inventar o que não foi registrado. */
+  legalAcceptance: LegalAcceptance | null;
 };
 
 export type Payment = {

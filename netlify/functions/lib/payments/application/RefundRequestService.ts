@@ -127,8 +127,8 @@ export class RefundRequestService {
           orderId: order.id, userId: input.userId,
           outcome: 'rejected', reasonCode: decision.code,
         });
-      } catch {
-        console.error(`[payments] REFUND_REQUEST_AUDIT_WRITE_FAILED order=${order.id}`);
+      } catch (error) {
+        console.error(`[payments] REFUND_REQUEST_REJECTED_AUDIT_WRITE_FAILED order=${order.id} error=${safeString(error)}`);
       }
       return { status: 409, code: decision.code };
     }
@@ -144,15 +144,19 @@ export class RefundRequestService {
       // e uma SEGUNDA linha entraria sem nenhuma confirmação ter saído — e
       // confirmar o recebimento de imediato é o que a lei exige aqui
       // (Decreto 7.962/2013). A falha não derruba a resposta, mas é logada.
+      // Auditoria antes da confirmação por e-mail: nunca o contrário.
       try {
-        // Auditoria antes da confirmação por e-mail: nunca o contrário.
         await this.deps.record({
           orderId: order.id, userId: input.userId,
           outcome: 'manual', description,
         });
+      } catch (error) {
+        console.error(`[payments] REFUND_REQUEST_MANUAL_RECORD_FAILED order=${order.id} error=${safeString(error)}`);
+      }
+      try {
         await this.deps.acknowledge(order, 'manual');
-      } catch {
-        console.error(`[payments] REFUND_REQUEST_MANUAL_NOTIFY_FAILED order=${order.id}`);
+      } catch (error) {
+        console.error(`[payments] REFUND_REQUEST_MANUAL_ACKNOWLEDGE_FAILED order=${order.id} error=${safeString(error)}`);
       }
 
       // O caso de ROTINA também precisa de gente: sem este aviso a análise
@@ -182,10 +186,10 @@ export class RefundRequestService {
           orderId: order.id, userId: input.userId,
           outcome: 'rejected', reasonCode: 'ORDER_NOT_REFUNDABLE',
         });
-      } catch {
+      } catch (error) {
         // A resposta 409 é determinística e não depende deste registro, mas
         // uma falha sistemática aqui não pode ficar invisível.
-        console.error(`[payments] REFUND_REQUEST_AUDIT_WRITE_FAILED order=${order.id}`);
+        console.error(`[payments] REFUND_REQUEST_REFUND_INELIGIBLE_AUDIT_WRITE_FAILED order=${order.id} error=${safeString(error)}`);
       }
       return { status: 409, code: 'ORDER_NOT_REFUNDABLE' };
     }

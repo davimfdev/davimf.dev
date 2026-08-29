@@ -331,7 +331,7 @@ describe('fix round 2: nada escapa de request() depois de tentar o estorno', () 
     const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
 
     expect(result).toEqual({ status: 409, code: 'ORDER_NOT_REFUNDABLE' });
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_AUDIT_WRITE_FAILED'));
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_REFUND_INELIGIBLE_AUDIT_WRITE_FAILED'));
     errorSpy.mockRestore();
   });
 
@@ -477,7 +477,7 @@ describe('fix round 3: os caminhos manual e rejected são tão guardados quanto 
 
     expect(result).toEqual({ status: 202, outcome: 'manual' });
     expect(record).toHaveBeenCalledTimes(1);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_MANUAL_NOTIFY_FAILED'));
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_MANUAL_ACKNOWLEDGE_FAILED'));
     errorSpy.mockRestore();
   });
 
@@ -491,7 +491,7 @@ describe('fix round 3: os caminhos manual e rejected são tão guardados quanto 
     await expect(
       service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW }),
     ).resolves.toEqual({ status: 202, outcome: 'manual' });
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_MANUAL_NOTIFY_FAILED'));
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_MANUAL_RECORD_FAILED'));
     errorSpy.mockRestore();
   });
 
@@ -508,7 +508,7 @@ describe('fix round 3: os caminhos manual e rejected são tão guardados quanto 
     const result = await service.request({ orderId: 'ord-1', userId: 'user-1', now: NOW });
 
     expect(result).toEqual({ status: 409, code: 'REFUND_UNDER_DISPUTE' });
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_AUDIT_WRITE_FAILED'));
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('REFUND_REQUEST_REJECTED_AUDIT_WRITE_FAILED'));
     errorSpy.mockRestore();
   });
 

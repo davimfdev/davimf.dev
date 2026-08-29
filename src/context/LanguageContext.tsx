@@ -291,6 +291,14 @@ const translations = {
     calculatorWithPartnership: "Com Parceria",
     privacyPolicy: "Política de Privacidade",
     termsOfService: "Termos de Serviço",
+    // Copy do painel "versão não encontrada" (rotas /legal/:version/...). Não é
+    // conteúdo versionado — é UI do site, por isso vive aqui e não em
+    // src/content/legal, que só guarda snapshots imutáveis de cada versão.
+    legalVersionNotFoundTitle: "Versão não encontrada",
+    legalVersionNotFoundPrefix: "A versão",
+    legalVersionNotFoundSuffix: "deste documento não existe em nosso histórico.",
+    legalVersionNotFoundExplanation: "Para não afirmar um contrato que você nunca aceitou, não mostramos o texto vigente no lugar dela.",
+    legalVersionNotFoundLink: "Ver a versão atual deste documento",
     privacy: {
       title: "Política de Privacidade",
       introduction: "Introdução",
@@ -608,6 +616,14 @@ const translations = {
     calculatorWithPartnership: "With Partnership",
     privacyPolicy: "Privacy Policy",
     termsOfService: "Terms of Service",
+    // "Version not found" panel copy (/legal/:version/... routes). Not
+    // versioned content — it's site UI, so it lives here rather than in
+    // src/content/legal, which only holds immutable per-version snapshots.
+    legalVersionNotFoundTitle: "Version not found",
+    legalVersionNotFoundPrefix: "Version",
+    legalVersionNotFoundSuffix: "of this document does not exist in our history.",
+    legalVersionNotFoundExplanation: "To avoid asserting a contract you never agreed to, we do not show the current text in its place.",
+    legalVersionNotFoundLink: "View the current version of this document",
     privacy: {
         title: "Privacy Policy",
         introduction: "Introduction",

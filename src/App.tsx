@@ -22,6 +22,7 @@ import UrlRedirectPage from './pages/UrlRedirectPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import RefundPolicy from './pages/RefundPolicy';
+import LegalCatchAll from './pages/LegalCatchAll';
 import Test from './pages/Test';
 import Dashboard from './pages/Dashboard';
 import BotConfig from './pages/BotConfig';
@@ -84,6 +85,9 @@ function App() {
               <Route path="/legal/:version/terms-of-service" element={<TermsOfService />} />
               <Route path="/legal/:version/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/legal/:version/refund-policy" element={<RefundPolicy />} />
+              {/* Captura qualquer outro caminho sob /legal/ (ex.: segmento de versão
+                  vazio) — escopo só desta feature, não um 404 da aplicação inteira. */}
+              <Route path="/legal/*" element={<LegalCatchAll />} />
               <Route path="/fmm" element={<FmmPlans />} />
               <Route path="/fmm-activated" element={<FmmActivated />} />
               <Route path="/my-keys" element={<MyKeys />} />

@@ -225,7 +225,10 @@ export function fmmLicenseEmail(input: FmmLicenseEmailInput): RenderedEmail {
            <li>Vá em <span style="color:${BRAND.text};">Configurações → Ativar Licença</span>.</li>
            <li>Cole a chave acima e confirme.</li>
          </ol>` +
-        notice(`A chave também fica salva na sua conta: <a href="${escapeHtml(input.keysUrl)}" style="color:${BRAND.accent};">Minhas Chaves</a>. Este e-mail não é o único lugar onde ela existe.`),
+        notice(`A chave também fica salva na sua conta: <a href="${escapeHtml(input.keysUrl)}" style="color:${BRAND.accent};">Minhas Chaves</a>. Este e-mail não é o único lugar onde ela existe.`) +
+        // Fica no FIM do corpo, de propósito: depois da chave e do download,
+        // para não competir com o que o cliente abriu o e-mail para ver.
+        legalAcceptanceBlock(input.legalAcceptance),
     }),
     text: renderText([
       'Pagamento aprovado — sua chave do FMM',
@@ -240,6 +243,7 @@ export function fmmLicenseEmail(input: FmmLicenseEmailInput): RenderedEmail {
       `Minhas chaves: ${input.keysUrl}`,
       '',
       'Como ativar: abra o FMM, vá em Configurações > Ativar Licença e cole a chave.',
+      ...legalAcceptanceLines(input.legalAcceptance),
     ]),
   };
 }

@@ -160,6 +160,45 @@ describe('templates', () => {
     expect(EMAIL.text).toContain('FMM-AAAAAAAA-BBBBBBBB');
   });
 
+  it('e-mail da chave FMM (o que o cliente de fmm_license realmente recebe) linka a versão exata aceita, DEPOIS da chave e do download', () => {
+    const email = fmmLicenseEmail({
+      ...BASE_ORDER,
+      planName: 'FMM Pro — Mensal',
+      licenseKey: 'FMM-AAAAAAAA-BBBBBBBB',
+      expiresAt: '2026-09-01T00:00:00.000Z',
+      isLifetime: false,
+      downloadUrl: 'https://github.com/davimfdev/FMM-Releases/releases/latest/download/FMM.exe',
+      keysUrl: 'https://davimf.dev/my-keys',
+      legalAcceptance: {
+        version: '2026-08-28-v1',
+        acceptedAt: '2026-08-28T12:00:00.000Z',
+        termsHash: 'hash-terms',
+        privacyHash: 'hash-privacy',
+        refundHash: 'hash-refund',
+      },
+    });
+
+    const base = siteUrl();
+    const termsUrl = `${base}/legal/2026-08-28-v1/terms-of-service`;
+    expect(email.html).toContain(termsUrl);
+    expect(email.html).toContain(`${base}/legal/2026-08-28-v1/privacy-policy`);
+    expect(email.html).toContain(`${base}/legal/2026-08-28-v1/refund-policy`);
+    expect(email.text).toContain(termsUrl);
+
+    // O bloco de links não pode competir com o que o cliente abriu o e-mail
+    // para ver: a chave e o download vêm ANTES, os links de documentos vêm
+    // no FIM do corpo.
+    expect(email.html.indexOf('FMM-AAAAAAAA-BBBBBBBB')).toBeLessThan(email.html.indexOf(termsUrl));
+    expect(email.html.indexOf('github.com/davimfdev/FMM-Releases')).toBeLessThan(email.html.indexOf(termsUrl));
+  });
+
+  it('e-mail da chave FMM de pedido sem aceite registrado (anterior à migração) renderiza sem os links, sem quebrar', () => {
+    expect(EMAIL.html).not.toContain('/legal/');
+    expect(EMAIL.html).not.toMatch(/\bnull\b/);
+    expect(EMAIL.text).not.toContain('/legal/');
+    expect(EMAIL.text).not.toMatch(/\bnull\b/);
+  });
+
   it('e-mail de pedido criado linka a versão exata dos documentos aceitos', () => {
     const email = orderCreatedEmail({
       ...BASE_ORDER,

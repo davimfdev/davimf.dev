@@ -252,12 +252,16 @@ export function paymentApprovedEmail(order: OrderSummary): RenderedEmail {
     html: renderLayout({
       title: 'Pagamento aprovado',
       preheader: `Pedido ${order.reference} confirmado.`,
-      body: paragraph('Seu pagamento foi confirmado.') + detailsTable(baseRows(order)),
+      body:
+        paragraph('Seu pagamento foi confirmado.') +
+        detailsTable(baseRows(order)) +
+        legalAcceptanceBlock(order.legalAcceptance),
     }),
     text: renderText([
       'Pagamento aprovado.',
       `Pedido: ${order.reference}`,
       `Valor: ${formatMoney(order.amountCents, order.currency)}`,
+      ...legalAcceptanceLines(order.legalAcceptance),
     ]),
   };
 }

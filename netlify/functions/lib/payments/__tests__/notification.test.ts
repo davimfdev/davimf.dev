@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NotificationService } from '../application/NotificationService';
 import { siteUrl } from '../config';
 import { ResendEmailProvider } from '../email/ResendEmailProvider';
-import { fmmLicenseEmail, orderCreatedEmail, pixCreatedEmail, type OrderSummary } from '../email/templates';
+import { fmmLicenseEmail, orderCreatedEmail, paymentApprovedEmail, pixCreatedEmail, type OrderSummary } from '../email/templates';
 import type { EmailProvider } from '../email/EmailProvider';
 import { FakeSql, uninstallSql } from './helpers';
 
@@ -181,6 +181,34 @@ describe('templates', () => {
 
   it('pedido sem aceite registrado (anterior à migração) renderiza sem os links, sem quebrar', () => {
     const email = orderCreatedEmail(BASE_ORDER);
+
+    expect(email.html).not.toContain('/legal/');
+    expect(email.html).not.toMatch(/\bnull\b/);
+    expect(email.text).not.toContain('/legal/');
+    expect(email.text).not.toMatch(/\bnull\b/);
+  });
+
+  it('e-mail de pagamento aprovado (o que o cliente realmente recebe) linka a versão exata aceita', () => {
+    const email = paymentApprovedEmail({
+      ...BASE_ORDER,
+      legalAcceptance: {
+        version: '2026-08-28-v1',
+        acceptedAt: '2026-08-28T12:00:00.000Z',
+        termsHash: 'hash-terms',
+        privacyHash: 'hash-privacy',
+        refundHash: 'hash-refund',
+      },
+    });
+
+    const base = siteUrl();
+    expect(email.html).toContain(`${base}/legal/2026-08-28-v1/terms-of-service`);
+    expect(email.html).toContain(`${base}/legal/2026-08-28-v1/privacy-policy`);
+    expect(email.html).toContain(`${base}/legal/2026-08-28-v1/refund-policy`);
+    expect(email.text).toContain(`${base}/legal/2026-08-28-v1/terms-of-service`);
+  });
+
+  it('pagamento aprovado de pedido sem aceite registrado (anterior à migração) renderiza sem os links, sem quebrar', () => {
+    const email = paymentApprovedEmail(BASE_ORDER);
 
     expect(email.html).not.toContain('/legal/');
     expect(email.html).not.toMatch(/\bnull\b/);

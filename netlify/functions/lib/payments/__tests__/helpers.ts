@@ -122,7 +122,9 @@ export function paymentRow(overrides: Partial<SqlRow> = {}): SqlRow {
 
 export function licenseRow(overrides: Partial<SqlRow> = {}): SqlRow {
   return {
-    id: 42,
+    // UUID, como no schema real. Um inteiro aqui esconderia a conversão
+    // silenciosa que fazia toda licença virar `id: 0`.
+    id: '9a1b2c3d-4e5f-4a6b-8c7d-0e1f2a3b4c5d',
     order_id: '11111111-1111-4111-8111-111111111111',
     product_id: 1,
     discord_user_id: 'discord-1',

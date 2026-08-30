@@ -36,7 +36,7 @@ export function rowToSubscription(row: SqlRow): Subscription {
     status: toStatus(row.status),
     autoRenew: bool(row.auto_renew),
     nextBillingDate: isoDate(row.next_billing_date),
-    licenseId: optionalNum(row.license_id),
+    licenseId: optionalStr(row.license_id),
     createdAt: requiredIsoDate(row.created_at),
     cancelledAt: isoDate(row.cancelled_at),
   };
@@ -60,7 +60,7 @@ export type CreateSubscriptionRowInput = {
   status: SubscriptionStatus;
   autoRenew: boolean;
   nextBillingDate: string | null;
-  licenseId: number | null;
+  licenseId: string | null;
 };
 
 export async function createSubscription(input: CreateSubscriptionRowInput): Promise<Subscription> {

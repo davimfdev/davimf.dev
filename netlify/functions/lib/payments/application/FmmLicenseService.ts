@@ -109,7 +109,7 @@ export class FmmLicenseService {
    * Renovação aprovada estende a validade. Idempotente por construção: quem
    * chama já passou pela dedup de evento, e vitalício nunca renova.
    */
-  async extendForRenewal(licenseId: number, product: Product): Promise<License | null> {
+  async extendForRenewal(licenseId: string, product: Product): Promise<License | null> {
     if (product.isLifetime) return null;
     return extendLicense(licenseId, product.durationDays ?? 30);
   }

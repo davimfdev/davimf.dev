@@ -6,6 +6,8 @@ import { FakeSql, licenseRow, orderRow, productRow, uninstallSql } from './helpe
 
 const ORDER = rowToOrder(orderRow({ status: 'PAID' }));
 const PRODUCT = rowToProduct(productRow());
+/** UUID: a chave primária de `fmm_license_keys` nunca foi inteiro. */
+const LICENSE_ID = '9a1b2c3d-4e5f-4a6b-8c7d-0e1f2a3b4c5d';
 
 describe('FmmLicenseService', () => {
   let sql: FakeSql;
@@ -126,7 +128,7 @@ describe('FmmLicenseService', () => {
 
   it('vitalício nunca renova', async () => {
     const lifetime = rowToProduct(productRow({ is_lifetime: true, recurring_eligible: false, duration_days: 36500 }));
-    const extended = await new FmmLicenseService().extendForRenewal(42, lifetime);
+    const extended = await new FmmLicenseService().extendForRenewal(LICENSE_ID, lifetime);
     expect(extended).toBeNull();
     expect(sql.queriesMatching('UPDATE fmm_license_keys')).toHaveLength(0);
   });
@@ -135,7 +137,7 @@ describe('FmmLicenseService', () => {
     sql.use([
       { match: (q) => q.includes('UPDATE fmm_license_keys'), rows: [licenseRow({ expires_at: '2026-10-01T00:00:00.000Z' })] },
     ]);
-    const extended = await new FmmLicenseService().extendForRenewal(42, PRODUCT);
+    const extended = await new FmmLicenseService().extendForRenewal(LICENSE_ID, PRODUCT);
     expect(extended?.expiresAt).toBe('2026-10-01T00:00:00.000Z');
     expect(sql.queriesMatching('UPDATE fmm_license_keys')[0].values).toContain(30);
   });

@@ -243,7 +243,7 @@ export const paymentsApi = {
     call<{
       downloadUrl: string;
       licenses: Array<{
-        id: number;
+        id: string;
         key: string | null;
         keyPrefix: string;
         level: string;

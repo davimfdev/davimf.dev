@@ -167,13 +167,14 @@ export type Subscription = {
   status: SubscriptionStatus;
   autoRenew: boolean;
   nextBillingDate: string | null;
-  licenseId: number | null;
+  licenseId: string | null;
   createdAt: string;
   cancelledAt: string | null;
 };
 
 export type License = {
-  id: number;
+  /** UUID. `fmm_license_keys` é anterior a este módulo e nunca usou inteiro. */
+  id: string;
   orderId: string | null;
   productId: number | null;
   userId: string | null;

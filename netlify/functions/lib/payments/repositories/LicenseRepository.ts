@@ -27,7 +27,7 @@ function toStatus(value: unknown): LicenseStatus {
 
 export function rowToLicense(row: SqlRow): License {
   return {
-    id: num(row.id),
+    id: str(row.id),
     orderId: optionalStr(row.order_id),
     productId: optionalNum(row.product_id),
     userId: optionalStr(row.discord_user_id),
@@ -96,7 +96,7 @@ export async function findLicenseByOrder(orderId: string): Promise<LicenseWithSe
   return rows[0] ? rowToLicenseWithSecret(rows[0]) : null;
 }
 
-export async function findLicenseById(id: number): Promise<LicenseWithSecret | null> {
+export async function findLicenseById(id: string): Promise<LicenseWithSecret | null> {
   const rows = await paymentsSql`
     SELECT id, order_id, product_id, discord_user_id, key_prefix, level, status,
            duration_days, expires_at, activated_at, created_at, key_ciphertext
@@ -119,7 +119,7 @@ export async function listLicensesByUser(userId: string): Promise<LicenseWithSec
  * `is_active` acompanha para que fmm-activate/fmm-validate (que leem a coluna
  * antiga) continuem coerentes com o novo `status`.
  */
-export async function setLicenseStatus(id: number, status: LicenseStatus): Promise<License | null> {
+export async function setLicenseStatus(id: string, status: LicenseStatus): Promise<License | null> {
   const active = status === 'ACTIVE';
   const rows = await paymentsSql`
     UPDATE fmm_license_keys
@@ -131,7 +131,7 @@ export async function setLicenseStatus(id: number, status: LicenseStatus): Promi
 }
 
 /** Renovação aprovada ESTENDE a validade a partir da maior data entre hoje e a atual. */
-export async function extendLicense(id: number, days: number): Promise<License | null> {
+export async function extendLicense(id: string, days: number): Promise<License | null> {
   const rows = await paymentsSql`
     UPDATE fmm_license_keys
        SET expires_at = GREATEST(COALESCE(expires_at, now()), now()) + (${days} || ' days')::interval,

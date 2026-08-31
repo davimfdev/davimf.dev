@@ -393,6 +393,7 @@ const translations = {
       },
       tools: {
         heading: 'TOOLS',
+        seeAll: 'Ver todas',
         notes: { name: 'Notes', description: 'Anotações rápidas e sincronizadas' },
         url: { name: 'URL', description: 'Encurtador de URLs' },
         finance: { name: 'Finance', description: 'Controle pessoal de gastos' },
@@ -833,6 +834,7 @@ const translations = {
       },
       tools: {
         heading: 'TOOLS',
+        seeAll: 'See all',
         notes: { name: 'Notes', description: 'Quick synced notes' },
         url: { name: 'URL', description: 'Link shortener' },
         finance: { name: 'Finance', description: 'Personal expense tracking' },

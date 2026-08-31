@@ -10,6 +10,7 @@ import { HAS_BASEBOT_SHOTS, WORK_IMAGES } from '../features/home/homeData';
 import { EvidenceBand } from '../features/home/EvidenceBand';
 import { Hero } from '../features/home/Hero';
 import { SectionHeading } from '../features/home/SectionHeading';
+import { ToolsList } from '../features/home/ToolsList';
 import { WorkBlock } from '../features/home/WorkBlock';
 
 const Home = () => {
@@ -51,6 +52,8 @@ const Home = () => {
           ]}
         />
       )}
+
+      <ToolsList />
     </div>
   );
 };

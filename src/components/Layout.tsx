@@ -24,6 +24,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navLinkElsRef = useRef(new Map<string, HTMLAnchorElement>());
   const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0, visible: false });
 
+  // Fluidez: quando o alvo muda (um item ativo diferente), a barra "mergulha"
+  // de opacidade por ~120ms antes de voltar a 1 — um fade-through curto que
+  // suaviza a chegada, em vez de deslizar sempre na mesma opacidade.
+  const prevTargetRef = useRef<{ left: number; width: number } | null>(null);
+  const [dip, setDip] = useState(false);
+  const dipTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
   const measureNavIndicator = useCallback(() => {
     let activeEl: HTMLAnchorElement | null = null;
     navLinkElsRef.current.forEach((el) => {
@@ -32,7 +39,15 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
     if (activeEl) {
       const el = activeEl as HTMLAnchorElement;
-      setNavIndicator({ left: el.offsetLeft, width: el.offsetWidth, visible: true });
+      const next = { left: el.offsetLeft, width: el.offsetWidth };
+      const prev = prevTargetRef.current;
+      if (prev && (prev.left !== next.left || prev.width !== next.width)) {
+        setDip(true);
+        clearTimeout(dipTimeoutRef.current);
+        dipTimeoutRef.current = setTimeout(() => setDip(false), 120);
+      }
+      prevTargetRef.current = next;
+      setNavIndicator({ left: next.left, width: next.width, visible: true });
     } else {
       // Nenhum item ativo (Home, /fmm, /contact, etc.): a barra some, mas
       // mantém left/width do último item ativo — sumir "no lugar" em vez de
@@ -59,6 +74,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     observer.observe(container);
     return () => observer.disconnect();
   }, [measureNavIndicator]);
+
+  useEffect(() => () => clearTimeout(dipTimeoutRef.current), []);
 
   const handleLogin = () => {
     // Login unificado: passa pelo fluxo seguro (state + sessão no servidor).
@@ -232,8 +249,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 <span
                   aria-hidden="true"
                   data-nav-indicator=""
-                  className="absolute bottom-3 h-px bg-accent pointer-events-none transition-all duration-base ease-out-token"
-                  style={{ left: navIndicator.left, width: navIndicator.width, opacity: navIndicator.visible ? 1 : 0 }}
+                  className="absolute bottom-3 h-px bg-accent pointer-events-none"
+                  style={{
+                    left: navIndicator.left,
+                    width: navIndicator.width,
+                    opacity: !navIndicator.visible ? 0 : dip ? 0.35 : 1,
+                    transition:
+                      'left 340ms var(--ease-in-out), width 340ms var(--ease-out), opacity 200ms linear',
+                  }}
                 />
               </div>
 

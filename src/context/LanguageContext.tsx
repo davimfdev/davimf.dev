@@ -389,11 +389,15 @@ const translations = {
         link: 'Sobre mim',
         intro: 'Eu construo backend, bots, ferramentas e automações — e também soluções sob medida: watchdogs, aplicações personalizadas e integrações. O que eu faço é pegar uma ideia solta e trazer para a realidade de forma estruturada.',
         buildHeading: 'O QUE EU CONSTRUO',
-        build: {
-          products: { label: 'PRODUTOS', value: 'FiveM Mod Manager e BaseBot — licenciamento, pagamentos, painel e módulos.' },
-          custom: { label: 'SOB MEDIDA', value: 'Watchdogs, aplicações personalizadas, integrações e automações.' },
-          tools: { label: 'FERRAMENTAS', value: 'Seis utilitários abertos, do encurtador ao gerador de senhas.' },
-        },
+      },
+      projects: {
+        kinds: { product: 'PRODUTOS', site: 'SITES', tools: 'FERRAMENTAS' },
+        custom: { label: 'SOB MEDIDA', value: 'Watchdogs, aplicações personalizadas, integrações e automações.' },
+        fmm: { name: 'FiveM Mod Manager', description: 'Gerenciador de mods, perfis e otimização para FiveM.' },
+        basebot: { name: 'BaseBot', description: 'Bots modulares e painel de configuração para Discord.' },
+        davimfdev: { name: 'davimf.dev', description: 'Este site: produtos, pagamentos, licenciamento e ferramentas.' },
+        boasvindas: { name: 'boasvindas.online', description: 'Landing pages para hospedagem, com editor e QR para hóspedes.' },
+        tools: { name: 'Ferramentas', description: 'Seis utilitários abertos, do encurtador ao gerador de senhas.' },
       },
       stack: {
         heading: 'STACK',
@@ -794,11 +798,15 @@ const translations = {
         link: 'About me',
         intro: 'I build backend, bots, tools and automation — and bespoke solutions too: watchdogs, custom applications and integrations. What I do is take a loose idea and bring it into reality in a structured way.',
         buildHeading: 'WHAT I BUILD',
-        build: {
-          products: { label: 'PRODUCTS', value: 'FiveM Mod Manager and BaseBot — licensing, payments, dashboard and modules.' },
-          custom: { label: 'BESPOKE', value: 'Watchdogs, custom applications, integrations and automation.' },
-          tools: { label: 'TOOLS', value: 'Six open utilities, from the link shortener to the password generator.' },
-        },
+      },
+      projects: {
+        kinds: { product: 'PRODUCTS', site: 'SITES', tools: 'TOOLS' },
+        custom: { label: 'BESPOKE', value: 'Watchdogs, custom applications, integrations and automation.' },
+        fmm: { name: 'FiveM Mod Manager', description: 'Mod, profile and optimization manager for FiveM.' },
+        basebot: { name: 'BaseBot', description: 'Modular bots and a configuration panel for Discord.' },
+        davimfdev: { name: 'davimf.dev', description: 'This site: products, payments, licensing and tools.' },
+        boasvindas: { name: 'boasvindas.online', description: 'Landing pages for hospitality, with an editor and guest QR codes.' },
+        tools: { name: 'Ferramentas', description: 'Six open utilities, from the link shortener to the password generator.' },
       },
       stack: {
         heading: 'STACK',

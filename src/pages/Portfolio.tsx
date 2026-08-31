@@ -1,46 +1,133 @@
-import { ExternalLink } from 'lucide-react';
-import {useLanguage} from "../context/LanguageContext.tsx";
+/**
+ * Índice completo e filtrável de projetos.
+ *
+ * Diferente do /about (que resume as três tecnologias mais definidoras de
+ * cada projeto), esta página é o catálogo técnico completo: toda tag de
+ * cada projeto, e um filtro por tecnologia sobre `ALL_TECH`.
+ *
+ * Sem imagens de propósito — os únicos screenshots reais do produto são os
+ * do FMM, já usados na Home; inventar arte para os outros projetos não é
+ * opção. É uma lista técnica, não uma grade de cards.
+ *
+ * Filtro é OR, não AND: com cinco projetos, AND esvaziaria a lista no
+ * segundo clique.
+ */
+
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
+import { Eyebrow, Badge } from '../components/ui';
+import { PROJECTS, ALL_TECH } from '../features/projects/projectsData';
 
 const Portfolio = () => {
-    const { translations } = useLanguage();
-    const projects = translations.projectsList;
+  const { translations } = useLanguage();
+  const t = translations.home;
+  const p = t.projects;
+  const port = t.portfolio;
+
+  const [selected, setSelected] = useState<readonly string[]>([]);
+
+  const toggleTech = (tech: string) => {
+    setSelected((current) =>
+      current.includes(tech) ? current.filter((item) => item !== tech) : [...current, tech]
+    );
+  };
+
+  const clearSelection = () => setSelected([]);
+
+  const visibleProjects =
+    selected.length === 0
+      ? PROJECTS
+      : PROJECTS.filter((project) => project.tech.some((tech) => selected.includes(tech)));
+
+  const countLabel = visibleProjects.length === 1 ? port.countOne : port.count;
 
   return (
-    <div className="animate-fade-in relative z-10">
-      <h1 className="text-4xl font-bold mb-12 text-gradient inline-block">Portfolio</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {projects.map((project, index) => (
-          <div 
-            key={project.id} 
-            className="glass-panel group overflow-hidden animate-slide-up"
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            <div className="relative overflow-hidden">
-              <img
-                src={project.image}
-                alt={project.title}
-                className="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500 ease-out"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300"></div>
-            </div>
-            <div className="p-6 relative">
-              <h3 className="text-2xl font-semibold mb-3 text-fg group-hover:text-accent transition-colors">{project.title}</h3>
-              <p className="text-fg-muted mb-6 leading-relaxed line-clamp-3">{project.description}</p>
-              {project.link && (
-                <a
-                  href={project.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center text-accent hover:text-accent font-medium group/link"
-                >
-                  {translations.viewProject} 
-                  <ExternalLink size={18} className="ml-2 transform group-hover/link:-translate-y-1 group-hover/link:translate-x-1 transition-transform" />
-                </a>
-              )}
-            </div>
-          </div>
-        ))}
+    <div className="max-w-content mx-auto py-10 animate-fade-in">
+      <div className="flex items-center gap-4 mb-12">
+        <Eyebrow>{port.title}</Eyebrow>
+        <span className="h-px flex-1 bg-line" aria-hidden="true" />
       </div>
+
+      <p className="text-display-3 font-display text-fg max-w-prose text-balance leading-tight">
+        {port.intro}
+      </p>
+
+      <section className="mt-16">
+        <div className="flex items-center gap-4 mb-4">
+          <Eyebrow>{port.filterLabel}</Eyebrow>
+          <span className="h-px flex-1 bg-line" aria-hidden="true" />
+          {selected.length > 0 && (
+            <button
+              type="button"
+              onClick={clearSelection}
+              className="text-eyebrow font-semibold uppercase text-fg-muted hover:text-accent transition-colors duration-fast"
+            >
+              {port.clear}
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {ALL_TECH.map((tech) => {
+            const active = selected.includes(tech);
+            return (
+              <button
+                key={tech}
+                type="button"
+                aria-pressed={active}
+                onClick={() => toggleTech(tech)}
+                className={[
+                  'px-2.5 py-1 rounded-chip border text-sm transition-colors duration-fast',
+                  active
+                    ? 'bg-accent text-bg border-accent'
+                    : 'bg-surface-1 text-fg-soft border-line hover:border-line-strong hover:text-fg',
+                ].join(' ')}
+              >
+                {tech}
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="mt-4 text-sm text-fg-muted">
+          {visibleProjects.length} {countLabel}
+        </p>
+
+        <ul className="mt-8 divide-y divide-line">
+          {visibleProjects.map((project) => {
+            const copy = p[project.key as keyof typeof p] as { name: string; description: string };
+            return (
+              <li key={project.key} className="py-6 first:pt-0">
+                <h3 className="text-fg font-medium text-lg">
+                  {project.href === null ? (
+                    copy.name
+                  ) : project.href.startsWith('/') ? (
+                    <Link to={project.href} className="hover:text-accent transition-colors duration-fast">
+                      {copy.name}
+                    </Link>
+                  ) : (
+                    <a
+                      href={project.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-accent transition-colors duration-fast"
+                    >
+                      {copy.name}
+                    </a>
+                  )}
+                </h3>
+                <p className="mt-1 text-fg-soft">{copy.description}</p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {project.tech.map((tech) => (
+                    <Badge key={tech} tone="neutral">{tech}</Badge>
+                  ))}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
     </div>
   );
 };

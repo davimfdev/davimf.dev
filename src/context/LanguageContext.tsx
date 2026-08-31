@@ -86,9 +86,6 @@ const translations = {
     buyNow: "Comprar",
     sendMessage: "Enviar Mensagem",
     viewProject: "Ver projeto",
-    projectsList: [
-      { id: 1, title: "Discord Bot", description: "Um bot completamente personalizavel, focado em moderação e segurança.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" }
-    ],
     productList: [
       { id: 1, name: "Conhecer os bots do discord", description: "Um bot completamente personálizavel, focado em moderação e segurança.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" },
       { id: 2, name: "FiveM Mod Manager", description: "Gerencie seus mods do FiveM com apenas um clique. Instale, ative e desative mods de som, RPF e Citizens com backup automático e otimizações de desempenho.", image: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/270123807/original/2e13089eeeef09bbb2a04d238dce1f419b5a7268/install-gta-fivem-server-with-qbcore-linux-or-windows.png", link: "/fmm" }
@@ -399,6 +396,14 @@ const translations = {
         boasvindas: { name: 'boasvindas.online', description: 'Landing pages para hospedagem, com editor e QR para hóspedes.' },
         tools: { name: 'Ferramentas', description: 'Seis utilitários abertos, do encurtador ao gerador de senhas.' },
       },
+      portfolio: {
+        title: 'Projetos',
+        intro: 'Tudo que eu construí e mantenho, com as tecnologias de cada um.',
+        filterLabel: 'FILTRAR POR TECNOLOGIA',
+        clear: 'Limpar',
+        count: 'projetos',
+        countOne: 'projeto',
+      },
       stack: {
         heading: 'STACK',
         runtime: 'RUNTIME',
@@ -495,9 +500,6 @@ const translations = {
     buyNow: "Buy Now",
     sendMessage: "Send Message",
     viewProject: "View project",
-    projectsList: [
-        { id: 1, title: "Discord Bot", description: "A fully customizable bot focused on moderation and security.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" }
-    ],
     productList: [
         { id: 1, name: "Discover the discord bots", description: "A fully customizable bot focused on moderation and security.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" },
         { id: 2, name: "FiveM Mod Manager", description: "Manage your FiveM mods with just one click. Safely install, enable, and disable sound, RPF, and Citizens mods with automatic backups and performance optimizations.", image: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/270123807/original/2e13089eeeef09bbb2a04d238dce1f419b5a7268/install-gta-fivem-server-with-qbcore-linux-or-windows.png", link: "/fmm" }
@@ -806,7 +808,15 @@ const translations = {
         basebot: { name: 'BaseBot', description: 'Modular bots and a configuration panel for Discord.' },
         davimfdev: { name: 'davimf.dev', description: 'This site: products, payments, licensing and tools.' },
         boasvindas: { name: 'boasvindas.online', description: 'Landing pages for hospitality, with an editor and guest QR codes.' },
-        tools: { name: 'Ferramentas', description: 'Six open utilities, from the link shortener to the password generator.' },
+        tools: { name: 'Tools', description: 'Six open utilities, from the link shortener to the password generator.' },
+      },
+      portfolio: {
+        title: 'Projects',
+        intro: 'Everything I have built and maintain, with the technologies behind each one.',
+        filterLabel: 'FILTER BY TECHNOLOGY',
+        clear: 'Clear',
+        count: 'projects',
+        countOne: 'project',
       },
       stack: {
         heading: 'STACK',

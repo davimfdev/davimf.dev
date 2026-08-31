@@ -181,7 +181,7 @@ const MyOrders = () => {
 
       {orders.length === 0 ? (
         <div className="glass-panel p-10 text-center">
-          <ShoppingCart size={44} className="text-line-strong mx-auto mb-4" />
+          <ShoppingCart size={44} className="text-fg-muted mx-auto mb-4" />
           <p className="text-fg-soft">Nenhum pedido encontrado.</p>
           <Link to="/fmm" className="mt-4 inline-block text-accent hover:underline">Ver planos</Link>
         </div>

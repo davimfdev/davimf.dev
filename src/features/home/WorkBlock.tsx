@@ -81,7 +81,7 @@ export function WorkBlock({ kicker, title, description, tags, link, href, shots,
         </Reveal>
         {secondary && (
           <Reveal delay={120}>
-            <Shot shot={secondary} className="mt-6 ml-auto w-[85%] sm:w-[72%]" />
+            <Shot shot={secondary} className={`mt-6 ${mirrored ? 'mr-auto' : 'ml-auto'} w-[85%] sm:w-[72%]`} />
           </Reveal>
         )}
       </div>

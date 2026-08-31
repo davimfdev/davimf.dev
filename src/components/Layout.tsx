@@ -345,7 +345,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           )}
         </nav>
 
-        <main aria-hidden={isMenuOpen || undefined} className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 w-full animate-fade-in relative z-20">
+        <main aria-hidden={isMenuOpen || undefined} className="flex-grow max-w-wide mx-auto px-gutter pt-20 pb-0 w-full relative z-20">
           {children}
         </main>
 

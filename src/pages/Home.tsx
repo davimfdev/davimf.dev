@@ -6,10 +6,12 @@
  */
 
 import { Hero } from '../features/home/Hero';
+import { EvidenceBand } from '../features/home/EvidenceBand';
 
 const Home = () => (
   <div className="max-w-content mx-auto">
     <Hero />
+    <EvidenceBand />
   </div>
 );
 

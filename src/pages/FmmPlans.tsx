@@ -143,11 +143,12 @@ const FmmPlans = () => {
         <div style={{ minWidth: 620 }}>
 
           {/* ── Plan header cards ── */}
-          <div className="grid pt-5 pb-4" style={{ gridTemplateColumns: COLS }}>
+          <div className="grid pb-4" style={{ gridTemplateColumns: COLS }}>
             <div />
 
             {/* Free */}
             <div className="flex flex-col items-center px-3">
+              <div className="h-7 flex items-end pb-1" />
               <div
                 className="w-full rounded-panel mb-3 flex items-center justify-center bg-surface-1 border border-line"
                 style={{ aspectRatio: '3/4' }}
@@ -161,6 +162,7 @@ const FmmPlans = () => {
 
             {/* Básico */}
             <div className="flex flex-col items-center px-3">
+              <div className="h-7 flex items-end pb-1" />
               <div
                 className="w-full rounded-panel mb-3 flex items-center justify-center bg-surface-2 border border-line-strong"
                 style={{ aspectRatio: '3/4' }}
@@ -173,12 +175,12 @@ const FmmPlans = () => {
             </div>
 
             {/* Pro — destacado por composição, não por matiz nova. */}
-            <div className="flex flex-col items-center px-3 relative">
-              <Badge tone="accent" className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
-                {t.fmmRecommended}
-              </Badge>
+            <div className="flex flex-col items-center px-3">
+              <div className="h-7 flex items-end pb-1">
+                <Badge tone="accent">{t.fmmRecommended}</Badge>
+              </div>
               <div
-                className="w-full rounded-panel mb-3 mt-1 flex items-center justify-center bg-surface-3 border border-accent"
+                className="w-full rounded-panel mb-3 flex items-center justify-center bg-surface-3 border border-accent"
                 style={{ aspectRatio: '3/4' }}
               >
                 <Layers size={36} className="text-accent" />

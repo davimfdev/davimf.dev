@@ -403,6 +403,8 @@ const translations = {
         products: 'Produtos',
         tools: 'Ferramentas',
         about: 'Sobre',
+        account: 'Conta',
+        menu: 'Menu',
       },
     },
   },
@@ -793,6 +795,8 @@ const translations = {
         products: 'Products',
         tools: 'Tools',
         about: 'About',
+        account: 'Account',
+        menu: 'Menu',
       },
     },
   }

@@ -10,6 +10,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [discordUser, setDiscordUser] = useState<any>(null);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -91,6 +92,52 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   }, [discordUser, isDashboard]); // discordUser mantém o efeito em sincronia quando o login acontece
 
+  /**
+   * O painel mobile cobre a página inteira. Sem estas quatro coisas ele é um
+   * `div` bonito: o teclado continua entrando no conteúdo escondido atrás, e
+   * o leitor de tela continua anunciando aquele conteúdo como se estivesse
+   * visível.
+   */
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const { overflow } = document.body.style;
+    document.body.style.overflow = 'hidden';
+    mobilePanelRef.current?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+
+      // Sem isto o Tab sai do painel e vai para o conteúdo coberto.
+      const focusables = mobilePanelRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled])',
+      );
+      if (!focusables || focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = overflow;
+      previouslyFocused?.focus();
+    };
+  }, [isMenuOpen]);
+
   if (isDashboard) return <>{children}</>;
 
   return (
@@ -143,7 +190,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   <button
                     onClick={() => (discordUser ? setIsUserMenuOpen(!isUserMenuOpen) : handleLogin())}
                     className="flex items-center justify-center overflow-hidden w-7 h-7 rounded-full border border-line hover:border-line-strong text-fg-muted hover:text-fg transition-colors duration-fast"
-                    aria-label="Conta"
+                    aria-label={translations.home.nav.account}
                   >
                     {discordUser ? (
                       <img src={`https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`} alt="" className="w-full h-full object-cover" />
@@ -176,7 +223,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </div>
               </div>
 
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-fg-muted hover:text-fg transition-colors" aria-label="Menu">
+              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-fg-muted hover:text-fg transition-colors" aria-label={translations.home.nav.menu}>
                 {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
             </div>
@@ -188,7 +235,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             menu está aberto.
           */}
           {isMenuOpen && (
-            <div className="md:hidden fixed inset-0 top-14 bg-bg z-40 px-gutter pt-10 flex flex-col">
+            <div
+              ref={mobilePanelRef}
+              tabIndex={-1}
+              role="dialog"
+              aria-modal="true"
+              aria-label={translations.home.nav.menu}
+              className="md:hidden fixed inset-0 top-14 bg-bg z-40 px-gutter pt-10 flex flex-col"
+            >
               {navigation.map((item) => (
                 <Link key={item.name} to={item.href} onClick={() => setIsMenuOpen(false)} className="text-display-3 text-fg py-3 border-b border-line">
                   {item.name}
@@ -208,11 +262,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           )}
         </nav>
 
-        <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 w-full animate-fade-in relative z-20">
+        <main aria-hidden={isMenuOpen || undefined} className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-8 w-full animate-fade-in relative z-20">
           {children}
         </main>
 
-        <footer className="glass-nav relative z-10 mt-auto">
+        <footer aria-hidden={isMenuOpen || undefined} className="glass-nav relative z-10 mt-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Documentos obrigatórios para venda a consumidor, sempre a um clique. */}
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-6 text-sm">

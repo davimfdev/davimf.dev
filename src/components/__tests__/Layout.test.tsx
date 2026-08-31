@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import Layout from '../Layout';
 import { LanguageProvider } from '../../context/LanguageContext';
@@ -113,5 +114,28 @@ describe('Layout — navbar como régua', () => {
   it('o toggle de idioma continua presente', () => {
     render(<MemoryRouter><LanguageProvider><Layout><div /></Layout></LanguageProvider></MemoryRouter>);
     expect(screen.getByLabelText('Toggle language')).toBeDefined();
+  });
+
+  it('o rótulo acessível do menu mobile vem das traduções, não cravado', async () => {
+    renderLayout('/');
+    // Se algum dia virar literal, este teste continua passando em PT e falha
+    // em EN — que é exatamente o bug que ele existe para pegar.
+    expect(screen.getByLabelText('Menu')).toBeDefined();
+    expect(screen.getByLabelText('Conta')).toBeDefined();
+  });
+
+  it('o painel mobile se anuncia como diálogo e esconde o conteúdo atrás', async () => {
+    const user = userEvent.setup();
+    renderLayout('/');
+
+    await user.click(screen.getByLabelText('Menu'));
+
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(document.querySelector('main')?.getAttribute('aria-hidden')).toBe('true');
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.querySelector('main')?.getAttribute('aria-hidden')).toBeNull();
   });
 });

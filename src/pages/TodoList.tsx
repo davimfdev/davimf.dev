@@ -36,7 +36,7 @@ const ConfirmModal: React.FC<{
           <h3 className="text-2xl font-bold text-fg mb-2">{title}</h3>
           <p className="text-fg-muted mb-8 leading-relaxed">{message}</p>
           <div className="flex flex-col gap-3">
-            <button onClick={onConfirm} className="w-full py-3 bg-danger hover:bg-danger text-fg font-bold rounded-xl transition-all shadow-lg shadow-danger/20">
+            <button onClick={onConfirm} className="w-full py-3 bg-danger hover:bg-danger text-bg font-bold rounded-xl transition-all shadow-lg shadow-danger/20">
               Confirmar Exclusão
             </button>
             <button onClick={onCancel} className="w-full py-3 bg-surface-1 hover:bg-surface-2 text-fg-muted font-medium rounded-xl transition-all">
@@ -178,7 +178,7 @@ const TodoList: React.FC = () => {
           {tasks.map(task => (
               <div key={task.id} className={`glass-panel p-4 flex items-center gap-4 group border-l-4 ${task.priority === 'High' ? 'border-danger' : task.priority === 'Medium' ? 'border-warn' : 'border-accent'} ${task.completed ? 'opacity-50' : ''}`}>
                 <div onClick={() => toggleTaskCompletion(task)} className={`w-6 h-6 rounded-full border-2 cursor-pointer flex items-center justify-center ${task.completed ? 'bg-ok border-ok' : 'border-line-strong'}`}>
-                  {task.completed && <Check size={16} className="text-fg" />}
+                  {task.completed && <Check size={16} className="text-bg" />}
                 </div>
                 <span className={`flex-grow text-fg ${task.completed ? 'line-through text-fg-muted' : ''}`}>{task.text}</span>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">

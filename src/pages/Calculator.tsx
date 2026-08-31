@@ -160,7 +160,7 @@ const Calculator = () => {
                         <div className="text-center pt-6 border-t border-line mt-6">
                             <button
                                 onClick={() => setItens([])}
-                                className="px-6 py-2 rounded-lg font-medium text-danger hover:text-fg hover:bg-danger border border-danger/30 hover:border-danger transition-all"
+                                className="px-6 py-2 rounded-lg font-medium text-danger hover:text-bg hover:bg-danger border border-danger/30 hover:border-danger transition-all"
                             >
                                 {translations.calculatorClearAll}
                             </button>

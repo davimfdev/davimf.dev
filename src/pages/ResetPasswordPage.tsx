@@ -71,7 +71,7 @@ const ResetPasswordPage: React.FC = () => {
       
       {message && <div className="bg-ok/20 border border-ok/30 text-ok px-4 py-3 rounded-lg mb-6 text-sm">{message}</div>}
       {error && (
-        <div className="bg-danger/20 border border-danger/30 text-danger px-4 py-3 rounded-lg mb-6 text-sm">
+        <div className="bg-danger/10 border border-danger/30 text-danger px-4 py-3 rounded-lg mb-6 text-sm">
             <p>{error}</p>
             {error.includes('token') && (
                 <p className="mt-3">

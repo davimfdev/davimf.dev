@@ -18,7 +18,7 @@ const ConfirmModal: React.FC<{
         <h3 className="text-2xl font-bold text-fg mb-2">{title}</h3>
         <p className="text-fg-muted mb-8 leading-relaxed">{message}</p>
         <div className="flex flex-col gap-3">
-          <button onClick={onConfirm} className="w-full py-3 bg-danger hover:bg-danger text-fg font-bold rounded-xl transition-all shadow-lg shadow-danger/20">
+          <button onClick={onConfirm} className="w-full py-3 bg-danger hover:bg-danger text-bg font-bold rounded-xl transition-all shadow-lg shadow-danger/20">
             Confirmar
           </button>
           <button onClick={onCancel} className="w-full py-3 bg-surface-1 hover:bg-surface-2 text-fg-muted font-medium rounded-xl transition-all">

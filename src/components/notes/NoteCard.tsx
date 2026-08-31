@@ -210,7 +210,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
               </button>
               <button
                 onClick={handleDelete}
-                className="text-xs px-2 py-1 rounded bg-danger/30 hover:bg-danger/50 text-danger transition-colors"
+                className="text-xs px-2 py-1 rounded bg-danger/30 hover:bg-danger/50 text-fg transition-colors"
               >
                 Deletar
               </button>

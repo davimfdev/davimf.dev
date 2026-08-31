@@ -11,17 +11,17 @@ describe('Button', () => {
     render(<Button>Comprar</Button>);
     const button = screen.getByRole('button', { name: 'Comprar' });
     expect(button.tagName).toBe('BUTTON');
-    expect(button.className).toContain('bg-fg');
+    expect(button.className.split(/\s+/)).toContain('bg-fg');
   });
 
   it('aplica a variante pedida', () => {
     render(<Button variant="danger">Excluir</Button>);
-    expect(screen.getByRole('button').className).toContain('bg-danger');
+    expect(screen.getByRole('button').className.split(/\s+/)).toContain('bg-danger');
   });
 
   it('aplica o tamanho pedido', () => {
     render(<Button size="sm">Ok</Button>);
-    expect(screen.getByRole('button').className).toContain('text-sm');
+    expect(screen.getByRole('button').className.split(/\s+/)).toContain('text-sm');
   });
 
   it('vira outro elemento com `as` — inclusive um componente de rota', () => {
@@ -55,7 +55,7 @@ describe('Button', () => {
   it('aceita className adicional sem perder as classes da variante', () => {
     render(<Button className="w-full">Ok</Button>);
     const button = screen.getByRole('button');
-    expect(button.className).toContain('w-full');
-    expect(button.className).toContain('bg-fg');
+    expect(button.className.split(/\s+/)).toContain('w-full');
+    expect(button.className.split(/\s+/)).toContain('bg-fg');
   });
 });

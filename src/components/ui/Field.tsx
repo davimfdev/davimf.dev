@@ -8,6 +8,12 @@
  * `children` é função porque o controle pode ser input, textarea ou um
  * componente de terceiro: o Field entrega os atributos e não impõe o elemento.
  * Rótulo, dica e erro são ReactNode — o site é PT/EN e quem chama traduz.
+ *
+ * O contrato tem uma folga conhecida: um callback que ignore `props` continua
+ * compilando, e o campo perde silenciosamente id e aria. Não há tipo que
+ * obrigue um callback a usar seu argumento. A falha aparece no teste de quem
+ * chama — `getByLabelText` deixa de encontrar o controle —, e é ali que ela
+ * deve ser pega.
  */
 
 import { useId } from 'react';

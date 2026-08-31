@@ -379,7 +379,16 @@ const translations = {
           description: 'Bots modulares e painel de configuração para Discord.',
           tags: 'DISCORD · AUTOMAÇÃO · MODERAÇÃO · DASHBOARD',
           link: 'Ver BaseBot',
-          shots: { primary: 'SERVIDORES', secondary: 'CONFIGURAÇÃO' },
+          shots: {
+            primary: {
+              label: 'SERVIDORES',
+              alt: 'Painel de servidores do BaseBot mostrando os servidores Discord do proprietário.',
+            },
+            secondary: {
+              label: 'CONFIGURAÇÃO',
+              alt: 'Painel de configuração de um bot no BaseBot exibindo opções de personalização.',
+            },
+          },
         },
       },
       tools: {
@@ -810,7 +819,16 @@ const translations = {
           description: 'Modular bots and a configuration panel for Discord.',
           tags: 'DISCORD · AUTOMATION · MODERATION · DASHBOARD',
           link: 'See BaseBot',
-          shots: { primary: 'SERVERS', secondary: 'CONFIGURATION' },
+          shots: {
+            primary: {
+              label: 'SERVERS',
+              alt: "BaseBot's servers panel showing the site owner's Discord servers.",
+            },
+            secondary: {
+              label: 'CONFIGURATION',
+              alt: "BaseBot's configuration panel for a bot displaying customization options.",
+            },
+          },
         },
       },
       tools: {

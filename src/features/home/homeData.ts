@@ -70,4 +70,13 @@ export const STACK_GROUPS = [
 export const WORK_IMAGES = {
   fmmPrimary: { src: '/work/fmm-mods.png', scale: 3.32, offsetX: -36.6, offsetY: -108.4 },
   fmmSecondary: { src: '/work/fmm-optimization.png', scale: 2.35, offsetX: -27.6, offsetY: -44.2 },
+  basebotPrimary: { src: '/work/basebot-servers.png', scale: 1.6, offsetX: -4, offsetY: -3 },
+  basebotSecondary: { src: '/work/basebot-config.png', scale: 1.8, offsetX: -8, offsetY: -8 },
 } as const;
+
+/**
+ * As capturas do BaseBot dependem da sessão Discord e do banco do dono, então
+ * são depositadas à mão (ver `public/work/README.md`). Enquanto não existirem,
+ * a seção não é renderizada: ausente é melhor que com imagem falsa.
+ */
+export const HAS_BASEBOT_SHOTS = false;

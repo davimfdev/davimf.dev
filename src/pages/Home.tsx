@@ -6,7 +6,7 @@
  */
 
 import { useLanguage } from '../context/LanguageContext';
-import { WORK_IMAGES } from '../features/home/homeData';
+import { HAS_BASEBOT_SHOTS, WORK_IMAGES } from '../features/home/homeData';
 import { EvidenceBand } from '../features/home/EvidenceBand';
 import { Hero } from '../features/home/Hero';
 import { SectionHeading } from '../features/home/SectionHeading';
@@ -35,6 +35,22 @@ const Home = () => {
           { ...WORK_IMAGES.fmmSecondary, label: t.work.fmm.shots.secondary.label, alt: t.work.fmm.shots.secondary.alt },
         ]}
       />
+
+      {HAS_BASEBOT_SHOTS && (
+        <WorkBlock
+          mirrored
+          kicker={t.work.basebot.kicker}
+          title={t.work.basebot.title}
+          description={t.work.basebot.description}
+          tags={t.work.basebot.tags}
+          link={t.work.basebot.link}
+          href="/products"
+          shots={[
+            { ...WORK_IMAGES.basebotPrimary, label: t.work.basebot.shots.primary.label, alt: t.work.basebot.shots.primary.alt },
+            { ...WORK_IMAGES.basebotSecondary, label: t.work.basebot.shots.secondary.label, alt: t.work.basebot.shots.secondary.alt },
+          ]}
+        />
+      )}
     </div>
   );
 };

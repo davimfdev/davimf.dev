@@ -143,7 +143,7 @@ const FmmPlans = () => {
         <div style={{ minWidth: 620 }}>
 
           {/* ── Plan header cards ── */}
-          <div className="grid pb-4" style={{ gridTemplateColumns: COLS }}>
+          <div className="grid pt-5 pb-4" style={{ gridTemplateColumns: COLS }}>
             <div />
 
             {/* Free */}
@@ -174,7 +174,7 @@ const FmmPlans = () => {
 
             {/* Pro — destacado por composição, não por matiz nova. */}
             <div className="flex flex-col items-center px-3 relative">
-              <Badge tone="accent" className="absolute -top-1 left-1/2 -translate-x-1/2 z-10">
+              <Badge tone="accent" className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
                 {t.fmmRecommended}
               </Badge>
               <div

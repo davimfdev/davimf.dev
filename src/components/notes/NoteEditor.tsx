@@ -30,7 +30,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
         value={content}
         onChange={e => onChange(e.target.value)}
         onBlur={onBlur}
-        className="w-full h-full min-h-[120px] bg-transparent text-gray-100 text-sm resize-none outline-none placeholder-gray-500 font-mono"
+        className="w-full h-full min-h-[120px] bg-transparent text-fg text-sm resize-none outline-none placeholder-gray-500 font-mono"
         placeholder="Escreva em markdown..."
       />
     );
@@ -39,12 +39,12 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
   return (
     <div
       onClick={onStartEdit}
-      className="w-full h-full min-h-[80px] cursor-text text-sm text-gray-200 prose prose-invert prose-sm max-w-none"
+      className="w-full h-full min-h-[80px] cursor-text text-sm text-fg prose prose-invert prose-sm max-w-none"
     >
       {content ? (
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
       ) : (
-        <span className="text-gray-500 italic">Clique para editar...</span>
+        <span className="text-fg-muted italic">Clique para editar...</span>
       )}
     </div>
   );

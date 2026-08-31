@@ -98,7 +98,7 @@ export default function TicketView() {
           <div className="text-center mb-6">
             <Lock size={32} className="text-accent mx-auto mb-3" />
             <h1 className="text-2xl font-bold">#{bundle?.channelName}</h1>
-            <p className="text-gray-400">{bundle?.guildName}</p>
+            <p className="text-fg-muted">{bundle?.guildName}</p>
           </div>
           <input
             type="password" value={password} autoFocus
@@ -122,7 +122,7 @@ export default function TicketView() {
       <header className="mb-6 border-b border-white/10 pb-4">
         <p className="text-accent text-sm">{esc(data.categoryLabel)}</p>
         <h1 className="text-2xl font-bold">#{bundle?.channelName}</h1>
-        <p className="text-gray-400 text-sm mt-1">
+        <p className="text-fg-muted text-sm mt-1">
           Aberto por <b>{esc(data.openerName)}</b> em {esc(data.openedAt)} · Fechado por{' '}
           <b>{esc(data.closedByName)}</b> em {esc(data.closedAt)} · {data.messages.length} mensagens
           {data.closeReason ? <> · Motivo: {esc(data.closeReason)}</> : null}
@@ -136,15 +136,15 @@ export default function TicketView() {
               <div className="flex items-center gap-2 text-sm">
                 <span className="font-semibold">{esc(m.authorName)}</span>
                 {m.bot && <span className="text-[10px] bg-accent/20 text-accent px-1 rounded">bot</span>}
-                <span className="text-gray-500">{fmt(m.timestampMillis)}</span>
-                {m.edited && <span className="text-gray-600 text-xs">(editada)</span>}
+                <span className="text-fg-muted">{fmt(m.timestampMillis)}</span>
+                {m.edited && <span className="text-fg-muted text-xs">(editada)</span>}
               </div>
-              {m.content && <div className="text-gray-200 break-words" dangerouslySetInnerHTML={{ __html: md(m.content, emoji) }} />}
+              {m.content && <div className="text-fg break-words" dangerouslySetInnerHTML={{ __html: md(m.content, emoji) }} />}
               {(m.embeds || []).map((e, j) => (
                 <div key={j} className="mt-1 border-l-4 pl-3 py-1 bg-black/20 rounded" style={{ borderColor: e.color != null ? '#' + ((e.color >>> 0) & 0xffffff).toString(16).padStart(6, '0') : '#E6B566' }}>
-                  {e.authorName && <div className="text-xs text-gray-400">{esc(e.authorName)}</div>}
+                  {e.authorName && <div className="text-xs text-fg-muted">{esc(e.authorName)}</div>}
                   {e.title && <div className="font-semibold" dangerouslySetInnerHTML={{ __html: md(e.title, emoji) }} />}
-                  {e.description && <div className="text-sm text-gray-300" dangerouslySetInnerHTML={{ __html: md(e.description, emoji) }} />}
+                  {e.description && <div className="text-sm text-fg-soft" dangerouslySetInnerHTML={{ __html: md(e.description, emoji) }} />}
                   {(e.fields || []).map((f, k) => (
                     <div key={k} className="mt-1">
                       <div className="text-xs font-semibold" dangerouslySetInnerHTML={{ __html: md(f.name, emoji) }} />
@@ -152,7 +152,7 @@ export default function TicketView() {
                     </div>
                   ))}
                   {e.imageUrl && <img src={e.imageUrl} alt="" className="mt-2 rounded max-h-80" onError={(ev) => ((ev.target as HTMLImageElement).style.display = 'none')} />}
-                  {e.footer && <div className="text-xs text-gray-500 mt-1">{esc(e.footer)}</div>}
+                  {e.footer && <div className="text-xs text-fg-muted mt-1">{esc(e.footer)}</div>}
                 </div>
               ))}
               {m.attachments.map((a, j) => (

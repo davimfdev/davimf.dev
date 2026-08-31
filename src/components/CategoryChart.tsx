@@ -95,7 +95,7 @@ const CategoryChart: React.FC<CategoryChartProps> = ({ transactions }) => {
             <Pie data={expenseData} options={options} />
         ) : (
             <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500 italic text-sm">Nenhum dado para exibir.</p>
+              <p className="text-fg-muted italic text-sm">Nenhum dado para exibir.</p>
             </div>
         )}
       </div>

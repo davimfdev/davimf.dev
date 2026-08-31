@@ -41,7 +41,7 @@ const UrlRedirectPage = () => {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center animate-fade-in">
         <Loader2 size={48} className="text-accent animate-spin mb-4" />
-        <p className="text-xl text-gray-300 font-medium">Redirecionando...</p>
+        <p className="text-xl text-fg-soft font-medium">Redirecionando...</p>
       </div>
     );
   }
@@ -53,7 +53,7 @@ const UrlRedirectPage = () => {
           <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
             <AlertCircle size={32} className="text-red-400" />
           </div>
-          <h2 className="text-2xl font-bold mb-4 text-gray-100">Erro de Redirecionamento</h2>
+          <h2 className="text-2xl font-bold mb-4 text-fg">Erro de Redirecionamento</h2>
           <p className="text-red-400 font-medium mb-8 bg-red-500/10 p-3 rounded-lg border border-red-500/20">
             {error}
           </p>

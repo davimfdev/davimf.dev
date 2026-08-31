@@ -84,25 +84,25 @@ const ResetPasswordPage: React.FC = () => {
       {token && !message && (
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">Nova Senha</label>
+            <label htmlFor="password" className="block text-sm font-medium text-fg-muted mb-2">Nova Senha</label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-white placeholder-gray-500 transition-all"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-gray-500 transition-all"
               required
               placeholder="••••••••"
             />
           </div>
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">Confirmar Nova Senha</label>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-fg-muted mb-2">Confirmar Nova Senha</label>
             <input
               id="confirmPassword"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-white placeholder-gray-500 transition-all"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-gray-500 transition-all"
               required
               placeholder="••••••••"
             />

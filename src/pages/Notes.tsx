@@ -34,7 +34,7 @@ const Notes: React.FC = () => {
   if (!token) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <p className="text-gray-400 text-lg">Faça login com Discord para usar as notas.</p>
+        <p className="text-fg-muted text-lg">Faça login com Discord para usar as notas.</p>
       </div>
     );
   }
@@ -54,12 +54,12 @@ const Notes: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gradient">Notas</h1>
-          <p className="text-gray-400 text-sm mt-1">{notes.length} nota{notes.length !== 1 ? 's' : ''}</p>
+          <p className="text-fg-muted text-sm mt-1">{notes.length} nota{notes.length !== 1 ? 's' : ''}</p>
         </div>
         {notes.length > 0 && (
           <button
             onClick={handleOrganize}
-            className="flex items-center gap-2 px-4 py-2 glass-panel text-sm text-gray-300 hover:text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 glass-panel text-sm text-fg-muted hover:text-fg transition-colors"
           >
             <LayoutGrid size={16} />
             Organizar
@@ -87,8 +87,8 @@ const Notes: React.FC = () => {
 
         {notes.length === 0 && (
           <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-            <p className="text-gray-500 text-lg mb-2">Nenhuma nota ainda.</p>
-            <p className="text-gray-600 text-sm">Clique no + para criar sua primeira nota.</p>
+            <p className="text-fg-muted text-lg mb-2">Nenhuma nota ainda.</p>
+            <p className="text-fg-muted text-sm">Clique no + para criar sua primeira nota.</p>
           </div>
         )}
       </div>

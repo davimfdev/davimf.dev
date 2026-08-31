@@ -33,13 +33,13 @@ const ConfirmModal: React.FC<{
           <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
             <AlertCircle size={32} className="text-red-400" />
           </div>
-          <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-          <p className="text-gray-400 mb-8 leading-relaxed">{message}</p>
+          <h3 className="text-2xl font-bold text-fg mb-2">{title}</h3>
+          <p className="text-fg-muted mb-8 leading-relaxed">{message}</p>
           <div className="flex flex-col gap-3">
-            <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">
+            <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-fg font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">
               Confirmar Exclusão
             </button>
-            <button onClick={onCancel} className="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-300 font-medium rounded-xl transition-all">
+            <button onClick={onCancel} className="w-full py-3 bg-white/5 hover:bg-white/10 text-fg-muted font-medium rounded-xl transition-all">
               Cancelar
             </button>
           </div>
@@ -132,7 +132,7 @@ const TodoList: React.FC = () => {
     } catch (err) { console.error(err); }
   };
 
-  if (!token) return <div className="text-white p-20 text-center">Logue com o Discord.</div>;
+  if (!token) return <div className="text-fg p-20 text-center">Logue com o Discord.</div>;
   if (tasksLoading) return <div className="text-center p-20"><Loader2 className="animate-spin text-accent mx-auto" /></div>;
 
   return (
@@ -157,12 +157,12 @@ const TodoList: React.FC = () => {
                 value={newTaskText}
                 onChange={(e) => setNewTaskText(e.target.value)}
                 placeholder="O que precisa ser feito?"
-                className="w-full px-5 py-4 bg-gray-900/50 border border-white/10 rounded-xl mb-4 text-white outline-none"
+                className="w-full px-5 py-4 bg-surface-1/50 border border-white/10 rounded-xl mb-4 text-fg outline-none"
                 required
             />
             <div className="flex flex-wrap gap-3">
-              <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="bg-gray-900/50 border border-white/10 p-2 rounded-lg text-gray-300" />
-              <select value={priority} onChange={e => setPriority(e.target.value as Priority)} className="bg-gray-900/50 border border-white/10 p-2 rounded-lg text-gray-300">
+              <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="bg-surface-1/50 border border-white/10 p-2 rounded-lg text-fg-muted" />
+              <select value={priority} onChange={e => setPriority(e.target.value as Priority)} className="bg-surface-1/50 border border-white/10 p-2 rounded-lg text-fg-muted">
                 <option value="Low">Baixa</option>
                 <option value="Medium">Média</option>
                 <option value="High">Alta</option>
@@ -177,14 +177,14 @@ const TodoList: React.FC = () => {
         <div className="space-y-4">
           {tasks.map(task => (
               <div key={task.id} className={`glass-panel p-4 flex items-center gap-4 group border-l-4 ${task.priority === 'High' ? 'border-red-500' : task.priority === 'Medium' ? 'border-yellow-500' : 'border-accent'} ${task.completed ? 'opacity-50' : ''}`}>
-                <div onClick={() => toggleTaskCompletion(task)} className={`w-6 h-6 rounded-full border-2 cursor-pointer flex items-center justify-center ${task.completed ? 'bg-green-500 border-green-500' : 'border-gray-500'}`}>
-                  {task.completed && <Check size={16} className="text-white" />}
+                <div onClick={() => toggleTaskCompletion(task)} className={`w-6 h-6 rounded-full border-2 cursor-pointer flex items-center justify-center ${task.completed ? 'bg-green-500 border-green-500' : 'border-line-strong'}`}>
+                  {task.completed && <Check size={16} className="text-fg" />}
                 </div>
-                <span className={`flex-grow text-white ${task.completed ? 'line-through text-gray-500' : ''}`}>{task.text}</span>
+                <span className={`flex-grow text-fg ${task.completed ? 'line-through text-fg-muted' : ''}`}>{task.text}</span>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                  <button onClick={() => { setEditingTask(task); setNewTaskText(task.text); setDueDate(task.due_date || ''); }} className="p-2 text-gray-400 hover:text-accent"><Edit size={18} /></button>
+                  <button onClick={() => { setEditingTask(task); setNewTaskText(task.text); setDueDate(task.due_date || ''); }} className="p-2 text-fg-muted hover:text-accent"><Edit size={18} /></button>
                   {/* CHAMA O MODAL CUSTOMIZADO AQUI */}
-                  <button onClick={() => triggerDeleteTask(task.id)} className="p-2 text-gray-400 hover:text-red-400"><Trash2 size={18} /></button>
+                  <button onClick={() => triggerDeleteTask(task.id)} className="p-2 text-fg-muted hover:text-red-400"><Trash2 size={18} /></button>
                 </div>
               </div>
           ))}

@@ -64,14 +64,14 @@ const RequestPasswordResetPage: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+          <label htmlFor="email" className="block text-sm font-medium text-fg-muted mb-2">Email</label>
           <input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="seu@email.com"
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-white placeholder-gray-500 transition-all"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-gray-500 transition-all"
             required
             disabled={loading}
           />
@@ -89,7 +89,7 @@ const RequestPasswordResetPage: React.FC = () => {
         </button>
       </form>
       <div className="mt-8 pt-6 border-t border-white/10 text-center">
-        <p className="text-gray-400">
+        <p className="text-fg-muted">
           Lembrou sua senha?{' '}
           <Link to="/login" className="text-accent hover:text-accent font-medium transition-colors">
             Fazer Login

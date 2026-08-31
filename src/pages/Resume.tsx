@@ -30,7 +30,7 @@ const Resume = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12">
         <div className="mb-4 sm:mb-0">
           <h1 className="text-4xl font-bold text-gradient inline-block">{fullName}</h1>
-          <p className="text-gray-400 mt-1">{translations.resume}</p>
+          <p className="text-fg-muted mt-1">{translations.resume}</p>
         </div>
         <button
           onClick={handleDownload}
@@ -49,8 +49,8 @@ const Resume = () => {
               <Mail size={22} className="mr-3" /> {personalInfo}
             </h2>
             <div className="space-y-4">
-              <p className="flex items-center text-gray-300"><Phone size={16} className="mr-3 text-gray-400" /> {phone}</p>
-              <p className="flex items-center text-gray-300"><Mail size={16} className="mr-3 text-gray-400" /> {email}</p>
+              <p className="flex items-center text-fg-muted"><Phone size={16} className="mr-3 text-fg-muted" /> {phone}</p>
+              <p className="flex items-center text-fg-muted"><Mail size={16} className="mr-3 text-fg-muted" /> {email}</p>
             </div>
           </section>
 
@@ -59,7 +59,7 @@ const Resume = () => {
               <Code size={22} className="mr-3" /> {knowledge}
             </h2>
             <ul className="space-y-3">
-              {knowledgeList.map((item: string) => <li key={item} className="flex items-center text-gray-300"><Star size={14} className="mr-3 text-accent" />{item}</li>)}
+              {knowledgeList.map((item: string) => <li key={item} className="flex items-center text-fg-muted"><Star size={14} className="mr-3 text-accent" />{item}</li>)}
             </ul>
           </section>
 
@@ -68,7 +68,7 @@ const Resume = () => {
               <Star size={22} className="mr-3" /> {skills}
             </h2>
             <ul className="space-y-3">
-              {skillsList.map((item: string) => <li key={item} className="flex items-center text-gray-300"><Star size={14} className="mr-3 text-accent" />{item}</li>)}
+              {skillsList.map((item: string) => <li key={item} className="flex items-center text-fg-muted"><Star size={14} className="mr-3 text-accent" />{item}</li>)}
             </ul>
           </section>
 
@@ -77,7 +77,7 @@ const Resume = () => {
               <Wrench size={22} className="mr-3" /> {tools}
             </h2>
             <ul className="space-y-3">
-              {toolsList.map((item: string) => <li key={item} className="flex items-center text-gray-300"><Star size={14} className="mr-3 text-accent" />{item}</li>)}
+              {toolsList.map((item: string) => <li key={item} className="flex items-center text-fg-muted"><Star size={14} className="mr-3 text-accent" />{item}</li>)}
             </ul>
           </section>
         </div>
@@ -91,10 +91,10 @@ const Resume = () => {
             <div className="space-y-8">
               {experienceList.map((exp: any, index: number) => (
                 <div key={exp.company} className={`relative pl-8 before:absolute before:left-2 before:top-2 before:w-2 before:h-2 before:bg-accent before:rounded-full before:ring-4 before:ring-accent/20 ${index < experienceList.length - 1 ? 'pb-8 border-l border-dashed border-white/20' : ''}`}>
-                  <h3 className="text-xl font-bold text-gray-100">{exp.title}</h3>
+                  <h3 className="text-xl font-bold text-fg">{exp.title}</h3>
                   <a href={exp.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent transition-colors">{exp.company}</a>
-                  <p className="text-sm text-gray-400 mt-1 mb-3">{exp.period}</p>
-                  <p className="text-gray-300 leading-relaxed">{exp.description}</p>
+                  <p className="text-sm text-fg-muted mt-1 mb-3">{exp.period}</p>
+                  <p className="text-fg-soft leading-relaxed">{exp.description}</p>
                 </div>
               ))}
             </div>
@@ -107,10 +107,10 @@ const Resume = () => {
             <div className="space-y-8">
               {educationList.map((edu: any, index: number) => (
                 <div key={edu.institution} className={`relative pl-8 before:absolute before:left-2 before:top-2 before:w-2 before:h-2 before:bg-accent before:rounded-full before:ring-4 before:ring-accent/20 ${index < educationList.length - 1 ? 'pb-8 border-l border-dashed border-white/20' : ''}`}>
-                  <h3 className="text-xl font-bold text-gray-100">{edu.course}</h3>
+                  <h3 className="text-xl font-bold text-fg">{edu.course}</h3>
                   <a href={edu.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent transition-colors">{edu.institution}</a>
-                  <p className="text-sm text-gray-400 mt-1 mb-3">{edu.period}</p>
-                  <p className="text-gray-300 leading-relaxed">{edu.description}</p>
+                  <p className="text-sm text-fg-muted mt-1 mb-3">{edu.period}</p>
+                  <p className="text-fg-soft leading-relaxed">{edu.description}</p>
                 </div>
               ))}
             </div>

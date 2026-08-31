@@ -16,7 +16,7 @@ function ColoredValue({ value }: { value: string }) {
   return (
     <span className="break-all font-mono text-lg">
       {value.split('').map((ch, i) => {
-        let cls = 'text-gray-100';
+        let cls = 'text-fg';
         if (/[0-9]/.test(ch)) cls = 'text-accent';
         else if (/[^a-zA-Z0-9]/.test(ch)) cls = 'text-red-400';
         return (
@@ -106,17 +106,17 @@ const PasswordGenerator = () => {
   const updatePassphrase = (patch: Partial<typeof config.passphrase>) =>
     setConfig({ ...config, passphrase: { ...config.passphrase, ...patch } });
 
-  const card = 'bg-gray-800/60 border border-gray-700 rounded-xl p-4';
-  const label = 'text-sm text-gray-300';
+  const card = 'bg-surface-2/60 border border-line rounded-xl p-4';
+  const label = 'text-sm text-fg-muted';
   const input =
-    'bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 w-full';
+    'bg-surface-1 border border-line rounded-lg px-3 py-2 text-fg w-full';
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-2xl mx-auto space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-white">{t.pwgenTitle}</h1>
-          <p className="text-gray-400 mt-1">{t.pwgenSubtitle}</p>
+          <h1 className="text-3xl font-bold text-fg">{t.pwgenTitle}</h1>
+          <p className="text-fg-muted mt-1">{t.pwgenSubtitle}</p>
         </div>
 
         {/* Tabs */}
@@ -128,7 +128,7 @@ const PasswordGenerator = () => {
               className={`flex-1 py-2 rounded-lg font-medium transition ${
                 config.tab === tab
                   ? 'bg-accent text-ink'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  : 'bg-surface-2 text-fg-muted hover:bg-surface-3'
               }`}
             >
               {tab === 'password' ? t.pwgenTabPassword : t.pwgenTabPassphrase}
@@ -139,14 +139,14 @@ const PasswordGenerator = () => {
         {/* Output card */}
         <div className={`${card} flex items-center justify-between gap-3`}>
           <div className="min-h-[28px] flex-1">
-            {value ? <ColoredValue value={value} /> : <span className="text-gray-500">—</span>}
+            {value ? <ColoredValue value={value} /> : <span className="text-fg-muted">—</span>}
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button onClick={regenerate} title={t.pwgenRegenerate} className="p-2 hover:bg-gray-700 rounded-lg">
-              <RefreshCw size={18} className="text-gray-200" />
+            <button onClick={regenerate} title={t.pwgenRegenerate} className="p-2 hover:bg-surface-3 rounded-lg">
+              <RefreshCw size={18} className="text-fg" />
             </button>
-            <button onClick={() => copy(value)} title={t.pwgenCopy} className="p-2 hover:bg-gray-700 rounded-lg">
-              {copied ? <Check size={18} className="text-green-400" /> : <Copy size={18} className="text-gray-200" />}
+            <button onClick={() => copy(value)} title={t.pwgenCopy} className="p-2 hover:bg-surface-3 rounded-lg">
+              {copied ? <Check size={18} className="text-green-400" /> : <Copy size={18} className="text-fg" />}
             </button>
           </div>
         </div>
@@ -154,7 +154,7 @@ const PasswordGenerator = () => {
 
         {/* Options */}
         <div className={`${card} space-y-4`}>
-          <h2 className="text-lg font-semibold text-white">{t.pwgenOptions}</h2>
+          <h2 className="text-lg font-semibold text-fg">{t.pwgenOptions}</h2>
 
           {config.tab === 'password' && (
             <>
@@ -167,7 +167,7 @@ const PasswordGenerator = () => {
                     className={`flex-1 py-1.5 rounded-lg text-sm ${
                       config.passwordMode === m
                         ? 'bg-accent text-ink'
-                        : 'bg-gray-900 text-gray-300 hover:bg-gray-700'
+                        : 'bg-surface-1 text-fg-muted hover:bg-surface-3'
                     }`}
                   >
                     {m === 'random' ? t.pwgenModeRandom : t.pwgenModeWords}
@@ -191,7 +191,7 @@ const PasswordGenerator = () => {
                       }
                       className={input}
                     />
-                    <p className="text-xs text-gray-500 mt-1">{t.pwgenLengthHint}</p>
+                    <p className="text-xs text-fg-muted mt-1">{t.pwgenLengthHint}</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
@@ -201,7 +201,7 @@ const PasswordGenerator = () => {
                       ['digits', t.pwgenNumbers],
                       ['symbols', t.pwgenSymbols],
                     ] as const).map(([key, lbl]) => (
-                      <label key={key} className="flex items-center gap-2 text-gray-200">
+                      <label key={key} className="flex items-center gap-2 text-fg">
                         <input
                           type="checkbox"
                           checked={config.random[key]}
@@ -308,7 +308,7 @@ const PasswordGenerator = () => {
                   <option value="">{t.pwgenSepNone}</option>
                 </select>
               </div>
-              <label className="flex items-center gap-2 text-gray-200">
+              <label className="flex items-center gap-2 text-fg">
                 <input
                   type="checkbox"
                   checked={config.passphrase.capitalize}
@@ -316,7 +316,7 @@ const PasswordGenerator = () => {
                 />
                 {t.pwgenCapitalize}
               </label>
-              <label className="flex items-center gap-2 text-gray-200">
+              <label className="flex items-center gap-2 text-fg">
                 <input
                   type="checkbox"
                   checked={config.passphrase.includeNumber}
@@ -331,7 +331,7 @@ const PasswordGenerator = () => {
         {/* History */}
         <div className={`${card} space-y-3`}>
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">{t.pwgenHistory}</h2>
+            <h2 className="text-lg font-semibold text-fg">{t.pwgenHistory}</h2>
             {history.length > 0 && (
               <button
                 onClick={clearHistory}
@@ -342,24 +342,24 @@ const PasswordGenerator = () => {
             )}
           </div>
           {history.length === 0 ? (
-            <p className="text-gray-500 text-sm">{t.pwgenHistoryEmpty}</p>
+            <p className="text-fg-muted text-sm">{t.pwgenHistoryEmpty}</p>
           ) : (
             <ul className="space-y-2">
               {history.map((entry, i) => (
-                <li key={entry.createdAt + '-' + i} className="flex items-center justify-between gap-2 bg-gray-900 rounded-lg px-3 py-2">
-                  <span className="font-mono text-sm text-gray-200 break-all">
+                <li key={entry.createdAt + '-' + i} className="flex items-center justify-between gap-2 bg-surface-1 rounded-lg px-3 py-2">
+                  <span className="font-mono text-sm text-fg break-all">
                     {revealed[i] ? entry.value : '•'.repeat(Math.min(entry.value.length, 16))}
                   </span>
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       onClick={() => setRevealed((r) => ({ ...r, [i]: !r[i] }))}
                       title={revealed[i] ? t.pwgenHide : t.pwgenShow}
-                      className="p-1.5 hover:bg-gray-700 rounded"
+                      className="p-1.5 hover:bg-surface-3 rounded"
                     >
-                      {revealed[i] ? <EyeOff size={16} className="text-gray-300" /> : <Eye size={16} className="text-gray-300" />}
+                      {revealed[i] ? <EyeOff size={16} className="text-fg-muted" /> : <Eye size={16} className="text-fg-muted" />}
                     </button>
-                    <button onClick={() => copy(entry.value)} title={t.pwgenCopy} className="p-1.5 hover:bg-gray-700 rounded">
-                      <Copy size={16} className="text-gray-300" />
+                    <button onClick={() => copy(entry.value)} title={t.pwgenCopy} className="p-1.5 hover:bg-surface-3 rounded">
+                      <Copy size={16} className="text-fg-muted" />
                     </button>
                   </div>
                 </li>

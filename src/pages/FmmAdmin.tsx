@@ -15,13 +15,13 @@ const ConfirmModal: React.FC<{
         <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
           <AlertCircle size={32} className="text-red-400" />
         </div>
-        <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-        <p className="text-gray-400 mb-8 leading-relaxed">{message}</p>
+        <h3 className="text-2xl font-bold text-fg mb-2">{title}</h3>
+        <p className="text-fg-muted mb-8 leading-relaxed">{message}</p>
         <div className="flex flex-col gap-3">
-          <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">
+          <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-fg font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">
             Confirmar
           </button>
-          <button onClick={onCancel} className="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-300 font-medium rounded-xl transition-all">
+          <button onClick={onCancel} className="w-full py-3 bg-white/5 hover:bg-white/10 text-fg-muted font-medium rounded-xl transition-all">
             Cancelar
           </button>
         </div>
@@ -189,55 +189,55 @@ const FmmAdmin = () => {
     <div className="container mx-auto px-4 py-12 animate-fade-in relative z-10 max-w-5xl">
       <div className="flex items-center gap-3 mb-8">
         <ShieldCheck size={28} className="text-accent" />
-        <h1 className="text-3xl font-extrabold text-white">Admin FMM</h1>
-        <span className="text-xs text-gray-500 font-mono ml-auto">{userId}</span>
+        <h1 className="text-3xl font-extrabold text-fg">Admin FMM</h1>
+        <span className="text-xs text-fg-muted font-mono ml-auto">{userId}</span>
       </div>
 
       {/* ── Generator ── */}
       <div className="glass-panel p-6 mb-6">
-        <h2 className="text-lg font-bold text-white mb-5">Gerar Chaves</h2>
+        <h2 className="text-lg font-bold text-fg mb-5">Gerar Chaves</h2>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="text-xs text-gray-400 uppercase tracking-wider mb-2 block">Plano</label>
+            <label className="text-xs text-fg-muted uppercase tracking-wider mb-2 block">Plano</label>
             <div className="flex gap-2">
               {(['basic', 'pro'] as const).map((l) => (
                 <button key={l} onClick={() => setLevel(l)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${level === l ? (l === 'pro' ? 'bg-accent text-ink' : 'bg-accent text-ink') : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${level === l ? (l === 'pro' ? 'bg-accent text-ink' : 'bg-accent text-ink') : 'bg-white/5 text-fg-muted hover:bg-white/10'}`}>
                   {l}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-xs text-gray-400 uppercase tracking-wider mb-2 block">Quantidade</label>
+            <label className="text-xs text-fg-muted uppercase tracking-wider mb-2 block">Quantidade</label>
             <input type="number" min={1} max={50} value={quantity}
               onChange={(e) => setQuantity(Math.max(1, Math.min(50, parseInt(e.target.value) || 1)))}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-accent" />
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-fg text-sm focus:outline-none focus:border-accent" />
           </div>
         </div>
 
         <div className="mb-5">
-          <label className="text-xs text-gray-400 uppercase tracking-wider mb-2 block">
+          <label className="text-xs text-fg-muted uppercase tracking-wider mb-2 block">
             Duração — {durationDays >= 36500 ? 'Vitalício' : `${durationDays} dias`}
           </label>
           <div className="flex gap-2 mb-3">
             {PRESETS.map((p) => (
               <button key={p.days} onClick={() => setDurationDays(p.days)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${durationDays === p.days ? 'bg-accent text-ink' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${durationDays === p.days ? 'bg-accent text-ink' : 'bg-white/5 text-fg-muted hover:bg-white/10'}`}>
                 {p.label}
               </button>
             ))}
           </div>
           <input type="number" min={1} value={durationDays}
             onChange={(e) => setDurationDays(Math.max(1, parseInt(e.target.value) || 1))}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-accent"
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-fg text-sm focus:outline-none focus:border-accent"
             placeholder="Dias personalizados" />
         </div>
 
         {genError && <p className="text-red-400 text-sm mb-4 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{genError}</p>}
 
         <button onClick={handleGenerate} disabled={generating}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-white transition-all disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-fg transition-all disabled:opacity-60"
           style={{ background: 'linear-gradient(90deg,#2563eb,#7c3aed)' }}
           onMouseEnter={(e) => !generating && (e.currentTarget.style.filter = 'brightness(1.15)')}
           onMouseLeave={(e) => (e.currentTarget.style.filter = '')}>
@@ -248,12 +248,12 @@ const FmmAdmin = () => {
 
       {generatedKeys.length > 0 && (
         <div className="glass-panel p-6 mb-6">
-          <h2 className="text-lg font-bold text-white mb-4">Chaves Geradas (sessão atual)</h2>
+          <h2 className="text-lg font-bold text-fg mb-4">Chaves Geradas (sessão atual)</h2>
           <div className="flex flex-col gap-2">
             {generatedKeys.map((k, i) => (
               <div key={k.key} className="flex items-center gap-3 bg-black/30 border border-white/10 rounded-xl px-4 py-3">
                 <code className="font-mono text-accent text-sm tracking-widest flex-grow select-all">{k.key}</code>
-                <button onClick={() => copyKey(i)} className="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                <button onClick={() => copyKey(i)} className="text-fg-muted hover:text-fg transition-colors flex-shrink-0">
                   {k.copied ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
                 </button>
               </div>
@@ -265,22 +265,22 @@ const FmmAdmin = () => {
       {/* ── All Keys Table ── */}
       <div className="glass-panel p-6">
         <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
-          <h2 className="text-lg font-bold text-white">
+          <h2 className="text-lg font-bold text-fg">
             Todas as Chaves{' '}
-            <span className="text-sm text-gray-500 font-normal">({filtered.length}/{dbKeys.length})</span>
+            <span className="text-sm text-fg-muted font-normal">({filtered.length}/{dbKeys.length})</span>
           </h2>
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Prefixo, user ID, notes..."
-                className="bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-sm text-white focus:outline-none focus:border-accent w-52"
+                className="bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-sm text-fg focus:outline-none focus:border-accent w-52"
               />
             </div>
             <button onClick={fetchKeys} disabled={keysLoading}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all disabled:opacity-50">
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-fg-muted hover:text-fg transition-all disabled:opacity-50">
               <RefreshCw size={15} className={keysLoading ? 'animate-spin' : ''} />
             </button>
           </div>
@@ -291,12 +291,12 @@ const FmmAdmin = () => {
         {keysLoading && !dbKeys.length ? (
           <div className="text-center py-10"><Loader size={24} className="text-accent animate-spin mx-auto" /></div>
         ) : filtered.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">Nenhuma chave encontrada.</p>
+          <p className="text-fg-muted text-center py-8">Nenhuma chave encontrada.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-gray-500 uppercase tracking-wider border-b border-white/10">
+                <tr className="text-left text-xs text-fg-muted uppercase tracking-wider border-b border-white/10">
                   <th className="pb-3 pr-4">Prefixo</th>
                   <th className="pb-3 pr-4">Plano</th>
                   <th className="pb-3 pr-4">Status</th>
@@ -316,7 +316,7 @@ const FmmAdmin = () => {
                     <tr key={k.id} className={`${!k.is_active ? 'opacity-50' : ''} hover:bg-white/2 transition-colors`}>
                       {/* Prefix */}
                       <td className="py-3 pr-4">
-                        <code className="font-mono text-gray-300 text-xs">{k.key_prefix}…</code>
+                        <code className="font-mono text-fg-muted text-xs">{k.key_prefix}…</code>
                       </td>
 
                       {/* Level */}
@@ -339,17 +339,17 @@ const FmmAdmin = () => {
                       <td className="py-3 pr-4">
                         {k.is_claimed
                           ? <span className="text-xs text-yellow-400 bg-yellow-500/10 px-2 py-0.5 rounded-full">Vinculada</span>
-                          : <span className="text-xs text-gray-600">Livre</span>}
+                          : <span className="text-xs text-fg-muted">Livre</span>}
                       </td>
 
                       {/* Expiry */}
-                      <td className="py-3 pr-4 text-gray-400 text-xs whitespace-nowrap">
+                      <td className="py-3 pr-4 text-fg-muted text-xs whitespace-nowrap">
                         {lifetime ? '∞ Vitalício' : fmt(k.expires_at)}
                       </td>
 
                       {/* Discord user */}
                       <td className="py-3 pr-4">
-                        <span className="text-xs text-gray-500 font-mono">{k.discord_user_id ?? '—'}</span>
+                        <span className="text-xs text-fg-muted font-mono">{k.discord_user_id ?? '—'}</span>
                       </td>
 
                       {/* Actions */}
@@ -401,7 +401,7 @@ const FmmAdmin = () => {
                                 min={1}
                                 value={editingDuration.days}
                                 onChange={(e) => setEditingDuration({ id: k.id, days: Math.max(1, parseInt(e.target.value) || 1) })}
-                                className="w-16 bg-white/10 border border-white/20 rounded px-1.5 py-0.5 text-xs text-white focus:outline-none focus:border-accent"
+                                className="w-16 bg-white/10 border border-white/20 rounded px-1.5 py-0.5 text-xs text-fg focus:outline-none focus:border-accent"
                               />
                               <button
                                 onClick={() => doAction('set_duration', k.id, { duration_days: editingDuration.days })}
@@ -412,7 +412,7 @@ const FmmAdmin = () => {
                               </button>
                               <button
                                 onClick={() => setEditingDuration(null)}
-                                className="p-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 text-xs transition-all"
+                                className="p-1 rounded bg-white/5 hover:bg-white/10 text-fg-muted text-xs transition-all"
                               >
                                 ✕
                               </button>

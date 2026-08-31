@@ -110,10 +110,10 @@ export const NoteCard: React.FC<NoteCardProps> = ({
           style={{ ...bgStyle, borderColor: `rgba(${rgb}, 0.4)` }}
         >
           <div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
-            <span className="font-semibold text-white truncate">{note.title}</span>
+            <span className="font-semibold text-fg truncate">{note.title}</span>
             <button
               onClick={() => onUpdate({ id: note.id, is_maximized: false })}
-              className="p-1 rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors text-xs"
+              className="p-1 rounded hover:bg-white/10 text-fg-muted hover:text-fg transition-colors text-xs"
             >
               Restaurar
             </button>
@@ -163,7 +163,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
             value={note.title}
             onChange={e => onUpdate({ id: note.id, title: e.target.value }, 500)}
             onMouseDown={e => e.stopPropagation()}
-            className="flex-1 bg-transparent text-white text-sm font-medium outline-none truncate min-w-0"
+            className="flex-1 bg-transparent text-fg text-sm font-medium outline-none truncate min-w-0"
             placeholder="Título..."
           />
           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
@@ -204,7 +204,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
             <div className="flex gap-2">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="text-xs px-2 py-1 rounded hover:bg-white/10 text-gray-300 transition-colors"
+                className="text-xs px-2 py-1 rounded hover:bg-white/10 text-fg-muted transition-colors"
               >
                 Cancelar
               </button>

@@ -29,7 +29,7 @@ const LegalVersionNotFound: React.FC<LegalVersionNotFoundProps> = ({ version, cu
   const { translations } = useLanguage();
 
   return (
-    <div className="max-w-4xl mx-auto p-8 text-gray-300 animate-fade-in relative z-10">
+    <div className="max-w-4xl mx-auto p-8 text-fg-soft animate-fade-in relative z-10">
       <div className="flex items-center gap-4 mb-4">
         <div className="p-3 bg-accent/20 rounded-xl border border-accent/30">
           <Icon size={32} className="text-accent" />
@@ -40,7 +40,7 @@ const LegalVersionNotFound: React.FC<LegalVersionNotFoundProps> = ({ version, cu
       <div className="space-y-4 glass-panel p-8 sm:p-10 border border-white/10 animate-slide-up">
         <p className="leading-relaxed">
           {translations.legalVersionNotFoundPrefix}{' '}
-          <span className="text-gray-100 font-semibold">{version}</span>{' '}
+          <span className="text-fg font-semibold">{version}</span>{' '}
           {translations.legalVersionNotFoundSuffix}
         </p>
         <p className="leading-relaxed">{translations.legalVersionNotFoundExplanation}</p>

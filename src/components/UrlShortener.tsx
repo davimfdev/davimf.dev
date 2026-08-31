@@ -23,11 +23,11 @@ const ConfirmModal: React.FC<{ isOpen: boolean; title: string; message: string; 
           <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
             <AlertCircle size={32} className="text-red-400" />
           </div>
-          <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-          <p className="text-gray-400 mb-8 leading-relaxed">{message}</p>
+          <h3 className="text-2xl font-bold text-fg mb-2">{title}</h3>
+          <p className="text-fg-muted mb-8 leading-relaxed">{message}</p>
           <div className="flex flex-col gap-3">
-            <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">Confirmar Exclusão</button>
-            <button onClick={onCancel} className="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-300 font-medium rounded-xl transition-all">Cancelar</button>
+            <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-fg font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">Confirmar Exclusão</button>
+            <button onClick={onCancel} className="w-full py-3 bg-white/5 hover:bg-white/10 text-fg-muted font-medium rounded-xl transition-all">Cancelar</button>
           </div>
         </div>
       </div>
@@ -133,7 +133,7 @@ const UrlShortener = () => {
             <Scissors size={36} className="text-accent" />
           </div>
           <h1 className="text-4xl font-extrabold text-gradient text-center">Encurtador de Links</h1>
-          <p className="text-gray-400 mt-4 text-center">Crie e gerencie seus links curtos.</p>
+          <p className="text-fg-muted mt-4 text-center">Crie e gerencie seus links curtos.</p>
         </div>
 
         {/* Formulário principal */}
@@ -147,7 +147,7 @@ const UrlShortener = () => {
                   value={originalUrl}
                   onChange={(e) => setOriginalUrl(e.target.value)}
                   required
-                  className="w-full pl-12 pr-4 py-4 bg-gray-900/60 border border-white/10 rounded-xl focus:ring-2 focus:ring-accent text-white outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-4 bg-surface-1/60 border border-white/10 rounded-xl focus:ring-2 focus:ring-accent text-fg outline-none transition-all"
               />
             </div>
             <button type="submit" disabled={loading} className="w-full btn-primary py-4 font-bold text-lg flex justify-center items-center gap-2">
@@ -172,7 +172,7 @@ const UrlShortener = () => {
                   <Copy size={15} />
                   {copied ? 'Copiado!' : 'Copiar'}
                 </button>
-                <a href={shortUrl} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 transition-colors" title="Abrir">
+                <a href={shortUrl} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-fg-muted transition-colors" title="Abrir">
                   <ExternalLink size={16} />
                 </a>
               </div>
@@ -183,7 +183,7 @@ const UrlShortener = () => {
         {/* Histórico do Usuário */}
         {token && (
             <div className="animate-slide-up">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-fg mb-6 flex items-center gap-2">
                 <History className="text-accent" /> Meus Links
               </h2>
 
@@ -204,20 +204,20 @@ const UrlShortener = () => {
                                 {displayShortUrl ? displayShortUrl : 'Erro: Link curto não encontrado'}
                               </p>
                               {/* Link Longo (Cores ajustadas para ficarem bem visíveis) */}
-                              <p className="text-gray-300 text-sm truncate mt-1">
+                              <p className="text-fg-muted text-sm truncate mt-1">
                                 {displayOriginalUrl}
                               </p>
                             </div>
                             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                              <button onClick={() => copyToClipboard(displayShortUrl)} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 transition-colors" title="Copiar"><Copy size={18}/></button>
-                              <a href={displayShortUrl} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 transition-colors" title="Abrir"><ExternalLink size={18}/></a>
-                              <button onClick={() => setConfirmModal({ isOpen: true, urlId: url.id })} className="p-2 bg-red-500/5 hover:bg-red-500/20 rounded-lg text-gray-500 hover:text-red-400 transition-colors" title="Apagar"><Trash2 size={18}/></button>
+                              <button onClick={() => copyToClipboard(displayShortUrl)} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-fg-muted transition-colors" title="Copiar"><Copy size={18}/></button>
+                              <a href={displayShortUrl} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-fg-muted transition-colors" title="Abrir"><ExternalLink size={18}/></a>
+                              <button onClick={() => setConfirmModal({ isOpen: true, urlId: url.id })} className="p-2 bg-red-500/5 hover:bg-red-500/20 rounded-lg text-fg-muted hover:text-red-400 transition-colors" title="Apagar"><Trash2 size={18}/></button>
                             </div>
                           </div>
                       );
                     })
                 ) : (
-                    <div className="glass-panel p-10 text-center text-gray-500 border-dashed border-white/10">Você ainda não criou nenhum link encurtado.</div>
+                    <div className="glass-panel p-10 text-center text-fg-muted border-dashed border-white/10">Você ainda não criou nenhum link encurtado.</div>
                 )}
               </div>
             </div>

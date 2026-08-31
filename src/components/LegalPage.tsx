@@ -16,7 +16,7 @@ type LegalPageProps = {
 };
 
 const LegalPage: React.FC<LegalPageProps> = ({ document, icon: Icon }) => (
-  <div className="max-w-4xl mx-auto p-8 text-gray-300 animate-fade-in relative z-10">
+  <div className="max-w-4xl mx-auto p-8 text-fg-soft animate-fade-in relative z-10">
     <div className="flex items-center gap-4 mb-4">
       <div className="p-3 bg-accent/20 rounded-xl border border-accent/30">
         <Icon size={32} className="text-accent" />
@@ -24,13 +24,13 @@ const LegalPage: React.FC<LegalPageProps> = ({ document, icon: Icon }) => (
       <h1 className="text-4xl font-extrabold text-gradient">{document.title}</h1>
     </div>
 
-    <p className="text-gray-400 mb-2">{document.summary}</p>
-    <p className="text-sm text-gray-500 mb-10">{document.updatedAt}</p>
+    <p className="text-fg-muted mb-2">{document.summary}</p>
+    <p className="text-sm text-fg-muted mb-10">{document.updatedAt}</p>
 
     <div className="space-y-8 glass-panel p-8 sm:p-10 border border-white/10 animate-slide-up">
       {document.sections.map((section, index) => (
         <section key={section.heading}>
-          <h2 className="text-2xl font-bold mb-3 text-gray-100 flex items-center">
+          <h2 className="text-2xl font-bold mb-3 text-fg flex items-center">
             <span className="bg-accent text-ink text-sm w-6 h-6 flex items-center justify-center rounded-full mr-3 flex-shrink-0">
               {index + 1}
             </span>
@@ -45,7 +45,7 @@ const LegalPage: React.FC<LegalPageProps> = ({ document, icon: Icon }) => (
             ))}
 
             {section.bullets && (
-              <ul className="space-y-3 bg-white/5 p-4 rounded-lg border border-white/10 text-gray-300">
+              <ul className="space-y-3 bg-white/5 p-4 rounded-lg border border-white/10 text-fg-soft">
                 {section.bullets.map((bullet) => (
                   <li key={bullet} className="flex items-start">
                     <div className="w-1.5 h-1.5 rounded-full bg-accent mt-2 mr-3 flex-shrink-0" />

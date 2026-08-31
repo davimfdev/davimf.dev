@@ -26,8 +26,8 @@ const Products = () => {
             </div>
             
             <div className="p-6 flex flex-col flex-grow relative z-10">
-              <h3 className="text-2xl font-bold mb-3 text-gray-100 group-hover:text-accent transition-colors">{product.name}</h3>
-              <p className="text-gray-400 mb-6 flex-grow leading-relaxed line-clamp-3">{product.description}</p>
+              <h3 className="text-2xl font-bold mb-3 text-fg group-hover:text-accent transition-colors">{product.name}</h3>
+              <p className="text-fg-muted mb-6 flex-grow leading-relaxed line-clamp-3">{product.description}</p>
               
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-auto pt-4 border-t border-white/10">
                 <Link

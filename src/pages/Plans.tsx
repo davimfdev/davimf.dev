@@ -38,16 +38,16 @@ const Plans = () => {
 
     return (
       <div key={plan.title} className="glass-panel p-8 flex flex-col animate-slide-up transform hover:-translate-y-2 transition-all duration-300">
-        <h3 className="text-2xl font-bold mb-4 text-gray-100">{plan.title}</h3>
+        <h3 className="text-2xl font-bold mb-4 text-fg">{plan.title}</h3>
         <div className={`flex items-baseline mb-8 transition-opacity duration-500 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
-          <span className="text-4xl font-extrabold text-white">R${price}</span>
-          <span className="text-gray-400 ml-2 font-medium">/ {isAnnual ? year : month}</span>
+          <span className="text-4xl font-extrabold text-fg">R${price}</span>
+          <span className="text-fg-muted ml-2 font-medium">/ {isAnnual ? year : month}</span>
         </div>
         <ul className="space-y-4 mb-8 flex-grow">
           {plan.features.map((feature: string) => (
             <li key={feature} className="flex items-start">
               <CheckCircle className="text-accent mr-3 mt-1 flex-shrink-0" size={20} />
-              <span className="text-gray-300">{planFeatures[type][feature]}</span>
+              <span className="text-fg-soft">{planFeatures[type][feature]}</span>
             </li>
           ))}
         </ul>
@@ -68,7 +68,7 @@ const Plans = () => {
         
         <div className="flex flex-col justify-center items-center mt-8">
           <div className="flex items-center glass-panel px-6 py-3 rounded-full">
-            <span className={`mr-4 font-medium transition-colors ${billingCycle === 'monthly' ? 'text-white' : 'text-gray-400'}`}>{monthly}</span>
+            <span className={`mr-4 font-medium transition-colors ${billingCycle === 'monthly' ? 'text-fg' : 'text-fg-muted'}`}>{monthly}</span>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
@@ -76,9 +76,9 @@ const Plans = () => {
                 checked={billingCycle === 'annually'}
                 onChange={handleBillingCycleChange}
               />
-              <div className="w-14 h-7 bg-gray-700 rounded-full peer peer-focus:ring-4 peer-focus:ring-accent/50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
+              <div className="w-14 h-7 bg-surface-3 rounded-full peer peer-focus:ring-4 peer-focus:ring-accent/50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:border-line after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
             </label>
-            <span className={`ml-4 font-medium transition-colors ${billingCycle === 'annually' ? 'text-white' : 'text-gray-400'}`}>{annually}</span>
+            <span className={`ml-4 font-medium transition-colors ${billingCycle === 'annually' ? 'text-fg' : 'text-fg-muted'}`}>{annually}</span>
           </div>
           <div className={`transition-opacity duration-500 h-8 mt-4 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
             {billingCycle === 'annually' && (
@@ -89,14 +89,14 @@ const Plans = () => {
       </div>
 
       <section id="discord-bots" className="mb-20">
-        <h2 className="text-3xl font-bold text-center mb-12 text-gray-100">{translations.discordBotPlans}</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 text-fg">{translations.discordBotPlans}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {discordPlans.map((plan: any) => renderPlan(plan, 'discord'))}
         </div>
       </section>
 
       <section id="fivem-factions" className="mb-12">
-        <h2 className="text-3xl font-bold text-center mb-12 text-gray-100">{translations.fivemFactionPlans}</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 text-fg">{translations.fivemFactionPlans}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {fivemPlans.map((plan: any) => renderPlan(plan, 'fivem'))}
         </div>

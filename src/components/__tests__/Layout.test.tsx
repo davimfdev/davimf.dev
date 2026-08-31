@@ -145,6 +145,22 @@ describe('Layout — navbar como régua', () => {
     expect(document.querySelectorAll('[data-nav-indicator]')).toHaveLength(1);
   });
 
+  it('o indicador usa curvas diferentes em left e width — é isso que faz a barra esticar', () => {
+    renderLayout('/products');
+    const indicator = document.querySelector('[data-nav-indicator]') as HTMLElement;
+    expect(indicator).not.toBeNull();
+
+    const transition = indicator.style.transition;
+    const leftCurve = /left\s+[^,]*?(var\([^)]*\)|cubic-bezier\([^)]*\))/.exec(transition)?.[1];
+    const widthCurve = /width\s+[^,]*?(var\([^)]*\)|cubic-bezier\([^)]*\))/.exec(transition)?.[1];
+
+    expect(leftCurve, `transition sem curva em left: ${transition}`).toBeDefined();
+    expect(widthCurve, `transition sem curva em width: ${transition}`).toBeDefined();
+    // Curvas iguais devolvem a barra ao deslize de velocidade constante que o
+    // dono pediu para mudar.
+    expect(leftCurve).not.toBe(widthCurve);
+  });
+
   it('o rótulo acessível da conta vem das traduções, não cravado', async () => {
     const user = userEvent.setup();
     renderLayout('/');

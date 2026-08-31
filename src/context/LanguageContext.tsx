@@ -382,6 +382,8 @@ const translations = {
       },
       about: {
         heading: 'ABOUT',
+        // `teaser` e `link` ainda não têm leitor: são do bloco curto de About
+        // que a Home vai ganhar. A página /about usa `intro`, não estes.
         teaser: 'Eu construo backend, bots, ferramentas e automações. Comecei resolvendo problemas meus e continuei transformando essas soluções em produtos.',
         link: 'Sobre mim',
         intro: 'Eu construo backend, bots, ferramentas e automações — e também soluções sob medida: watchdogs, aplicações personalizadas e integrações. O que eu faço é pegar uma ideia solta e trazer para a realidade de forma estruturada.',
@@ -796,6 +798,8 @@ const translations = {
       },
       about: {
         heading: 'ABOUT',
+        // `teaser` e `link` ainda não têm leitor: são do bloco curto de About
+        // que a Home vai ganhar. A página /about usa `intro`, não estes.
         teaser: 'I build backend, bots, tools and automation. I started by solving my own problems and kept turning those solutions into products.',
         link: 'About me',
         intro: 'I build backend, bots, tools and automation — and bespoke solutions too: watchdogs, custom applications and integrations. What I do is take a loose idea and bring it into reality in a structured way.',

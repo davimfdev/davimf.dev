@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply bg-ink text-[#F5F3EF] font-sans antialiased overflow-x-hidden selection:bg-accent/25 selection:text-white;
+    @apply bg-bg text-fg font-sans antialiased overflow-x-hidden selection:bg-accent/25 selection:text-fg;
   }
 
   h1, h2, h3 {
@@ -15,41 +15,51 @@
 }
 
 @layer components {
-  /* Flat sophisticated surface (replaces heavy glassmorphism) */
+  /*
+   * DEPRECATED — camada de compatibilidade.
+   * Código novo usa <Surface> (src/components/ui/Surface.tsx).
+   * Estes 30 usos migram conforme cada área é redesenhada nos Planos 2–7.
+   */
   .glass-panel {
-    @apply bg-white/[0.02] border border-white/[0.07] rounded-xl transition-all duration-300 relative overflow-hidden;
+    @apply bg-surface-1 border border-line rounded-panel transition-all duration-base relative overflow-hidden;
   }
 
   .glass-panel:hover {
-    @apply bg-white/[0.04] border-white/[0.12];
+    @apply bg-surface-2 border-line-strong;
   }
 
-  /* Minimal sticky nav surface */
+  /* DEPRECATED — a nav é translúcida por necessidade: backdrop-blur exige. */
   .glass-nav {
-    @apply bg-ink/70 backdrop-blur-xl border-b border-white/[0.07] transition-all duration-300;
+    @apply bg-surface-nav backdrop-blur-xl border-b border-line transition-all duration-base;
   }
 
-  /* Primary CTA: solid warm-white on dark ink. Editorial, high contrast. */
+  /*
+   * DEPRECATED — código novo usa <Button variant="primary">.
+   * O hover era `bg-white` sobre um `#F5F3EF` de base. Não há token de branco
+   * puro (e não deve haver: o revamp evita branco puro), então a mesma
+   * elevação sai de `brightness`, que preserva o comportamento sem inventar
+   * cor. Trocar para dourado no hover seria redesenho, não migração.
+   */
   .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 bg-[#F5F3EF] text-ink font-medium rounded-full transition-all duration-300 hover:bg-white;
+    @apply inline-flex items-center justify-center px-6 py-3 bg-fg text-bg font-medium rounded-full transition-all duration-base hover:brightness-105;
   }
 
-  /* Secondary CTA: quiet bordered ghost */
+  /* DEPRECATED — código novo usa <Button variant="secondary">. */
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-6 py-3 bg-transparent border border-white/15 text-[#F5F3EF] rounded-full transition-all duration-300 hover:border-white/30 hover:bg-white/[0.04];
+    @apply inline-flex items-center justify-center px-6 py-3 bg-transparent border border-line-strong text-fg rounded-full transition-all duration-base hover:border-fg/25 hover:bg-surface-2;
   }
 
   .nav-link {
-    @apply text-[#A8A8A4] hover:text-[#F5F3EF] px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 relative after:absolute after:bottom-1 after:left-3 after:w-0 after:h-px after:bg-accent after:transition-all after:duration-300 hover:after:w-[calc(100%-1.5rem)];
+    @apply text-fg-muted hover:text-fg px-3 py-2 rounded-control text-sm font-medium transition-colors duration-fast relative after:absolute after:bottom-1 after:left-3 after:w-0 after:h-px after:bg-accent after:transition-all after:duration-base hover:after:w-[calc(100%-1.5rem)];
   }
 
-  /* Keyword highlight: single warm accent, no rainbow gradient */
+  /* Ênfase de palavra-chave: um accent só, sem gradiente arco-íris. */
   .text-gradient {
     @apply text-accent;
   }
 }
 
-/* Ambient: one extremely subtle warm vignette, no blue/purple blobs */
+/* Ambiente: um vignette quente muito sutil, derivado do accent. */
 .bg-blobs {
   position: fixed;
   top: 0;
@@ -58,7 +68,7 @@
   height: 100vh;
   z-index: -1;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 0%, rgba(230, 181, 102, 0.05), transparent 45%);
+  background: radial-gradient(circle at 50% 0%, rgb(var(--accent) / .05), transparent 45%);
   pointer-events: none;
 }
 
@@ -78,15 +88,32 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
+  animation: fadeIn var(--dur-slow) var(--ease-out) forwards;
 }
 
 .animate-slide-up {
-  animation: slideUp 0.6s ease-out forwards;
+  animation: slideUp 0.6s var(--ease-out) forwards;
 }
 
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: float 3s var(--ease-in-out) infinite;
+}
+
+/*
+ * Quem pediu ao sistema operacional para reduzir movimento não recebia nada
+ * hoje: float, slide-up e fade-in rodavam mesmo assim. Isto não desliga a
+ * animação (o que esconderia conteúdo que só aparece com `forwards`), apenas
+ * a colapsa para instantânea.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @media print {
@@ -94,25 +121,19 @@
     display: none !important;
   }
   body {
-    background: white !important;
-    color: black !important;
+    background: rgb(var(--print-bg)) !important;
+    color: rgb(var(--print-fg)) !important;
   }
   .glass-panel {
-    background: white !important;
-    border: 1px solid #e5e7eb !important;
+    background: rgb(var(--print-bg)) !important;
+    border: 1px solid rgb(var(--print-fg) / .12) !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
   }
   .text-gradient {
     background: none !important;
-    -webkit-text-fill-color: black !important;
-    color: black !important;
-  }
-  .text-gray-100, .text-gray-300, .text-gray-400 {
-    color: #374151 !important;
-  }
-  .text-blue-400 {
-    color: #1d4ed8 !important;
+    -webkit-text-fill-color: rgb(var(--print-fg)) !important;
+    color: rgb(var(--print-fg)) !important;
   }
   main {
     padding-top: 0 !important;

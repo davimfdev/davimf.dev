@@ -54,8 +54,20 @@ export const STACK_GROUPS = [
  * `scale` e `offset` recortam por CSS em vez de recortar o arquivo: não há PIL,
  * sharp nem ImageMagick no ambiente, e instalar seria dependência nova. Trocar
  * estes PNGs por WebP já recortados depois é drop-in — o markup não muda.
+ *
+ * Os PNGs de origem são 1918×1030 (a janela cheia do app). Como o `<img>` é
+ * posicionado por um único fator de escala uniforme, a janela visível dentro
+ * da moldura tem SEMPRE a proporção da moldura (16/10) em pixels de origem —
+ * só o tamanho dela muda com `scale`, e `offsetX`/`offsetY` só a movem. Os
+ * valores abaixo foram calculados resolvendo essa proporção para as regiões
+ * reais do app (ver task-5-report.md para a derivação e para os recortes de
+ * verificação usados), não chutados: `fmmPrimary` enquadra a grade de mods
+ * (rótulos ESTRADAS e GRÁFICOS, duas fileiras completas). `fmmSecondary`
+ * enquadra CPU + GPU da tela de Otimização — mostrar as quatro colunas (CPU/
+ * GPU/RAM/ANÁLISE GERAL) exigiria reduzir a imagem a ponto de o texto ficar
+ * ilegível, já que a fileira é larga e baixa demais para a proporção 16/10.
  */
 export const WORK_IMAGES = {
-  fmmPrimary: { src: '/work/fmm-mods.png', scale: 1.9, offsetX: -6, offsetY: -4 },
-  fmmSecondary: { src: '/work/fmm-optimization.png', scale: 2.1, offsetX: -10, offsetY: -12 },
+  fmmPrimary: { src: '/work/fmm-mods.png', scale: 3.32, offsetX: -36.6, offsetY: -108.4 },
+  fmmSecondary: { src: '/work/fmm-optimization.png', scale: 2.35, offsetX: -27.6, offsetY: -44.2 },
 } as const;

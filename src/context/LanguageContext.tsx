@@ -362,7 +362,16 @@ const translations = {
           description: 'Ative e desative mods com um clique. Perfis salvam mods, citizens e configuração de uma vez.',
           tags: 'WINDOWS · MODS · PERFIS · OTIMIZAÇÃO · LICENSING',
           link: 'Ver FMM',
-          shots: { primary: 'MODS', secondary: 'OTIMIZAÇÃO' },
+          shots: {
+            primary: {
+              label: 'MODS',
+              alt: 'Grade de mods do FiveM Mod Manager, com as seções Estradas e Gráficos e mods ativos e inativos.',
+            },
+            secondary: {
+              label: 'OTIMIZAÇÃO',
+              alt: 'Painel de otimização do FiveM Mod Manager mostrando CPU, GPU e serviços do Windows relevantes para o FiveM.',
+            },
+          },
         },
         basebot: {
           kicker: '02 / PLATFORM',
@@ -784,7 +793,16 @@ const translations = {
           description: 'Toggle mods with one click. Profiles save mods, citizens and configuration all at once.',
           tags: 'WINDOWS · MODS · PROFILES · OPTIMIZATION · LICENSING',
           link: 'See FMM',
-          shots: { primary: 'MODS', secondary: 'OPTIMIZATION' },
+          shots: {
+            primary: {
+              label: 'MODS',
+              alt: "FiveM Mod Manager's mods grid, showing the Roads and Graphics sections with active and inactive mods.",
+            },
+            secondary: {
+              label: 'OPTIMIZATION',
+              alt: "FiveM Mod Manager's optimization panel showing CPU, GPU and Windows services relevant to FiveM.",
+            },
+          },
         },
         basebot: {
           kicker: '02 / PLATFORM',

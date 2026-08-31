@@ -273,7 +273,7 @@ const FmmPlans = () => {
               <button
                 onClick={() => handleBuy('pro')}
                 disabled={catalog.length === 0}
-                className="w-full px-3 py-2.5 rounded-lg text-sm font-bold text-fg bg-accent transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2.5 rounded-lg text-sm font-bold text-bg bg-accent transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 onMouseEnter={e => (e.currentTarget.style.filter = 'brightness(1.15)')}
                 onMouseLeave={e => (e.currentTarget.style.filter = '')}
               >

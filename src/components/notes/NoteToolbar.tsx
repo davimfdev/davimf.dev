@@ -1,16 +1,6 @@
 import React, { useState } from 'react';
 import { Pin, PinOff, Maximize2, Minus, Trash2, Palette } from 'lucide-react';
-
-const PRESET_COLORS = [
-  '#6366f1',
-  '#3b82f6',
-  '#10b981',
-  '#f59e0b',
-  '#ec4899',
-  '#ef4444',
-  '#f97316',
-  '#6b7280',
-];
+import { DATA_PALETTE_NOTE_HIGHLIGHT } from '../../lib/palettes/dataPalettes';
 
 interface NoteToolbarProps {
   color: string;
@@ -83,12 +73,12 @@ export const NoteToolbar: React.FC<NoteToolbarProps> = ({
           onMouseDown={e => e.stopPropagation()}
         >
           <div className="grid grid-cols-4 gap-2 mb-3">
-            {PRESET_COLORS.map(c => (
+            {DATA_PALETTE_NOTE_HIGHLIGHT.map(c => (
               <button
                 key={c}
                 onClick={() => { onColorChange(c); setShowColorPicker(false); }}
                 className="w-8 h-8 rounded-full border-2 transition-transform hover:scale-110"
-                style={{ backgroundColor: c, borderColor: color === c ? 'white' : 'transparent' }}
+                style={{ backgroundColor: c, borderColor: color === c ? 'rgb(var(--fg) / 1)' : 'transparent' }}
               />
             ))}
           </div>

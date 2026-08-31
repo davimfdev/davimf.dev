@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 // MODIFICADO: Adicionado LogOut na lista de imports
-import { Menu, X, Github, Linkedin, Mail, MessageCircle, Phone, User, LogOut } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -349,44 +349,54 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           {children}
         </main>
 
-        <footer aria-hidden={isMenuOpen || undefined} className="glass-nav relative z-10 mt-auto">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Documentos obrigatórios para venda a consumidor, sempre a um clique. */}
-            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-6 text-sm">
-              <Link to="/terms-of-service" className="text-fg-muted hover:text-fg transition-colors">
-                {legal.footer.terms}
-              </Link>
-              <Link to="/privacy-policy" className="text-fg-muted hover:text-fg transition-colors">
-                {legal.footer.privacy}
-              </Link>
-              <Link to="/refund-policy" className="text-fg-muted hover:text-fg transition-colors">
-                {legal.footer.refund}
-              </Link>
+        {/*
+          Footer técnico e plano. Os sociais viram texto: botões redondos que
+          flutuam são decoração que não carrega informação.
+
+          Os três links legais e o CNPJ são exigência do CDC e do Decreto do
+          Comércio Eletrônico. Podem mudar de peso visual; não podem sair.
+        */}
+        <footer aria-hidden={isMenuOpen || undefined} className="border-t border-line mt-auto">
+          <div className="max-w-wide mx-auto px-gutter py-10">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-8">
+              <div>
+                <span className="text-eyebrow font-semibold text-fg">
+                  DAVIMF<span className="text-fg-muted">.DEV</span>
+                </span>
+                <p className="mt-3 text-sm text-fg-muted">
+                  {translations.home.footer.builtIn} · {translations.home.footer.runningOn}
+                </p>
+              </div>
+
+              <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                {[
+                  { label: 'GitHub', href: 'https://github.com/davimfdev' },
+                  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/davimfdev' },
+                  { label: 'Email', href: 'mailto:davi@davimf.dev' },
+                  { label: 'Discord', href: 'https://discord.com/users/344214477069221888' },
+                ].map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-fg-muted hover:text-fg hover:underline underline-offset-4 transition-colors duration-fast"
+                  >
+                    {social.label}
+                  </a>
+                ))}
+              </nav>
             </div>
 
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="text-fg-muted mb-6 md:mb-0 text-sm text-center md:text-left">
-                <div>© {new Date().getFullYear()} Davi Monteiro Fonseca. {translations.rights}</div>
-                {/* Identificação do fornecedor exigida pelo CDC. */}
-                <div className="text-xs text-fg-muted mt-1">
-                  {legal.company.name} — CNPJ {legal.company.cnpj}
-                </div>
+            <div className="mt-10 pt-6 border-t border-line flex flex-col sm:flex-row justify-between gap-4 text-xs text-fg-muted">
+              <div className="flex flex-wrap gap-x-5 gap-y-1">
+                <Link to="/terms-of-service" className="hover:text-fg transition-colors">{legal.footer.terms}</Link>
+                <Link to="/privacy-policy" className="hover:text-fg transition-colors">{legal.footer.privacy}</Link>
+                <Link to="/refund-policy" className="hover:text-fg transition-colors">{legal.footer.refund}</Link>
+                <Link to="/contact" className="hover:text-fg transition-colors">{translations.contact}</Link>
               </div>
-              <div className="flex space-x-4">
-                {[
-                  { icon: Github, href: "https://github.com/davimfdev" },
-                  { icon: Linkedin, href: "https://www.linkedin.com/in/davimfdev" },
-                  { icon: Mail, href: "mailto:davi@davimf.dev" },
-                  { icon: MessageCircle, href: "https://discord.com/users/344214477069221888" },
-                  { icon: Phone, href: "https://api.whatsapp.com/send?phone=%205562986089609&text=Ol%C3%A1%2C+vim+do+seu+site." }
-                ].map((social, index) => {
-                  const Icon = social.icon;
-                  return (
-                      <a key={index} href={social.href} target="_blank" rel="noopener noreferrer" className="p-2 text-fg-muted hover:text-fg bg-surface-1 hover:bg-surface-2 border border-line hover:border-line-strong rounded-full transition-all duration-300 transform hover:-translate-y-1">
-                        <Icon size={20} />
-                      </a>
-                  );
-                })}
+              <div>
+                © {new Date().getFullYear()} {legal.company.name} — CNPJ {legal.company.cnpj}
               </div>
             </div>
           </div>

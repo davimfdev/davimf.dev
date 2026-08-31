@@ -104,13 +104,16 @@ describe('Layout — navbar como régua', () => {
     expect(nav?.querySelector('.rounded-2xl')).toBeNull();
   });
 
-  it('mostra os quatro itens da navegação nova e não mostra Contato', () => {
+  it('mostra os quatro itens da navegação nova e não mostra Contato na navbar', () => {
     render(<MemoryRouter><LanguageProvider><Layout><div /></Layout></LanguageProvider></MemoryRouter>);
+    const nav = document.querySelector('nav');
+
     for (const item of ['Projetos', 'Produtos', 'Ferramentas', 'Sobre']) {
       expect(screen.getAllByText(item).length).toBeGreaterThan(0);
     }
     // Contato sai da nav; continua alcançável pelo fecho da Home e pelo footer.
-    expect(screen.queryByRole('link', { name: 'Contato' })).toBeNull();
+    const contactLinksInNav = nav?.querySelectorAll('a[href="/contact"]') || [];
+    expect(contactLinksInNav.length).toBe(0);
   });
 
   it('todo item da navbar aponta para uma rota registrada no App', () => {

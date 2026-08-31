@@ -8,6 +8,7 @@
 import { useLanguage } from '../context/LanguageContext';
 import { HAS_BASEBOT_SHOTS, WORK_IMAGES } from '../features/home/homeData';
 import { AboutTeaser } from '../features/home/AboutTeaser';
+import { ContactClose } from '../features/home/ContactClose';
 import { EvidenceBand } from '../features/home/EvidenceBand';
 import { Hero } from '../features/home/Hero';
 import { SectionHeading } from '../features/home/SectionHeading';
@@ -56,6 +57,7 @@ const Home = () => {
 
       <ToolsList />
       <AboutTeaser />
+      <ContactClose />
     </div>
   );
 };

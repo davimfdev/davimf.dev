@@ -1,4 +1,6 @@
 // @vitest-environment jsdom
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -111,14 +113,25 @@ describe('Layout — navbar como régua', () => {
     expect(screen.queryByRole('link', { name: 'Contato' })).toBeNull();
   });
 
-  it('todos os itens da navbar apontam para rotas que existem', () => {
+  it('todo item da navbar aponta para uma rota registrada no App', () => {
+    // Comparar hrefs com um array escrito à mão prova só que a lista bate com
+    // ela mesma. Aqui a fonte é o App: apagar uma rota de lá quebra este teste,
+    // que é a regressão que aconteceu de verdade — dois itens da barra ficaram
+    // apontando para lugar nenhum e nada avisou.
+    const app = readFileSync(resolve(__dirname, '../../App.tsx'), 'utf8');
+    const registered = new Set(
+      [...app.matchAll(/path="([^"]+)"/g)].map((match) => match[1]),
+    );
+
     renderLayout('/');
     const hrefs = ['Projetos', 'Produtos', 'Ferramentas', 'Sobre'].map(
-      (nome) => screen.getAllByRole('link', { name: nome })[0].getAttribute('href'),
+      (nome) => screen.getAllByRole('link', { name: nome })[0].getAttribute('href')!,
     );
-    // Link morto na barra principal é o tipo de defeito que passa despercebido
-    // por semanas: nada quebra, o clique só não faz nada.
-    expect(hrefs).toEqual(['/portfolio', '/products', '/tools', '/about']);
+
+    expect(hrefs).toHaveLength(4);
+    for (const href of hrefs) {
+      expect(registered, `${href} não está registrado em App.tsx`).toContain(href);
+    }
   });
 
   it('o toggle de idioma continua presente', () => {

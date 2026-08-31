@@ -1,0 +1,73 @@
+/**
+ * Fonte de verdade visual do site.
+ *
+ * Este é o ÚNICO arquivo do projeto onde um valor de cor cru é legal. Em
+ * qualquer outro lugar, `scripts/check-css-colors.mjs` (CSS) e a regra
+ * `local/no-raw-color` (JS/TS/TSX) recusam.
+ *
+ * Tokens opacos guardam CANAIS (`230 181 102`), não hex: é isso que permite
+ * `text-accent/30` funcionar via `<alpha-value>` no Tailwind. Os três tokens
+ * translúcidos por natureza entregam `rgba` completo e não aceitam modificador.
+ *
+ * Contraste de cada token de texto é verificado em
+ * `src/components/ui/__tests__/contrast.test.ts`.
+ */
+
+:root {
+  /* --- superfícies e texto ------------------------------------------- */
+  --bg:            7 7 7;          /* #070707 — fundo da página */
+  --surface-1:     11 11 11;       /* #0B0B0B — painel em repouso */
+  --surface-2:     16 16 16;       /* #101010 — painel elevado / hover / campo */
+  --surface-3:     21 21 21;       /* #151515 — nível aninhado */
+
+  --fg:            244 242 237;    /* #F4F2ED — texto primário */
+  --fg-soft:       184 182 176;    /* #B8B6B0 — prosa */
+  --fg-muted:      139 139 135;    /* #8B8B87 — rótulo, metadado */
+
+  /* --- accent --------------------------------------------------------- */
+  --accent:        230 181 102;    /* #E6B566 — único accent do site */
+  --accent-bright: 242 189 94;     /* #F2BD5E — hover / superfície mais clara */
+
+  /* --- estado --------------------------------------------------------- */
+  --danger:        217 105 94;     /* #D9695E */
+  --ok:            111 191 143;    /* #6FBF8F */
+  --warn:          206 124 66;     /* #CE7C42 — laranja, não âmbar: âmbar ao
+                                      lado do accent dourado não funciona
+                                      como sinal (spec §4) */
+
+  /* --- impressão: o único contexto de fundo claro do site -------------- */
+  --print-bg:      255 255 255;
+  --print-fg:      0 0 0;
+
+  /* --- translúcidos: rgba completo, sem modificador de opacidade ------- */
+  --line:          rgba(255, 255, 255, .08);
+  --line-strong:   rgba(255, 255, 255, .14);
+  --surface-nav:   rgba(7, 7, 7, .72);
+
+  /* --- raio ----------------------------------------------------------- */
+  --r-sm:    8px;     /* chip, badge, tag */
+  --r-md:   12px;     /* botão, input, select */
+  --r-lg:   16px;     /* painel, card, modal */
+  --r-full: 9999px;   /* pílula, avatar */
+
+  /* --- tipografia nova (a escala padrão do Tailwind NÃO é redefinida) -- */
+  --t-display-1: clamp(2.75rem, 6vw, 3.75rem);
+  --t-display-2: clamp(2rem, 4.2vw, 2.75rem);
+  --t-display-3: 1.75rem;
+  --t-display-4: 1.25rem;
+  --t-eyebrow:   0.6875rem;
+
+  /* --- movimento ------------------------------------------------------ */
+  --ease-out:    cubic-bezier(.22, 1, .36, 1);
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --dur-fast: 140ms;
+  --dur:      240ms;
+  --dur-slow: 420ms;
+
+  /* --- layout --------------------------------------------------------- */
+  --gutter:       clamp(1rem, 4vw, 2rem);
+  --maxw-prose:   68ch;
+  --maxw-content: 72rem;
+  --maxw-wide:    80rem;
+  --section-y:    clamp(3.5rem, 9vw, 7rem);
+}

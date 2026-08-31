@@ -116,8 +116,17 @@ function capitalize(word: string): string {
 
 export interface WordsPasswordOptions {
   wordCount: number; // 2..5
-  minDigits: number;
-  minSymbols: number;
+  digitCount: number; // 0..6 — length of the digit run attached to one word
+  symbolStyle: 'none' | 'separator' | 'wrapped';
+  mixedCase: boolean; // draw each word's capitalisation at random instead of always capitalising
+}
+
+// Draws a word's capitalisation at random: as typed, Capitalized, or UPPER.
+function randomCase(word: string, rng: RandomSource): string {
+  const style = randomInt(3, rng);
+  if (style === 0) return word;
+  if (style === 1) return capitalize(word);
+  return word.toUpperCase();
 }
 
 export function generateWordsPassword(
@@ -126,11 +135,31 @@ export function generateWordsPassword(
 ): string {
   const words: string[] = [];
   for (let i = 0; i < o.wordCount; i++) {
-    words.push(capitalize(pick(WORDLIST_PT, rng)));
+    const w = pick(WORDLIST_PT, rng);
+    words.push(o.mixedCase ? randomCase(w, rng) : capitalize(w));
   }
-  let pw = words.join('');
-  for (let i = 0; i < o.minDigits; i++) pw += pick(DIGITS, rng);
-  for (let i = 0; i < o.minSymbols; i++) pw += pick(SYMBOLS, rng);
+
+  // Attach the digit run to one randomly chosen word.
+  if (o.digitCount > 0) {
+    const target = randomInt(words.length, rng);
+    let digits = '';
+    for (let i = 0; i < o.digitCount; i++) digits += pick(DIGITS, rng);
+    words[target] = words[target] + digits;
+  }
+
+  let separator = '';
+  if (o.symbolStyle === 'separator' || o.symbolStyle === 'wrapped') {
+    separator = pick(SYMBOLS, rng);
+  }
+  let pw = words.join(separator);
+
+  if (o.symbolStyle === 'wrapped') {
+    // Guarantee wrapper !== separator by picking from the remaining symbols.
+    const remaining = SYMBOLS.split('').filter((c) => c !== separator).join('');
+    const wrapper = pick(remaining, rng);
+    pw = wrapper + pw + wrapper;
+  }
+
   return pw;
 }
 
@@ -150,7 +179,9 @@ export function generatePassphrase(
     const w = pick(WORDLIST_PT, rng);
     words.push(o.capitalize ? capitalize(w) : w);
   }
-  let phrase = words.join(o.separator);
-  if (o.includeNumber) phrase += pick(DIGITS, rng);
-  return phrase;
+  if (o.includeNumber) {
+    const target = randomInt(words.length, rng);
+    words[target] = words[target] + pick(DIGITS, rng);
+  }
+  return words.join(o.separator);
 }

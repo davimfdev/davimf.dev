@@ -16,7 +16,12 @@ export interface GeneratorConfig {
     minDigits: number;
     minSymbols: number;
   };
-  words: { wordCount: number; minDigits: number; minSymbols: number };
+  words: {
+    wordCount: number;
+    digitCount: number;
+    symbolStyle: 'none' | 'separator' | 'wrapped';
+    mixedCase: boolean;
+  };
   passphrase: {
     wordCount: number;
     separator: '-' | '.' | '_' | ' ' | '';
@@ -47,7 +52,7 @@ export const DEFAULT_CONFIG: GeneratorConfig = {
     minDigits: 1,
     minSymbols: 1,
   },
-  words: { wordCount: 4, minDigits: 1, minSymbols: 1 },
+  words: { wordCount: 4, digitCount: 4, symbolStyle: 'wrapped', mixedCase: false },
   passphrase: { wordCount: 5, separator: '-', capitalize: true, includeNumber: true },
 };
 

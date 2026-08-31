@@ -240,40 +240,51 @@ const PasswordGenerator = () => {
               )}
 
               {config.passwordMode === 'words' && (
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className={label}>{t.pwgenWordCount}</label>
-                    <input
-                      type="number"
-                      min={2}
-                      max={5}
-                      value={config.words.wordCount}
-                      onChange={(e) => updateWords({ wordCount: Math.max(2, Math.min(5, Number(e.target.value) || 2)) })}
-                      className={input}
-                    />
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={label}>{t.pwgenWordCount}</label>
+                      <input
+                        type="number"
+                        min={2}
+                        max={5}
+                        value={config.words.wordCount}
+                        onChange={(e) => updateWords({ wordCount: Math.max(2, Math.min(5, Number(e.target.value) || 2)) })}
+                        className={input}
+                      />
+                    </div>
+                    <div>
+                      <label className={label}>{t.pwgenDigitRun}</label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={6}
+                        value={config.words.digitCount}
+                        onChange={(e) => updateWords({ digitCount: Math.max(0, Math.min(6, Number(e.target.value) || 0)) })}
+                        className={input}
+                      />
+                    </div>
                   </div>
                   <div>
-                    <label className={label}>{t.pwgenMinNumbers}</label>
-                    <input
-                      type="number"
-                      min={0}
-                      max={8}
-                      value={config.words.minDigits}
-                      onChange={(e) => updateWords({ minDigits: Math.max(0, Number(e.target.value) || 0) })}
+                    <label className={label}>{t.pwgenSymbolStyle}</label>
+                    <select
+                      value={config.words.symbolStyle}
+                      onChange={(e) => updateWords({ symbolStyle: e.target.value as never })}
                       className={input}
-                    />
+                    >
+                      <option value="none">{t.pwgenSymbolNone}</option>
+                      <option value="separator">{t.pwgenSymbolSeparator}</option>
+                      <option value="wrapped">{t.pwgenSymbolWrapped}</option>
+                    </select>
                   </div>
-                  <div>
-                    <label className={label}>{t.pwgenMinSymbols}</label>
+                  <label className="flex items-center gap-2 text-fg">
                     <input
-                      type="number"
-                      min={0}
-                      max={8}
-                      value={config.words.minSymbols}
-                      onChange={(e) => updateWords({ minSymbols: Math.max(0, Number(e.target.value) || 0) })}
-                      className={input}
+                      type="checkbox"
+                      checked={config.words.mixedCase}
+                      onChange={(e) => updateWords({ mixedCase: e.target.checked })}
                     />
-                  </div>
+                    {t.pwgenMixedCase}
+                  </label>
                 </div>
               )}
             </>

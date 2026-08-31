@@ -57,7 +57,7 @@ const Contact = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none text-fg placeholder-gray-500"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none text-fg placeholder-fg-muted"
                 placeholder="John Doe"
                 required
               />
@@ -73,7 +73,7 @@ const Contact = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none text-fg placeholder-gray-500"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none text-fg placeholder-fg-muted"
                 placeholder="john@example.com"
                 required
               />
@@ -89,7 +89,7 @@ const Contact = () => {
                 value={formData.message}
                 onChange={handleChange}
                 rows={6}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none text-fg placeholder-gray-500 resize-none"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none text-fg placeholder-fg-muted resize-none"
                 placeholder="How can I help you?"
                 required
               />

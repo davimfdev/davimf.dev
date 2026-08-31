@@ -222,7 +222,7 @@ const FmmPlans = () => {
                 >
                   <Icon size={15} className="text-fg-muted" />
                 </div>
-                <span className="text-sm font-medium text-fg-soft leading-tight">
+                <span className="text-sm font-medium text-fg-muted leading-tight">
                   {t.fmmPlanFeatures[key]}
                 </span>
               </div>
@@ -255,7 +255,7 @@ const FmmPlans = () => {
             className="grid items-center"
             style={{ gridTemplateColumns: COLS, background: '#0d0d0d', borderTop: '1px solid #222' }}
           >
-            <div className="px-4 py-6 text-xs text-fg-soft leading-relaxed">
+            <div className="px-4 py-6 text-xs text-fg-muted leading-relaxed">
               {t.fmmLicenseDelivery}
             </div>
 

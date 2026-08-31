@@ -30,7 +30,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
         value={content}
         onChange={e => onChange(e.target.value)}
         onBlur={onBlur}
-        className="w-full h-full min-h-[120px] bg-transparent text-fg text-sm resize-none outline-none placeholder-gray-500 font-mono"
+        className="w-full h-full min-h-[120px] bg-transparent text-fg text-sm resize-none outline-none placeholder-fg-muted font-mono"
         placeholder="Escreva em markdown..."
       />
     );

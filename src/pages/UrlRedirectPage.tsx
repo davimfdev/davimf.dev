@@ -41,7 +41,7 @@ const UrlRedirectPage = () => {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center animate-fade-in">
         <Loader2 size={48} className="text-accent animate-spin mb-4" />
-        <p className="text-xl text-fg-soft font-medium">Redirecionando...</p>
+        <p className="text-xl text-fg-muted font-medium">Redirecionando...</p>
       </div>
     );
   }

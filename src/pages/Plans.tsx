@@ -47,7 +47,7 @@ const Plans = () => {
           {plan.features.map((feature: string) => (
             <li key={feature} className="flex items-start">
               <CheckCircle className="text-accent mr-3 mt-1 flex-shrink-0" size={20} />
-              <span className="text-fg-soft">{planFeatures[type][feature]}</span>
+              <span className="text-fg-muted">{planFeatures[type][feature]}</span>
             </li>
           ))}
         </ul>

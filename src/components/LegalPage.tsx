@@ -45,7 +45,7 @@ const LegalPage: React.FC<LegalPageProps> = ({ document, icon: Icon }) => (
             ))}
 
             {section.bullets && (
-              <ul className="space-y-3 bg-white/5 p-4 rounded-lg border border-white/10 text-fg-soft">
+              <ul className="space-y-3 bg-white/5 p-4 rounded-lg border border-white/10 text-fg-muted">
                 {section.bullets.map((bullet) => (
                   <li key={bullet} className="flex items-start">
                     <div className="w-1.5 h-1.5 rounded-full bg-accent mt-2 mr-3 flex-shrink-0" />

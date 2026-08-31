@@ -85,7 +85,7 @@ const Roulette = () => {
         <div className="lg:col-span-1 glass-panel p-8 animate-slide-up">
           <h2 className="text-2xl font-bold mb-6 text-fg">{translations.rouletteParticipants}</h2>
           <textarea
-            className="w-full h-48 p-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-fg resize-none transition-all placeholder-gray-500"
+            className="w-full h-48 p-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-fg resize-none transition-all placeholder-fg-muted"
             placeholder={translations.rouletteNamesPlaceholder}
             value={names}
             onChange={(e) => setNames(e.target.value)}

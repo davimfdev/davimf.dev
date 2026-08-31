@@ -12,37 +12,37 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: withAlpha('bg'), // --bg
+        bg: withAlpha('bg'),
         surface: {
-          1: withAlpha('surface-1'), // --surface-1
-          2: withAlpha('surface-2'), // --surface-2
-          3: withAlpha('surface-3'), // --surface-3
+          1: withAlpha('surface-1'),
+          2: withAlpha('surface-2'),
+          3: withAlpha('surface-3'),
           // Translúcido por natureza (a nav precisa de backdrop-blur):
           // não aceita modificador de opacidade.
           nav: 'var(--surface-nav)',
         },
         fg: {
-          DEFAULT: withAlpha('fg'), // --fg
-          soft: withAlpha('fg-soft'), // --fg-soft
-          muted: withAlpha('fg-muted'), // --fg-muted
+          DEFAULT: withAlpha('fg'),
+          soft: withAlpha('fg-soft'),
+          muted: withAlpha('fg-muted'),
         },
         accent: {
-          DEFAULT: withAlpha('accent'), // --accent
-          bright: withAlpha('accent-bright'), // --accent-bright
+          DEFAULT: withAlpha('accent'),
+          bright: withAlpha('accent-bright'),
           // DEPRECATED: aliases mantidos só até a Task 12 migrar os 28 usos.
           soft: withAlpha('accent-bright'),
           dim: withAlpha('accent'),
         },
-        danger: withAlpha('danger'), // --danger
-        ok: withAlpha('ok'), // --ok
-        warn: withAlpha('warn'), // --warn
+        danger: withAlpha('danger'),
+        ok: withAlpha('ok'),
+        warn: withAlpha('warn'),
         line: {
           DEFAULT: 'var(--line)',
           strong: 'var(--line-strong)',
         },
         print: {
-          bg: withAlpha('print-bg'), // --print-bg
-          fg: withAlpha('print-fg'), // --print-fg
+          bg: withAlpha('print-bg'),
+          fg: withAlpha('print-fg'),
         },
         // DEPRECATED: alias de `bg`, mantido só até a Task 10 migrar os 16 usos.
         ink: withAlpha('bg'),

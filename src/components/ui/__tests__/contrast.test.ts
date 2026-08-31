@@ -64,7 +64,13 @@ describe('integridade dos tokens', () => {
     const config = readFileSync(TAILWIND_PATH, 'utf8');
     const all = [...TEXT, ...BACKGROUNDS, 'line', 'line-strong', 'surface-nav', 'print-bg', 'print-fg'];
     for (const token of all) {
-      expect(config, `--${token} não aparece em tailwind.config.js`).toContain(`--${token}`);
+      // Casa o call site real: `withAlpha('fg')` para os tokens opacos, ou
+      // `var(--line)` para os três que já são rgba. Um comentário `// --fg`
+      // não satisfaz nenhum dos dois — e é esse o ponto: o teste tem que
+      // quebrar quando o mapeamento sai, não quando o comentário sai.
+      const mapped =
+        config.includes(`withAlpha('${token}')`) || config.includes(`var(--${token})`);
+      expect(mapped, `--${token} não está mapeado em tailwind.config.js`).toBe(true);
     }
   });
 });

@@ -54,7 +54,7 @@ const AddAccountModal: React.FC<{ onClose: () => void; onAccountAdded: (account:
     };
 
     return (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 animate-fade-in p-4">
+        <div className="fixed inset-0 bg-bg/70 backdrop-blur-sm flex justify-center items-center z-50 animate-fade-in p-4">
             <div className="glass-panel p-8 rounded-lg w-full max-w-md shadow-2xl border border-line-strong animate-slide-up">
                 <h2 className="text-2xl font-bold mb-6 text-fg flex items-center">
                     <Wallet className="mr-3 text-accent" /> Adicionar Conta
@@ -285,7 +285,7 @@ const ExpenseTracker: React.FC = () => {
                     <th className="p-4 font-medium text-right"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-line">
                   {expenses.map((expense) => {
                     const isExpense = parseFloat(expense.amount) < 0;
                     return (

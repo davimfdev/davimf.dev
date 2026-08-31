@@ -32,7 +32,7 @@ const TransferModal: React.FC<{ isOpen: boolean; onClose: () => void; onTransfer
 
   if (!isOpen) return null;
   return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+      <div className="fixed inset-0 bg-bg/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
         <div className="glass-panel p-8 w-full max-w-md border border-line-strong animate-slide-up">
           <h2 className="text-2xl font-bold mb-6 text-fg flex items-center"><ArrowRightLeft className="mr-3 text-accent" /> Transferir entre Contas</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -75,7 +75,7 @@ const AddAccountModal: React.FC<{ isOpen: boolean; onClose: () => void; onAccoun
 
   if (!isOpen) return null;
   return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+      <div className="fixed inset-0 bg-bg/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
         <div className="glass-panel p-8 w-full max-w-md border border-line-strong animate-slide-up">
           <h2 className="text-2xl font-bold mb-6 text-fg flex items-center"><Wallet className="mr-3 text-accent" /> Nova Conta Bancária</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -276,7 +276,7 @@ const FinanceManager: React.FC = () => {
               <thead className="bg-surface-1 text-fg-muted text-[10px] font-black uppercase tracking-widest border-b border-line">
               <tr><th className="p-5">Descrição / Data</th><th className="p-5">Categoria</th><th className="p-5 text-right">Valor</th><th className="p-5 text-right">Ação</th></tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-line">
               {[...transactions].sort((a,b) => b.id - a.id).map(t => (
                   <tr key={t.id} className="hover:bg-surface-1 transition-all group">
                     <td className="p-5">
@@ -302,7 +302,7 @@ const FinanceManager: React.FC = () => {
 const ConfirmModal: React.FC<{ isOpen: boolean; title: string; message: string; onConfirm: () => void; onCancel: () => void; }> = ({ isOpen, title, message, onConfirm, onCancel }) => {
   if (!isOpen) return null;
   return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
+      <div className="fixed inset-0 bg-bg/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
         <div className="glass-panel p-8 w-full max-w-sm border border-line-strong shadow-2xl animate-slide-up text-center">
           <div className="w-16 h-16 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-danger/30">
             <AlertCircle size={32} className="text-danger" />

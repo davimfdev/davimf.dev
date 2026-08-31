@@ -9,7 +9,7 @@
 
 import { EMAIL_REPLY_TO, EMAIL_SUPPORT } from '../EmailProvider';
 
-export const BRAND = {
+const DATA_PALETTE_EMAIL = {
   ink: '#0A0A0A',
   surface: '#121211',
   panel: '#1A1A18',
@@ -20,7 +20,10 @@ export const BRAND = {
   accentSoft: '#F0CF95',
   success: '#4ADE80',
   danger: '#F87171',
+  noticeBackground: 'rgba(230,181,102,0.06)',
 };
+
+export const BRAND = DATA_PALETTE_EMAIL;
 
 export function escapeHtml(value: string): string {
   return value
@@ -71,7 +74,7 @@ export function paragraph(text: string): string {
 export function notice(text: string, tone: 'accent' | 'danger' = 'accent'): string {
   const color = tone === 'danger' ? BRAND.danger : BRAND.accent;
   return `
-    <div style="margin:20px 0;padding:14px 16px;border-left:3px solid ${color};background:rgba(230,181,102,0.06);border-radius:0 8px 8px 0;">
+    <div style="margin:20px 0;padding:14px 16px;border-left:3px solid ${color};background:${BRAND.noticeBackground};border-radius:0 8px 8px 0;">
       <p style="margin:0;font-size:14px;line-height:1.6;color:${BRAND.text};">${text}</p>
     </div>`;
 }
@@ -110,7 +113,7 @@ export function renderLayout({ title, preheader, body }: LayoutInput): string {
           <p style="margin:0 0 12px;font-size:12px;line-height:1.6;color:${BRAND.muted};">
             Suporte: <a href="mailto:${EMAIL_SUPPORT}" style="color:${BRAND.accent};text-decoration:none;">${EMAIL_SUPPORT}</a>
           </p>
-          <p style="margin:0;font-size:11px;line-height:1.6;color:#6B6B67;">
+          <p style="margin:0;font-size:11px;line-height:1.6;color:${BRAND.muted};">
             Este e-mail foi enviado automaticamente por davimf.dev. Nunca pedimos número de cartão ou CVV por e-mail.
           </p>
         </td></tr>

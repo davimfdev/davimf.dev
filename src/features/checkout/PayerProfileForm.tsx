@@ -32,7 +32,7 @@ export type PayerProfileFormValues = {
 };
 
 const inputClass =
-  'w-full bg-black/30 border border-line rounded-lg px-3.5 py-2.5 text-[15px] text-fg placeholder:text-fg-muted focus:outline-none focus:border-accent/60 transition-colors';
+  'w-full bg-surface-2 border border-line rounded-lg px-3.5 py-2.5 text-[15px] text-fg placeholder:text-fg-muted focus:outline-none focus:border-accent/60 transition-colors';
 const labelClass = 'block text-xs font-medium text-fg-muted mb-1.5';
 const hintClass = 'text-[11px] text-fg-muted mt-1.5 leading-snug';
 

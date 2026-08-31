@@ -330,7 +330,7 @@ export function CheckoutModal({ product, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center bg-black/80 backdrop-blur-sm overflow-y-auto p-4"
+      className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center bg-bg/80 backdrop-blur-sm overflow-y-auto p-4"
       role="dialog"
       aria-modal="true"
       aria-label={`Comprar ${product.name}`}

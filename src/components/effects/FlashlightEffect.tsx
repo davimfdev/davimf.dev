@@ -37,7 +37,7 @@ export default function FlashlightEffect() {
           inset: 0,
           zIndex: 0,
           pointerEvents: 'none',
-          backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.4) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, rgb(var(--accent) / .4) 1px, transparent 1px)',
           backgroundSize: '26px 26px',
         }}
       />
@@ -48,7 +48,7 @@ export default function FlashlightEffect() {
           inset: 0,
           zIndex: 0,
           pointerEvents: 'none',
-          background: 'radial-gradient(circle 140px at var(--fl-x, 50%) var(--fl-y, 50%), transparent 0%, rgba(17,24,39,0.92) 100%)',
+          background: 'radial-gradient(circle 140px at var(--fl-x, 50%) var(--fl-y, 50%), transparent 0%, rgb(var(--surface-3) / .92) 100%)',
         }}
       />
     </>

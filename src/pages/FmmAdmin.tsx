@@ -10,7 +10,7 @@ const ConfirmModal: React.FC<{
 }> = ({ isOpen, title, message, onConfirm, onCancel }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
+    <div className="fixed inset-0 bg-bg/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
       <div className="glass-panel p-8 w-full max-w-sm border border-line-strong shadow-2xl animate-slide-up text-center">
         <div className="w-16 h-16 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-danger/30">
           <AlertCircle size={32} className="text-danger" />
@@ -251,7 +251,7 @@ const FmmAdmin = () => {
           <h2 className="text-lg font-bold text-fg mb-4">Chaves Geradas (sessão atual)</h2>
           <div className="flex flex-col gap-2">
             {generatedKeys.map((k, i) => (
-              <div key={k.key} className="flex items-center gap-3 bg-black/30 border border-line rounded-xl px-4 py-3">
+              <div key={k.key} className="flex items-center gap-3 bg-surface-3 border border-line rounded-xl px-4 py-3">
                 <code className="font-mono text-accent text-sm tracking-widest flex-grow select-all">{k.key}</code>
                 <button onClick={() => copyKey(i)} className="text-fg-muted hover:text-fg transition-colors flex-shrink-0">
                   {k.copied ? <Check size={16} className="text-ok" /> : <Copy size={16} />}
@@ -306,7 +306,7 @@ const FmmAdmin = () => {
                   <th className="pb-3">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-line">
                 {filtered.map((k) => {
                   const expired = isExpired(k.expires_at);
                   const lifetime = k.duration_days >= 36500;

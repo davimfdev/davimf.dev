@@ -23,7 +23,7 @@ export default function Test() {
                     fontSize: '18px',
                     fontWeight: 'bold',
                     display: 'inline-block',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                    boxShadow: '0 4px 6px rgb(var(--bg) / .1)'
                 }}
             >
                 Login com Discord

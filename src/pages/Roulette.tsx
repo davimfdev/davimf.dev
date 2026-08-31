@@ -15,10 +15,10 @@ const Roulette = () => {
 
   const conicGradient = useMemo(() => {
     if (nameList.length === 0) {
-      return 'radial-gradient(rgba(74, 85, 104, 0.5), rgba(45, 55, 72, 0.5))';
+      return 'radial-gradient(rgb(var(--fg-muted) / .5), rgb(var(--surface-3) / .5))';
     }
     const gradientParts = nameList.map((_, index) => {
-      const color = index % 2 === 0 ? 'rgba(59, 130, 246, 0.2)' : 'rgba(147, 51, 234, 0.2)';
+      const color = index % 2 === 0 ? 'rgb(var(--accent) / .2)' : 'rgb(var(--fg-muted) / .2)';
       const startAngle = index * segmentAngle;
       const endAngle = (index + 1) * segmentAngle;
       return `${color} ${startAngle}deg ${endAngle}deg`;

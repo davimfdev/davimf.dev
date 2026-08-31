@@ -28,7 +28,7 @@ const ConfirmModal: React.FC<{
 }> = ({ isOpen, title, message, onConfirm, onCancel }) => {
   if (!isOpen) return null;
   return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
+      <div className="fixed inset-0 bg-bg/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
         <div className="glass-panel p-8 w-full max-w-sm border border-line-strong shadow-2xl animate-slide-up text-center">
           <div className="w-16 h-16 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-danger/30">
             <AlertCircle size={32} className="text-danger" />

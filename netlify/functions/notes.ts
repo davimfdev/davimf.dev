@@ -3,6 +3,8 @@ import { siteDbSql } from './lib/db.js';
 
 const sql = siteDbSql;
 
+const DATA_PALETTE_NOTE_DEFAULT = '#6366f1';
+
 const getDiscordId = async (authHeader: string | null | undefined): Promise<string | null> => {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
   const token = authHeader.split(' ')[1];
@@ -41,7 +43,7 @@ export const handler: Handler = async (event) => {
             ${discordId},
             ${body.title ?? 'Nova Nota'},
             ${body.content ?? ''},
-            ${body.color ?? '#6366f1'},
+            ${body.color ?? DATA_PALETTE_NOTE_DEFAULT},
             ${body.opacity ?? 0.85},
             ${body.pos_x ?? null},
             ${body.pos_y ?? null},

@@ -268,7 +268,7 @@ const MyOrders = () => {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-bg/60 p-4"
         >
           <div className="glass-panel max-w-md w-full p-6">
             <div className="flex items-center gap-2 mb-3 text-warn">
@@ -295,7 +295,7 @@ const MyOrders = () => {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-bg/60 p-4"
         >
           <div className="glass-panel max-w-md w-full p-6">
             <h2 className="font-display font-bold text-lg text-fg mb-3">Solicitar análise</h2>
@@ -308,7 +308,7 @@ const MyOrders = () => {
               maxLength={2000}
               rows={4}
               placeholder="Descreva o problema…"
-              className="w-full bg-black/30 border border-line rounded-lg px-3 py-2 text-sm text-fg mb-2"
+              className="w-full bg-surface-2 border border-line rounded-lg px-3 py-2 text-sm text-fg mb-2"
             />
             {dialogError && <p className="text-sm text-danger mb-2">{dialogError}</p>}
             <div className="flex justify-end gap-3 mt-3">

@@ -22,7 +22,7 @@ const Products = () => {
                 alt={product.name}
                 className="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500 ease-out"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-80"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-80"></div>
             </div>
             
             <div className="p-6 flex flex-col flex-grow relative z-10">

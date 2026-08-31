@@ -88,7 +88,7 @@ export function PaymentResult({ payment }: { payment: PaymentView }) {
             <p className="text-xs font-medium text-fg-muted uppercase tracking-wider mb-2">
               Sua chave de licença
             </p>
-            <div className="bg-black/40 border border-line rounded-xl px-4 py-3.5">
+            <div className="bg-surface-3 border border-line rounded-xl px-4 py-3.5">
               <code className="text-accent font-mono text-lg tracking-[0.15em] select-all break-all">
                 {license.key ?? `${license.keyPrefix}…`}
               </code>
@@ -153,7 +153,7 @@ export function PaymentResult({ payment }: { payment: PaymentView }) {
 
         <div className="mt-5">
           <p className="text-xs font-medium text-fg-muted mb-2">Pix Copia e Cola</p>
-          <div className="bg-black/40 border border-line rounded-lg px-3 py-2.5 mb-3">
+          <div className="bg-surface-3 border border-line rounded-lg px-3 py-2.5 mb-3">
             <code className="text-[11px] text-fg-soft break-all leading-relaxed line-clamp-3">
               {payment.pix.qrCode}
             </code>
@@ -186,7 +186,7 @@ export function PaymentResult({ payment }: { payment: PaymentView }) {
         {payment.boleto.digitableLine && (
           <div className="mt-6">
             <p className="text-xs font-medium text-fg-muted mb-2">Linha digitável</p>
-            <div className="bg-black/40 border border-line rounded-lg px-3 py-2.5 mb-3">
+            <div className="bg-surface-3 border border-line rounded-lg px-3 py-2.5 mb-3">
               <code className="text-xs text-fg break-all">{payment.boleto.digitableLine}</code>
             </div>
             <CopyButton value={payment.boleto.digitableLine} label="Copiar linha digitável" />

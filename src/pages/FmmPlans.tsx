@@ -221,14 +221,14 @@ const FmmPlans = () => {
               </div>
 
               {/* Basic col */}
-              <div className="flex justify-center py-3.5" style={{ background: 'rgba(59,130,246,0.03)' }}>
+              <div className="flex justify-center bg-surface-1 py-3.5">
                 {basic
                   ? <Check size={22} strokeWidth={2.5} className="text-accent" />
                   : <Minus size={16} className="text-fg-muted" />}
               </div>
 
               {/* Pro col */}
-              <div className="flex justify-center py-3.5" style={{ background: 'rgba(139,92,246,0.04)' }}>
+              <div className="flex justify-center bg-surface-2 py-3.5">
                 {pro
                   ? <Check size={22} strokeWidth={2.5} className="text-accent" />
                   : <Minus size={16} className="text-fg-muted" />}

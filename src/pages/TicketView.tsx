@@ -105,7 +105,7 @@ export default function TicketView() {
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') unlock(); }}
             placeholder="Senha do transcript"
-            className="w-full bg-black/30 border border-line rounded-lg px-4 py-3 mb-3 outline-none focus:border-accent"
+            className="w-full bg-surface-2 border border-line rounded-lg px-4 py-3 mb-3 outline-none focus:border-accent"
           />
           {unlockErr && <p className="text-danger text-sm mb-3">{unlockErr}</p>}
           <button onClick={unlock} disabled={busy} className="btn-primary w-full">
@@ -141,7 +141,7 @@ export default function TicketView() {
               </div>
               {m.content && <div className="text-fg break-words" dangerouslySetInnerHTML={{ __html: md(m.content, emoji) }} />}
               {(m.embeds || []).map((e, j) => (
-                <div key={j} className="mt-1 border-l-4 pl-3 py-1 bg-black/20 rounded" style={{ borderColor: e.color != null ? '#' + ((e.color >>> 0) & 0xffffff).toString(16).padStart(6, '0') : 'rgb(var(--accent))' }}>
+                <div key={j} className="mt-1 border-l-4 pl-3 py-1 bg-surface-1 rounded" style={{ borderColor: e.color != null ? '#' + ((e.color >>> 0) & 0xffffff).toString(16).padStart(6, '0') : 'rgb(var(--accent))' }}>
                   {e.authorName && <div className="text-xs text-fg-muted">{esc(e.authorName)}</div>}
                   {e.title && <div className="font-semibold" dangerouslySetInnerHTML={{ __html: md(e.title, emoji) }} />}
                   {e.description && <div className="text-sm text-fg-soft" dangerouslySetInnerHTML={{ __html: md(e.description, emoji) }} />}

@@ -154,7 +154,7 @@ const MyKeys = () => {
                   </span>
                 </div>
 
-                <div className="bg-black/30 border border-line rounded-lg px-3.5 py-2.5 flex items-center gap-3">
+                <div className="bg-surface-3 border border-line rounded-lg px-3.5 py-2.5 flex items-center gap-3">
                   <code className="font-mono text-sm text-fg tracking-wider flex-grow break-all select-all">
                     {license.key ?? `${license.keyPrefix}…`}
                   </code>

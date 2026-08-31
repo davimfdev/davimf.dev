@@ -104,7 +104,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
   if (note.is_maximized && !isFloating) {
     return (
       <>
-        <div className="fixed inset-0 bg-black/60 z-[9998]" onClick={() => onUpdate({ id: note.id, is_maximized: false })} />
+        <div className="fixed inset-0 bg-bg/60 z-[9998]" onClick={() => onUpdate({ id: note.id, is_maximized: false })} />
         <div
           className="fixed top-[88px] left-4 right-4 bottom-4 z-[9999] glass-panel flex flex-col overflow-hidden"
           style={{ ...bgStyle, borderColor: `rgba(${rgb}, 0.4)` }}

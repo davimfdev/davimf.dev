@@ -21,7 +21,7 @@ const Portfolio = () => {
                 alt={project.title}
                 className="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500 ease-out"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300"></div>
             </div>
             <div className="p-6 relative">
               <h3 className="text-2xl font-semibold mb-3 text-fg group-hover:text-accent transition-colors">{project.title}</h3>

@@ -87,7 +87,7 @@ const styles = {
   authSection: { display: 'flex', alignItems: 'center' },
   avatar: { width: '45px', height: '45px', borderRadius: '50%', cursor: 'pointer', border: '2px solid transparent', transition: 'border 0.2s' },
   loginBtn: { backgroundColor: DATA_PALETTE_DISCORD.blurple, color: 'white', padding: '10px 20px', borderRadius: '5px', textDecoration: 'none', fontWeight: 'bold' },
-  dropdown: { position: 'absolute' as const, top: '55px', right: '0', backgroundColor: 'rgb(var(--surface-3))', borderRadius: '8px', padding: '15px', boxShadow: '0 8px 16px rgba(0,0,0,0.3)', minWidth: '150px', zIndex: 10 },
+  dropdown: { position: 'absolute' as const, top: '55px', right: '0', backgroundColor: 'rgb(var(--surface-3))', borderRadius: '8px', padding: '15px', boxShadow: '0 8px 16px rgb(var(--bg) / .3)', minWidth: '150px', zIndex: 10 },
   username: { margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold', color: 'rgb(var(--fg-soft))', borderBottom: '1px solid var(--line)', paddingBottom: '10px' },
   logoutBtn: { backgroundColor: DATA_PALETTE_DISCORD.danger, color: 'white', border: 'none', width: '100%', padding: '8px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }
 };

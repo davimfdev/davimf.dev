@@ -7,7 +7,7 @@ function FeatureCard({ feature }: { feature: { icon: React.ElementType; title: s
   const Icon = feature.icon;
   return (
     <div className="glass-panel p-8 flex flex-col items-start text-left group cursor-default transition-transform duration-300 ease-out hover:-translate-y-1 will-change-transform">
-      <div className="p-3 rounded-xl mb-6 border border-white/[0.08] group-hover:border-accent/40 transition-colors duration-300">
+      <div className="p-3 rounded-xl mb-6 border border-line group-hover:border-accent/40 transition-colors duration-300">
         <Icon size={24} strokeWidth={1.5} className="text-fg-muted group-hover:text-accent transition-colors duration-300" />
       </div>
       <h3 className="text-lg font-semibold mb-2 text-fg">{feature.title}</h3>

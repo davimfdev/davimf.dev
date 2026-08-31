@@ -105,7 +105,7 @@ export default function TicketView() {
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') unlock(); }}
             placeholder="Senha do transcript"
-            className="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-3 mb-3 outline-none focus:border-accent"
+            className="w-full bg-black/30 border border-line rounded-lg px-4 py-3 mb-3 outline-none focus:border-accent"
           />
           {unlockErr && <p className="text-red-400 text-sm mb-3">{unlockErr}</p>}
           <button onClick={unlock} disabled={busy} className="btn-primary w-full">
@@ -119,7 +119,7 @@ export default function TicketView() {
   const fmt = (ts: number) => new Date(ts).toLocaleString('pt-BR');
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <header className="mb-6 border-b border-white/10 pb-4">
+      <header className="mb-6 border-b border-line pb-4">
         <p className="text-accent text-sm">{esc(data.categoryLabel)}</p>
         <h1 className="text-2xl font-bold">#{bundle?.channelName}</h1>
         <p className="text-fg-muted text-sm mt-1">
@@ -156,7 +156,7 @@ export default function TicketView() {
                 </div>
               ))}
               {m.attachments.map((a, j) => (
-                <span key={j} className="inline-block text-xs bg-white/5 border border-white/10 rounded px-2 py-0.5 mt-1 mr-1">{esc(a)}</span>
+                <span key={j} className="inline-block text-xs bg-surface-1 border border-line rounded px-2 py-0.5 mt-1 mr-1">{esc(a)}</span>
               ))}
             </div>
           </div>

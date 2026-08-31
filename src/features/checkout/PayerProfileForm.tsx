@@ -32,7 +32,7 @@ export type PayerProfileFormValues = {
 };
 
 const inputClass =
-  'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 py-2.5 text-[15px] text-fg placeholder:text-fg-muted focus:outline-none focus:border-accent/60 transition-colors';
+  'w-full bg-black/30 border border-line rounded-lg px-3.5 py-2.5 text-[15px] text-fg placeholder:text-fg-muted focus:outline-none focus:border-accent/60 transition-colors';
 const labelClass = 'block text-xs font-medium text-fg-muted mb-1.5';
 const hintClass = 'text-[11px] text-fg-muted mt-1.5 leading-snug';
 
@@ -262,7 +262,7 @@ export function PayerProfileForm({
       )}
 
       {persistenceAvailable && (
-        <div className="flex items-start gap-3 rounded-lg border border-white/10 px-3.5 py-3 hover:border-white/20 transition-colors">
+        <div className="flex items-start gap-3 rounded-lg border border-line px-3.5 py-3 hover:border-line-strong transition-colors">
           <input
             id="payer-save-profile"
             type="checkbox"

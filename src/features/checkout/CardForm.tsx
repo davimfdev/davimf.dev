@@ -42,12 +42,12 @@ type Props = {
 };
 
 const inputClass =
-  'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 py-2.5 text-[15px] text-fg placeholder:text-fg-muted focus:outline-none focus:border-accent/60 transition-colors';
+  'w-full bg-black/30 border border-line rounded-lg px-3.5 py-2.5 text-[15px] text-fg placeholder:text-fg-muted focus:outline-none focus:border-accent/60 transition-colors';
 
 // `[&>iframe]` garante que o iframe do Mercado Pago ocupe a caixa inteira —
 // é ele que recebe o clique e o teclado.
 const fieldShellClass =
-  'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 h-[42px] flex items-center focus-within:border-accent/60 transition-colors [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:border-0';
+  'w-full bg-black/30 border border-line rounded-lg px-3.5 h-[42px] flex items-center focus-within:border-accent/60 transition-colors [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:border-0';
 
 const labelClass = 'block text-xs font-medium text-fg-muted mb-1.5';
 

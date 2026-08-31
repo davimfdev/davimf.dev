@@ -37,7 +37,7 @@ const LegalVersionNotFound: React.FC<LegalVersionNotFoundProps> = ({ version, cu
         <h1 className="text-4xl font-extrabold text-gradient">{translations.legalVersionNotFoundTitle}</h1>
       </div>
 
-      <div className="space-y-4 glass-panel p-8 sm:p-10 border border-white/10 animate-slide-up">
+      <div className="space-y-4 glass-panel p-8 sm:p-10 border border-line animate-slide-up">
         <p className="leading-relaxed">
           {translations.legalVersionNotFoundPrefix}{' '}
           <span className="text-fg font-semibold">{version}</span>{' '}

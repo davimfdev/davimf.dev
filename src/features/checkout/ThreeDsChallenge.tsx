@@ -97,7 +97,7 @@ export function ThreeDsChallenge({ url, onComplete, onInvalidUrl }: Props) {
         // segurança/WebAuthn), delegadas SÓ para a origem do desafio.
         allow={`payment ${expectedOrigin}; publickey-credentials-get ${expectedOrigin}`}
         referrerPolicy="strict-origin"
-        className="w-full h-[420px] rounded-xl border border-white/10 bg-white"
+        className="w-full h-[420px] rounded-xl border border-line bg-white"
       />
     </div>
   );

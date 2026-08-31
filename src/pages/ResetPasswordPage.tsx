@@ -61,7 +61,7 @@ const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-white/10 shadow-2xl">
+    <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-line shadow-2xl">
       <div className="flex justify-center mb-6">
         <div className="p-4 bg-accent/20 rounded-full border border-accent/30">
           <KeyRound size={32} className="text-accent" />
@@ -90,7 +90,7 @@ const ResetPasswordPage: React.FC = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-fg-muted transition-all"
+              className="w-full px-4 py-3 bg-surface-1 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-fg-muted transition-all"
               required
               placeholder="••••••••"
             />
@@ -102,7 +102,7 @@ const ResetPasswordPage: React.FC = () => {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-fg-muted transition-all"
+              className="w-full px-4 py-3 bg-surface-1 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-fg-muted transition-all"
               required
               placeholder="••••••••"
             />

@@ -42,7 +42,7 @@ const RequestPasswordResetPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-white/10 shadow-2xl">
+    <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-line shadow-2xl">
       <div className="flex justify-center mb-6">
         <div className="p-4 bg-accent/20 rounded-full border border-accent/30">
           <Mail size={32} className="text-accent" />
@@ -71,7 +71,7 @@ const RequestPasswordResetPage: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="seu@email.com"
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-fg-muted transition-all"
+            className="w-full px-4 py-3 bg-surface-1 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-fg-muted transition-all"
             required
             disabled={loading}
           />
@@ -88,7 +88,7 @@ const RequestPasswordResetPage: React.FC = () => {
           )}
         </button>
       </form>
-      <div className="mt-8 pt-6 border-t border-white/10 text-center">
+      <div className="mt-8 pt-6 border-t border-line text-center">
         <p className="text-fg-muted">
           Lembrou sua senha?{' '}
           <Link to="/login" className="text-accent hover:text-accent font-medium transition-colors">

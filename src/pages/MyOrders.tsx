@@ -196,7 +196,7 @@ const MyOrders = () => {
               <div key={order.id} className="glass-panel p-5">
                 <div className="flex items-center justify-between gap-3 flex-wrap mb-2">
                   <span className="text-sm font-bold text-fg">Pedido {order.reference}</span>
-                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full text-fg-muted bg-white/[0.06]">
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full text-fg-muted bg-surface-3">
                     {status}
                   </span>
                 </div>
@@ -308,7 +308,7 @@ const MyOrders = () => {
               maxLength={2000}
               rows={4}
               placeholder="Descreva o problema…"
-              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-fg mb-2"
+              className="w-full bg-black/30 border border-line rounded-lg px-3 py-2 text-sm text-fg mb-2"
             />
             {dialogError && <p className="text-sm text-red-400 mb-2">{dialogError}</p>}
             <div className="flex justify-end gap-3 mt-3">

@@ -118,7 +118,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </div>
 
               {/* Desktop Menu */}
-              <div className="hidden md:flex md:items-center bg-white/5 backdrop-blur-md rounded-2xl px-4 py-2 border border-white/10 shadow-lg">
+              <div className="hidden md:flex md:items-center bg-surface-1 backdrop-blur-md rounded-2xl px-4 py-2 border border-line shadow-lg">
                 <div className="flex items-baseline space-x-2">
                   {navigation.map((item) => (
                       <Link key={item.name} to={item.href} className="nav-link">
@@ -133,7 +133,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     </button>
                     <div className={`absolute left-0 mt-4 w-56 glass-panel py-2 z-50 transition-all duration-300 ease-out transform origin-top ${isFeaturesMenuOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2'}`} style={{ pointerEvents: isFeaturesMenuOpen ? 'auto' : 'none' }}>
                       {featureLinks.map(link => (
-                          <Link key={link.name} to={link.href} onClick={() => setIsFeaturesMenuOpen(false)} className="block px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-white/10 transition-colors">
+                          <Link key={link.name} to={link.href} onClick={() => setIsFeaturesMenuOpen(false)} className="block px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors">
                             {link.name}
                           </Link>
                       ))}
@@ -156,7 +156,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 <div className="relative" ref={userMenuRef}>
                   <button
                       onClick={() => discordUser ? setIsUserMenuOpen(!isUserMenuOpen) : handleLogin()}
-                      className="flex items-center justify-center overflow-hidden w-10 h-10 text-fg-muted hover:text-fg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-full transition-all duration-300 shadow-inner"
+                      className="flex items-center justify-center overflow-hidden w-10 h-10 text-fg-muted hover:text-fg bg-surface-1 hover:bg-surface-2 border border-line hover:border-line rounded-full transition-all duration-300 shadow-inner"
                   >
                     {discordUser ? (
                         <img
@@ -172,17 +172,17 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   <div className={`absolute right-0 mt-4 w-56 glass-panel py-2 z-50 transition-all duration-300 ease-out transform origin-top-right ${isUserMenuOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2'}`} style={{ pointerEvents: isUserMenuOpen ? 'auto' : 'none' }}>
                     {discordUser ? (
                         <>
-                          <div className="px-4 py-3 border-b border-white/10 mb-1">
+                          <div className="px-4 py-3 border-b border-line mb-1">
                             <p className="text-[10px] text-fg-muted uppercase font-black tracking-widest">Identificado como</p>
                             <p className="text-sm font-bold text-fg truncate">{discordUser.global_name || discordUser.username}</p>
                           </div>
-                          <Link to="/dashboard" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-white/10 transition-colors">
+                          <Link to="/dashboard" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors">
                             Painel do Bot
                           </Link>
-                          <Link to="/my-keys" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-white/10 transition-colors">
+                          <Link to="/my-keys" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors">
                             Minhas Chaves
                           </Link>
-                          <Link to="/my-orders" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-white/10 transition-colors">
+                          <Link to="/my-orders" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors">
                             Meus Pedidos
                           </Link>
                           {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
@@ -196,21 +196,21 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                           </button>
                         </>
                     ) : (
-                        <button onClick={handleLogin} className="block w-full text-left px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-white/10 transition-colors">
+                        <button onClick={handleLogin} className="block w-full text-left px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors">
                           Entrar com Discord
                         </button>
                     )}
                   </div>
                 </div>
 
-                <button onClick={toggleLanguage} className="flex items-center p-2 text-fg-muted hover:text-fg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-full transition-all duration-300" aria-label="Toggle language">
+                <button onClick={toggleLanguage} className="flex items-center p-2 text-fg-muted hover:text-fg bg-surface-1 hover:bg-surface-2 border border-line hover:border-line rounded-full transition-all duration-300" aria-label="Toggle language">
                   <Globe size={18} />
                   <span className="ml-2 text-sm font-medium">{language.toUpperCase()}</span>
                 </button>
               </div>
 
               <div className="md:hidden flex items-center">
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-fg-muted hover:text-fg bg-white/5 rounded-lg border border-white/10 transition-all">
+                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-fg-muted hover:text-fg bg-surface-1 rounded-lg border border-line transition-all">
                   {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
               </div>
@@ -221,31 +221,31 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <div className="md:hidden glass-panel mx-4 mt-2 mb-4 overflow-hidden animate-slide-up">
                 <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                   {navigation.map((item) => (
-                      <Link key={item.name} to={item.href} className="text-fg-muted hover:bg-white/10 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
+                      <Link key={item.name} to={item.href} className="text-fg-muted hover:bg-surface-2 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
                         {item.name}
                       </Link>
                   ))}
-                  <div className="border-t border-white/10 my-2"></div>
+                  <div className="border-t border-line my-2"></div>
                   <p className="px-3 pt-2 text-xs font-semibold text-fg-muted uppercase tracking-wider">{translations.features}</p>
                   {featureLinks.map((item) => (
-                      <Link key={item.name} to={item.href} className="text-fg-muted hover:bg-white/10 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
+                      <Link key={item.name} to={item.href} className="text-fg-muted hover:bg-surface-2 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
                         {item.name}
                       </Link>
                   ))}
-                  <div className="border-t border-white/10 my-2"></div>
+                  <div className="border-t border-line my-2"></div>
                   {discordUser ? (
                       <>
                         <div className="px-3 py-2">
                           <p className="text-xs text-fg-muted uppercase">Logado como</p>
                           <p className="text-fg font-bold">{discordUser.username}</p>
                         </div>
-                        <Link to="/dashboard" className="text-fg-muted hover:bg-white/10 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/dashboard" className="text-fg-muted hover:bg-surface-2 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
                           Painel do Bot
                         </Link>
-                        <Link to="/my-keys" className="text-fg-muted hover:bg-white/10 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/my-keys" className="text-fg-muted hover:bg-surface-2 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
                           Minhas Chaves
                         </Link>
-                        <Link to="/my-orders" className="text-fg-muted hover:bg-white/10 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/my-orders" className="text-fg-muted hover:bg-surface-2 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
                           Meus Pedidos
                         </Link>
                         {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
@@ -258,7 +258,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         </button>
                       </>
                   ) : (
-                      <button onClick={handleLogin} className="w-full text-left text-fg-muted hover:bg-white/10 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors">
+                      <button onClick={handleLogin} className="w-full text-left text-fg-muted hover:bg-surface-2 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors">
                         Entrar com Discord
                       </button>
                   )}
@@ -304,7 +304,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 ].map((social, index) => {
                   const Icon = social.icon;
                   return (
-                      <a key={index} href={social.href} target="_blank" rel="noopener noreferrer" className="p-2 text-fg-muted hover:text-fg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 rounded-full transition-all duration-300 transform hover:-translate-y-1">
+                      <a key={index} href={social.href} target="_blank" rel="noopener noreferrer" className="p-2 text-fg-muted hover:text-fg bg-surface-1 hover:bg-surface-2 border border-line hover:border-line-strong rounded-full transition-all duration-300 transform hover:-translate-y-1">
                         <Icon size={20} />
                       </a>
                   );

@@ -66,7 +66,7 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-white/10 shadow-2xl">
+    <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-line shadow-2xl">
       <div className="flex justify-center mb-6">
         <div className="p-4 bg-green-500/20 rounded-full border border-green-500/30">
           <UserPlus size={32} className="text-green-400" />
@@ -84,7 +84,7 @@ const RegisterPage: React.FC = () => {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-fg-muted transition-all"
+            className="w-full px-4 py-3 bg-surface-1 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-fg-muted transition-all"
             required
             disabled={loading}
             placeholder="seu@email.com"
@@ -99,7 +99,7 @@ const RegisterPage: React.FC = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-fg-muted transition-all"
+            className="w-full px-4 py-3 bg-surface-1 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-fg-muted transition-all"
             required
             disabled={loading}
             placeholder="••••••••"
@@ -114,7 +114,7 @@ const RegisterPage: React.FC = () => {
             id="confirm-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-fg-muted transition-all"
+            className="w-full px-4 py-3 bg-surface-1 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-fg placeholder-fg-muted transition-all"
             required
             disabled={loading}
             placeholder="••••••••"
@@ -132,7 +132,7 @@ const RegisterPage: React.FC = () => {
           )}
         </button>
       </form>
-      <div className="mt-8 pt-6 border-t border-white/10 text-center">
+      <div className="mt-8 pt-6 border-t border-line text-center">
         <p className="text-fg-muted">
           Já tem uma conta?{' '}
           <Link to="/login" className="text-accent hover:text-accent font-medium transition-colors">

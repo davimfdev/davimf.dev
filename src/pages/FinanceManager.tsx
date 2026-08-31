@@ -33,21 +33,21 @@ const TransferModal: React.FC<{ isOpen: boolean; onClose: () => void; onTransfer
   if (!isOpen) return null;
   return (
       <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-        <div className="glass-panel p-8 w-full max-w-md border border-white/20 animate-slide-up">
+        <div className="glass-panel p-8 w-full max-w-md border border-line-strong animate-slide-up">
           <h2 className="text-2xl font-bold mb-6 text-fg flex items-center"><ArrowRightLeft className="mr-3 text-accent" /> Transferir entre Contas</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <select value={fromAccountId} onChange={e => setFromAccountId(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 text-fg outline-none">
+            <select value={fromAccountId} onChange={e => setFromAccountId(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-line text-fg outline-none">
               <option value="">Sair de (Origem)</option>
               {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
             </select>
-            <select value={toAccountId} onChange={e => setToAccountId(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 text-fg outline-none">
+            <select value={toAccountId} onChange={e => setToAccountId(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-line text-fg outline-none">
               <option value="">Entrar em (Destino)</option>
               {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
             </select>
-            <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="Valor R$" className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 text-fg outline-none" />
+            <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="Valor R$" className="w-full p-3 bg-surface-1/50 rounded-lg border border-line text-fg outline-none" />
             <div className="flex justify-end gap-3 mt-6">
               <button type="button" onClick={onClose} className="px-4 py-2 text-fg-muted">Cancelar</button>
-              <button type="submit" className="bg-accent px-6 py-2 rounded-lg text-ink font-bold">{loading ? 'Processando...' : 'Confirmar Transferência'}</button>
+              <button type="submit" className="bg-accent px-6 py-2 rounded-lg text-bg font-bold">{loading ? 'Processando...' : 'Confirmar Transferência'}</button>
             </div>
           </form>
         </div>
@@ -76,14 +76,14 @@ const AddAccountModal: React.FC<{ isOpen: boolean; onClose: () => void; onAccoun
   if (!isOpen) return null;
   return (
       <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-        <div className="glass-panel p-8 w-full max-w-md border border-white/20 animate-slide-up">
+        <div className="glass-panel p-8 w-full max-w-md border border-line-strong animate-slide-up">
           <h2 className="text-2xl font-bold mb-6 text-fg flex items-center"><Wallet className="mr-3 text-accent" /> Nova Conta Bancária</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nome do Banco (Ex: Nubank)" className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 text-fg outline-none" required />
-            <input type="number" value={initialBalance} onChange={e => setInitialBalance(e.target.value)} placeholder="Saldo Inicial" className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 text-fg outline-none" />
+            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nome do Banco (Ex: Nubank)" className="w-full p-3 bg-surface-1/50 rounded-lg border border-line text-fg outline-none" required />
+            <input type="number" value={initialBalance} onChange={e => setInitialBalance(e.target.value)} placeholder="Saldo Inicial" className="w-full p-3 bg-surface-1/50 rounded-lg border border-line text-fg outline-none" />
             <div className="flex justify-end gap-3 mt-6">
               <button type="button" onClick={onClose} className="px-4 py-2 text-fg-muted">Cancelar</button>
-              <button type="submit" className="bg-accent px-6 py-2 rounded-lg text-ink font-bold">{loading ? 'Salvando...' : 'Adicionar Banco'}</button>
+              <button type="submit" className="bg-accent px-6 py-2 rounded-lg text-bg font-bold">{loading ? 'Salvando...' : 'Adicionar Banco'}</button>
             </div>
           </form>
         </div>
@@ -201,15 +201,15 @@ const FinanceManager: React.FC = () => {
 
         <h1 className="text-4xl font-extrabold text-center text-gradient mb-10">Gerenciador Financeiro</h1>
 
-        <div className="mb-10 p-8 glass-panel border border-white/5 shadow-xl animate-slide-up">
+        <div className="mb-10 p-8 glass-panel border border-line shadow-xl animate-slide-up">
           <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <h2 className="text-2xl font-bold text-fg flex items-center"><DollarSign className="text-green-400 mr-2" /> Saldo Consolidado</h2>
             <div className="flex gap-3">
-              <button onClick={() => setIsTransferModalOpen(true)} className="btn-secondary px-4 py-2 text-xs flex items-center gap-2 border border-white/10 rounded-lg hover:bg-white/10 transition-all"><ArrowRightLeft size={14}/> Transferir</button>
+              <button onClick={() => setIsTransferModalOpen(true)} className="btn-secondary px-4 py-2 text-xs flex items-center gap-2 border border-line rounded-lg hover:bg-surface-2 transition-all"><ArrowRightLeft size={14}/> Transferir</button>
               <button onClick={() => setIsAccountModalOpen(true)} className="btn-primary px-4 py-2 text-xs flex items-center gap-2 rounded-lg font-bold"><PlusCircle size={14}/> Novo Banco</button>
             </div>
           </div>
-          <div className="text-center py-8 bg-surface-1/40 rounded-2xl border border-white/5 shadow-inner mb-8">
+          <div className="text-center py-8 bg-surface-1/40 rounded-2xl border border-line shadow-inner mb-8">
             <p className="text-5xl md:text-6xl font-black text-fg">{totalBalance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -218,7 +218,7 @@ const FinanceManager: React.FC = () => {
                   transactions.filter(t => t.account_id === acc.id && t.is_paid)
                       .reduce((sum, t) => sum + parseFloat(t.amount), 0);
               return (
-                  <div key={acc.id} className="bg-white/5 border border-white/10 p-5 rounded-xl flex justify-between items-center hover:bg-white/10 transition-all group relative">
+                  <div key={acc.id} className="bg-surface-1 border border-line p-5 rounded-xl flex justify-between items-center hover:bg-surface-2 transition-all group relative">
                     <div>
                       <p className="text-fg-muted text-[10px] font-black uppercase tracking-widest mb-1">{acc.name}</p>
                       <p className="text-xl font-mono text-fg">{individualBalance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
@@ -234,22 +234,22 @@ const FinanceManager: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-          <div className="lg:col-span-1 glass-panel p-6 border border-white/5 flex flex-col">
-            <h3 className="text-xl font-bold mb-6 text-fg flex items-center border-b border-white/10 pb-4"><PlusCircle className="mr-2 text-accent" /> Registrar Movimento</h3>
+          <div className="lg:col-span-1 glass-panel p-6 border border-line flex flex-col">
+            <h3 className="text-xl font-bold mb-6 text-fg flex items-center border-b border-line pb-4"><PlusCircle className="mr-2 text-accent" /> Registrar Movimento</h3>
             <form onSubmit={handleAddTransaction} className="space-y-4 flex-grow">
-              <input type="text" value={description} onChange={e => setDescription(e.target.value)} placeholder="Descrição" className="w-full p-3 bg-surface-1/50 border border-white/10 rounded-lg text-fg outline-none focus:border-accent transition-all" required />
+              <input type="text" value={description} onChange={e => setDescription(e.target.value)} placeholder="Descrição" className="w-full p-3 bg-surface-1/50 border border-line rounded-lg text-fg outline-none focus:border-accent transition-all" required />
               <div className="grid grid-cols-2 gap-3">
-                <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="Valor R$" className="w-full p-3 bg-surface-1/50 border border-white/10 rounded-lg text-fg font-mono" required />
-                <select value={transactionType} onChange={e => setTransactionType(e.target.value as any)} className="w-full p-3 bg-surface-1/50 border border-white/10 rounded-lg font-bold outline-none text-fg">
+                <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="Valor R$" className="w-full p-3 bg-surface-1/50 border border-line rounded-lg text-fg font-mono" required />
+                <select value={transactionType} onChange={e => setTransactionType(e.target.value as any)} className="w-full p-3 bg-surface-1/50 border border-line rounded-lg font-bold outline-none text-fg">
                   <option value="expense">Despesa (-)</option>
                   <option value="income">Receita (+)</option>
                 </select>
               </div>
               <div className="space-y-4">
-                <select value={category} onChange={e => setCategory(e.target.value)} className="w-full p-3 bg-surface-1/50 border border-white/10 rounded-lg text-fg">
+                <select value={category} onChange={e => setCategory(e.target.value)} className="w-full p-3 bg-surface-1/50 border border-line rounded-lg text-fg">
                   <option>Alimentação</option> <option>Salário</option> <option>Transporte</option> <option>Lazer</option> <option>Saúde</option> <option>Outros</option>
                 </select>
-                <select value={accountId} onChange={e => setAccountId(e.target.value)} className="w-full p-3 bg-surface-1/50 border border-white/10 rounded-lg text-fg" required>
+                <select value={accountId} onChange={e => setAccountId(e.target.value)} className="w-full p-3 bg-surface-1/50 border border-line rounded-lg text-fg" required>
                   <option value="">Selecione o Banco...</option>
                   {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
                 </select>
@@ -258,8 +258,8 @@ const FinanceManager: React.FC = () => {
             </form>
           </div>
 
-          <div className="lg:col-span-2 glass-panel p-6 border border-white/5 flex flex-col min-h-[450px] animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <h3 className="text-xl font-bold mb-6 text-fg flex items-center border-b border-white/10 pb-4"><Tag className="mr-3 text-emerald-400" /> Distribuição de Gastos</h3>
+          <div className="lg:col-span-2 glass-panel p-6 border border-line flex flex-col min-h-[450px] animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            <h3 className="text-xl font-bold mb-6 text-fg flex items-center border-b border-line pb-4"><Tag className="mr-3 text-emerald-400" /> Distribuição de Gastos</h3>
             <div className="relative flex-1 w-full min-h-0">
               {transactions.length > 0 ? (
                   <CategoryChart transactions={transactions.filter(t => parseFloat(t.amount) < 0 && t.category !== 'Transferência')} />
@@ -270,20 +270,20 @@ const FinanceManager: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass-panel border border-white/5 overflow-hidden shadow-2xl animate-slide-up" style={{ animationDelay: '0.2s' }}>
+        <div className="glass-panel border border-line overflow-hidden shadow-2xl animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="bg-white/5 text-fg-muted text-[10px] font-black uppercase tracking-widest border-b border-white/10">
+              <thead className="bg-surface-1 text-fg-muted text-[10px] font-black uppercase tracking-widest border-b border-line">
               <tr><th className="p-5">Descrição / Data</th><th className="p-5">Categoria</th><th className="p-5 text-right">Valor</th><th className="p-5 text-right">Ação</th></tr>
               </thead>
               <tbody className="divide-y divide-white/5">
               {[...transactions].sort((a,b) => b.id - a.id).map(t => (
-                  <tr key={t.id} className="hover:bg-white/[0.03] transition-all group">
+                  <tr key={t.id} className="hover:bg-surface-1 transition-all group">
                     <td className="p-5">
                       <p className="font-bold text-fg">{t.description}</p>
                       <p className="text-[10px] text-fg-muted flex items-center gap-1 mt-1 font-mono"><CalendarIcon size={10}/> {new Date(t.date).toLocaleDateString('pt-BR')}</p>
                     </td>
-                    <td className="p-5"><span className="px-3 py-1 bg-white/5 rounded-full text-[10px] text-fg-muted border border-white/5 font-medium">{t.category}</span></td>
+                    <td className="p-5"><span className="px-3 py-1 bg-surface-1 rounded-full text-[10px] text-fg-muted border border-line font-medium">{t.category}</span></td>
                     <td className={`p-5 text-right font-mono font-bold text-lg ${parseFloat(t.amount) < 0 ? 'text-red-400' : 'text-green-400'}`}>{parseFloat(t.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                     <td className="p-5 text-right">
                       <button onClick={() => triggerDeleteTransaction(t.id)} className="p-2 text-fg-muted hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"><Trash2 size={18}/></button>
@@ -303,7 +303,7 @@ const ConfirmModal: React.FC<{ isOpen: boolean; title: string; message: string; 
   if (!isOpen) return null;
   return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
-        <div className="glass-panel p-8 w-full max-w-sm border border-white/20 shadow-2xl animate-slide-up text-center">
+        <div className="glass-panel p-8 w-full max-w-sm border border-line-strong shadow-2xl animate-slide-up text-center">
           <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
             <AlertCircle size={32} className="text-red-400" />
           </div>
@@ -311,7 +311,7 @@ const ConfirmModal: React.FC<{ isOpen: boolean; title: string; message: string; 
           <p className="text-fg-muted mb-8 leading-relaxed">{message}</p>
           <div className="flex flex-col gap-3">
             <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-fg font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">Confirmar Exclusão</button>
-            <button onClick={onCancel} className="w-full py-3 bg-white/5 hover:bg-white/10 text-fg-muted font-medium rounded-xl transition-all">Cancelar</button>
+            <button onClick={onCancel} className="w-full py-3 bg-surface-1 hover:bg-surface-2 text-fg-muted font-medium rounded-xl transition-all">Cancelar</button>
           </div>
         </div>
       </div>

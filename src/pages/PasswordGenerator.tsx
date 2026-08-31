@@ -127,7 +127,7 @@ const PasswordGenerator = () => {
               onClick={() => setConfig({ ...config, tab })}
               className={`flex-1 py-2 rounded-lg font-medium transition ${
                 config.tab === tab
-                  ? 'bg-accent text-ink'
+                  ? 'bg-accent text-bg'
                   : 'bg-surface-2 text-fg-muted hover:bg-surface-3'
               }`}
             >
@@ -166,7 +166,7 @@ const PasswordGenerator = () => {
                     onClick={() => setConfig({ ...config, passwordMode: m })}
                     className={`flex-1 py-1.5 rounded-lg text-sm ${
                       config.passwordMode === m
-                        ? 'bg-accent text-ink'
+                        ? 'bg-accent text-bg'
                         : 'bg-surface-1 text-fg-muted hover:bg-surface-3'
                     }`}
                   >

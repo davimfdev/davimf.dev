@@ -28,7 +28,7 @@ export const NoteToolbar: React.FC<NoteToolbarProps> = ({
       <button
         onClick={onTogglePin}
         title={isPinned ? 'Desafixar' : 'Fixar'}
-        className="p-1 rounded hover:bg-white/10 transition-colors text-fg-muted hover:text-fg"
+        className="p-1 rounded hover:bg-surface-2 transition-colors text-fg-muted hover:text-fg"
       >
         {isPinned ? <PinOff size={13} /> : <Pin size={13} />}
       </button>
@@ -37,7 +37,7 @@ export const NoteToolbar: React.FC<NoteToolbarProps> = ({
         <button
           onClick={onToggleMaximize}
           title={isMaximized ? 'Restaurar' : 'Maximizar'}
-          className="p-1 rounded hover:bg-white/10 transition-colors text-fg-muted hover:text-fg"
+          className="p-1 rounded hover:bg-surface-2 transition-colors text-fg-muted hover:text-fg"
         >
           <Maximize2 size={13} />
         </button>
@@ -46,7 +46,7 @@ export const NoteToolbar: React.FC<NoteToolbarProps> = ({
       <button
         onClick={onToggleMinimize}
         title={isMinimized ? 'Expandir' : 'Minimizar'}
-        className="p-1 rounded hover:bg-white/10 transition-colors text-fg-muted hover:text-fg"
+        className="p-1 rounded hover:bg-surface-2 transition-colors text-fg-muted hover:text-fg"
       >
         <Minus size={13} />
       </button>
@@ -54,7 +54,7 @@ export const NoteToolbar: React.FC<NoteToolbarProps> = ({
       <button
         onClick={() => setShowColorPicker(v => !v)}
         title="Cor"
-        className="p-1 rounded hover:bg-white/10 transition-colors text-fg-muted hover:text-fg"
+        className="p-1 rounded hover:bg-surface-2 transition-colors text-fg-muted hover:text-fg"
       >
         <Palette size={13} />
       </button>
@@ -87,7 +87,7 @@ export const NoteToolbar: React.FC<NoteToolbarProps> = ({
             value={color}
             onChange={e => onColorChange(e.target.value)}
             placeholder="#rrggbb"
-            className="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-fg-muted mb-2"
+            className="w-full bg-surface-1 border border-line rounded px-2 py-1 text-xs text-fg-muted mb-2"
           />
           <label className="text-xs text-fg-muted block mb-1">Opacidade: {Math.round(opacity * 100)}%</label>
           <input

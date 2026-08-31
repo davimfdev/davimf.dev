@@ -95,7 +95,7 @@ const Notes: React.FC = () => {
 
       <button
         onClick={createNote}
-        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-gradient-to-br from-accent to-accent-dim text-ink shadow-lg shadow-accent/30 hover:scale-110 active:scale-95 transition-transform flex items-center justify-center z-50"
+        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-gradient-to-br from-accent to-accent-dim text-bg shadow-lg shadow-accent/30 hover:scale-110 active:scale-95 transition-transform flex items-center justify-center z-50"
         title="Nova nota"
       >
         <Plus size={24} />

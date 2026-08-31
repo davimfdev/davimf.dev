@@ -57,7 +57,7 @@ const Contact = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none text-fg placeholder-fg-muted"
+                className="w-full px-4 py-3 bg-surface-1 border border-line rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none text-fg placeholder-fg-muted"
                 placeholder="John Doe"
                 required
               />
@@ -73,7 +73,7 @@ const Contact = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none text-fg placeholder-fg-muted"
+                className="w-full px-4 py-3 bg-surface-1 border border-line rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none text-fg placeholder-fg-muted"
                 placeholder="john@example.com"
                 required
               />
@@ -89,7 +89,7 @@ const Contact = () => {
                 value={formData.message}
                 onChange={handleChange}
                 rows={6}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none text-fg placeholder-fg-muted resize-none"
+                className="w-full px-4 py-3 bg-surface-1 border border-line rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none text-fg placeholder-fg-muted resize-none"
                 placeholder="How can I help you?"
                 required
               />
@@ -112,9 +112,9 @@ const Contact = () => {
               href="https://github.com/davimfdev"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-white/5 rounded-lg transition-all"
+              className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-surface-1 rounded-lg transition-all"
             >
-              <div className="p-2 bg-white/5 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
+              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
                 <Github size={24} />
               </div>
               <span className="font-medium">GitHub</span>
@@ -123,18 +123,18 @@ const Contact = () => {
               href="https://www.linkedin.com/in/davimfdev"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-white/5 rounded-lg transition-all"
+              className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-surface-1 rounded-lg transition-all"
             >
-              <div className="p-2 bg-white/5 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
+              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
                 <Linkedin size={24} />
               </div>
               <span className="font-medium">LinkedIn</span>
             </a>
             <a
               href="mailto:davi@davimf.dev"
-              className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-white/5 rounded-lg transition-all"
+              className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-surface-1 rounded-lg transition-all"
             >
-              <div className="p-2 bg-white/5 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
+              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
                 <Mail size={24} />
               </div>
               <span className="font-medium truncate">davi@davimf.dev</span>
@@ -143,9 +143,9 @@ const Contact = () => {
               href="https://discord.com/users/344214477069221888"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-white/5 rounded-lg transition-all"
+              className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-surface-1 rounded-lg transition-all"
             >
-              <div className="p-2 bg-white/5 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
+              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
                 <MessageCircle size={24} />
               </div>
               <span className="font-medium">Discord</span>
@@ -154,9 +154,9 @@ const Contact = () => {
                 href="https://api.whatsapp.com/send?phone=%205562986089609&text=Ol%C3%A1%2C+vim+do+seu+site."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-white/5 rounded-lg transition-all"
+                className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-surface-1 rounded-lg transition-all"
             >
-              <div className="p-2 bg-white/5 rounded-lg mr-4 group-hover:bg-green-500/20 group-hover:text-green-400 transition-colors">
+              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-green-500/20 group-hover:text-green-400 transition-colors">
                 <Phone size={24} />
               </div>
               <span className="font-medium">WhatsApp</span>

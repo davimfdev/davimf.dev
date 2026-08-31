@@ -29,7 +29,7 @@ const ConfirmModal: React.FC<{
   if (!isOpen) return null;
   return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
-        <div className="glass-panel p-8 w-full max-w-sm border border-white/20 shadow-2xl animate-slide-up text-center">
+        <div className="glass-panel p-8 w-full max-w-sm border border-line-strong shadow-2xl animate-slide-up text-center">
           <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
             <AlertCircle size={32} className="text-red-400" />
           </div>
@@ -39,7 +39,7 @@ const ConfirmModal: React.FC<{
             <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-fg font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">
               Confirmar Exclusão
             </button>
-            <button onClick={onCancel} className="w-full py-3 bg-white/5 hover:bg-white/10 text-fg-muted font-medium rounded-xl transition-all">
+            <button onClick={onCancel} className="w-full py-3 bg-surface-1 hover:bg-surface-2 text-fg-muted font-medium rounded-xl transition-all">
               Cancelar
             </button>
           </div>
@@ -149,7 +149,7 @@ const TodoList: React.FC = () => {
 
         <h1 className="text-4xl font-extrabold text-gradient mb-10">To-Do List</h1>
 
-        <div className="glass-panel p-6 mb-10 border border-white/10">
+        <div className="glass-panel p-6 mb-10 border border-line">
           <form onSubmit={handleUpsertTask}>
             <input
                 ref={taskInputRef}
@@ -157,17 +157,17 @@ const TodoList: React.FC = () => {
                 value={newTaskText}
                 onChange={(e) => setNewTaskText(e.target.value)}
                 placeholder="O que precisa ser feito?"
-                className="w-full px-5 py-4 bg-surface-1/50 border border-white/10 rounded-xl mb-4 text-fg outline-none"
+                className="w-full px-5 py-4 bg-surface-1/50 border border-line rounded-xl mb-4 text-fg outline-none"
                 required
             />
             <div className="flex flex-wrap gap-3">
-              <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="bg-surface-1/50 border border-white/10 p-2 rounded-lg text-fg-muted" />
-              <select value={priority} onChange={e => setPriority(e.target.value as Priority)} className="bg-surface-1/50 border border-white/10 p-2 rounded-lg text-fg-muted">
+              <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="bg-surface-1/50 border border-line p-2 rounded-lg text-fg-muted" />
+              <select value={priority} onChange={e => setPriority(e.target.value as Priority)} className="bg-surface-1/50 border border-line p-2 rounded-lg text-fg-muted">
                 <option value="Low">Baixa</option>
                 <option value="Medium">Média</option>
                 <option value="High">Alta</option>
               </select>
-              <button type="submit" className="ml-auto bg-accent hover:bg-accent-soft text-ink px-6 py-2 rounded-xl font-bold flex items-center gap-2 transition-all">
+              <button type="submit" className="ml-auto bg-accent hover:bg-accent-soft text-bg px-6 py-2 rounded-xl font-bold flex items-center gap-2 transition-all">
                 <Plus size={20} /> {editingTask ? 'Atualizar' : 'Adicionar'}
               </button>
             </div>

@@ -109,11 +109,11 @@ export const NoteCard: React.FC<NoteCardProps> = ({
           className="fixed top-[88px] left-4 right-4 bottom-4 z-[9999] glass-panel flex flex-col overflow-hidden"
           style={{ ...bgStyle, borderColor: `rgba(${rgb}, 0.4)` }}
         >
-          <div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-line">
             <span className="font-semibold text-fg truncate">{note.title}</span>
             <button
               onClick={() => onUpdate({ id: note.id, is_maximized: false })}
-              className="p-1 rounded hover:bg-white/10 text-fg-muted hover:text-fg transition-colors text-xs"
+              className="p-1 rounded hover:bg-surface-2 text-fg-muted hover:text-fg transition-colors text-xs"
             >
               Restaurar
             </button>
@@ -150,7 +150,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
         style={{ ...bgStyle, borderColor: `rgba(${rgb}, 0.35)` }}
       >
         <div
-          className="flex items-center gap-2 px-3 py-2 group cursor-grab active:cursor-grabbing border-b border-white/10"
+          className="flex items-center gap-2 px-3 py-2 group cursor-grab active:cursor-grabbing border-b border-line"
           style={{ background: `rgba(${rgb}, 0.15)` }}
           onMouseDown={handleMouseDown}
           onDoubleClick={handleDoubleClickHeader}
@@ -199,12 +199,12 @@ export const NoteCard: React.FC<NoteCardProps> = ({
         )}
 
         {showDeleteConfirm && (
-          <div className="p-3 border-t border-white/10 bg-red-500/10 flex items-center justify-between gap-2">
+          <div className="p-3 border-t border-line bg-red-500/10 flex items-center justify-between gap-2">
             <span className="text-xs text-red-300">Tem certeza?</span>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="text-xs px-2 py-1 rounded hover:bg-white/10 text-fg-muted transition-colors"
+                className="text-xs px-2 py-1 rounded hover:bg-surface-2 text-fg-muted transition-colors"
               >
                 Cancelar
               </button>

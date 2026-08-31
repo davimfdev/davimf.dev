@@ -85,12 +85,12 @@ const Resume = () => {
         {/* Right Column */}
         <div className="lg:col-span-2 space-y-8">
           <section className="glass-panel p-8 animate-slide-up" style={{ animationDelay: '0.4s' }}>
-            <h2 className="text-3xl font-semibold mb-8 flex items-center text-accent print:text-print-fg border-b border-white/10 print:border-print-fg/12 pb-4">
+            <h2 className="text-3xl font-semibold mb-8 flex items-center text-accent print:text-print-fg border-b border-line print:border-print-fg/12 pb-4">
               <Briefcase size={28} className="mr-4" /> {experience}
             </h2>
             <div className="space-y-8">
               {experienceList.map((exp: any, index: number) => (
-                <div key={exp.company} className={`relative pl-8 before:absolute before:left-2 before:top-2 before:w-2 before:h-2 before:bg-accent print:before:bg-print-fg before:rounded-full before:ring-4 before:ring-accent/20 print:before:ring-print-fg/20 ${index < experienceList.length - 1 ? 'pb-8 border-l border-dashed border-white/20 print:border-print-fg/20' : ''}`}>
+                <div key={exp.company} className={`relative pl-8 before:absolute before:left-2 before:top-2 before:w-2 before:h-2 before:bg-accent print:before:bg-print-fg before:rounded-full before:ring-4 before:ring-accent/20 print:before:ring-print-fg/20 ${index < experienceList.length - 1 ? 'pb-8 border-l border-dashed border-line-strong print:border-print-fg/20' : ''}`}>
                   <h3 className="text-xl font-bold text-fg print:text-print-fg">{exp.title}</h3>
                   <a href={exp.link} target="_blank" rel="noopener noreferrer" className="text-accent print:text-print-fg hover:text-accent transition-colors">{exp.company}</a>
                   <p className="text-sm text-fg-muted print:text-print-fg mt-1 mb-3">{exp.period}</p>
@@ -101,12 +101,12 @@ const Resume = () => {
           </section>
 
           <section className="glass-panel p-8 animate-slide-up" style={{ animationDelay: '0.5s' }}>
-            <h2 className="text-3xl font-semibold mb-8 flex items-center text-accent print:text-print-fg border-b border-white/10 print:border-print-fg/12 pb-4">
+            <h2 className="text-3xl font-semibold mb-8 flex items-center text-accent print:text-print-fg border-b border-line print:border-print-fg/12 pb-4">
               <GraduationCap size={28} className="mr-4" /> {education}
             </h2>
             <div className="space-y-8">
               {educationList.map((edu: any, index: number) => (
-                <div key={edu.institution} className={`relative pl-8 before:absolute before:left-2 before:top-2 before:w-2 before:h-2 before:bg-accent print:before:bg-print-fg before:rounded-full before:ring-4 before:ring-accent/20 print:before:ring-print-fg/20 ${index < educationList.length - 1 ? 'pb-8 border-l border-dashed border-white/20 print:border-print-fg/20' : ''}`}>
+                <div key={edu.institution} className={`relative pl-8 before:absolute before:left-2 before:top-2 before:w-2 before:h-2 before:bg-accent print:before:bg-print-fg before:rounded-full before:ring-4 before:ring-accent/20 print:before:ring-print-fg/20 ${index < educationList.length - 1 ? 'pb-8 border-l border-dashed border-line-strong print:border-print-fg/20' : ''}`}>
                   <h3 className="text-xl font-bold text-fg print:text-print-fg">{edu.course}</h3>
                   <a href={edu.link} target="_blank" rel="noopener noreferrer" className="text-accent print:text-print-fg hover:text-accent transition-colors">{edu.institution}</a>
                   <p className="text-sm text-fg-muted print:text-print-fg mt-1 mb-3">{edu.period}</p>

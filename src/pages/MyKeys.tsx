@@ -35,7 +35,7 @@ interface SubscriptionRow {
 
 const STATUS_STYLE: Record<string, { label: string; className: string }> = {
   ACTIVE: { label: 'Ativa', className: 'text-green-400 bg-green-500/10' },
-  EXPIRED: { label: 'Expirada', className: 'text-fg-muted bg-white/[0.06]' },
+  EXPIRED: { label: 'Expirada', className: 'text-fg-muted bg-surface-3' },
   SUSPENDED: { label: 'Suspensa', className: 'text-amber-400 bg-amber-500/10' },
   REVOKED: { label: 'Revogada', className: 'text-red-400 bg-red-500/10' },
 };
@@ -154,7 +154,7 @@ const MyKeys = () => {
                   </span>
                 </div>
 
-                <div className="bg-black/30 border border-white/10 rounded-lg px-3.5 py-2.5 flex items-center gap-3">
+                <div className="bg-black/30 border border-line rounded-lg px-3.5 py-2.5 flex items-center gap-3">
                   <code className="font-mono text-sm text-fg tracking-wider flex-grow break-all select-all">
                     {license.key ?? `${license.keyPrefix}…`}
                   </code>

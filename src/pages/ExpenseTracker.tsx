@@ -55,22 +55,22 @@ const AddAccountModal: React.FC<{ onClose: () => void; onAccountAdded: (account:
 
     return (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 animate-fade-in p-4">
-            <div className="glass-panel p-8 rounded-lg w-full max-w-md shadow-2xl border border-white/20 animate-slide-up">
+            <div className="glass-panel p-8 rounded-lg w-full max-w-md shadow-2xl border border-line-strong animate-slide-up">
                 <h2 className="text-2xl font-bold mb-6 text-fg flex items-center">
                     <Wallet className="mr-3 text-accent" /> Adicionar Conta
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nome da Conta (ex: Itaú, Wise)" required className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-accent outline-none text-fg" />
+                    <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nome da Conta (ex: Itaú, Wise)" required className="w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 focus:ring-accent outline-none text-fg" />
                     <div className="grid grid-cols-2 gap-4">
-                        <input type="text" value={currency} onChange={e => setCurrency(e.target.value)} placeholder="Moeda (BRL)" required className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-accent outline-none text-fg uppercase" />
-                        <select value={type} onChange={e => setType(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-accent outline-none text-fg">
+                        <input type="text" value={currency} onChange={e => setCurrency(e.target.value)} placeholder="Moeda (BRL)" required className="w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 focus:ring-accent outline-none text-fg uppercase" />
+                        <select value={type} onChange={e => setType(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 focus:ring-accent outline-none text-fg">
                             <option>Corrente</option>
                             <option>Investimento</option>
                             <option>Caixa</option>
                         </select>
                     </div>
-                    <input type="number" value={initialBalance} onChange={e => setInitialBalance(e.target.value)} placeholder="Saldo Inicial" step="0.01" required className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-accent outline-none text-fg" />
-                    <div className="flex justify-end gap-4 pt-4 border-t border-white/10 mt-4">
+                    <input type="number" value={initialBalance} onChange={e => setInitialBalance(e.target.value)} placeholder="Saldo Inicial" step="0.01" required className="w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 focus:ring-accent outline-none text-fg" />
+                    <div className="flex justify-end gap-4 pt-4 border-t border-line mt-4">
                         <button type="button" onClick={onClose} className="btn-secondary">Cancelar</button>
                         <button type="submit" className="btn-primary">Salvar</button>
                     </div>
@@ -187,7 +187,7 @@ const ExpenseTracker: React.FC = () => {
 
   if (isAuthLoading || loading) return (
     <div className="max-w-6xl mx-auto p-4 animate-pulse">
-        <div className="h-10 w-1/3 bg-white/10 rounded-md mx-auto mb-8"></div>
+        <div className="h-10 w-1/3 bg-surface-2 rounded-md mx-auto mb-8"></div>
         <div className="glass-panel h-64 mb-8"></div>
         <div className="glass-panel h-64 mb-8"></div>
     </div>
@@ -196,7 +196,7 @@ const ExpenseTracker: React.FC = () => {
   if (!token) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center animate-fade-in relative z-10">
-        <div className="glass-panel p-12 max-w-2xl mx-auto border border-white/5">
+        <div className="glass-panel p-12 max-w-2xl mx-auto border border-line">
           <PiggyBank size={64} className="mx-auto text-accent mb-6" />
           <h2 className="text-3xl font-bold mb-4 text-fg">Rastreador de Despesas</h2>
           <p className="text-lg text-fg-muted">Você precisa estar logado para acessar esta página.</p>
@@ -213,14 +213,14 @@ const ExpenseTracker: React.FC = () => {
       
       <h1 className="text-4xl font-extrabold mb-10 text-center text-gradient">Rastreador de Despesas</h1>
 
-      <div className="mb-10 p-8 glass-panel border border-white/5 animate-slide-up">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 border-b border-white/10 pb-6">
+      <div className="mb-10 p-8 glass-panel border border-line animate-slide-up">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 border-b border-line pb-6">
             <h2 className="text-2xl font-bold text-fg">Visão Geral</h2>
             <button onClick={() => setIsModalOpen(true)} className="btn-primary mt-4 sm:mt-0 flex items-center gap-2">
                 <PlusCircle size={20} /> Adicionar Conta
             </button>
         </div>
-        <div className="text-center mb-8 bg-surface-1/40 p-6 rounded-2xl shadow-inner border border-white/5">
+        <div className="text-center mb-8 bg-surface-1/40 p-6 rounded-2xl shadow-inner border border-line">
             <p className="text-fg-muted uppercase tracking-wider text-sm font-semibold mb-2">Saldo Total Consolidado</p>
             <p className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">
               {totalBalanceBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
@@ -228,7 +228,7 @@ const ExpenseTracker: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {accounts.map(acc => (
-                <div key={acc.id} className="bg-white/5 border border-white/10 p-5 rounded-xl hover:bg-white/10 transition-colors">
+                <div key={acc.id} className="bg-surface-1 border border-line p-5 rounded-xl hover:bg-surface-2 transition-colors">
                     <p className="font-bold text-fg mb-1 flex items-center gap-2"><Wallet size={16} className="text-accent"/> {acc.name}</p>
                     <p className="text-2xl font-mono text-fg">{(accountBalances.get(acc.id) ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: acc.currency })}</p>
                 </div>
@@ -236,32 +236,32 @@ const ExpenseTracker: React.FC = () => {
         </div>
       </div>
 
-      <div className="glass-panel p-6 md:p-8 mb-10 border border-white/5 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-        <h2 className="text-2xl font-bold mb-6 text-fg border-b border-white/10 pb-4">Nova Transação</h2>
+      <div className="glass-panel p-6 md:p-8 mb-10 border border-line animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <h2 className="text-2xl font-bold mb-6 text-fg border-b border-line pb-4">Nova Transação</h2>
         <form onSubmit={handleAddExpense} className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={translations.transactionDescription} className="md:col-span-3 w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-accent outline-none text-fg transition-all" required />
+          <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={translations.transactionDescription} className="md:col-span-3 w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 focus:ring-accent outline-none text-fg transition-all" required />
           
           <div className="grid grid-cols-2 gap-4">
-            <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={translations.amount} step="0.01" className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-accent outline-none text-fg transition-all font-mono" required />
-            <select value={transactionType} onChange={e => setTransactionType(e.target.value)} className={`w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 focus:ring-2 outline-none font-medium transition-all ${transactionType === 'income' ? 'focus:ring-green-500 text-green-400' : 'focus:ring-red-500 text-red-400'}`}>
+            <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={translations.amount} step="0.01" className="w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 focus:ring-accent outline-none text-fg transition-all font-mono" required />
+            <select value={transactionType} onChange={e => setTransactionType(e.target.value)} className={`w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 outline-none font-medium transition-all ${transactionType === 'income' ? 'focus:ring-green-500 text-green-400' : 'focus:ring-red-500 text-red-400'}`}>
                 <option value="income" className="text-green-400">{translations.income} (+)</option>
                 <option value="expense" className="text-red-400">{translations.expense} (-)</option>
             </select>
           </div>
           
-          <select value={accountId} onChange={e => setAccountId(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-accent outline-none text-fg transition-all" required>
+          <select value={accountId} onChange={e => setAccountId(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 focus:ring-accent outline-none text-fg transition-all" required>
             <option value="" disabled>Selecione a Conta</option>
             {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
           </select>
           
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-accent outline-none text-fg-muted transition-all" required />
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 focus:ring-accent outline-none text-fg-muted transition-all" required />
           
-          <select value={category} onChange={e => setCategory(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-accent outline-none text-fg transition-all">
+          <select value={category} onChange={e => setCategory(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 focus:ring-accent outline-none text-fg transition-all">
             <option>Alimentação</option> <option>Transporte</option> <option>Moradia</option>
             <option>Lazer</option> <option>Saúde</option> <option>Outros</option>
           </select>
           
-          <select value={paymentType} onChange={e => setPaymentType(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-white/10 focus:ring-2 focus:ring-accent outline-none text-fg transition-all">
+          <select value={paymentType} onChange={e => setPaymentType(e.target.value)} className="w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 focus:ring-accent outline-none text-fg transition-all">
             <option>Débito</option> <option>Crédito</option> <option>PIX</option> <option>Dinheiro</option>
           </select>
           
@@ -273,12 +273,12 @@ const ExpenseTracker: React.FC = () => {
 
       <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
         <h2 className="text-2xl font-bold mb-6 text-fg">Histórico de Transações</h2>
-        <div className="glass-panel border border-white/5 overflow-hidden">
+        <div className="glass-panel border border-line overflow-hidden">
           {expenses.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-white/5 text-fg-muted text-sm uppercase tracking-wider">
+                  <tr className="bg-surface-1 text-fg-muted text-sm uppercase tracking-wider">
                     <th className="p-4 font-medium">Descrição</th>
                     <th className="p-4 font-medium text-center">Categoria</th>
                     <th className="p-4 font-medium text-right">Valor / Conta</th>
@@ -289,13 +289,13 @@ const ExpenseTracker: React.FC = () => {
                   {expenses.map((expense) => {
                     const isExpense = parseFloat(expense.amount) < 0;
                     return (
-                      <tr key={expense.id} className="hover:bg-white/5 transition-colors group">
+                      <tr key={expense.id} className="hover:bg-surface-1 transition-colors group">
                         <td className="p-4">
                           <p className="font-semibold text-fg">{expense.description}</p>
                           <p className="text-xs text-fg-muted mt-1">{new Date(expense.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} • {expense.payment_type}</p>
                         </td>
                         <td className="p-4 text-center">
-                          <span className="px-3 py-1 bg-white/5 border border-white/10 text-fg-muted text-xs rounded-full font-medium">
+                          <span className="px-3 py-1 bg-surface-1 border border-line text-fg-muted text-xs rounded-full font-medium">
                             {expense.category}
                           </span>
                         </td>

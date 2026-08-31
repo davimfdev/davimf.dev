@@ -44,8 +44,6 @@ export default {
           bg: withAlpha('print-bg'),
           fg: withAlpha('print-fg'),
         },
-        // DEPRECATED: alias de `bg`, mantido só até a Task 10 migrar os 16 usos.
-        ink: withAlpha('bg'),
       },
       borderRadius: {
         chip: 'var(--r-sm)',

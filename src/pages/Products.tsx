@@ -29,7 +29,7 @@ const Products = () => {
               <h3 className="text-2xl font-bold mb-3 text-fg group-hover:text-accent transition-colors">{product.name}</h3>
               <p className="text-fg-muted mb-6 flex-grow leading-relaxed line-clamp-3">{product.description}</p>
               
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-auto pt-4 border-t border-white/10">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-auto pt-4 border-t border-line">
                 <Link
                   to="/contact"
                   className="inline-flex items-center text-accent hover:text-accent font-medium transition-colors group/link"

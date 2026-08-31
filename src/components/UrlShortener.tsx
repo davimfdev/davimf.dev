@@ -19,7 +19,7 @@ const ConfirmModal: React.FC<{ isOpen: boolean; title: string; message: string; 
   if (!isOpen) return null;
   return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
-        <div className="glass-panel p-8 w-full max-w-sm border border-white/20 shadow-2xl animate-slide-up text-center">
+        <div className="glass-panel p-8 w-full max-w-sm border border-line-strong shadow-2xl animate-slide-up text-center">
           <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
             <AlertCircle size={32} className="text-red-400" />
           </div>
@@ -27,7 +27,7 @@ const ConfirmModal: React.FC<{ isOpen: boolean; title: string; message: string; 
           <p className="text-fg-muted mb-8 leading-relaxed">{message}</p>
           <div className="flex flex-col gap-3">
             <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-fg font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">Confirmar Exclusão</button>
-            <button onClick={onCancel} className="w-full py-3 bg-white/5 hover:bg-white/10 text-fg-muted font-medium rounded-xl transition-all">Cancelar</button>
+            <button onClick={onCancel} className="w-full py-3 bg-surface-1 hover:bg-surface-2 text-fg-muted font-medium rounded-xl transition-all">Cancelar</button>
           </div>
         </div>
       </div>
@@ -137,7 +137,7 @@ const UrlShortener = () => {
         </div>
 
         {/* Formulário principal */}
-        <div className="glass-panel p-6 md:p-8 border-t border-white/10 shadow-2xl mb-12">
+        <div className="glass-panel p-6 md:p-8 border-t border-line shadow-2xl mb-12">
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="relative">
               <Link2 className="absolute left-4 top-4 text-accent" size={20} />
@@ -147,7 +147,7 @@ const UrlShortener = () => {
                   value={originalUrl}
                   onChange={(e) => setOriginalUrl(e.target.value)}
                   required
-                  className="w-full pl-12 pr-4 py-4 bg-surface-1/60 border border-white/10 rounded-xl focus:ring-2 focus:ring-accent text-fg outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-4 bg-surface-1/60 border border-line rounded-xl focus:ring-2 focus:ring-accent text-fg outline-none transition-all"
               />
             </div>
             <button type="submit" disabled={loading} className="w-full btn-primary py-4 font-bold text-lg flex justify-center items-center gap-2">
@@ -167,12 +167,12 @@ const UrlShortener = () => {
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => copyToClipboard(shortUrl)}
-                  className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-soft text-ink text-sm font-semibold rounded-lg transition-all"
+                  className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-soft text-bg text-sm font-semibold rounded-lg transition-all"
                 >
                   <Copy size={15} />
                   {copied ? 'Copiado!' : 'Copiar'}
                 </button>
-                <a href={shortUrl} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-fg-muted transition-colors" title="Abrir">
+                <a href={shortUrl} target="_blank" rel="noreferrer" className="p-2 bg-surface-1 hover:bg-surface-2 rounded-lg text-fg-muted transition-colors" title="Abrir">
                   <ExternalLink size={16} />
                 </a>
               </div>
@@ -197,7 +197,7 @@ const UrlShortener = () => {
                       const displayOriginalUrl = url.original_url || url.originalUrl || url.originalurl || '';
 
                       return (
-                          <div key={url.id} className="glass-panel p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 group border border-white/5 hover:border-accent/30 transition-all">
+                          <div key={url.id} className="glass-panel p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 group border border-line hover:border-accent/30 transition-all">
                             <div className="overflow-hidden w-full sm:w-2/3">
                               {/* Link Curto */}
                               <p className="text-accent font-mono font-bold text-lg truncate">
@@ -209,15 +209,15 @@ const UrlShortener = () => {
                               </p>
                             </div>
                             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                              <button onClick={() => copyToClipboard(displayShortUrl)} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-fg-muted transition-colors" title="Copiar"><Copy size={18}/></button>
-                              <a href={displayShortUrl} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-fg-muted transition-colors" title="Abrir"><ExternalLink size={18}/></a>
+                              <button onClick={() => copyToClipboard(displayShortUrl)} className="p-2 bg-surface-1 hover:bg-surface-2 rounded-lg text-fg-muted transition-colors" title="Copiar"><Copy size={18}/></button>
+                              <a href={displayShortUrl} target="_blank" rel="noreferrer" className="p-2 bg-surface-1 hover:bg-surface-2 rounded-lg text-fg-muted transition-colors" title="Abrir"><ExternalLink size={18}/></a>
                               <button onClick={() => setConfirmModal({ isOpen: true, urlId: url.id })} className="p-2 bg-red-500/5 hover:bg-red-500/20 rounded-lg text-fg-muted hover:text-red-400 transition-colors" title="Apagar"><Trash2 size={18}/></button>
                             </div>
                           </div>
                       );
                     })
                 ) : (
-                    <div className="glass-panel p-10 text-center text-fg-muted border-dashed border-white/10">Você ainda não criou nenhum link encurtado.</div>
+                    <div className="glass-panel p-10 text-center text-fg-muted border-dashed border-line">Você ainda não criou nenhum link encurtado.</div>
                 )}
               </div>
             </div>

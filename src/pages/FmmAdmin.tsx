@@ -11,7 +11,7 @@ const ConfirmModal: React.FC<{
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
-      <div className="glass-panel p-8 w-full max-w-sm border border-white/20 shadow-2xl animate-slide-up text-center">
+      <div className="glass-panel p-8 w-full max-w-sm border border-line-strong shadow-2xl animate-slide-up text-center">
         <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
           <AlertCircle size={32} className="text-red-400" />
         </div>
@@ -21,7 +21,7 @@ const ConfirmModal: React.FC<{
           <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-fg font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">
             Confirmar
           </button>
-          <button onClick={onCancel} className="w-full py-3 bg-white/5 hover:bg-white/10 text-fg-muted font-medium rounded-xl transition-all">
+          <button onClick={onCancel} className="w-full py-3 bg-surface-1 hover:bg-surface-2 text-fg-muted font-medium rounded-xl transition-all">
             Cancelar
           </button>
         </div>
@@ -202,7 +202,7 @@ const FmmAdmin = () => {
             <div className="flex gap-2">
               {(['basic', 'pro'] as const).map((l) => (
                 <button key={l} onClick={() => setLevel(l)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${level === l ? (l === 'pro' ? 'bg-accent text-ink' : 'bg-accent text-ink') : 'bg-white/5 text-fg-muted hover:bg-white/10'}`}>
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${level === l ? (l === 'pro' ? 'bg-accent text-bg' : 'bg-accent text-bg') : 'bg-surface-1 text-fg-muted hover:bg-surface-2'}`}>
                   {l}
                 </button>
               ))}
@@ -212,7 +212,7 @@ const FmmAdmin = () => {
             <label className="text-xs text-fg-muted uppercase tracking-wider mb-2 block">Quantidade</label>
             <input type="number" min={1} max={50} value={quantity}
               onChange={(e) => setQuantity(Math.max(1, Math.min(50, parseInt(e.target.value) || 1)))}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-fg text-sm focus:outline-none focus:border-accent" />
+              className="w-full bg-surface-1 border border-line rounded-lg px-3 py-2 text-fg text-sm focus:outline-none focus:border-accent" />
           </div>
         </div>
 
@@ -223,14 +223,14 @@ const FmmAdmin = () => {
           <div className="flex gap-2 mb-3">
             {PRESETS.map((p) => (
               <button key={p.days} onClick={() => setDurationDays(p.days)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${durationDays === p.days ? 'bg-accent text-ink' : 'bg-white/5 text-fg-muted hover:bg-white/10'}`}>
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${durationDays === p.days ? 'bg-accent text-bg' : 'bg-surface-1 text-fg-muted hover:bg-surface-2'}`}>
                 {p.label}
               </button>
             ))}
           </div>
           <input type="number" min={1} value={durationDays}
             onChange={(e) => setDurationDays(Math.max(1, parseInt(e.target.value) || 1))}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-fg text-sm focus:outline-none focus:border-accent"
+            className="w-full bg-surface-1 border border-line rounded-lg px-3 py-2 text-fg text-sm focus:outline-none focus:border-accent"
             placeholder="Dias personalizados" />
         </div>
 
@@ -251,7 +251,7 @@ const FmmAdmin = () => {
           <h2 className="text-lg font-bold text-fg mb-4">Chaves Geradas (sessão atual)</h2>
           <div className="flex flex-col gap-2">
             {generatedKeys.map((k, i) => (
-              <div key={k.key} className="flex items-center gap-3 bg-black/30 border border-white/10 rounded-xl px-4 py-3">
+              <div key={k.key} className="flex items-center gap-3 bg-black/30 border border-line rounded-xl px-4 py-3">
                 <code className="font-mono text-accent text-sm tracking-widest flex-grow select-all">{k.key}</code>
                 <button onClick={() => copyKey(i)} className="text-fg-muted hover:text-fg transition-colors flex-shrink-0">
                   {k.copied ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
@@ -276,11 +276,11 @@ const FmmAdmin = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Prefixo, user ID, notes..."
-                className="bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-sm text-fg focus:outline-none focus:border-accent w-52"
+                className="bg-surface-1 border border-line rounded-lg pl-8 pr-3 py-1.5 text-sm text-fg focus:outline-none focus:border-accent w-52"
               />
             </div>
             <button onClick={fetchKeys} disabled={keysLoading}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-fg-muted hover:text-fg transition-all disabled:opacity-50">
+              className="p-2 rounded-lg bg-surface-1 hover:bg-surface-2 text-fg-muted hover:text-fg transition-all disabled:opacity-50">
               <RefreshCw size={15} className={keysLoading ? 'animate-spin' : ''} />
             </button>
           </div>
@@ -296,7 +296,7 @@ const FmmAdmin = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-fg-muted uppercase tracking-wider border-b border-white/10">
+                <tr className="text-left text-xs text-fg-muted uppercase tracking-wider border-b border-line">
                   <th className="pb-3 pr-4">Prefixo</th>
                   <th className="pb-3 pr-4">Plano</th>
                   <th className="pb-3 pr-4">Status</th>
@@ -313,7 +313,7 @@ const FmmAdmin = () => {
                   const busy = actionLoading === k.id;
 
                   return (
-                    <tr key={k.id} className={`${!k.is_active ? 'opacity-50' : ''} hover:bg-white/2 transition-colors`}>
+                    <tr key={k.id} className={`${!k.is_active ? 'opacity-50' : ''} hover:bg-surface-1 transition-colors`}>
                       {/* Prefix */}
                       <td className="py-3 pr-4">
                         <code className="font-mono text-fg-muted text-xs">{k.key_prefix}…</code>
@@ -401,18 +401,18 @@ const FmmAdmin = () => {
                                 min={1}
                                 value={editingDuration.days}
                                 onChange={(e) => setEditingDuration({ id: k.id, days: Math.max(1, parseInt(e.target.value) || 1) })}
-                                className="w-16 bg-white/10 border border-white/20 rounded px-1.5 py-0.5 text-xs text-fg focus:outline-none focus:border-accent"
+                                className="w-16 bg-surface-2 border border-line-strong rounded px-1.5 py-0.5 text-xs text-fg focus:outline-none focus:border-accent"
                               />
                               <button
                                 onClick={() => doAction('set_duration', k.id, { duration_days: editingDuration.days })}
                                 disabled={busy}
-                                className="p-1 rounded bg-accent hover:bg-accent-soft text-ink text-xs transition-all disabled:opacity-40"
+                                className="p-1 rounded bg-accent hover:bg-accent-soft text-bg text-xs transition-all disabled:opacity-40"
                               >
                                 {busy ? <Loader size={11} className="animate-spin" /> : <Check size={11} />}
                               </button>
                               <button
                                 onClick={() => setEditingDuration(null)}
-                                className="p-1 rounded bg-white/5 hover:bg-white/10 text-fg-muted text-xs transition-all"
+                                className="p-1 rounded bg-surface-1 hover:bg-surface-2 text-fg-muted text-xs transition-all"
                               >
                                 ✕
                               </button>

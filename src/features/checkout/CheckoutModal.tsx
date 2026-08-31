@@ -374,7 +374,7 @@ export function CheckoutModal({ product, onClose }: Props) {
             />
 
             {recurringAvailable && (
-              <label className="flex items-start gap-3 cursor-pointer rounded-lg border border-white/10 px-3.5 py-3 hover:border-white/20 transition-colors">
+              <label className="flex items-start gap-3 cursor-pointer rounded-lg border border-line px-3.5 py-3 hover:border-line-strong transition-colors">
                 <input
                   type="checkbox"
                   checked={autoRenew}
@@ -395,7 +395,7 @@ export function CheckoutModal({ product, onClose }: Props) {
             {/* Aceite explícito dos documentos — a transação depende de contrato e
                 obrigação legal, não de consentimento, por isso "ciência" na
                 Política de Privacidade e não "consinto". */}
-            <label className="flex items-start gap-3 cursor-pointer rounded-lg border border-white/10 px-3.5 py-3 hover:border-white/20 transition-colors">
+            <label className="flex items-start gap-3 cursor-pointer rounded-lg border border-line px-3.5 py-3 hover:border-line-strong transition-colors">
               <input
                 type="checkbox"
                 checked={acceptedLegal}
@@ -463,7 +463,7 @@ export function CheckoutModal({ product, onClose }: Props) {
                     className={`flex flex-col items-center gap-1 rounded-lg border px-2 py-3 transition-all ${
                       method === id
                         ? 'border-accent/60 bg-accent/[0.08] text-fg'
-                        : 'border-white/10 text-fg-muted hover:border-white/25'
+                        : 'border-line text-fg-muted hover:border-line-strong'
                     } ${disabled ? 'opacity-35 cursor-not-allowed' : ''}`}
                   >
                     <Icon size={18} className={method === id ? 'text-accent' : ''} />

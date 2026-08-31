@@ -85,14 +85,14 @@ const Roulette = () => {
         <div className="lg:col-span-1 glass-panel p-8 animate-slide-up">
           <h2 className="text-2xl font-bold mb-6 text-fg">{translations.rouletteParticipants}</h2>
           <textarea
-            className="w-full h-48 p-4 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-fg resize-none transition-all placeholder-fg-muted"
+            className="w-full h-48 p-4 bg-surface-1 border border-line rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-fg resize-none transition-all placeholder-fg-muted"
             placeholder={translations.rouletteNamesPlaceholder}
             value={names}
             onChange={(e) => setNames(e.target.value)}
             disabled={isSpinning}
           />
           <div className="mt-8 flex flex-col space-y-4">
-            <div className="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/10">
+            <div className="flex items-center justify-between bg-surface-1 p-4 rounded-xl border border-line">
               <label htmlFor="numberOfWinners" className="text-lg font-medium text-fg-muted">{translations.rouletteDraw}:</label>
               <div className="flex items-center">
                 <input
@@ -100,7 +100,7 @@ const Roulette = () => {
                   type="number"
                   min="1"
                   max={nameList.length || 1}
-                  className="w-20 p-2 bg-surface-1 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-center font-bold"
+                  className="w-20 p-2 bg-surface-1 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-center font-bold"
                   value={numberOfWinners}
                   onChange={(e) => setNumberOfWinners(Math.max(1, parseInt(e.target.value, 10) || 1))}
                   disabled={isSpinning}
@@ -110,7 +110,7 @@ const Roulette = () => {
             </div>
           </div>
           <button
-            className={`w-full mt-8 py-4 text-xl font-bold rounded-xl transition-all duration-300 transform ${isSpinning || nameList.length === 0 ? 'bg-white/10 text-fg-muted cursor-not-allowed border border-white/5' : 'btn-primary'}`}
+            className={`w-full mt-8 py-4 text-xl font-bold rounded-xl transition-all duration-300 transform ${isSpinning || nameList.length === 0 ? 'bg-surface-2 text-fg-muted cursor-not-allowed border border-line' : 'btn-primary'}`}
             onClick={handleSpin}
             disabled={isSpinning || nameList.length === 0}
           >
@@ -130,10 +130,10 @@ const Roulette = () => {
                 </div>
 
                 {/* Roulette Container with Border */}
-                <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px] bg-white/5 rounded-full p-4 border-4 border-white/10 shadow-[0_0_50px_rgba(59,130,246,0.15)]">
+                <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px] bg-surface-1 rounded-full p-4 border-4 border-line shadow-[0_0_50px_rgba(59,130,246,0.15)]">
                     <div 
                         id="roulette-wheel" 
-                        className="relative w-full h-full rounded-full overflow-hidden border-2 border-white/20 shadow-inner"
+                        className="relative w-full h-full rounded-full overflow-hidden border-2 border-line-strong shadow-inner"
                         style={{ background: conicGradient, transform: `rotate(${rotation}deg)` }}
                     >
                         {nameList.length > 0 && nameList.map((name, index) => {
@@ -161,7 +161,7 @@ const Roulette = () => {
                 </div>
             </div>
             {winners.length > 0 && !isSpinning && (
-                <div className="mt-8 w-full text-center bg-white/5 p-6 rounded-xl border border-white/10 animate-fade-in">
+                <div className="mt-8 w-full text-center bg-surface-1 p-6 rounded-xl border border-line animate-fade-in">
                     <h2 className="text-2xl font-bold mb-4 text-fg-muted">{translations.rouletteWinners}</h2>
                     <ul className="flex flex-wrap justify-center gap-3">
                     {winners.map((winner, index) => (

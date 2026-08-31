@@ -109,7 +109,7 @@ const FmmPlans = () => {
                 onClick={() => setPeriod(key)}
                 className={`px-5 py-2 rounded-full font-medium transition-all duration-200 ${
                   period === key
-                    ? 'bg-accent text-ink shadow-lg'
+                    ? 'bg-accent text-bg shadow-lg'
                     : 'text-fg-muted hover:text-fg'
                 }`}
               >

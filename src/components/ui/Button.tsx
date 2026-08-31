@@ -61,7 +61,7 @@ export function Button<E extends ElementType = 'button'>({
   const disabledProps = Component === 'button' ? { disabled: loading || (rest as { disabled?: boolean }).disabled } : {};
 
   return (
-    <Component className={classes} aria-busy={loading || undefined} {...rest} {...disabledProps}>
+    <Component className={classes} {...rest} aria-busy={loading || undefined} {...disabledProps}>
       {loading && <Loader2 aria-hidden="true" className="animate-spin" size={size === 'sm' ? 14 : 16} />}
       {children}
     </Component>

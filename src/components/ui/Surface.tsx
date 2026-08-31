@@ -19,6 +19,7 @@ const LEVEL: Record<SurfaceLevel, string> = {
 const HOVER: Record<SurfaceLevel, string> = {
   1: 'hover:bg-surface-2 hover:border-line-strong',
   2: 'hover:bg-surface-3 hover:border-line-strong',
+  // Nível 3 não tem surface-4; no hover ele intensifica somente a borda.
   3: 'hover:border-line-strong',
 };
 

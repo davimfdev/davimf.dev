@@ -4,6 +4,7 @@ import {
   Check, Minus, Download,
   Package, Server, Settings, Zap, Layers, RefreshCw,
 } from 'lucide-react';
+import { Badge } from '../components/ui';
 import { CheckoutModal } from '../features/checkout/CheckoutModal';
 import { ApiError, paymentsApi, type CatalogProduct } from '../features/checkout/api';
 
@@ -148,57 +149,42 @@ const FmmPlans = () => {
             {/* Free */}
             <div className="flex flex-col items-center px-3">
               <div
-                className="w-full rounded-xl mb-3 flex items-center justify-center"
-                style={{
-                  aspectRatio: '3/4',
-                  background: 'linear-gradient(160deg, rgb(var(--surface-3)) 0%, rgb(var(--surface-2)) 100%)',
-                  border: '1px solid var(--line-strong)',
-                }}
+                className="w-full rounded-panel mb-3 flex items-center justify-center bg-surface-1 border border-line"
+                style={{ aspectRatio: '3/4' }}
               >
                 <Package size={36} className="text-fg-muted" />
               </div>
-              <span className="text-xs font-bold tracking-[0.15em] uppercase text-fg-muted">Free</span>
+              <span className="text-eyebrow font-bold uppercase text-fg-muted">Free</span>
               <span className="text-xl font-extrabold text-fg mt-0.5">R$0</span>
               <span className="text-xs text-fg-muted">{t.fmmForever}</span>
             </div>
 
-            {/* Basic */}
+            {/* Básico */}
             <div className="flex flex-col items-center px-3">
               <div
-                className="w-full rounded-xl mb-3 flex items-center justify-center"
-                style={{
-                  aspectRatio: '3/4',
-                  background: 'linear-gradient(160deg, rgb(var(--accent) / .18) 0%, rgb(var(--accent) / .08) 100%)',
-                  border: '1px solid rgb(var(--accent) / .6)',
-                }}
+                className="w-full rounded-panel mb-3 flex items-center justify-center bg-surface-2 border border-line-strong"
+                style={{ aspectRatio: '3/4' }}
               >
-                <Zap size={36} className="text-accent" />
+                <Zap size={36} className="text-fg" />
               </div>
-              <span className="text-xs font-bold tracking-[0.15em] uppercase text-accent">Básico</span>
+              <span className="text-eyebrow font-bold uppercase text-fg">Básico</span>
               <span className="text-xl font-extrabold text-fg mt-0.5">R${basicPlan.prices[period]}</span>
               <span className="text-xs text-fg-muted">{priceSuffix() ?? t.fmmOneTimePayment}</span>
             </div>
 
-            {/* Pro */}
+            {/* Pro — destacado por composição, não por matiz nova. */}
             <div className="flex flex-col items-center px-3 relative">
-              <span
-                className="absolute -top-1 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-wider uppercase text-fg px-3 py-0.5 rounded-full z-10"
-                style={{ background: 'linear-gradient(90deg, rgb(var(--accent)), rgb(var(--accent-bright)))' }}
-              >
+              <Badge tone="accent" className="absolute -top-1 left-1/2 -translate-x-1/2 z-10">
                 {t.fmmRecommended}
-              </span>
+              </Badge>
               <div
-                className="w-full rounded-xl mb-3 flex items-center justify-center mt-1"
-                style={{
-                  aspectRatio: '3/4',
-                  background: 'linear-gradient(160deg, rgb(var(--accent) / .26) 0%, rgb(var(--accent) / .12) 100%)',
-                  border: '2px solid rgb(var(--accent) / .7)',
-                }}
+                className="w-full rounded-panel mb-3 mt-1 flex items-center justify-center bg-surface-3 border border-accent"
+                style={{ aspectRatio: '3/4' }}
               >
                 <Layers size={36} className="text-accent" />
               </div>
-              <span className="text-xs font-bold tracking-[0.15em] uppercase text-accent">Pro</span>
-              <span className="text-xl font-extrabold text-fg mt-0.5">R${proPlan.prices[period]}</span>
+              <span className="text-eyebrow font-bold uppercase text-accent">Pro</span>
+              <span className="text-2xl font-extrabold text-fg mt-0.5">R${proPlan.prices[period]}</span>
               <span className="text-xs text-fg-muted">{priceSuffix() ?? t.fmmOneTimePayment}</span>
             </div>
           </div>
@@ -287,8 +273,7 @@ const FmmPlans = () => {
               <button
                 onClick={() => handleBuy('pro')}
                 disabled={catalog.length === 0}
-                className="w-full px-3 py-2.5 rounded-lg text-sm font-bold text-fg transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                style={{ background: 'linear-gradient(90deg, rgb(var(--accent)), rgb(var(--accent-bright)))' }}
+                className="w-full px-3 py-2.5 rounded-lg text-sm font-bold text-fg bg-accent transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 onMouseEnter={e => (e.currentTarget.style.filter = 'brightness(1.15)')}
                 onMouseLeave={e => (e.currentTarget.style.filter = '')}
               >

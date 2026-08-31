@@ -8,10 +8,10 @@ function FeatureCard({ feature }: { feature: { icon: React.ElementType; title: s
   return (
     <div className="glass-panel p-8 flex flex-col items-start text-left group cursor-default transition-transform duration-300 ease-out hover:-translate-y-1 will-change-transform">
       <div className="p-3 rounded-xl mb-6 border border-white/[0.08] group-hover:border-accent/40 transition-colors duration-300">
-        <Icon size={24} strokeWidth={1.5} className="text-[#A8A8A4] group-hover:text-accent transition-colors duration-300" />
+        <Icon size={24} strokeWidth={1.5} className="text-fg-muted group-hover:text-accent transition-colors duration-300" />
       </div>
-      <h3 className="text-lg font-semibold mb-2 text-[#F5F3EF]">{feature.title}</h3>
-      <p className="text-[#9B9B97] text-sm leading-relaxed">{feature.desc}</p>
+      <h3 className="text-lg font-semibold mb-2 text-fg">{feature.title}</h3>
+      <p className="text-fg-muted text-sm leading-relaxed">{feature.desc}</p>
     </div>
   );
 }
@@ -25,18 +25,18 @@ const Home = () => {
 
         {/* Hero */}
         <div className="animate-slide-up space-y-8 max-w-5xl">
-          <div className="inline-flex items-center gap-2.5 text-sm text-[#9B9B97]">
+          <div className="inline-flex items-center gap-2.5 text-sm text-fg-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-accent"></span>
             {translations.availableForWork}
           </div>
 
-          <h1 className="font-display font-extrabold leading-[0.95] tracking-tight text-[#F5F3EF]"
+          <h1 className="font-display font-extrabold leading-[0.95] tracking-tight text-fg"
               style={{ fontSize: 'clamp(3rem, 8vw, 6rem)' }}>
             {translations.greeting}{' '}
             <span className="text-accent">Davi</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-[#9B9B97] max-w-2xl leading-relaxed">
+          <p className="text-lg md:text-xl text-fg-muted max-w-2xl leading-relaxed">
             {translations.description}
           </p>
 

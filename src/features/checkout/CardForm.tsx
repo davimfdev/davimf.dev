@@ -17,10 +17,8 @@ import type { MercadoPagoInstance, MpInstallmentOption } from './useMercadoPago'
  * cobre a caixa que o usuário vê.
  */
 const FIELD_STYLE = {
-  color: '#F5F3EF',
   fontSize: '15px',
   fontFamily: 'Satoshi, ui-sans-serif, system-ui, sans-serif',
-  placeholderColor: '#6B6B67',
   height: '100%',
   width: '100%',
 };
@@ -44,14 +42,14 @@ type Props = {
 };
 
 const inputClass =
-  'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 py-2.5 text-[15px] text-[#F5F3EF] placeholder:text-[#6B6B67] focus:outline-none focus:border-accent/60 transition-colors';
+  'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 py-2.5 text-[15px] text-fg placeholder:text-fg-muted focus:outline-none focus:border-accent/60 transition-colors';
 
 // `[&>iframe]` garante que o iframe do Mercado Pago ocupe a caixa inteira —
 // é ele que recebe o clique e o teclado.
 const fieldShellClass =
   'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 h-[42px] flex items-center focus-within:border-accent/60 transition-colors [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:border-0';
 
-const labelClass = 'block text-xs font-medium text-[#A8A8A4] mb-1.5';
+const labelClass = 'block text-xs font-medium text-fg-muted mb-1.5';
 
 export function CardForm({ mp, amountCents, recurring, submitting, onSubmit }: Props) {
   const [holderName, setHolderName] = useState('');
@@ -109,10 +107,18 @@ export function CardForm({ mp, amountCents, recurring, submitting, onSubmit }: P
 
   // Monta os Secure Fields uma única vez por instância do SDK.
   useEffect(() => {
+    // Os campos vivem em iframes do Mercado Pago, onde as custom properties da
+    // página não herdam. Resolve os canais dos tokens antes de enviá-los ao SDK.
+    const rootStyle = getComputedStyle(document.documentElement);
+    const fieldStyle = {
+      ...FIELD_STYLE,
+      color: `rgb(${rootStyle.getPropertyValue('--fg').trim()})`,
+      placeholderColor: `rgb(${rootStyle.getPropertyValue('--fg-muted').trim()})`,
+    };
     const fields = [
-      mp.fields.create('cardNumber', { placeholder: '0000 0000 0000 0000', style: FIELD_STYLE }),
-      mp.fields.create('expirationDate', { placeholder: 'MM/AA', style: FIELD_STYLE }),
-      mp.fields.create('securityCode', { placeholder: 'CVV', style: FIELD_STYLE }),
+      mp.fields.create('cardNumber', { placeholder: '0000 0000 0000 0000', style: fieldStyle }),
+      mp.fields.create('expirationDate', { placeholder: 'MM/AA', style: fieldStyle }),
+      mp.fields.create('securityCode', { placeholder: 'CVV', style: fieldStyle }),
     ];
 
     fields[0].on('binChange', (payload) => {
@@ -229,7 +235,7 @@ export function CardForm({ mp, amountCents, recurring, submitting, onSubmit }: P
             className={inputClass}
           >
             {(documentTypes.length > 0 ? documentTypes : [{ id: 'CPF', name: 'CPF' }]).map((type) => (
-              <option key={type.id} value={type.id} className="bg-[#121211]">{type.name}</option>
+              <option key={type.id} value={type.id} className="bg-surface-2">{type.name}</option>
             ))}
           </select>
         </div>
@@ -256,7 +262,7 @@ export function CardForm({ mp, amountCents, recurring, submitting, onSubmit }: P
             className={inputClass}
           >
             {installmentOptions.map((option) => (
-              <option key={option.installments} value={option.installments} className="bg-[#121211]">
+              <option key={option.installments} value={option.installments} className="bg-surface-2">
                 {option.recommended_message}
               </option>
             ))}
@@ -282,7 +288,7 @@ export function CardForm({ mp, amountCents, recurring, submitting, onSubmit }: P
         )}
       </button>
 
-      <p className="flex items-center gap-1.5 text-[11px] text-[#6B6B67] justify-center">
+      <p className="flex items-center gap-1.5 text-[11px] text-fg-muted justify-center">
         <ShieldCheck size={12} className="text-accent" />
         Os dados do cartão vão direto para o Mercado Pago. Nosso servidor não os recebe.
       </p>

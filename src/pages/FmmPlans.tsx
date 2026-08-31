@@ -151,8 +151,8 @@ const FmmPlans = () => {
                 className="w-full rounded-xl mb-3 flex items-center justify-center"
                 style={{
                   aspectRatio: '3/4',
-                  background: 'linear-gradient(160deg,#1c2333 0%,#111827 100%)',
-                  border: '1px solid #374151',
+                  background: 'linear-gradient(160deg, rgb(var(--surface-3)) 0%, rgb(var(--surface-2)) 100%)',
+                  border: '1px solid var(--line-strong)',
                 }}
               >
                 <Package size={36} className="text-fg-muted" />
@@ -168,8 +168,8 @@ const FmmPlans = () => {
                 className="w-full rounded-xl mb-3 flex items-center justify-center"
                 style={{
                   aspectRatio: '3/4',
-                  background: 'linear-gradient(160deg,#1e3a5f 0%,#1e3a8a 100%)',
-                  border: '1px solid #3b82f6',
+                  background: 'linear-gradient(160deg, rgb(var(--accent) / .18) 0%, rgb(var(--accent) / .08) 100%)',
+                  border: '1px solid rgb(var(--accent) / .6)',
                 }}
               >
                 <Zap size={36} className="text-accent" />
@@ -183,7 +183,7 @@ const FmmPlans = () => {
             <div className="flex flex-col items-center px-3 relative">
               <span
                 className="absolute -top-1 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-wider uppercase text-fg px-3 py-0.5 rounded-full z-10"
-                style={{ background: 'linear-gradient(90deg,#6d28d9,#8b5cf6)' }}
+                style={{ background: 'linear-gradient(90deg, rgb(var(--accent)), rgb(var(--accent-bright)))' }}
               >
                 {t.fmmRecommended}
               </span>
@@ -191,8 +191,8 @@ const FmmPlans = () => {
                 className="w-full rounded-xl mb-3 flex items-center justify-center mt-1"
                 style={{
                   aspectRatio: '3/4',
-                  background: 'linear-gradient(160deg,#3b1f6b 0%,#4c1d95 100%)',
-                  border: '2px solid #8b5cf6',
+                  background: 'linear-gradient(160deg, rgb(var(--accent) / .26) 0%, rgb(var(--accent) / .12) 100%)',
+                  border: '2px solid rgb(var(--accent) / .7)',
                 }}
               >
                 <Layers size={36} className="text-accent" />
@@ -210,15 +210,15 @@ const FmmPlans = () => {
               className="grid items-center"
               style={{
                 gridTemplateColumns: COLS,
-                background: idx % 2 === 0 ? '#141414' : '#0f0f0f',
-                borderBottom: '1px solid #1a1a1a',
+                background: idx % 2 === 0 ? 'rgb(var(--surface-2))' : 'rgb(var(--surface-1))',
+                borderBottom: '1px solid var(--line)',
               }}
             >
               {/* Feature name */}
               <div className="flex items-center gap-3 px-4 py-3.5">
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: '#1e1e1e' }}
+                  style={{ background: 'rgb(var(--surface-3))' }}
                 >
                   <Icon size={15} className="text-fg-muted" />
                 </div>
@@ -253,7 +253,7 @@ const FmmPlans = () => {
           {/* ── CTA row ── */}
           <div
             className="grid items-center"
-            style={{ gridTemplateColumns: COLS, background: '#0d0d0d', borderTop: '1px solid #222' }}
+            style={{ gridTemplateColumns: COLS, background: 'rgb(var(--surface-1))', borderTop: '1px solid var(--line-strong)' }}
           >
             <div className="px-4 py-6 text-xs text-fg-muted leading-relaxed">
               {t.fmmLicenseDelivery}
@@ -288,7 +288,7 @@ const FmmPlans = () => {
                 onClick={() => handleBuy('pro')}
                 disabled={catalog.length === 0}
                 className="w-full px-3 py-2.5 rounded-lg text-sm font-bold text-fg transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                style={{ background: 'linear-gradient(90deg,#2563eb,#7c3aed)' }}
+                style={{ background: 'linear-gradient(90deg, rgb(var(--accent)), rgb(var(--accent-bright)))' }}
                 onMouseEnter={e => (e.currentTarget.style.filter = 'brightness(1.15)')}
                 onMouseLeave={e => (e.currentTarget.style.filter = '')}
               >

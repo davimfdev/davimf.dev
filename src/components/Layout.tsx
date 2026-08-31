@@ -113,7 +113,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <div className="flex items-center justify-between h-20">
               <div className="flex items-center">
                 <Link to="/" className="text-2xl font-display font-extrabold text-accent tracking-tight">
-                  Davimf<span className="text-[#F5F3EF]">.dev</span>
+                  Davimf<span className="text-fg">.dev</span>
                 </Link>
               </div>
 

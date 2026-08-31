@@ -84,8 +84,8 @@ export function ThreeDsChallenge({ url, onComplete, onInvalidUrl }: Props) {
     <div className="flex flex-col gap-3">
       <div className="text-center">
         <ShieldCheck size={32} className="text-accent mx-auto mb-2" />
-        <h3 className="text-lg font-display font-bold text-[#F5F3EF]">Autenticação do banco</h3>
-        <p className="text-sm text-[#A8A8A4] mt-1">
+        <h3 className="text-lg font-display font-bold text-fg">Autenticação do banco</h3>
+        <p className="text-sm text-fg-soft mt-1">
           Seu emissor pediu uma confirmação extra. Conclua abaixo sem fechar esta janela.
         </p>
       </div>

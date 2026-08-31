@@ -1,4 +1,6 @@
 
+import { DATA_PALETTE_DISCORD } from '../lib/palettes/dataPalettes';
+
 export default function Test() {
     // 1. Cole seu Client ID diretamente aqui (apenas números, como "1234567890123456")
     // Não use process.env para esse teste rápido, assim garantimos que a variável não está vazia.
@@ -14,7 +16,7 @@ export default function Test() {
                 href={discordUrl}
                 style={{
                     padding: '15px 30px',
-                    backgroundColor: '#5865F2',
+                    backgroundColor: DATA_PALETTE_DISCORD.blurple,
                     color: 'white',
                     textDecoration: 'none', // Tira o sublinhado padrão de links
                     borderRadius: '8px',

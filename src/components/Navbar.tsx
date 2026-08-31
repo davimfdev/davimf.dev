@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { DATA_PALETTE_DISCORD } from '../lib/palettes/dataPalettes';
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null);
@@ -81,12 +82,12 @@ export default function Navbar() {
 
 // Estilos para deixar tudo alinhado e bonito
 const styles = {
-  nav: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 40px', backgroundColor: '#1e1f22', color: 'white' },
+  nav: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 40px', backgroundColor: 'rgb(var(--surface-3))', color: 'white' },
   logo: { fontSize: '20px', fontWeight: 'bold' },
   authSection: { display: 'flex', alignItems: 'center' },
   avatar: { width: '45px', height: '45px', borderRadius: '50%', cursor: 'pointer', border: '2px solid transparent', transition: 'border 0.2s' },
-  loginBtn: { backgroundColor: '#5865F2', color: 'white', padding: '10px 20px', borderRadius: '5px', textDecoration: 'none', fontWeight: 'bold' },
-  dropdown: { position: 'absolute' as const, top: '55px', right: '0', backgroundColor: '#2b2d31', borderRadius: '8px', padding: '15px', boxShadow: '0 8px 16px rgba(0,0,0,0.3)', minWidth: '150px', zIndex: 10 },
-  username: { margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold', color: '#dbdee1', borderBottom: '1px solid #404249', paddingBottom: '10px' },
-  logoutBtn: { backgroundColor: '#da373c', color: 'white', border: 'none', width: '100%', padding: '8px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }
+  loginBtn: { backgroundColor: DATA_PALETTE_DISCORD.blurple, color: 'white', padding: '10px 20px', borderRadius: '5px', textDecoration: 'none', fontWeight: 'bold' },
+  dropdown: { position: 'absolute' as const, top: '55px', right: '0', backgroundColor: 'rgb(var(--surface-3))', borderRadius: '8px', padding: '15px', boxShadow: '0 8px 16px rgba(0,0,0,0.3)', minWidth: '150px', zIndex: 10 },
+  username: { margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold', color: 'rgb(var(--fg-soft))', borderBottom: '1px solid var(--line)', paddingBottom: '10px' },
+  logoutBtn: { backgroundColor: DATA_PALETTE_DISCORD.danger, color: 'white', border: 'none', width: '100%', padding: '8px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }
 };

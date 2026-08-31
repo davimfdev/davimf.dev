@@ -238,7 +238,7 @@ const FmmAdmin = () => {
 
         <button onClick={handleGenerate} disabled={generating}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-fg transition-all disabled:opacity-60"
-          style={{ background: 'linear-gradient(90deg,#2563eb,#7c3aed)' }}
+          style={{ background: 'linear-gradient(90deg, rgb(var(--accent)), rgb(var(--accent-bright)))' }}
           onMouseEnter={(e) => !generating && (e.currentTarget.style.filter = 'brightness(1.15)')}
           onMouseLeave={(e) => (e.currentTarget.style.filter = '')}>
           {generating ? <Loader size={18} className="animate-spin" /> : <Plus size={18} />}

@@ -125,7 +125,7 @@ const Roulette = () => {
                     <div className="w-0 h-0 filter drop-shadow-lg" style={{
                         borderTop: '15px solid transparent',
                         borderBottom: '15px solid transparent',
-                        borderRight: '30px solid #3B82F6',
+                        borderRight: '30px solid rgb(var(--accent))',
                     }}></div>
                 </div>
 

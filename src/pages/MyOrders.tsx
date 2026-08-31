@@ -158,7 +158,7 @@ const MyOrders = () => {
     return (
       <div className="container mx-auto px-4 py-20 text-center animate-fade-in relative z-10">
         <div className="inline-block w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-[#A8A8A4]">Carregando seus pedidos…</p>
+        <p className="text-fg-muted">Carregando seus pedidos…</p>
       </div>
     );
   }
@@ -176,13 +176,13 @@ const MyOrders = () => {
     <div className="container mx-auto px-4 py-12 animate-fade-in relative z-10 max-w-3xl">
       <div className="flex items-center gap-3 mb-8">
         <ShoppingCart size={26} className="text-accent" />
-        <h1 className="text-3xl font-display font-extrabold text-[#F5F3EF]">Meus Pedidos</h1>
+        <h1 className="text-3xl font-display font-extrabold text-fg">Meus Pedidos</h1>
       </div>
 
       {orders.length === 0 ? (
         <div className="glass-panel p-10 text-center">
-          <ShoppingCart size={44} className="text-[#3A3A36] mx-auto mb-4" />
-          <p className="text-[#A8A8A4]">Nenhum pedido encontrado.</p>
+          <ShoppingCart size={44} className="text-line-strong mx-auto mb-4" />
+          <p className="text-fg-soft">Nenhum pedido encontrado.</p>
           <Link to="/fmm" className="mt-4 inline-block text-accent hover:underline">Ver planos</Link>
         </div>
       ) : (
@@ -195,13 +195,13 @@ const MyOrders = () => {
             return (
               <div key={order.id} className="glass-panel p-5">
                 <div className="flex items-center justify-between gap-3 flex-wrap mb-2">
-                  <span className="text-sm font-bold text-[#F5F3EF]">Pedido {order.reference}</span>
-                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full text-[#A8A8A4] bg-white/[0.06]">
+                  <span className="text-sm font-bold text-fg">Pedido {order.reference}</span>
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full text-fg-muted bg-white/[0.06]">
                     {status}
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#6B6B67]">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-fg-muted">
                   <span>{formatMoney(order.amountCents, order.currency)}</span>
                   <span>Comprado em {formatDate(order.createdAt)}</span>
                   {order.paidAt && <span>Pago em {formatDate(order.paidAt)}</span>}
@@ -211,7 +211,7 @@ const MyOrders = () => {
                     de quem tem acesso ao banco. Os links levam ao SNAPSHOT
                     exato (`/legal/<versão>/...`), não ao documento vigente. */}
                 {order.legalAcceptance && (
-                  <p className="mt-2 text-xs text-[#6B6B67]">
+                  <p className="mt-2 text-xs text-fg-muted">
                     Documentos aceitos (versão {order.legalAcceptance.version}):{' '}
                     <Link
                       to={`/legal/${order.legalAcceptance.version}/terms-of-service`}
@@ -239,7 +239,7 @@ const MyOrders = () => {
 
                 <div className="mt-4">
                   {outcome ? (
-                    <p className="text-sm text-[#A8A8A4]">{OUTCOME_MESSAGE[outcome]}</p>
+                    <p className="text-sm text-fg-soft">{OUTCOME_MESSAGE[outcome]}</p>
                   ) : action === 'refund' ? (
                     <button
                       onClick={() => openDialog('refund', order)}
@@ -255,7 +255,7 @@ const MyOrders = () => {
                       Solicitar análise
                     </button>
                   ) : (
-                    <p className="text-sm text-[#6B6B67]">{reasonForNone(order.status)}</p>
+                    <p className="text-sm text-fg-muted">{reasonForNone(order.status)}</p>
                   )}
                 </div>
               </div>
@@ -273,9 +273,9 @@ const MyOrders = () => {
           <div className="glass-panel max-w-md w-full p-6">
             <div className="flex items-center gap-2 mb-3 text-amber-400">
               <AlertTriangle size={20} />
-              <h2 className="font-display font-bold text-lg text-[#F5F3EF]">Solicitar reembolso</h2>
+              <h2 className="font-display font-bold text-lg text-fg">Solicitar reembolso</h2>
             </div>
-            <p className="text-sm text-[#A8A8A4] mb-5">
+            <p className="text-sm text-fg-soft mb-5">
               Confirmar reembolso? Sua licença será revogada e deixará de funcionar.
             </p>
             {dialogError && <p className="text-sm text-red-400 mb-4">{dialogError}</p>}
@@ -298,8 +298,8 @@ const MyOrders = () => {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
         >
           <div className="glass-panel max-w-md w-full p-6">
-            <h2 className="font-display font-bold text-lg text-[#F5F3EF] mb-3">Solicitar análise</h2>
-            <p className="text-sm text-[#A8A8A4] mb-3">
+            <h2 className="font-display font-bold text-lg text-fg mb-3">Solicitar análise</h2>
+            <p className="text-sm text-fg-soft mb-3">
               Conte o que aconteceu com o pedido. Um analista vai revisar sua solicitação.
             </p>
             <textarea
@@ -308,7 +308,7 @@ const MyOrders = () => {
               maxLength={2000}
               rows={4}
               placeholder="Descreva o problema…"
-              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EF] mb-2"
+              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-fg mb-2"
             />
             {dialogError && <p className="text-sm text-red-400 mb-2">{dialogError}</p>}
             <div className="flex justify-end gap-3 mt-3">

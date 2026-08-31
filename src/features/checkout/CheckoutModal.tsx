@@ -338,11 +338,11 @@ export function CheckoutModal({ product, onClose }: Props) {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="glass-panel bg-[#121211] w-full max-w-md my-auto p-6 sm:p-7 relative">
+      <div className="glass-panel bg-surface-2 w-full max-w-md my-auto p-6 sm:p-7 relative">
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 text-[#6B6B67] hover:text-[#F5F3EF] transition-colors"
+          className="absolute top-4 right-4 text-fg-muted hover:text-fg transition-colors"
           aria-label="Fechar"
         >
           <X size={20} />
@@ -350,8 +350,8 @@ export function CheckoutModal({ product, onClose }: Props) {
 
         <div className="mb-6 pr-8">
           <p className="text-[11px] font-bold tracking-[0.15em] uppercase text-accent mb-1">Checkout</p>
-          <h2 className="text-xl font-display font-bold text-[#F5F3EF]">{product.name}</h2>
-          <p className="text-sm text-[#A8A8A4] mt-0.5">
+          <h2 className="text-xl font-display font-bold text-fg">{product.name}</h2>
+          <p className="text-sm text-fg-soft mt-0.5">
             {price}
             {product.isLifetime ? ' · pagamento único' : product.durationDays ? ` · ${product.durationDays} dias` : ''}
           </p>
@@ -379,13 +379,13 @@ export function CheckoutModal({ product, onClose }: Props) {
                   type="checkbox"
                   checked={autoRenew}
                   onChange={(event) => setAutoRenew(event.target.checked)}
-                  className="mt-0.5 accent-[#E6B566]"
+                  className="mt-0.5 accent-accent"
                 />
                 <span>
-                  <span className="flex items-center gap-1.5 text-sm font-medium text-[#F5F3EF]">
+                  <span className="flex items-center gap-1.5 text-sm font-medium text-fg">
                     <RefreshCw size={13} className="text-accent" /> Renovar automaticamente
                   </span>
-                  <span className="block text-xs text-[#6B6B67] mt-0.5">
+                  <span className="block text-xs text-fg-muted mt-0.5">
                     Cobrança recorrente no cartão. Cancele quando quiser — sua licença não é apagada.
                   </span>
                 </span>
@@ -400,16 +400,16 @@ export function CheckoutModal({ product, onClose }: Props) {
                 type="checkbox"
                 checked={acceptedLegal}
                 onChange={(event) => setAcceptedLegal(event.target.checked)}
-                className="mt-0.5 accent-[#E6B566]"
+                className="mt-0.5 accent-accent"
               />
-              <span className="text-xs text-[#A8A8A4]">
+              <span className="text-xs text-fg-soft">
                 Li e concordo com os{' '}
                 <Link
                   to={`/legal/${CURRENT_LEGAL_VERSION}/terms-of-service`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(event) => event.stopPropagation()}
-                  className="font-medium text-[#F5F3EF] underline hover:text-accent"
+                  className="font-medium text-fg underline hover:text-accent"
                 >
                   Termos de Uso
                 </Link>{' '}
@@ -419,7 +419,7 @@ export function CheckoutModal({ product, onClose }: Props) {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(event) => event.stopPropagation()}
-                  className="font-medium text-[#F5F3EF] underline hover:text-accent"
+                  className="font-medium text-fg underline hover:text-accent"
                 >
                   Política de Reembolso
                 </Link>
@@ -429,7 +429,7 @@ export function CheckoutModal({ product, onClose }: Props) {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(event) => event.stopPropagation()}
-                  className="font-medium text-[#F5F3EF] underline hover:text-accent"
+                  className="font-medium text-fg underline hover:text-accent"
                 >
                   Política de Privacidade
                 </Link>
@@ -462,13 +462,13 @@ export function CheckoutModal({ product, onClose }: Props) {
                     onClick={() => { setMethod(id); setError(null); }}
                     className={`flex flex-col items-center gap-1 rounded-lg border px-2 py-3 transition-all ${
                       method === id
-                        ? 'border-accent/60 bg-accent/[0.08] text-[#F5F3EF]'
-                        : 'border-white/10 text-[#A8A8A4] hover:border-white/25'
+                        ? 'border-accent/60 bg-accent/[0.08] text-fg'
+                        : 'border-white/10 text-fg-muted hover:border-white/25'
                     } ${disabled ? 'opacity-35 cursor-not-allowed' : ''}`}
                   >
                     <Icon size={18} className={method === id ? 'text-accent' : ''} />
                     <span className="text-xs font-medium">{label}</span>
-                    <span className="text-[10px] text-[#6B6B67] leading-tight text-center">{hint}</span>
+                    <span className="text-[10px] text-fg-muted leading-tight text-center">{hint}</span>
                   </button>
                 );
               })}
@@ -476,7 +476,7 @@ export function CheckoutModal({ product, onClose }: Props) {
 
             {method === 'pix' && (
               <div>
-                <p className="text-sm text-[#A8A8A4] mb-5">
+                <p className="text-sm text-fg-soft mb-5">
                   Você receberá um QR Code e o código Copia e Cola. A liberação da chave é automática
                   assim que o banco confirmar o pagamento.
                 </p>
@@ -488,7 +488,7 @@ export function CheckoutModal({ product, onClose }: Props) {
 
             {method === 'boleto' && (
               <div className="flex flex-col gap-4">
-                <p className="text-sm text-[#A8A8A4]">
+                <p className="text-sm text-fg-soft">
                   O boleto usa os dados informados na identificação. A compensação leva até 3 dias úteis.
                 </p>
                 <button onClick={handleBoleto} disabled={submitting} className="btn-primary w-full disabled:opacity-60">
@@ -500,7 +500,7 @@ export function CheckoutModal({ product, onClose }: Props) {
             {method === 'card' && (
               <>
                 {sdkLoading && (
-                  <div className="flex items-center justify-center gap-2 py-10 text-sm text-[#A8A8A4]">
+                  <div className="flex items-center justify-center gap-2 py-10 text-sm text-fg-muted">
                     <Loader2 size={16} className="animate-spin" /> Carregando checkout seguro…
                   </div>
                 )}

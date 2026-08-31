@@ -32,9 +32,9 @@ export type PayerProfileFormValues = {
 };
 
 const inputClass =
-  'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 py-2.5 text-[15px] text-[#F5F3EF] placeholder:text-[#6B6B67] focus:outline-none focus:border-accent/60 transition-colors';
-const labelClass = 'block text-xs font-medium text-[#A8A8A4] mb-1.5';
-const hintClass = 'text-[11px] text-[#6B6B67] mt-1.5 leading-snug';
+  'w-full bg-black/30 border border-white/10 rounded-lg px-3.5 py-2.5 text-[15px] text-fg placeholder:text-fg-muted focus:outline-none focus:border-accent/60 transition-colors';
+const labelClass = 'block text-xs font-medium text-fg-muted mb-1.5';
+const hintClass = 'text-[11px] text-fg-muted mt-1.5 leading-snug';
 
 export function emptyPayerProfileValues(): PayerProfileFormValues {
   return {
@@ -268,16 +268,16 @@ export function PayerProfileForm({
             type="checkbox"
             checked={saveProfile}
             onChange={(event) => onSaveProfileChange(event.target.checked)}
-            className="mt-0.5 accent-[#E6B566]"
+            className="mt-0.5 accent-accent"
           />
           <div>
             <label
               htmlFor="payer-save-profile"
-              className="block text-sm font-medium text-[#F5F3EF] cursor-pointer"
+              className="block text-sm font-medium text-fg cursor-pointer"
             >
               Salvar meus dados para próximas compras
             </label>
-            <p className="text-xs text-[#6B6B67] mt-0.5">
+            <p className="text-xs text-fg-muted mt-0.5">
               Guardamos com criptografia e só para você reusar. Pode apagar quando quiser.
             </p>
           </div>
@@ -290,13 +290,13 @@ export function PayerProfileForm({
             <button
               type="button"
               onClick={() => setConfirmingDelete(true)}
-              className="inline-flex items-center gap-1.5 text-[#A8A8A4] hover:text-red-400 transition-colors"
+              className="inline-flex items-center gap-1.5 text-fg-muted hover:text-red-400 transition-colors"
             >
               <Trash2 size={13} /> Apagar dados salvos
             </button>
           ) : (
             <div className="flex flex-col gap-2 rounded-lg border border-red-500/20 bg-red-500/[0.06] px-3 py-2.5">
-              <p className="text-[#F5F3EF]">
+              <p className="text-fg">
                 Apagar os dados salvos? Seus pedidos, pagamentos e licenças não são afetados.
               </p>
               <div className="flex gap-3">
@@ -311,7 +311,7 @@ export function PayerProfileForm({
                 <button
                   type="button"
                   onClick={() => setConfirmingDelete(false)}
-                  className="text-[#A8A8A4] hover:text-[#F5F3EF]"
+                  className="text-fg-muted hover:text-fg"
                 >
                   Cancelar
                 </button>

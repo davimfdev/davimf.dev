@@ -83,7 +83,7 @@ const FmmActivated = () => {
       <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in relative z-10 px-4">
         <div className="glass-panel p-10 max-w-md w-full text-center">
           <Loader className="text-accent mx-auto mb-4 animate-spin" size={44} />
-          <h2 className="text-xl font-display font-bold text-[#F5F3EF] mb-2">Carregando pedido…</h2>
+          <h2 className="text-xl font-display font-bold text-fg mb-2">Carregando pedido…</h2>
         </div>
       </div>
     );
@@ -94,8 +94,8 @@ const FmmActivated = () => {
       <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in relative z-10 px-4">
         <div className="glass-panel p-10 max-w-md w-full text-center">
           <AlertCircle className="text-red-400 mx-auto mb-4" size={44} />
-          <h2 className="text-2xl font-display font-bold text-[#F5F3EF] mb-3">Não foi possível abrir o pedido</h2>
-          <p className="text-[#A8A8A4] mb-6">{error}</p>
+          <h2 className="text-2xl font-display font-bold text-fg mb-3">Não foi possível abrir o pedido</h2>
+          <p className="text-fg-soft mb-6">{error}</p>
           <div className="flex gap-3 justify-center">
             <Link to="/my-keys" className="btn-primary">Minhas Chaves</Link>
             <Link to="/contact" className="btn-secondary">Contato</Link>
@@ -107,9 +107,9 @@ const FmmActivated = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in relative z-10 px-4 py-12">
-      <div className="glass-panel bg-[#121211] p-8 sm:p-10 max-w-lg w-full">
+      <div className="glass-panel bg-surface-2 p-8 sm:p-10 max-w-lg w-full">
         <PaymentResult payment={payment} />
-        <p className="text-center text-sm text-[#6B6B67] mt-8">
+        <p className="text-center text-sm text-fg-muted mt-8">
           Dúvidas? <Link to="/contact" className="text-accent hover:underline">Entre em contato</Link>
         </p>
       </div>

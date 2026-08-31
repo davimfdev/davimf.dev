@@ -1,17 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 // MODIFICADO: Adicionado LogOut na lista de imports
-import { Menu, X, Github, Linkedin, Mail, Globe, MessageCircle, Phone, User, ChevronDown, LogOut, Bot } from 'lucide-react';
+import { Menu, X, Github, Linkedin, Mail, MessageCircle, Phone, User, LogOut } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isFeaturesMenuOpen, setIsFeaturesMenuOpen] = useState(false);
   const [discordUser, setDiscordUser] = useState<any>(null);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const featuresMenuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -25,20 +23,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const { language, setLanguage, translations, legal } = useLanguage();
 
+  // Contato sai da navbar: a Home passa a ser a entrada, e o fecho da Home mais
+  // o footer garantem que continue a um clique. "Ferramentas" aponta para a
+  // âncora da Home porque /tools só existe no Plano 4 — link morto é pior.
   const navigation = [
-    { name: translations.navHome, href: '/' },
-    { name: translations.portfolio, href: '/portfolio' },
-    { name: translations.products, href: '/products' },
-    { name: translations.contact, href: '/contact' },
-  ];
-
-  const featureLinks = [
-    { name: translations.todoList, href: '/todo' },
-    { name: translations.financeManager, href: '/finances' },
-    { name: translations.urlShortener, href: '/encurtador' },
-    { name: translations.roulette, href: '/roulette' },
-    { name: 'Notas', href: '/notes' },
-    { name: translations.passwordGenerator, href: '/password-generator' },
+    { name: translations.home.nav.projects, href: '/portfolio' },
+    { name: translations.home.nav.products, href: '/products' },
+    { name: translations.home.nav.tools, href: '/#tools' },
+    { name: translations.home.nav.about, href: '/about' },
   ];
 
   const toggleLanguage = () => setLanguage(language === 'pt' ? 'en' : 'pt');
@@ -92,9 +84,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
       }
-      if (featuresMenuRef.current && !featuresMenuRef.current.contains(event.target as Node)) {
-        setIsFeaturesMenuOpen(false);
-      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -108,162 +97,114 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <div className="min-h-screen flex flex-col relative z-0">
         <div className="bg-blobs"></div>
 
-        <nav className="glass-nav fixed w-full z-50 top-0">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-20">
-              <div className="flex items-center">
-                <Link to="/" className="text-2xl font-display font-extrabold text-accent tracking-tight">
-                  Davimf<span className="text-fg">.dev</span>
-                </Link>
+        {/*
+          Barra fina, largura total, hairline embaixo. Sem pill, sem sombra,
+          sem raio: a nav deixa de parecer um componente flutuante e passa a
+          parecer o topo de uma interface.
+
+          O dourado sai da identidade e passa a marcar SÓ estado — o item ativo
+          ganha um traço de 1px. Nada mais aqui é accent.
+        */}
+        <nav className="bg-surface-nav backdrop-blur-xl border-b border-line fixed w-full z-50 top-0">
+          <div className="max-w-wide mx-auto px-gutter">
+            <div className="flex items-center justify-between h-14">
+              <Link to="/" className="text-eyebrow font-semibold text-fg hover:text-accent transition-colors duration-fast">
+                DAVIMF<span className="text-fg-muted">.DEV</span>
+              </Link>
+
+              <div className="hidden md:flex items-center gap-8">
+                {navigation.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    to={item.href}
+                    className={({ isActive }) =>
+                      `text-sm transition-colors duration-fast relative py-4 ${
+                        isActive
+                          ? 'text-fg after:absolute after:bottom-3 after:left-0 after:right-0 after:h-px after:bg-accent'
+                          : 'text-fg-muted hover:text-fg'
+                      }`
+                    }
+                  >
+                    {item.name}
+                  </NavLink>
+                ))}
               </div>
 
-              {/* Desktop Menu */}
-              <div className="hidden md:flex md:items-center bg-surface-1 backdrop-blur-md rounded-2xl px-4 py-2 border border-line shadow-lg">
-                <div className="flex items-baseline space-x-2">
-                  {navigation.map((item) => (
-                      <Link key={item.name} to={item.href} className="nav-link">
-                        {item.name}
-                      </Link>
-                  ))}
-
-                  <div className="relative" ref={featuresMenuRef}>
-                    <button onClick={() => setIsFeaturesMenuOpen(!isFeaturesMenuOpen)} className="nav-link flex items-center">
-                      {translations.features}
-                      <ChevronDown size={16} className={`ml-1 transition-transform duration-300 ${isFeaturesMenuOpen ? 'rotate-180' : ''}`} />
-                    </button>
-                    <div className={`absolute left-0 mt-4 w-56 glass-panel py-2 z-50 transition-all duration-300 ease-out transform origin-top ${isFeaturesMenuOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2'}`} style={{ pointerEvents: isFeaturesMenuOpen ? 'auto' : 'none' }}>
-                      {featureLinks.map(link => (
-                          <Link key={link.name} to={link.href} onClick={() => setIsFeaturesMenuOpen(false)} className="block px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors">
-                            {link.name}
-                          </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="hidden md:flex items-center space-x-4">
-                {discordUser && (
-                    <Link
-                        to="/dashboard"
-                        className="flex items-center gap-2 pl-3 pr-4 py-2 text-sm font-medium text-accent bg-accent-bright/10 hover:bg-accent-bright/20 border border-accent/20 hover:border-accent/40 rounded-full transition-all duration-300"
-                    >
-                      <Bot size={18} />
-                      Painel do Bot
-                    </Link>
-                )}
+              <div className="hidden md:flex items-center gap-5">
+                <button
+                  onClick={toggleLanguage}
+                  className="text-eyebrow text-fg-muted hover:text-fg transition-colors duration-fast"
+                  aria-label="Toggle language"
+                >
+                  {language === 'pt' ? 'PT' : 'EN'}
+                </button>
 
                 <div className="relative" ref={userMenuRef}>
                   <button
-                      onClick={() => discordUser ? setIsUserMenuOpen(!isUserMenuOpen) : handleLogin()}
-                      className="flex items-center justify-center overflow-hidden w-10 h-10 text-fg-muted hover:text-fg bg-surface-1 hover:bg-surface-2 border border-line hover:border-line rounded-full transition-all duration-300 shadow-inner"
+                    onClick={() => (discordUser ? setIsUserMenuOpen(!isUserMenuOpen) : handleLogin())}
+                    className="flex items-center justify-center overflow-hidden w-7 h-7 rounded-full border border-line hover:border-line-strong text-fg-muted hover:text-fg transition-colors duration-fast"
+                    aria-label="Conta"
                   >
                     {discordUser ? (
-                        <img
-                            src={`https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`}
-                            alt="Avatar"
-                            className="w-full h-full object-cover"
-                        />
+                      <img src={`https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`} alt="" className="w-full h-full object-cover" />
                     ) : (
-                        <User size={20} />
+                      <User size={14} />
                     )}
                   </button>
 
-                  <div className={`absolute right-0 mt-4 w-56 glass-panel py-2 z-50 transition-all duration-300 ease-out transform origin-top-right ${isUserMenuOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2'}`} style={{ pointerEvents: isUserMenuOpen ? 'auto' : 'none' }}>
+                  <div className={`absolute right-0 mt-3 w-52 bg-surface-2 border border-line py-1 z-50 transition-opacity duration-fast ${isUserMenuOpen ? 'opacity-100' : 'opacity-0'}`} style={{ pointerEvents: isUserMenuOpen ? 'auto' : 'none' }}>
                     {discordUser ? (
-                        <>
-                          <div className="px-4 py-3 border-b border-line mb-1">
-                            <p className="text-[10px] text-fg-muted uppercase font-black tracking-widest">Identificado como</p>
-                            <p className="text-sm font-bold text-fg truncate">{discordUser.global_name || discordUser.username}</p>
-                          </div>
-                          <Link to="/dashboard" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors">
-                            Painel do Bot
-                          </Link>
-                          <Link to="/my-keys" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors">
-                            Minhas Chaves
-                          </Link>
-                          <Link to="/my-orders" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors">
-                            Meus Pedidos
-                          </Link>
-                          {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
-                            <Link to="/fmm-admin" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-accent hover:text-accent hover:bg-accent-bright/10 transition-colors">
-                              Admin FMM
-                            </Link>
-                          )}
-                          <button onClick={handleLogout} className="flex items-center w-full text-left px-4 py-2 text-sm text-danger hover:text-danger hover:bg-danger/10 transition-colors">
-                            <LogOut size={14} className="mr-2" />
-                            Sair (Logoff)
-                          </button>
-                        </>
-                    ) : (
-                        <button onClick={handleLogin} className="block w-full text-left px-4 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors">
-                          Entrar com Discord
+                      <>
+                        <div className="px-3 py-2 border-b border-line mb-1">
+                          <p className="text-eyebrow text-fg-muted">Identificado como</p>
+                          <p className="text-sm text-fg truncate">{discordUser.global_name || discordUser.username}</p>
+                        </div>
+                        <Link to="/dashboard" onClick={() => setIsUserMenuOpen(false)} className="block px-3 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-3 transition-colors">Painel do Bot</Link>
+                        <Link to="/my-keys" onClick={() => setIsUserMenuOpen(false)} className="block px-3 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-3 transition-colors">Minhas Chaves</Link>
+                        <Link to="/my-orders" onClick={() => setIsUserMenuOpen(false)} className="block px-3 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-3 transition-colors">Meus Pedidos</Link>
+                        {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
+                          <Link to="/fmm-admin" onClick={() => setIsUserMenuOpen(false)} className="block px-3 py-2 text-sm text-accent hover:bg-surface-3 transition-colors">Admin FMM</Link>
+                        )}
+                        <button onClick={handleLogout} className="flex items-center w-full text-left px-3 py-2 text-sm text-danger hover:bg-surface-3 transition-colors">
+                          <LogOut size={13} className="mr-2" />Sair
                         </button>
+                      </>
+                    ) : (
+                      <button onClick={handleLogin} className="block w-full text-left px-3 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-3 transition-colors">Entrar com Discord</button>
                     )}
                   </div>
                 </div>
-
-                <button onClick={toggleLanguage} className="flex items-center p-2 text-fg-muted hover:text-fg bg-surface-1 hover:bg-surface-2 border border-line hover:border-line rounded-full transition-all duration-300" aria-label="Toggle language">
-                  <Globe size={18} />
-                  <span className="ml-2 text-sm font-medium">{language.toUpperCase()}</span>
-                </button>
               </div>
 
-              <div className="md:hidden flex items-center">
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-fg-muted hover:text-fg bg-surface-1 rounded-lg border border-line transition-all">
-                  {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                </button>
-              </div>
+              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-fg-muted hover:text-fg transition-colors" aria-label="Menu">
+                {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
             </div>
           </div>
 
+          {/*
+            Mobile: painel de tela cheia, não dropdown. Os links ganham escala
+            de display porque numa tela pequena eles SÃO a página enquanto o
+            menu está aberto.
+          */}
           {isMenuOpen && (
-              <div className="md:hidden glass-panel mx-4 mt-2 mb-4 overflow-hidden animate-slide-up">
-                <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                  {navigation.map((item) => (
-                      <Link key={item.name} to={item.href} className="text-fg-muted hover:bg-surface-2 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
-                        {item.name}
-                      </Link>
-                  ))}
-                  <div className="border-t border-line my-2"></div>
-                  <p className="px-3 pt-2 text-xs font-semibold text-fg-muted uppercase tracking-wider">{translations.features}</p>
-                  {featureLinks.map((item) => (
-                      <Link key={item.name} to={item.href} className="text-fg-muted hover:bg-surface-2 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
-                        {item.name}
-                      </Link>
-                  ))}
-                  <div className="border-t border-line my-2"></div>
-                  {discordUser ? (
-                      <>
-                        <div className="px-3 py-2">
-                          <p className="text-xs text-fg-muted uppercase">Logado como</p>
-                          <p className="text-fg font-bold">{discordUser.username}</p>
-                        </div>
-                        <Link to="/dashboard" className="text-fg-muted hover:bg-surface-2 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
-                          Painel do Bot
-                        </Link>
-                        <Link to="/my-keys" className="text-fg-muted hover:bg-surface-2 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
-                          Minhas Chaves
-                        </Link>
-                        <Link to="/my-orders" className="text-fg-muted hover:bg-surface-2 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
-                          Meus Pedidos
-                        </Link>
-                        {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
-                          <Link to="/fmm-admin" className="text-accent hover:bg-accent-bright/10 hover:text-accent block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
-                            Admin FMM
-                          </Link>
-                        )}
-                        <button onClick={handleLogout} className="w-full text-left text-danger hover:bg-danger/10 block px-3 py-2 rounded-lg text-base font-medium transition-colors">
-                          Sair (Logoff)
-                        </button>
-                      </>
-                  ) : (
-                      <button onClick={handleLogin} className="w-full text-left text-fg-muted hover:bg-surface-2 hover:text-fg block px-3 py-2 rounded-lg text-base font-medium transition-colors">
-                        Entrar com Discord
-                      </button>
-                  )}
-                </div>
+            <div className="md:hidden fixed inset-0 top-14 bg-bg z-40 px-gutter pt-10 flex flex-col">
+              {navigation.map((item) => (
+                <Link key={item.name} to={item.href} onClick={() => setIsMenuOpen(false)} className="text-display-3 text-fg py-3 border-b border-line">
+                  {item.name}
+                </Link>
+              ))}
+              <div className="mt-auto pb-10 flex items-center justify-between">
+                <button onClick={toggleLanguage} className="text-eyebrow text-fg-muted" aria-label="Toggle language">
+                  {language === 'pt' ? 'PT' : 'EN'}
+                </button>
+                {discordUser ? (
+                  <button onClick={handleLogout} className="text-sm text-danger">Sair</button>
+                ) : (
+                  <button onClick={handleLogin} className="text-sm text-fg-muted">Entrar com Discord</button>
+                )}
               </div>
+            </div>
           )}
         </nav>
 

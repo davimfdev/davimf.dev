@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import Layout from '../Layout';
 import { LanguageProvider } from '../../context/LanguageContext';
@@ -59,19 +59,19 @@ describe('Layout — retorno do login com Discord', () => {
 });
 
 describe('Layout — botão do Painel do Bot', () => {
-  it('aparece na navbar depois do login', async () => {
+  it('fica alcançável pelo menu do avatar depois do login', async () => {
     localStorage.setItem('discord_token', 'discord-access-token');
     renderLayout('/');
 
-    // Dois pontos de entrada no desktop: o botão dedicado da navbar e o item
-    // que já existia no dropdown do avatar. O menu mobile só renderiza aberto.
-    const links = await screen.findAllByRole('link', { name: /Painel do Bot/ });
-    expect(links).toHaveLength(2);
-    expect(links.every((link) => link.getAttribute('href') === '/dashboard')).toBe(true);
+    // A navbar nova não tem mais o pill dedicado: o painel só é alcançável
+    // abrindo o menu do avatar, que é onde o link mora agora.
+    const avatarButton = await screen.findByRole('button', { name: 'Conta' });
+    fireEvent.click(avatarButton);
 
-    // O botão da navbar fica fora do dropdown, visível sem nenhum clique.
-    const navbarButton = links.find((link) => link.closest('[class*="space-x-4"]'));
-    expect(navbarButton).toBeDefined();
+    const link = await screen.findByRole('link', { name: 'Painel do Bot' });
+    expect(link.getAttribute('href')).toBe('/dashboard');
+    // Só esse ponto de entrada — o pill fora do dropdown não existe mais.
+    expect(screen.getAllByRole('link', { name: 'Painel do Bot' })).toHaveLength(1);
   });
 
   it('não aparece para visitante deslogado', async () => {
@@ -88,5 +88,30 @@ describe('Layout — botão do Painel do Bot', () => {
 
     await waitFor(() => expect(localStorage.getItem('discord_token')).toBeNull());
     expect(screen.queryByText('Painel do Bot')).toBeNull();
+  });
+});
+
+describe('Layout — navbar como régua', () => {
+  it('a navbar não tem mais o contêiner em pill', () => {
+    render(<MemoryRouter><LanguageProvider><Layout><div /></Layout></LanguageProvider></MemoryRouter>);
+    const nav = document.querySelector('nav');
+    expect(nav).not.toBeNull();
+    // O pill era um contêiner com fundo e raio dentro da nav. A barra nova é
+    // uma régua: fundo e borda pertencem à própria nav, não a um filho.
+    expect(nav?.querySelector('.rounded-2xl')).toBeNull();
+  });
+
+  it('mostra os quatro itens da navegação nova e não mostra Contato', () => {
+    render(<MemoryRouter><LanguageProvider><Layout><div /></Layout></LanguageProvider></MemoryRouter>);
+    for (const item of ['Projetos', 'Produtos', 'Ferramentas', 'Sobre']) {
+      expect(screen.getAllByText(item).length).toBeGreaterThan(0);
+    }
+    // Contato sai da nav; continua alcançável pelo fecho da Home e pelo footer.
+    expect(screen.queryByRole('link', { name: 'Contato' })).toBeNull();
+  });
+
+  it('o toggle de idioma continua presente', () => {
+    render(<MemoryRouter><LanguageProvider><Layout><div /></Layout></LanguageProvider></MemoryRouter>);
+    expect(screen.getByLabelText('Toggle language')).toBeDefined();
   });
 });

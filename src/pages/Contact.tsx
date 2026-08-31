@@ -114,7 +114,7 @@ const Contact = () => {
               rel="noopener noreferrer"
               className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-surface-1 rounded-lg transition-all"
             >
-              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
+              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-accent-bright/20 group-hover:text-accent transition-colors">
                 <Github size={24} />
               </div>
               <span className="font-medium">GitHub</span>
@@ -125,7 +125,7 @@ const Contact = () => {
               rel="noopener noreferrer"
               className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-surface-1 rounded-lg transition-all"
             >
-              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
+              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-accent-bright/20 group-hover:text-accent transition-colors">
                 <Linkedin size={24} />
               </div>
               <span className="font-medium">LinkedIn</span>
@@ -134,7 +134,7 @@ const Contact = () => {
               href="mailto:davi@davimf.dev"
               className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-surface-1 rounded-lg transition-all"
             >
-              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
+              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-accent-bright/20 group-hover:text-accent transition-colors">
                 <Mail size={24} />
               </div>
               <span className="font-medium truncate">davi@davimf.dev</span>
@@ -145,7 +145,7 @@ const Contact = () => {
               rel="noopener noreferrer"
               className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-surface-1 rounded-lg transition-all"
             >
-              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-accent-soft/20 group-hover:text-accent transition-colors">
+              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-accent-bright/20 group-hover:text-accent transition-colors">
                 <MessageCircle size={24} />
               </div>
               <span className="font-medium">Discord</span>

@@ -146,7 +146,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 {discordUser && (
                     <Link
                         to="/dashboard"
-                        className="flex items-center gap-2 pl-3 pr-4 py-2 text-sm font-medium text-accent bg-accent-soft/10 hover:bg-accent-soft/20 border border-accent/20 hover:border-accent/40 rounded-full transition-all duration-300"
+                        className="flex items-center gap-2 pl-3 pr-4 py-2 text-sm font-medium text-accent bg-accent-bright/10 hover:bg-accent-bright/20 border border-accent/20 hover:border-accent/40 rounded-full transition-all duration-300"
                     >
                       <Bot size={18} />
                       Painel do Bot
@@ -186,7 +186,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             Meus Pedidos
                           </Link>
                           {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
-                            <Link to="/fmm-admin" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-accent hover:text-accent hover:bg-accent-soft/10 transition-colors">
+                            <Link to="/fmm-admin" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-accent hover:text-accent hover:bg-accent-bright/10 transition-colors">
                               Admin FMM
                             </Link>
                           )}
@@ -249,7 +249,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                           Meus Pedidos
                         </Link>
                         {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
-                          <Link to="/fmm-admin" className="text-accent hover:bg-accent-soft/10 hover:text-accent block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
+                          <Link to="/fmm-admin" className="text-accent hover:bg-accent-bright/10 hover:text-accent block px-3 py-2 rounded-lg text-base font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>
                             Admin FMM
                           </Link>
                         )}

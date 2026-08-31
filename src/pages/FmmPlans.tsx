@@ -276,7 +276,7 @@ const FmmPlans = () => {
               <button
                 onClick={() => handleBuy('basic')}
                 disabled={catalog.length === 0}
-                className="w-full px-3 py-2.5 rounded-lg text-sm font-semibold text-accent border border-accent/50 hover:bg-accent-soft/10 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2.5 rounded-lg text-sm font-semibold text-accent border border-accent/50 hover:bg-accent-bright/10 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {t.subscribe}
               </button>

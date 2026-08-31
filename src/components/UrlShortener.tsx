@@ -167,7 +167,7 @@ const UrlShortener = () => {
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => copyToClipboard(shortUrl)}
-                  className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-soft text-bg text-sm font-semibold rounded-lg transition-all"
+                  className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-bright text-bg text-sm font-semibold rounded-lg transition-all"
                 >
                   <Copy size={15} />
                   {copied ? 'Copiado!' : 'Copiar'}

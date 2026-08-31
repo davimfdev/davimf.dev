@@ -167,7 +167,7 @@ const TodoList: React.FC = () => {
                 <option value="Medium">Média</option>
                 <option value="High">Alta</option>
               </select>
-              <button type="submit" className="ml-auto bg-accent hover:bg-accent-soft text-bg px-6 py-2 rounded-xl font-bold flex items-center gap-2 transition-all">
+              <button type="submit" className="ml-auto bg-accent hover:bg-accent-bright text-bg px-6 py-2 rounded-xl font-bold flex items-center gap-2 transition-all">
                 <Plus size={20} /> {editingTask ? 'Atualizar' : 'Adicionar'}
               </button>
             </div>

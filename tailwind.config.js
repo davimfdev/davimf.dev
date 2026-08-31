@@ -29,9 +29,6 @@ export default {
         accent: {
           DEFAULT: withAlpha('accent'),
           bright: withAlpha('accent-bright'),
-          // DEPRECATED: aliases mantidos só até a Task 12 migrar os 28 usos.
-          soft: withAlpha('accent-bright'),
-          dim: withAlpha('accent'),
         },
         danger: withAlpha('danger'),
         ok: withAlpha('ok'),

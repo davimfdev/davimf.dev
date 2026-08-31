@@ -406,7 +406,7 @@ const FmmAdmin = () => {
                               <button
                                 onClick={() => doAction('set_duration', k.id, { duration_days: editingDuration.days })}
                                 disabled={busy}
-                                className="p-1 rounded bg-accent hover:bg-accent-soft text-bg text-xs transition-all disabled:opacity-40"
+                                className="p-1 rounded bg-accent hover:bg-accent-bright text-bg text-xs transition-all disabled:opacity-40"
                               >
                                 {busy ? <Loader size={11} className="animate-spin" /> : <Check size={11} />}
                               </button>
@@ -422,7 +422,7 @@ const FmmAdmin = () => {
                               onClick={() => setEditingDuration({ id: k.id, days: k.duration_days })}
                               disabled={busy}
                               title="Alterar duração"
-                              className="p-1.5 rounded-lg bg-accent/10 hover:bg-accent-soft/20 text-accent transition-all disabled:opacity-40"
+                              className="p-1.5 rounded-lg bg-accent/10 hover:bg-accent-bright/20 text-accent transition-all disabled:opacity-40"
                             >
                               <Clock size={13} />
                             </button>

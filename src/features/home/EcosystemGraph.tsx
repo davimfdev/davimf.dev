@@ -32,7 +32,7 @@ export function EcosystemGraph({ compact = false }: { compact?: boolean }) {
       aria-hidden="true"
       focusable="false"
     >
-      <g className="motion-safe:animate-none">
+      <g>
         {edges.map((edge, index) => {
           const from = byId(edge.from);
           const to = byId(edge.to);

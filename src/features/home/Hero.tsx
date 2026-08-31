@@ -7,7 +7,7 @@
  *
  * Nenhuma palavra do H1 é dourada (spec §5.2): destacar uma palavra do título
  * é o gesto de landing page SaaS que o revamp abandona. O dourado da dobra
- * vive no nó central do grafo e no CTA primário.
+ * vive apenas no nó central do grafo.
  */
 
 import { Link } from 'react-router-dom';

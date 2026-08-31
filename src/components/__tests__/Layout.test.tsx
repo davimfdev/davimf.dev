@@ -116,12 +116,18 @@ describe('Layout — navbar como régua', () => {
     expect(screen.getByLabelText('Toggle language')).toBeDefined();
   });
 
-  it('o rótulo acessível do menu mobile vem das traduções, não cravado', async () => {
+  it('o rótulo acessível da conta vem das traduções, não cravado', async () => {
+    const user = userEvent.setup();
     renderLayout('/');
-    // Se algum dia virar literal, este teste continua passando em PT e falha
-    // em EN — que é exatamente o bug que ele existe para pegar.
-    expect(screen.getByLabelText('Menu')).toBeDefined();
+
+    // Em PT o rótulo é "Conta". Se estivesse cravado, continuaria "Conta"
+    // depois de trocar o idioma — e é exatamente isso que este teste pega.
     expect(screen.getByLabelText('Conta')).toBeDefined();
+
+    await user.click(screen.getByLabelText('Toggle language'));
+
+    expect(screen.getByLabelText('Account')).toBeDefined();
+    expect(screen.queryByLabelText('Conta')).toBeNull();
   });
 
   it('o painel mobile se anuncia como diálogo e esconde o conteúdo atrás', async () => {
@@ -133,9 +139,11 @@ describe('Layout — navbar como régua', () => {
     const dialog = screen.getByRole('dialog');
     expect(dialog.getAttribute('aria-modal')).toBe('true');
     expect(document.querySelector('main')?.getAttribute('aria-hidden')).toBe('true');
+    expect(document.querySelector('footer')?.getAttribute('aria-hidden')).toBe('true');
 
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.querySelector('main')?.getAttribute('aria-hidden')).toBeNull();
+    expect(document.querySelector('footer')?.getAttribute('aria-hidden')).toBeNull();
   });
 });

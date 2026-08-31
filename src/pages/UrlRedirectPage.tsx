@@ -49,12 +49,12 @@ const UrlRedirectPage = () => {
   if (error) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center animate-fade-in p-4">
-        <div className="glass-panel p-8 max-w-md w-full text-center border border-red-500/20">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
-            <AlertCircle size={32} className="text-red-400" />
+        <div className="glass-panel p-8 max-w-md w-full text-center border border-danger/20">
+          <div className="w-16 h-16 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-danger/30">
+            <AlertCircle size={32} className="text-danger" />
           </div>
           <h2 className="text-2xl font-bold mb-4 text-fg">Erro de Redirecionamento</h2>
-          <p className="text-red-400 font-medium mb-8 bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+          <p className="text-danger font-medium mb-8 bg-danger/10 p-3 rounded-lg border border-danger/20">
             {error}
           </p>
           <Link to="/" className="btn-secondary w-full text-center">

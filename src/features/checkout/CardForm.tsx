@@ -271,7 +271,7 @@ export function CardForm({ mp, amountCents, recurring, submitting, onSubmit }: P
       )}
 
       {error && (
-        <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+        <p className="text-sm text-danger bg-danger/10 border border-danger/20 rounded-lg px-3 py-2">
           {error}
         </p>
       )}

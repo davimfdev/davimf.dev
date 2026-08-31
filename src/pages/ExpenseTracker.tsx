@@ -205,7 +205,7 @@ const ExpenseTracker: React.FC = () => {
     );
   }
 
-  if (error) return <div className="text-center p-6 bg-red-500/10 text-red-400 rounded-xl mt-8">Erro: {error}</div>;
+  if (error) return <div className="text-center p-6 bg-danger/10 text-danger rounded-xl mt-8">Erro: {error}</div>;
 
   return (
     <div className="max-w-6xl mx-auto animate-fade-in relative z-10 p-4">
@@ -222,7 +222,7 @@ const ExpenseTracker: React.FC = () => {
         </div>
         <div className="text-center mb-8 bg-surface-1/40 p-6 rounded-2xl shadow-inner border border-line">
             <p className="text-fg-muted uppercase tracking-wider text-sm font-semibold mb-2">Saldo Total Consolidado</p>
-            <p className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">
+            <p className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-ok to-ok">
               {totalBalanceBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </p>
         </div>
@@ -243,9 +243,9 @@ const ExpenseTracker: React.FC = () => {
           
           <div className="grid grid-cols-2 gap-4">
             <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={translations.amount} step="0.01" className="w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 focus:ring-accent outline-none text-fg transition-all font-mono" required />
-            <select value={transactionType} onChange={e => setTransactionType(e.target.value)} className={`w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 outline-none font-medium transition-all ${transactionType === 'income' ? 'focus:ring-green-500 text-green-400' : 'focus:ring-red-500 text-red-400'}`}>
-                <option value="income" className="text-green-400">{translations.income} (+)</option>
-                <option value="expense" className="text-red-400">{translations.expense} (-)</option>
+            <select value={transactionType} onChange={e => setTransactionType(e.target.value)} className={`w-full p-3 bg-surface-1/50 rounded-lg border border-line focus:ring-2 outline-none font-medium transition-all ${transactionType === 'income' ? 'focus:ring-ok text-ok' : 'focus:ring-danger text-danger'}`}>
+                <option value="income" className="text-ok">{translations.income} (+)</option>
+                <option value="expense" className="text-danger">{translations.expense} (-)</option>
             </select>
           </div>
           
@@ -300,7 +300,7 @@ const ExpenseTracker: React.FC = () => {
                           </span>
                         </td>
                         <td className="p-4 text-right">
-                          <p className={`font-mono font-bold text-lg ${isExpense ? 'text-red-400' : 'text-green-400'}`}>
+                          <p className={`font-mono font-bold text-lg ${isExpense ? 'text-danger' : 'text-ok'}`}>
                             {isExpense ? '' : '+'}{parseFloat(expense.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                           </p>
                           <p className="text-xs text-fg-muted mt-1 flex justify-end items-center gap-1">
@@ -308,7 +308,7 @@ const ExpenseTracker: React.FC = () => {
                           </p>
                         </td>
                         <td className="p-4 text-right">
-                          <button onClick={() => handleDeleteExpense(expense.id)} className="text-fg-muted hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100">
+                          <button onClick={() => handleDeleteExpense(expense.id)} className="text-fg-muted hover:text-danger p-2 rounded-lg hover:bg-danger/10 transition-colors opacity-0 group-hover:opacity-100">
                             <Trash2 size={18} />
                           </button>
                         </td>

@@ -132,7 +132,7 @@ const FmmPlans = () => {
       </div>
 
       {error && (
-        <p className="text-center text-red-400 mb-6 bg-red-500/10 border border-red-500/20 rounded-lg py-2 px-4 max-w-md mx-auto">
+        <p className="text-center text-danger mb-6 bg-danger/10 border border-danger/20 rounded-lg py-2 px-4 max-w-md mx-auto">
           {error}
         </p>
       )}

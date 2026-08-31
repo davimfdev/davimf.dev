@@ -69,9 +69,9 @@ const ResetPasswordPage: React.FC = () => {
       </div>
       <h1 className="text-4xl font-extrabold mb-8 text-center text-gradient">Redefinir Senha</h1>
       
-      {message && <div className="bg-green-500/20 border border-green-500/30 text-green-300 px-4 py-3 rounded-lg mb-6 text-sm">{message}</div>}
+      {message && <div className="bg-ok/20 border border-ok/30 text-ok px-4 py-3 rounded-lg mb-6 text-sm">{message}</div>}
       {error && (
-        <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-6 text-sm">
+        <div className="bg-danger/20 border border-danger/30 text-danger px-4 py-3 rounded-lg mb-6 text-sm">
             <p>{error}</p>
             {error.includes('token') && (
                 <p className="mt-3">
@@ -110,7 +110,7 @@ const ResetPasswordPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary py-3 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed mt-4 bg-gradient-to-r from-accent to-pink-600 hover:from-accent hover:to-pink-500 shadow-accent/30 hover:shadow-accent/50 group"
+            className="w-full btn-primary py-3 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed mt-4 bg-gradient-to-r from-accent to-accent hover:from-accent hover:to-accent shadow-accent/30 hover:shadow-accent/50 group"
           >
             {loading ? 'Redefinindo...' : (
               <span className="flex items-center justify-center">

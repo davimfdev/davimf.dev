@@ -62,7 +62,7 @@ export const NoteToolbar: React.FC<NoteToolbarProps> = ({
       <button
         onClick={onDeleteRequest}
         title="Deletar"
-        className="p-1 rounded hover:bg-red-500/20 transition-colors text-fg-muted hover:text-red-400"
+        className="p-1 rounded hover:bg-danger/20 transition-colors text-fg-muted hover:text-danger"
       >
         <Trash2 size={13} />
       </button>

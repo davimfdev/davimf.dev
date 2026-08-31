@@ -290,12 +290,12 @@ export function PayerProfileForm({
             <button
               type="button"
               onClick={() => setConfirmingDelete(true)}
-              className="inline-flex items-center gap-1.5 text-fg-muted hover:text-red-400 transition-colors"
+              className="inline-flex items-center gap-1.5 text-fg-muted hover:text-danger transition-colors"
             >
               <Trash2 size={13} /> Apagar dados salvos
             </button>
           ) : (
-            <div className="flex flex-col gap-2 rounded-lg border border-red-500/20 bg-red-500/[0.06] px-3 py-2.5">
+            <div className="flex flex-col gap-2 rounded-lg border border-danger/20 bg-danger/[0.06] px-3 py-2.5">
               <p className="text-fg">
                 Apagar os dados salvos? Seus pedidos, pagamentos e licenças não são afetados.
               </p>
@@ -304,7 +304,7 @@ export function PayerProfileForm({
                   type="button"
                   onClick={handleDelete}
                   disabled={deleting}
-                  className="inline-flex items-center gap-1.5 font-medium text-red-400 hover:text-red-300 disabled:opacity-60"
+                  className="inline-flex items-center gap-1.5 font-medium text-danger hover:text-danger disabled:opacity-60"
                 >
                   {deleting && <Loader2 size={12} className="animate-spin" />} Confirmar exclusão
                 </button>

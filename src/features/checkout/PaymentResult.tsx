@@ -44,7 +44,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
       }}
       className="btn-secondary w-full text-sm py-2.5"
     >
-      {copied ? <><Check size={15} className="mr-2 text-green-400" /> Copiado</> : <><Copy size={15} className="mr-2" /> {label}</>}
+      {copied ? <><Check size={15} className="mr-2 text-ok" /> Copiado</> : <><Copy size={15} className="mr-2" /> {label}</>}
     </button>
   );
 }
@@ -78,7 +78,7 @@ export function PaymentResult({ payment }: { payment: PaymentView }) {
     return (
       <div>
         <div className="text-center">
-          <CheckCircle2 size={44} className="text-green-400 mx-auto mb-3" />
+          <CheckCircle2 size={44} className="text-ok mx-auto mb-3" />
           <h3 className="text-2xl font-display font-bold text-fg">Pagamento aprovado</h3>
           <p className="text-fg-soft mt-1">{payment.productName}</p>
         </div>
@@ -214,7 +214,7 @@ export function PaymentResult({ payment }: { payment: PaymentView }) {
     return (
       <div>
         <div className="text-center">
-          <XCircle size={40} className="text-red-400 mx-auto mb-3" />
+          <XCircle size={40} className="text-danger mx-auto mb-3" />
           <h3 className="text-xl font-display font-bold text-fg">Pagamento não aprovado</h3>
           <p className="text-sm text-fg-soft mt-2 max-w-sm mx-auto">
             O banco emissor não autorizou a cobrança e nenhum valor foi debitado.

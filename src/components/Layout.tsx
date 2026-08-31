@@ -190,7 +190,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                               Admin FMM
                             </Link>
                           )}
-                          <button onClick={handleLogout} className="flex items-center w-full text-left px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors">
+                          <button onClick={handleLogout} className="flex items-center w-full text-left px-4 py-2 text-sm text-danger hover:text-danger hover:bg-danger/10 transition-colors">
                             <LogOut size={14} className="mr-2" />
                             Sair (Logoff)
                           </button>
@@ -253,7 +253,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             Admin FMM
                           </Link>
                         )}
-                        <button onClick={handleLogout} className="w-full text-left text-red-400 hover:bg-red-500/10 block px-3 py-2 rounded-lg text-base font-medium transition-colors">
+                        <button onClick={handleLogout} className="w-full text-left text-danger hover:bg-danger/10 block px-3 py-2 rounded-lg text-base font-medium transition-colors">
                           Sair (Logoff)
                         </button>
                       </>

@@ -34,10 +34,10 @@ interface SubscriptionRow {
 }
 
 const STATUS_STYLE: Record<string, { label: string; className: string }> = {
-  ACTIVE: { label: 'Ativa', className: 'text-green-400 bg-green-500/10' },
+  ACTIVE: { label: 'Ativa', className: 'text-ok bg-ok/10' },
   EXPIRED: { label: 'Expirada', className: 'text-fg-muted bg-surface-3' },
-  SUSPENDED: { label: 'Suspensa', className: 'text-amber-400 bg-amber-500/10' },
-  REVOKED: { label: 'Revogada', className: 'text-red-400 bg-red-500/10' },
+  SUSPENDED: { label: 'Suspensa', className: 'text-warn bg-warn/10' },
+  REVOKED: { label: 'Revogada', className: 'text-danger bg-danger/10' },
 };
 
 const isLifetime = (days: number) => days >= 36500;
@@ -114,7 +114,7 @@ const MyKeys = () => {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-20 text-center animate-fade-in relative z-10">
-        <p className="text-red-400 mb-4">{error}</p>
+        <p className="text-danger mb-4">{error}</p>
         <Link to="/" className="text-accent hover:underline">Voltar ao início</Link>
       </div>
     );
@@ -166,7 +166,7 @@ const MyKeys = () => {
                       aria-label="Copiar chave"
                     >
                       {copied === license.id
-                        ? <Check size={16} className="text-green-400" />
+                        ? <Check size={16} className="text-ok" />
                         : <Copy size={16} />}
                     </button>
                   )}

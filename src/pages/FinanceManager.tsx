@@ -203,7 +203,7 @@ const FinanceManager: React.FC = () => {
 
         <div className="mb-10 p-8 glass-panel border border-line shadow-xl animate-slide-up">
           <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <h2 className="text-2xl font-bold text-fg flex items-center"><DollarSign className="text-green-400 mr-2" /> Saldo Consolidado</h2>
+            <h2 className="text-2xl font-bold text-fg flex items-center"><DollarSign className="text-ok mr-2" /> Saldo Consolidado</h2>
             <div className="flex gap-3">
               <button onClick={() => setIsTransferModalOpen(true)} className="btn-secondary px-4 py-2 text-xs flex items-center gap-2 border border-line rounded-lg hover:bg-surface-2 transition-all"><ArrowRightLeft size={14}/> Transferir</button>
               <button onClick={() => setIsAccountModalOpen(true)} className="btn-primary px-4 py-2 text-xs flex items-center gap-2 rounded-lg font-bold"><PlusCircle size={14}/> Novo Banco</button>
@@ -224,7 +224,7 @@ const FinanceManager: React.FC = () => {
                       <p className="text-xl font-mono text-fg">{individualBalance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => triggerDeleteAccount(acc.id, acc.name)} className="p-2 text-fg-muted hover:text-red-400 transition-all opacity-0 group-hover:opacity-100"><Trash2 size={16}/></button>
+                      <button onClick={() => triggerDeleteAccount(acc.id, acc.name)} className="p-2 text-fg-muted hover:text-danger transition-all opacity-0 group-hover:opacity-100"><Trash2 size={16}/></button>
                       <Wallet size={18} className="text-accent/30" />
                     </div>
                   </div>
@@ -259,7 +259,7 @@ const FinanceManager: React.FC = () => {
           </div>
 
           <div className="lg:col-span-2 glass-panel p-6 border border-line flex flex-col min-h-[450px] animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <h3 className="text-xl font-bold mb-6 text-fg flex items-center border-b border-line pb-4"><Tag className="mr-3 text-emerald-400" /> Distribuição de Gastos</h3>
+            <h3 className="text-xl font-bold mb-6 text-fg flex items-center border-b border-line pb-4"><Tag className="mr-3 text-ok" /> Distribuição de Gastos</h3>
             <div className="relative flex-1 w-full min-h-0">
               {transactions.length > 0 ? (
                   <CategoryChart transactions={transactions.filter(t => parseFloat(t.amount) < 0 && t.category !== 'Transferência')} />
@@ -284,9 +284,9 @@ const FinanceManager: React.FC = () => {
                       <p className="text-[10px] text-fg-muted flex items-center gap-1 mt-1 font-mono"><CalendarIcon size={10}/> {new Date(t.date).toLocaleDateString('pt-BR')}</p>
                     </td>
                     <td className="p-5"><span className="px-3 py-1 bg-surface-1 rounded-full text-[10px] text-fg-muted border border-line font-medium">{t.category}</span></td>
-                    <td className={`p-5 text-right font-mono font-bold text-lg ${parseFloat(t.amount) < 0 ? 'text-red-400' : 'text-green-400'}`}>{parseFloat(t.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td className={`p-5 text-right font-mono font-bold text-lg ${parseFloat(t.amount) < 0 ? 'text-danger' : 'text-ok'}`}>{parseFloat(t.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                     <td className="p-5 text-right">
-                      <button onClick={() => triggerDeleteTransaction(t.id)} className="p-2 text-fg-muted hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"><Trash2 size={18}/></button>
+                      <button onClick={() => triggerDeleteTransaction(t.id)} className="p-2 text-fg-muted hover:text-danger hover:bg-danger/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"><Trash2 size={18}/></button>
                     </td>
                   </tr>
               ))}
@@ -304,13 +304,13 @@ const ConfirmModal: React.FC<{ isOpen: boolean; title: string; message: string; 
   return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
         <div className="glass-panel p-8 w-full max-w-sm border border-line-strong shadow-2xl animate-slide-up text-center">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
-            <AlertCircle size={32} className="text-red-400" />
+          <div className="w-16 h-16 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-danger/30">
+            <AlertCircle size={32} className="text-danger" />
           </div>
           <h3 className="text-2xl font-bold text-fg mb-2">{title}</h3>
           <p className="text-fg-muted mb-8 leading-relaxed">{message}</p>
           <div className="flex flex-col gap-3">
-            <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-fg font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">Confirmar Exclusão</button>
+            <button onClick={onConfirm} className="w-full py-3 bg-danger hover:bg-danger text-fg font-bold rounded-xl transition-all shadow-lg shadow-danger/20">Confirmar Exclusão</button>
             <button onClick={onCancel} className="w-full py-3 bg-surface-1 hover:bg-surface-2 text-fg-muted font-medium rounded-xl transition-all">Cancelar</button>
           </div>
         </div>

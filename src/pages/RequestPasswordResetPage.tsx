@@ -52,15 +52,15 @@ const RequestPasswordResetPage: React.FC = () => {
       
       {message && !resetLink && <div className="bg-accent/20 border border-accent/30 text-accent px-4 py-3 rounded-lg mb-6 text-sm">{message}</div>}
       {resetLink && (
-        <div className="bg-green-500/20 border border-green-500/30 text-green-300 px-5 py-4 rounded-lg mb-6 break-words animate-slide-up shadow-inner">
+        <div className="bg-ok/20 border border-ok/30 text-ok px-5 py-4 rounded-lg mb-6 break-words animate-slide-up shadow-inner">
           <p className="font-medium mb-3">{message}</p>
-          <p className="text-sm text-green-400/80 mb-2">Para redefinir sua senha no ambiente de desenvolvimento, clique no link abaixo:</p>
-          <Link to={resetLink} className="inline-block bg-green-500/30 hover:bg-green-500/50 text-green-200 px-4 py-2 rounded-lg font-bold transition-colors break-all border border-green-500/40">
+          <p className="text-sm text-ok/80 mb-2">Para redefinir sua senha no ambiente de desenvolvimento, clique no link abaixo:</p>
+          <Link to={resetLink} className="inline-block bg-ok/30 hover:bg-ok/50 text-ok px-4 py-2 rounded-lg font-bold transition-colors break-all border border-ok/40">
             {resetLink}
           </Link>
         </div>
       )}
-      {error && <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-6 text-sm">{error}</div>}
+      {error && <div className="bg-danger/20 border border-danger/30 text-danger px-4 py-3 rounded-lg mb-6 text-sm">{error}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>

@@ -199,8 +199,8 @@ export const NoteCard: React.FC<NoteCardProps> = ({
         )}
 
         {showDeleteConfirm && (
-          <div className="p-3 border-t border-line bg-red-500/10 flex items-center justify-between gap-2">
-            <span className="text-xs text-red-300">Tem certeza?</span>
+          <div className="p-3 border-t border-line bg-danger/10 flex items-center justify-between gap-2">
+            <span className="text-xs text-danger">Tem certeza?</span>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
@@ -210,7 +210,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
               </button>
               <button
                 onClick={handleDelete}
-                className="text-xs px-2 py-1 rounded bg-red-500/30 hover:bg-red-500/50 text-red-200 transition-colors"
+                className="text-xs px-2 py-1 rounded bg-danger/30 hover:bg-danger/50 text-danger transition-colors"
               >
                 Deletar
               </button>

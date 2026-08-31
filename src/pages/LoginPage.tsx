@@ -51,7 +51,7 @@ const LoginPage: React.FC = () => {
         </div>
       </div>
       <h1 className="text-4xl font-extrabold mb-8 text-center text-gradient">Login</h1>
-      {error && <p className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-6 text-sm">{error}</p>}
+      {error && <p className="bg-danger/20 border border-danger/30 text-danger px-4 py-3 rounded-lg mb-6 text-sm">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-fg-muted mb-2 font-medium" htmlFor="email">Email</label>

@@ -438,7 +438,7 @@ export function CheckoutModal({ product, onClose }: Props) {
             </label>
 
             {error && (
-              <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>
+              <p className="text-sm text-danger bg-danger/10 border border-danger/20 rounded-lg px-3 py-2">{error}</p>
             )}
 
             <button type="submit" disabled={submitting || !acceptedLegal} className="btn-primary w-full disabled:opacity-60">
@@ -505,12 +505,12 @@ export function CheckoutModal({ product, onClose }: Props) {
                   </div>
                 )}
                 {!sdkLoading && !publicKey && (
-                  <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                  <p className="text-sm text-danger bg-danger/10 border border-danger/20 rounded-lg px-3 py-2">
                     Pagamento com cartão indisponível no momento. Use Pix ou boleto.
                   </p>
                 )}
                 {!sdkLoading && sdkError && (
-                  <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{sdkError}</p>
+                  <p className="text-sm text-danger bg-danger/10 border border-danger/20 rounded-lg px-3 py-2">{sdkError}</p>
                 )}
                 {mp && (
                   <CardForm
@@ -525,7 +525,7 @@ export function CheckoutModal({ product, onClose }: Props) {
             )}
 
             {error && (
-              <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 mt-4">{error}</p>
+              <p className="text-sm text-danger bg-danger/10 border border-danger/20 rounded-lg px-3 py-2 mt-4">{error}</p>
             )}
           </div>
         )}

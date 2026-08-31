@@ -18,7 +18,7 @@ function ColoredValue({ value }: { value: string }) {
       {value.split('').map((ch, i) => {
         let cls = 'text-fg';
         if (/[0-9]/.test(ch)) cls = 'text-accent';
-        else if (/[^a-zA-Z0-9]/.test(ch)) cls = 'text-red-400';
+        else if (/[^a-zA-Z0-9]/.test(ch)) cls = 'text-danger';
         return (
           <span key={i} className={cls}>
             {ch}
@@ -146,11 +146,11 @@ const PasswordGenerator = () => {
               <RefreshCw size={18} className="text-fg" />
             </button>
             <button onClick={() => copy(value)} title={t.pwgenCopy} className="p-2 hover:bg-surface-3 rounded-lg">
-              {copied ? <Check size={18} className="text-green-400" /> : <Copy size={18} className="text-fg" />}
+              {copied ? <Check size={18} className="text-ok" /> : <Copy size={18} className="text-fg" />}
             </button>
           </div>
         </div>
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p className="text-danger text-sm">{error}</p>}
 
         {/* Options */}
         <div className={`${card} space-y-4`}>
@@ -335,7 +335,7 @@ const PasswordGenerator = () => {
             {history.length > 0 && (
               <button
                 onClick={clearHistory}
-                className="flex items-center gap-1 text-sm text-red-400 hover:text-red-300"
+                className="flex items-center gap-1 text-sm text-danger hover:text-danger"
               >
                 <Trash2 size={16} /> {t.pwgenClearHistory}
               </button>

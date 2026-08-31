@@ -12,13 +12,13 @@ const ConfirmModal: React.FC<{
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
       <div className="glass-panel p-8 w-full max-w-sm border border-line-strong shadow-2xl animate-slide-up text-center">
-        <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
-          <AlertCircle size={32} className="text-red-400" />
+        <div className="w-16 h-16 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-danger/30">
+          <AlertCircle size={32} className="text-danger" />
         </div>
         <h3 className="text-2xl font-bold text-fg mb-2">{title}</h3>
         <p className="text-fg-muted mb-8 leading-relaxed">{message}</p>
         <div className="flex flex-col gap-3">
-          <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-fg font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">
+          <button onClick={onConfirm} className="w-full py-3 bg-danger hover:bg-danger text-fg font-bold rounded-xl transition-all shadow-lg shadow-danger/20">
             Confirmar
           </button>
           <button onClick={onCancel} className="w-full py-3 bg-surface-1 hover:bg-surface-2 text-fg-muted font-medium rounded-xl transition-all">
@@ -178,8 +178,8 @@ const FmmAdmin = () => {
   if (authError) return (
     <div className="flex items-center justify-center min-h-[60vh]">
       <div className="glass-panel p-10 text-center max-w-sm">
-        <ShieldCheck size={48} className="text-red-400 mx-auto mb-4" />
-        <p className="text-red-400 font-semibold">{authError}</p>
+        <ShieldCheck size={48} className="text-danger mx-auto mb-4" />
+        <p className="text-danger font-semibold">{authError}</p>
       </div>
     </div>
   );
@@ -234,7 +234,7 @@ const FmmAdmin = () => {
             placeholder="Dias personalizados" />
         </div>
 
-        {genError && <p className="text-red-400 text-sm mb-4 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{genError}</p>}
+        {genError && <p className="text-danger text-sm mb-4 bg-danger/10 border border-danger/20 rounded-lg px-3 py-2">{genError}</p>}
 
         <button onClick={handleGenerate} disabled={generating}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-fg transition-all disabled:opacity-60"
@@ -254,7 +254,7 @@ const FmmAdmin = () => {
               <div key={k.key} className="flex items-center gap-3 bg-black/30 border border-line rounded-xl px-4 py-3">
                 <code className="font-mono text-accent text-sm tracking-widest flex-grow select-all">{k.key}</code>
                 <button onClick={() => copyKey(i)} className="text-fg-muted hover:text-fg transition-colors flex-shrink-0">
-                  {k.copied ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
+                  {k.copied ? <Check size={16} className="text-ok" /> : <Copy size={16} />}
                 </button>
               </div>
             ))}
@@ -286,7 +286,7 @@ const FmmAdmin = () => {
           </div>
         </div>
 
-        {keysError && <p className="text-red-400 text-sm mb-4 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{keysError}</p>}
+        {keysError && <p className="text-danger text-sm mb-4 bg-danger/10 border border-danger/20 rounded-lg px-3 py-2">{keysError}</p>}
 
         {keysLoading && !dbKeys.length ? (
           <div className="text-center py-10"><Loader size={24} className="text-accent animate-spin mx-auto" /></div>
@@ -329,16 +329,16 @@ const FmmAdmin = () => {
                       {/* Status */}
                       <td className="py-3 pr-4">
                         {!k.is_active
-                          ? <span className="text-xs text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">Revogada</span>
+                          ? <span className="text-xs text-danger bg-danger/10 px-2 py-0.5 rounded-full">Revogada</span>
                           : expired
-                            ? <span className="text-xs text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full">Expirada</span>
-                            : <span className="text-xs text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">Ativa</span>}
+                            ? <span className="text-xs text-warn bg-warn/10 px-2 py-0.5 rounded-full">Expirada</span>
+                            : <span className="text-xs text-ok bg-ok/10 px-2 py-0.5 rounded-full">Ativa</span>}
                       </td>
 
                       {/* Claimed */}
                       <td className="py-3 pr-4">
                         {k.is_claimed
-                          ? <span className="text-xs text-yellow-400 bg-yellow-500/10 px-2 py-0.5 rounded-full">Vinculada</span>
+                          ? <span className="text-xs text-warn bg-warn/10 px-2 py-0.5 rounded-full">Vinculada</span>
                           : <span className="text-xs text-fg-muted">Livre</span>}
                       </td>
 
@@ -361,7 +361,7 @@ const FmmAdmin = () => {
                               onClick={() => doAction('unclaim', k.id)}
                               disabled={busy}
                               title="Desvincular hardware"
-                              className="p-1.5 rounded-lg bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 transition-all disabled:opacity-40"
+                              className="p-1.5 rounded-lg bg-warn/10 hover:bg-warn/20 text-warn transition-all disabled:opacity-40"
                             >
                               {busy ? <Loader size={13} className="animate-spin" /> : <Unlink size={13} />}
                             </button>
@@ -378,7 +378,7 @@ const FmmAdmin = () => {
                               })}
                               disabled={busy}
                               title="Revogar"
-                              className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all disabled:opacity-40"
+                              className="p-1.5 rounded-lg bg-danger/10 hover:bg-danger/20 text-danger transition-all disabled:opacity-40"
                             >
                               {busy ? <Loader size={13} className="animate-spin" /> : <Trash2 size={13} />}
                             </button>
@@ -387,7 +387,7 @@ const FmmAdmin = () => {
                               onClick={() => doAction('reactivate', k.id)}
                               disabled={busy}
                               title="Reativar"
-                              className="p-1.5 rounded-lg bg-green-500/10 hover:bg-green-500/20 text-green-400 transition-all disabled:opacity-40"
+                              className="p-1.5 rounded-lg bg-ok/10 hover:bg-ok/20 text-ok transition-all disabled:opacity-40"
                             >
                               {busy ? <Loader size={13} className="animate-spin" /> : <RotateCcw size={13} />}
                             </button>

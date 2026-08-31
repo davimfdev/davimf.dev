@@ -84,9 +84,9 @@ export default function TicketView() {
   if (loadErr)
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center p-4">
-        <div className="glass-panel p-8 max-w-md w-full text-center border border-red-500/20">
-          <AlertCircle size={32} className="text-red-400 mx-auto mb-4" />
-          <p className="text-red-400">{loadErr}</p>
+        <div className="glass-panel p-8 max-w-md w-full text-center border border-danger/20">
+          <AlertCircle size={32} className="text-danger mx-auto mb-4" />
+          <p className="text-danger">{loadErr}</p>
         </div>
       </div>
     );
@@ -107,7 +107,7 @@ export default function TicketView() {
             placeholder="Senha do transcript"
             className="w-full bg-black/30 border border-line rounded-lg px-4 py-3 mb-3 outline-none focus:border-accent"
           />
-          {unlockErr && <p className="text-red-400 text-sm mb-3">{unlockErr}</p>}
+          {unlockErr && <p className="text-danger text-sm mb-3">{unlockErr}</p>}
           <button onClick={unlock} disabled={busy} className="btn-primary w-full">
             {busy ? 'Verificando...' : 'Desbloquear'}
           </button>

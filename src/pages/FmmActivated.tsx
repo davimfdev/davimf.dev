@@ -93,7 +93,7 @@ const FmmActivated = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in relative z-10 px-4">
         <div className="glass-panel p-10 max-w-md w-full text-center">
-          <AlertCircle className="text-red-400 mx-auto mb-4" size={44} />
+          <AlertCircle className="text-danger mx-auto mb-4" size={44} />
           <h2 className="text-2xl font-display font-bold text-fg mb-3">Não foi possível abrir o pedido</h2>
           <p className="text-fg-soft mb-6">{error}</p>
           <div className="flex gap-3 justify-center">

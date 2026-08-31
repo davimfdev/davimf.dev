@@ -68,12 +68,12 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="max-w-md mx-auto mt-20 p-8 glass-panel animate-fade-in relative z-10 border border-line shadow-2xl">
       <div className="flex justify-center mb-6">
-        <div className="p-4 bg-green-500/20 rounded-full border border-green-500/30">
-          <UserPlus size={32} className="text-green-400" />
+        <div className="p-4 bg-ok/20 rounded-full border border-ok/30">
+          <UserPlus size={32} className="text-ok" />
         </div>
       </div>
       <h1 className="text-4xl font-extrabold mb-8 text-center text-gradient">Registrar</h1>
-      {error && <p className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-6 text-sm">{error}</p>}
+      {error && <p className="bg-danger/20 border border-danger/30 text-danger px-4 py-3 rounded-lg mb-6 text-sm">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-fg-muted mb-2 font-medium" htmlFor="email">
@@ -122,7 +122,7 @@ const RegisterPage: React.FC = () => {
         </div>
         <button
           type="submit"
-          className="w-full btn-primary py-3 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed group mt-4 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-500 hover:to-teal-500 shadow-green-500/30 hover:shadow-green-500/50"
+          className="w-full btn-primary py-3 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed group mt-4 bg-gradient-to-r from-ok to-ok hover:from-ok hover:to-ok shadow-ok/30 hover:shadow-ok/50"
           disabled={loading}
         >
           {loading ? 'Registrando...' : (

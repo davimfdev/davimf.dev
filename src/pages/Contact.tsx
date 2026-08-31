@@ -156,7 +156,7 @@ const Contact = () => {
                 rel="noopener noreferrer"
                 className="flex items-center text-fg-muted hover:text-fg group p-3 hover:bg-surface-1 rounded-lg transition-all"
             >
-              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-green-500/20 group-hover:text-green-400 transition-colors">
+              <div className="p-2 bg-surface-1 rounded-lg mr-4 group-hover:bg-ok/20 group-hover:text-ok transition-colors">
                 <Phone size={24} />
               </div>
               <span className="font-medium">WhatsApp</span>

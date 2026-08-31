@@ -30,13 +30,13 @@ const ConfirmModal: React.FC<{
   return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
         <div className="glass-panel p-8 w-full max-w-sm border border-line-strong shadow-2xl animate-slide-up text-center">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
-            <AlertCircle size={32} className="text-red-400" />
+          <div className="w-16 h-16 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-danger/30">
+            <AlertCircle size={32} className="text-danger" />
           </div>
           <h3 className="text-2xl font-bold text-fg mb-2">{title}</h3>
           <p className="text-fg-muted mb-8 leading-relaxed">{message}</p>
           <div className="flex flex-col gap-3">
-            <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-fg font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">
+            <button onClick={onConfirm} className="w-full py-3 bg-danger hover:bg-danger text-fg font-bold rounded-xl transition-all shadow-lg shadow-danger/20">
               Confirmar Exclusão
             </button>
             <button onClick={onCancel} className="w-full py-3 bg-surface-1 hover:bg-surface-2 text-fg-muted font-medium rounded-xl transition-all">
@@ -176,15 +176,15 @@ const TodoList: React.FC = () => {
 
         <div className="space-y-4">
           {tasks.map(task => (
-              <div key={task.id} className={`glass-panel p-4 flex items-center gap-4 group border-l-4 ${task.priority === 'High' ? 'border-red-500' : task.priority === 'Medium' ? 'border-yellow-500' : 'border-accent'} ${task.completed ? 'opacity-50' : ''}`}>
-                <div onClick={() => toggleTaskCompletion(task)} className={`w-6 h-6 rounded-full border-2 cursor-pointer flex items-center justify-center ${task.completed ? 'bg-green-500 border-green-500' : 'border-line-strong'}`}>
+              <div key={task.id} className={`glass-panel p-4 flex items-center gap-4 group border-l-4 ${task.priority === 'High' ? 'border-danger' : task.priority === 'Medium' ? 'border-warn' : 'border-accent'} ${task.completed ? 'opacity-50' : ''}`}>
+                <div onClick={() => toggleTaskCompletion(task)} className={`w-6 h-6 rounded-full border-2 cursor-pointer flex items-center justify-center ${task.completed ? 'bg-ok border-ok' : 'border-line-strong'}`}>
                   {task.completed && <Check size={16} className="text-fg" />}
                 </div>
                 <span className={`flex-grow text-fg ${task.completed ? 'line-through text-fg-muted' : ''}`}>{task.text}</span>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
                   <button onClick={() => { setEditingTask(task); setNewTaskText(task.text); setDueDate(task.due_date || ''); }} className="p-2 text-fg-muted hover:text-accent"><Edit size={18} /></button>
                   {/* CHAMA O MODAL CUSTOMIZADO AQUI */}
-                  <button onClick={() => triggerDeleteTask(task.id)} className="p-2 text-fg-muted hover:text-red-400"><Trash2 size={18} /></button>
+                  <button onClick={() => triggerDeleteTask(task.id)} className="p-2 text-fg-muted hover:text-danger"><Trash2 size={18} /></button>
                 </div>
               </div>
           ))}

@@ -166,7 +166,7 @@ const MyOrders = () => {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-20 text-center animate-fade-in relative z-10">
-        <p className="text-red-400 mb-4">{error}</p>
+        <p className="text-danger mb-4">{error}</p>
         <Link to="/" className="text-accent hover:underline">Voltar ao início</Link>
       </div>
     );
@@ -271,14 +271,14 @@ const MyOrders = () => {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
         >
           <div className="glass-panel max-w-md w-full p-6">
-            <div className="flex items-center gap-2 mb-3 text-amber-400">
+            <div className="flex items-center gap-2 mb-3 text-warn">
               <AlertTriangle size={20} />
               <h2 className="font-display font-bold text-lg text-fg">Solicitar reembolso</h2>
             </div>
             <p className="text-sm text-fg-soft mb-5">
               Confirmar reembolso? Sua licença será revogada e deixará de funcionar.
             </p>
-            {dialogError && <p className="text-sm text-red-400 mb-4">{dialogError}</p>}
+            {dialogError && <p className="text-sm text-danger mb-4">{dialogError}</p>}
             <div className="flex justify-end gap-3">
               <button onClick={closeDialog} disabled={submitting} className="btn-secondary text-sm py-2 px-4 disabled:opacity-60">
                 Cancelar
@@ -310,7 +310,7 @@ const MyOrders = () => {
               placeholder="Descreva o problema…"
               className="w-full bg-black/30 border border-line rounded-lg px-3 py-2 text-sm text-fg mb-2"
             />
-            {dialogError && <p className="text-sm text-red-400 mb-2">{dialogError}</p>}
+            {dialogError && <p className="text-sm text-danger mb-2">{dialogError}</p>}
             <div className="flex justify-end gap-3 mt-3">
               <button onClick={closeDialog} disabled={submitting} className="btn-secondary text-sm py-2 px-4 disabled:opacity-60">
                 Cancelar

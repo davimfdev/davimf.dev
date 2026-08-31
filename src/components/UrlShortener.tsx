@@ -20,13 +20,13 @@ const ConfirmModal: React.FC<{ isOpen: boolean; title: string; message: string; 
   return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[100] p-4 animate-fade-in">
         <div className="glass-panel p-8 w-full max-w-sm border border-line-strong shadow-2xl animate-slide-up text-center">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/30">
-            <AlertCircle size={32} className="text-red-400" />
+          <div className="w-16 h-16 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-danger/30">
+            <AlertCircle size={32} className="text-danger" />
           </div>
           <h3 className="text-2xl font-bold text-fg mb-2">{title}</h3>
           <p className="text-fg-muted mb-8 leading-relaxed">{message}</p>
           <div className="flex flex-col gap-3">
-            <button onClick={onConfirm} className="w-full py-3 bg-red-600 hover:bg-red-500 text-fg font-bold rounded-xl transition-all shadow-lg shadow-red-600/20">Confirmar Exclusão</button>
+            <button onClick={onConfirm} className="w-full py-3 bg-danger hover:bg-danger text-fg font-bold rounded-xl transition-all shadow-lg shadow-danger/20">Confirmar Exclusão</button>
             <button onClick={onCancel} className="w-full py-3 bg-surface-1 hover:bg-surface-2 text-fg-muted font-medium rounded-xl transition-all">Cancelar</button>
           </div>
         </div>
@@ -156,7 +156,7 @@ const UrlShortener = () => {
             </button>
           </form>
 
-          {error && <div className="mt-4 text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">{error}</div>}
+          {error && <div className="mt-4 text-danger text-sm bg-danger/10 p-3 rounded-lg border border-danger/20">{error}</div>}
 
           {shortUrl && (
             <div className="mt-4 p-4 bg-accent/10 border border-accent/30 rounded-xl flex items-center justify-between gap-3 animate-slide-up">
@@ -211,7 +211,7 @@ const UrlShortener = () => {
                             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                               <button onClick={() => copyToClipboard(displayShortUrl)} className="p-2 bg-surface-1 hover:bg-surface-2 rounded-lg text-fg-muted transition-colors" title="Copiar"><Copy size={18}/></button>
                               <a href={displayShortUrl} target="_blank" rel="noreferrer" className="p-2 bg-surface-1 hover:bg-surface-2 rounded-lg text-fg-muted transition-colors" title="Abrir"><ExternalLink size={18}/></a>
-                              <button onClick={() => setConfirmModal({ isOpen: true, urlId: url.id })} className="p-2 bg-red-500/5 hover:bg-red-500/20 rounded-lg text-fg-muted hover:text-red-400 transition-colors" title="Apagar"><Trash2 size={18}/></button>
+                              <button onClick={() => setConfirmModal({ isOpen: true, urlId: url.id })} className="p-2 bg-danger/5 hover:bg-danger/20 rounded-lg text-fg-muted hover:text-danger transition-colors" title="Apagar"><Trash2 size={18}/></button>
                             </div>
                           </div>
                       );

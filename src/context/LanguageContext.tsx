@@ -28,7 +28,7 @@ const translations = {
     responsiveDesc: "Execução perfeita em todos os dispositivos e tamanhos de tela.",
     viewWork: "Ver Meu Trabalho",
     getInTouch: "Entre em Contato",
-    home: "Início",
+    navHome: "Início",
     portfolio: "Portfólio",
     resume: "Currículo",
     products: "Produtos",
@@ -339,7 +339,73 @@ const translations = {
         termsModificationText: "Reservamo-nos o direito de modificar estes termos a qualquer momento. Aconselhamos que você revise esta página periodicamente para estar ciente de quaisquer alterações. O uso continuado do site após a publicação de alterações constituirá sua aceitação dos novos termos.",
         contact: "Contato",
         contactText: "Se você tiver dúvidas sobre estes termos, entre em contato através da nossa página de contato."
-    }
+    },
+    home: {
+      systemLabel: 'DAVIMF / SYS',
+      systemId: 'DVM-001',
+      headline: 'Eu construo sistemas que fazem coisas.',
+      sub: 'Backend, bots, automações e infraestrutura — de FiveM a Discord, do banco ao deploy.',
+      ctaProducts: 'Ver produtos',
+      ctaWork: 'Conhecer meu trabalho',
+      evidence: {
+        payments: { label: 'PAYMENTS', value: 'Mercado Pago · webhooks assinados · reembolso self-service' },
+        licensing: { label: 'LICENSING', value: 'chave por máquina · revogação · vitalícia' },
+        infra: { label: 'INFRA', value: 'VPS própria · Docker · Nginx · PostgreSQL' },
+      },
+      work: {
+        heading: 'SELECTED WORK',
+        fmm: {
+          kicker: '01 / PRODUCT',
+          title: 'FiveM Mod Manager',
+          description: 'Ative e desative mods com um clique. Perfis salvam mods, citizens e configuração de uma vez.',
+          tags: 'WINDOWS · MODS · PERFIS · OTIMIZAÇÃO · LICENSING',
+          link: 'Ver FMM',
+          shots: { primary: 'MODS', secondary: 'OTIMIZAÇÃO' },
+        },
+        basebot: {
+          kicker: '02 / PLATFORM',
+          title: 'BaseBot',
+          description: 'Bots modulares e painel de configuração para Discord.',
+          tags: 'DISCORD · AUTOMAÇÃO · MODERAÇÃO · DASHBOARD',
+          link: 'Ver BaseBot',
+          shots: { primary: 'SERVIDORES', secondary: 'CONFIGURAÇÃO' },
+        },
+      },
+      tools: {
+        heading: 'TOOLS',
+        notes: { name: 'Notes', description: 'Anotações rápidas e sincronizadas' },
+        url: { name: 'URL', description: 'Encurtador de URLs' },
+        finance: { name: 'Finance', description: 'Controle pessoal de gastos' },
+        password: { name: 'Password', description: 'Gerador seguro' },
+      },
+      about: {
+        heading: 'ABOUT',
+        teaser: 'Eu construo backend, bots, ferramentas e automações. Comecei resolvendo problemas meus e continuei transformando essas soluções em produtos.',
+        link: 'Sobre mim',
+      },
+      stack: {
+        heading: 'STACK',
+        runtime: 'RUNTIME',
+        data: 'DATA',
+        infra: 'INFRA',
+        platforms: 'PLATFORMS',
+      },
+      contact: {
+        question: 'Tem um problema interessante?',
+        invite: 'Vamos construir alguma coisa.',
+        cta: 'Entrar em contato',
+      },
+      footer: {
+        builtIn: 'Feito no Brasil',
+        runningOn: 'Rodando em Linux',
+      },
+      nav: {
+        projects: 'Projetos',
+        products: 'Produtos',
+        tools: 'Ferramentas',
+        about: 'Sobre',
+      },
+    },
   },
   en: {
     greeting: "Hello, I'm",
@@ -353,7 +419,7 @@ const translations = {
     responsiveDesc: "Perfect execution across all devices and screen sizes.",
     viewWork: "View My Work",
     getInTouch: "Get in Touch",
-    home: "Home",
+    navHome: "Home",
     portfolio: "Portfolio",
     resume: "Resume",
     products: "Products",
@@ -664,7 +730,73 @@ const translations = {
         termsModificationText: "We reserve the right to modify these terms at any time. We advise you to review this page periodically for any changes. Your continued use of the site after the posting of changes will constitute your acceptance of such changes.",
         contact: "Contact",
         contactText: "If you have any questions about these terms, please contact us through our contact page."
-    }
+    },
+    home: {
+      systemLabel: 'DAVIMF / SYS',
+      systemId: 'DVM-001',
+      headline: 'I build systems that do things.',
+      sub: 'Backend, bots, automation and infrastructure — from FiveM to Discord, from the database to the deploy.',
+      ctaProducts: 'See products',
+      ctaWork: 'See my work',
+      evidence: {
+        payments: { label: 'PAYMENTS', value: 'Mercado Pago · signed webhooks · self-service refunds' },
+        licensing: { label: 'LICENSING', value: 'per-machine keys · revocation · lifetime' },
+        infra: { label: 'INFRA', value: 'own VPS · Docker · Nginx · PostgreSQL' },
+      },
+      work: {
+        heading: 'SELECTED WORK',
+        fmm: {
+          kicker: '01 / PRODUCT',
+          title: 'FiveM Mod Manager',
+          description: 'Toggle mods with one click. Profiles save mods, citizens and configuration all at once.',
+          tags: 'WINDOWS · MODS · PROFILES · OPTIMIZATION · LICENSING',
+          link: 'See FMM',
+          shots: { primary: 'MODS', secondary: 'OPTIMIZATION' },
+        },
+        basebot: {
+          kicker: '02 / PLATFORM',
+          title: 'BaseBot',
+          description: 'Modular bots and a configuration panel for Discord.',
+          tags: 'DISCORD · AUTOMATION · MODERATION · DASHBOARD',
+          link: 'See BaseBot',
+          shots: { primary: 'SERVERS', secondary: 'CONFIGURATION' },
+        },
+      },
+      tools: {
+        heading: 'TOOLS',
+        notes: { name: 'Notes', description: 'Quick synced notes' },
+        url: { name: 'URL', description: 'Link shortener' },
+        finance: { name: 'Finance', description: 'Personal expense tracking' },
+        password: { name: 'Password', description: 'Secure generator' },
+      },
+      about: {
+        heading: 'ABOUT',
+        teaser: 'I build backend, bots, tools and automation. I started by solving my own problems and kept turning those solutions into products.',
+        link: 'About me',
+      },
+      stack: {
+        heading: 'STACK',
+        runtime: 'RUNTIME',
+        data: 'DATA',
+        infra: 'INFRA',
+        platforms: 'PLATFORMS',
+      },
+      contact: {
+        question: 'Got an interesting problem?',
+        invite: "Let's build something.",
+        cta: 'Get in touch',
+      },
+      footer: {
+        builtIn: 'Built in Brazil',
+        runningOn: 'Running on Linux',
+      },
+      nav: {
+        projects: 'Projects',
+        products: 'Products',
+        tools: 'Tools',
+        about: 'About',
+      },
+    },
   }
 };
 

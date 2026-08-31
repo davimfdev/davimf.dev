@@ -26,7 +26,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { language, setLanguage, translations, legal } = useLanguage();
 
   const navigation = [
-    { name: translations.home, href: '/' },
+    { name: translations.navHome, href: '/' },
     { name: translations.portfolio, href: '/portfolio' },
     { name: translations.products, href: '/products' },
     { name: translations.contact, href: '/contact' },

@@ -15,7 +15,7 @@
 .bd-field > span { font-size: 0.85rem; font-weight: 700; color: var(--bd-ink); }
 .bd-field small, .bd-toggle small { color: var(--bd-muted); font-size: 0.76rem; line-height: 1.4; }
 .bd-field input:not([type=checkbox]), .bd-field textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--bd-line-strong); border-radius: 11px; background: var(--bd-bg); color: var(--bd-ink); padding: 11px 13px; font: inherit; font-size: 0.88rem; transition: border-color 150ms var(--bd-ease), box-shadow 150ms var(--bd-ease); }
-.bd-field input:not([type=checkbox]):focus-visible, .bd-field textarea:focus-visible { outline: none; border-color: var(--bd-accent-dim); box-shadow: 0 0 0 3px rgba(230, 181, 102, 0.15); }
+.bd-field input:not([type=checkbox]):focus-visible, .bd-field textarea:focus-visible { outline: none; border-color: var(--bd-accent-dim); box-shadow: 0 0 0 3px rgb(var(--accent) / 0.15); }
 .bd-field input::placeholder, .bd-field textarea::placeholder { color: var(--bd-faint); }
 .bd-field textarea { min-height: 92px; resize: vertical; }
 
@@ -24,10 +24,10 @@
 .bd-toggle:hover { border-color: var(--bd-line-strong); }
 .bd-toggle > span { display: flex; flex-direction: column; gap: 4px; }
 .bd-toggle > span strong { font-size: 0.86rem; font-weight: 700; color: var(--bd-ink); }
-.bd-toggle input { appearance: none; -webkit-appearance: none; flex: none; position: relative; width: 44px; height: 24px; margin: 0; border-radius: 999px; background: rgba(245, 243, 239, 0.16); cursor: pointer; transition: background 160ms var(--bd-ease); }
-.bd-toggle input::before { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #f5f3ef; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); transition: transform 160ms var(--bd-ease); }
+.bd-toggle input { appearance: none; -webkit-appearance: none; flex: none; position: relative; width: 44px; height: 24px; margin: 0; border-radius: 999px; background: rgb(var(--fg) / 0.16); cursor: pointer; transition: background 160ms var(--bd-ease); }
+.bd-toggle input::before { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: rgb(var(--fg)); box-shadow: 0 1px 3px rgb(var(--bg) / 0.4); transition: transform 160ms var(--bd-ease); }
 .bd-toggle input:checked { background: var(--bd-accent); }
-.bd-toggle input:checked::before { transform: translateX(20px); background: #16130c; }
+.bd-toggle input:checked::before { transform: translateX(20px); background: color-mix(in srgb, rgb(var(--surface-1)), rgb(var(--accent)) 5%); }
 .bd-toggle input:disabled { opacity: 0.5; cursor: not-allowed; }
 .bd-toggle input:focus-visible { outline: 2px solid var(--bd-accent-dim); outline-offset: 2px; }
 
@@ -36,18 +36,18 @@
 .bd-editor footer [role=status] { margin-right: auto; color: var(--bd-muted); font-size: 0.82rem; font-weight: 600; }
 /* Action buttons only — scoped to footer/item-actions so it never bleeds into
    the SelectField trigger or chip remove buttons (both are <button>s too). */
-.bd-editor footer button, .bd-item-actions button { min-height: 40px; border: 1px solid transparent; border-radius: 10px; background: var(--bd-ink); color: #16130c; padding: 0 16px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: background 160ms var(--bd-ease), transform 160ms var(--bd-ease), border-color 160ms var(--bd-ease); }
-.bd-editor footer button:hover, .bd-item-actions button:hover { background: #ffffff; }
+.bd-editor footer button, .bd-item-actions button { min-height: 40px; border: 1px solid transparent; border-radius: 10px; background: var(--bd-ink); color: color-mix(in srgb, rgb(var(--surface-1)), rgb(var(--accent)) 5%); padding: 0 16px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: background 160ms var(--bd-ease), transform 160ms var(--bd-ease), border-color 160ms var(--bd-ease); }
+.bd-editor footer button:hover, .bd-item-actions button:hover { background: rgb(var(--fg)); }
 .bd-editor footer button:active, .bd-item-actions button:active { transform: translateY(1px); }
 .bd-editor footer button:focus-visible, .bd-item-actions button:focus-visible { outline: 2px solid var(--bd-accent-dim); outline-offset: 2px; }
 .bd-editor footer button:disabled, .bd-item-actions button:disabled { opacity: 0.5; cursor: wait; }
-.bd-item-actions button.is-danger { background: transparent; border-color: rgba(240, 138, 130, 0.3); color: var(--bd-danger); }
-.bd-item-actions button.is-danger:hover { background: rgba(240, 138, 130, 0.1); }
+.bd-item-actions button.is-danger { background: transparent; border-color: rgb(var(--danger) / 0.3); color: var(--bd-danger); }
+.bd-item-actions button.is-danger:hover { background: rgb(var(--danger) / 0.1); }
 
 /* ---------- Role chips ---------- */
 .bd-chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 4px; }
-.bd-role-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 999px; background: rgba(245, 243, 239, 0.05); border: 1px solid var(--bd-line-strong); color: var(--bd-ink); font-size: 0.82rem; font-weight: 600; line-height: 1.4; }
-.bd-role-chip .bd-role-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--chip, var(--bd-faint)); flex: none; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25) inset; }
+.bd-role-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 999px; background: rgb(var(--fg) / 0.05); border: 1px solid var(--bd-line-strong); color: var(--bd-ink); font-size: 0.82rem; font-weight: 600; line-height: 1.4; }
+.bd-role-chip .bd-role-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--chip, var(--bd-faint)); flex: none; box-shadow: 0 0 0 2px rgb(var(--bg) / 0.25) inset; }
 .bd-role-chip[data-neutral] .bd-role-dot { background: var(--bd-faint); }
 .bd-role-chip .bd-role-remove { border: 0; background: none; color: var(--bd-faint); cursor: pointer; font-size: 0.82rem; line-height: 1; padding: 0 0 0 2px; transition: color 150ms var(--bd-ease); }
 .bd-role-chip .bd-role-remove:hover { color: var(--bd-danger); }
@@ -55,9 +55,9 @@
 /* ---------- Custom select ---------- */
 .bd-select { position: relative; }
 .bd-select-trigger { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; box-sizing: border-box; border: 1px solid var(--bd-line-strong); border-radius: 11px; background: var(--bd-bg); color: var(--bd-ink); padding: 10px 13px; font: inherit; font-size: 0.88rem; cursor: pointer; text-align: left; transition: border-color 150ms var(--bd-ease); }
-.bd-select-trigger:hover { border-color: rgba(245, 243, 239, 0.24); }
+.bd-select-trigger:hover { border-color: rgb(var(--fg) / 0.24); }
 .bd-select-trigger:disabled { opacity: 0.55; cursor: not-allowed; }
-.bd-select-trigger[aria-expanded=true] { border-color: var(--bd-accent-dim); box-shadow: 0 0 0 3px rgba(230, 181, 102, 0.15); }
+.bd-select-trigger[aria-expanded=true] { border-color: var(--bd-accent-dim); box-shadow: 0 0 0 3px rgb(var(--accent) / 0.15); }
 .bd-select-value { display: flex; min-width: 0; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bd-select-placeholder { color: var(--bd-faint); }
 .bd-select-caret { color: var(--bd-faint); flex: none; }
@@ -66,7 +66,7 @@
 .bd-select-filter:focus-visible { outline: none; border-color: var(--bd-accent-dim); }
 .bd-select-list { list-style: none; margin: 0; padding: 0; max-height: 244px; overflow: auto; display: flex; flex-direction: column; gap: 2px; }
 .bd-select-option { display: flex; align-items: center; gap: 8px; padding: 9px 11px; border-radius: 9px; color: var(--bd-ink-dim); font-size: 0.86rem; cursor: pointer; }
-.bd-select-option.is-active { background: rgba(245, 243, 239, 0.06); color: var(--bd-ink); }
+.bd-select-option.is-active { background: rgb(var(--fg) / 0.06); color: var(--bd-ink); }
 .bd-select-option.is-selected { color: var(--bd-ink); font-weight: 700; }
 .bd-select-option.is-selected::after { content: '✓'; margin-left: auto; color: var(--bd-accent); }
 .bd-select-empty { padding: 9px 11px; color: var(--bd-faint); font-size: 0.85rem; }

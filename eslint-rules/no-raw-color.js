@@ -6,8 +6,8 @@
  *
  * A isenção é por DECLARAÇÃO, nunca por arquivo: um literal só é aceito dentro
  * de uma variável cujo nome case /^DATA_PALETTE(_|$)/. Isentar um arquivo
- * inteiro deixaria passar cromo de interface no mesmo arquivo — ver
- * CategoryChart.tsx, que tem os dois casos lado a lado.
+ * inteiro deixaria passar cromo de interface no mesmo arquivo — o padrão que
+ * `src/lib/palettes/dataPalettes.ts` isola de propósito.
  */
 
 const HEX = /#[0-9a-fA-F]{3,8}\b/;
@@ -16,6 +16,9 @@ const TAILWIND_PALETTE =
   /\b(?:text|bg|border|ring|from|via|to|decoration|outline|shadow|fill|stroke)-(?:red|green|blue|yellow|amber|violet|purple|pink|indigo|emerald|teal|cyan|sky|rose|fuchsia|lime|orange|gray|slate|zinc|neutral|stone)-\d{2,3}\b/;
 
 const ARBITRARY_COLOR = /-\[(?:#|rgb|hsl)|-(?:white|black)\//;
+
+/** `rgb(` / `hsl(` seguidos de número. `rgb(var(--accent) / .5)` NÃO casa. */
+const NUMERIC_FUNCTION = /\b(?:rgba?|hsla?)\(\s*[\d.]/;
 
 /** Sugere o token da tabela §6.2 do spec para os casos mais comuns. */
 const SUGGESTIONS = [
@@ -60,6 +63,8 @@ export default {
         'Paleta padrão do Tailwind em "{{value}}"{{hint}}. O site usa apenas os tokens do design system.',
       arbitraryColor:
         'Valor de cor arbitrário em "{{value}}"{{hint}}. Use um token do design system.',
+      rawFunction:
+        'Função de cor com valores crus em "{{value}}". Use um token do design system — `rgb(var(--token) / alfa)` compõe alfa a partir do token.',
     },
   },
 
@@ -76,6 +81,9 @@ export default {
       }
       if (ARBITRARY_COLOR.test(text)) {
         context.report({ node, messageId: 'arbitraryColor', data: { value, hint } });
+      }
+      if (NUMERIC_FUNCTION.test(text)) {
+        context.report({ node, messageId: 'rawFunction', data: { value, hint } });
       }
       // Um hex dentro de `-[#…]` já foi reportado como arbitrário; não duplica.
       if (HEX.test(text) && !ARBITRARY_COLOR.test(text)) {

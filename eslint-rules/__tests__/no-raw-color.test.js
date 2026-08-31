@@ -26,6 +26,11 @@ ruleTester.run('no-raw-color', rule, {
     // A isenção, que é por declaração:
     { code: `export const DATA_PALETTE_CATEGORY = ['#6366f1', '#a855f7'];` },
     { code: `const DATA_PALETTE = ['#fff'];` },
+    // Forma real de DATA_PALETTE_DISCORD: literais aninhados num objeto.
+    { code: `const DATA_PALETTE_DISCORD = { blurple: '#5865F2', danger: '#da373c' };` },
+    // O requisito do dígito é o que faz `rgb(var(--token) / alfa)` passar.
+    { code: `const c = 'rgb(var(--accent) / .07)';` },
+    { code: "const c = `rgb(${channels} / ${alpha})`;" },
     // Escape explícito continua sendo do ESLint, não da regra.
   ],
   invalid: [
@@ -47,6 +52,15 @@ ruleTester.run('no-raw-color', rule, {
     {
       code: `const border = '1px solid #374151';`,
       errors: [{ messageId: 'rawHex' }],
+    },
+    // Função de cor com números crus, sem hex nem sintaxe Tailwind: rawFunction.
+    {
+      code: `const c = '1px solid rgb(55, 65, 81)';`,
+      errors: [{ messageId: 'rawFunction' }],
+    },
+    {
+      code: `const c = 'hsl(30, 70%, 50%)';`,
+      errors: [{ messageId: 'rawFunction' }],
     },
     {
       code: `const c = 'text-red-400';`,

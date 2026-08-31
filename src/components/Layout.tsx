@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 // MODIFICADO: Adicionado LogOut na lista de imports
 import { Menu, X, Github, Linkedin, Mail, MessageCircle, Phone, User, LogOut } from 'lucide-react';
@@ -15,6 +15,50 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const location = useLocation();
   const isDashboard = location.pathname === '/dashboard' || location.pathname.startsWith('/dashboard/');
+
+  // Indicador único da nav: em vez de um sublinhado por link (que some/aparece
+  // na troca de página), uma única barra de 1px desliza entre os itens. A Map
+  // guarda o elemento de cada link (chaveado pelo href) para medir posição e
+  // largura; o estado guarda onde a barra deve ficar.
+  const navLinksContainerRef = useRef<HTMLDivElement>(null);
+  const navLinkElsRef = useRef(new Map<string, HTMLAnchorElement>());
+  const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0, visible: false });
+
+  const measureNavIndicator = useCallback(() => {
+    let activeEl: HTMLAnchorElement | null = null;
+    navLinkElsRef.current.forEach((el) => {
+      if (el.getAttribute('aria-current') === 'page') activeEl = el;
+    });
+
+    if (activeEl) {
+      const el = activeEl as HTMLAnchorElement;
+      setNavIndicator({ left: el.offsetLeft, width: el.offsetWidth, visible: true });
+    } else {
+      // Nenhum item ativo (Home, /fmm, /contact, etc.): a barra some, mas
+      // mantém left/width do último item ativo — sumir "no lugar" em vez de
+      // recolher para left:0/width:0, o que pareceria a barra disparando
+      // para a borda esquerda.
+      setNavIndicator((prev) => (prev.visible ? { ...prev, visible: false } : prev));
+    }
+  }, []);
+
+  // useLayoutEffect (não useEffect) para medir antes do paint: assim a barra
+  // nunca pisca na posição errada — nem a antiga, nem left:0 — ao trocar de
+  // rota.
+  useLayoutEffect(() => {
+    measureNavIndicator();
+  }, [location.pathname, measureNavIndicator]);
+
+  // Reposiciona se a largura dos links mudar (resize da janela, fonte web
+  // carregando tarde) — sem isso a barra fica desalinhada do texto até a
+  // próxima navegação.
+  useEffect(() => {
+    const container = navLinksContainerRef.current;
+    if (!container || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => measureNavIndicator());
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [measureNavIndicator]);
 
   const handleLogin = () => {
     // Login unificado: passa pelo fluxo seguro (state + sessão no servidor).
@@ -159,22 +203,37 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 DAVIMF<span className="text-fg-muted">.DEV</span>
               </Link>
 
-              <div className="hidden md:flex items-center gap-8">
+              <div className="hidden md:flex items-center gap-8 relative" ref={navLinksContainerRef}>
                 {navigation.map((item) => (
                   <NavLink
                     key={item.name}
                     to={item.href}
+                    ref={(el) => {
+                      if (el) navLinkElsRef.current.set(item.href, el);
+                      else navLinkElsRef.current.delete(item.href);
+                    }}
                     className={({ isActive }) =>
-                      `text-sm transition-colors duration-fast relative py-4 ${
-                        isActive
-                          ? 'text-fg after:absolute after:bottom-3 after:left-0 after:right-0 after:h-px after:bg-accent'
-                          : 'text-fg-muted hover:text-fg'
+                      `text-sm transition-colors duration-fast py-4 ${
+                        isActive ? 'text-fg' : 'text-fg-muted hover:text-fg'
                       }`
                     }
                   >
                     {item.name}
                   </NavLink>
                 ))}
+
+                {/*
+                  Barra única e compartilhada: desliza de um item para o
+                  outro em vez de sumir num link e reaparecer noutro. Some
+                  (opacity 0) sem recolher quando nenhum item está ativo —
+                  ver measureNavIndicator.
+                */}
+                <span
+                  aria-hidden="true"
+                  data-nav-indicator=""
+                  className="absolute bottom-3 h-px bg-accent pointer-events-none transition-all duration-base ease-out-token"
+                  style={{ left: navIndicator.left, width: navIndicator.width, opacity: navIndicator.visible ? 1 : 0 }}
+                />
               </div>
 
               <div className="hidden md:flex items-center gap-5">

@@ -116,6 +116,12 @@ describe('Layout — navbar como régua', () => {
     expect(screen.getByLabelText('Toggle language')).toBeDefined();
   });
 
+  it('a navbar tem um único indicador compartilhado, não um sublinhado por link', () => {
+    renderLayout('/products');
+    // Um traço por link voltaria a ser uma troca abrupta; o pedido é deslizar.
+    expect(document.querySelectorAll('[data-nav-indicator]')).toHaveLength(1);
+  });
+
   it('o rótulo acessível da conta vem das traduções, não cravado', async () => {
     const user = userEvent.setup();
     renderLayout('/');

@@ -69,12 +69,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { language, setLanguage, translations, legal } = useLanguage();
 
   // Contato sai da navbar: a Home passa a ser a entrada, e o fecho da Home mais
-  // o footer garantem que continue a um clique. "Ferramentas" aponta para a
-  // âncora da Home porque /tools só existe no Plano 4 — link morto é pior.
+  // o footer garantem que continue a um clique. "Ferramentas" aponta para
+  // /tools (não /#tools): NavLink compara só o pathname resolvido e ignora o
+  // hash, então uma âncora marcaria o item como ativo na Home.
   const navigation = [
     { name: translations.home.nav.projects, href: '/portfolio' },
     { name: translations.home.nav.products, href: '/products' },
-    { name: translations.home.nav.tools, href: '/#tools' },
+    { name: translations.home.nav.tools, href: '/tools' },
     { name: translations.home.nav.about, href: '/about' },
   ];
 

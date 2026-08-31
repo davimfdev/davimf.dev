@@ -40,6 +40,8 @@ import FmmAdmin from './pages/FmmAdmin';
 import Notes from './pages/Notes';
 import PasswordGenerator from './pages/PasswordGenerator';
 import TicketView from './pages/TicketView';
+import About from './pages/About';
+import Tools from './pages/Tools';
 import { NotesFloatingLayer } from './components/notes/NotesFloatingLayer';
 
 function App() {
@@ -95,6 +97,8 @@ function App() {
               <Route path="/fmm-admin" element={<FmmAdmin />} />
               <Route path="/notes" element={<Notes />} />
               <Route path="/password-generator" element={<PasswordGenerator />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/tools" element={<Tools />} />
             </Routes>
           </Layout>
         </Router>

@@ -28,6 +28,19 @@ export const TOOLS = [
   { key: 'password', href: '/password-generator' },
 ] as const;
 
+/**
+ * Catálogo completo, para a página `/tools`. A Home mostra só os quatro de
+ * `TOOLS`: lá a seção é uma amostra, aqui é o índice.
+ */
+export const TOOLS_ALL = [
+  { key: 'notes', href: '/notes' },
+  { key: 'url', href: '/encurtador' },
+  { key: 'finance', href: '/finances' },
+  { key: 'password', href: '/password-generator' },
+  { key: 'todo', href: '/todo' },
+  { key: 'roulette', href: '/roulette' },
+] as const;
+
 export const STACK_GROUPS = [
   { key: 'runtime', items: ['Node.js', 'Java', 'TypeScript'] },
   { key: 'data', items: ['PostgreSQL', 'Redis'] },

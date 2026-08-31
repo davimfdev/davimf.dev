@@ -376,6 +376,12 @@ const translations = {
         url: { name: 'URL', description: 'Encurtador de URLs' },
         finance: { name: 'Finance', description: 'Controle pessoal de gastos' },
         password: { name: 'Password', description: 'Gerador seguro' },
+        todo: { name: 'Tarefas', description: 'Lista de tarefas simples' },
+        roulette: { name: 'Roleta', description: 'Sorteio aleatório' },
+      },
+      toolsPage: {
+        title: 'Ferramentas',
+        intro: 'Utilitários que construí para resolver problemas meus e deixei abertos para quem precisar.',
       },
       about: {
         heading: 'ABOUT',
@@ -768,6 +774,12 @@ const translations = {
         url: { name: 'URL', description: 'Link shortener' },
         finance: { name: 'Finance', description: 'Personal expense tracking' },
         password: { name: 'Password', description: 'Secure generator' },
+        todo: { name: 'Tasks', description: 'A simple to-do list' },
+        roulette: { name: 'Roulette', description: 'Random picker' },
+      },
+      toolsPage: {
+        title: 'Tools',
+        intro: 'Utilities I built to solve my own problems and left open for whoever needs them.',
       },
       about: {
         heading: 'ABOUT',

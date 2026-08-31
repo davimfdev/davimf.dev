@@ -111,6 +111,16 @@ describe('Layout — navbar como régua', () => {
     expect(screen.queryByRole('link', { name: 'Contato' })).toBeNull();
   });
 
+  it('todos os itens da navbar apontam para rotas que existem', () => {
+    renderLayout('/');
+    const hrefs = ['Projetos', 'Produtos', 'Ferramentas', 'Sobre'].map(
+      (nome) => screen.getAllByRole('link', { name: nome })[0].getAttribute('href'),
+    );
+    // Link morto na barra principal é o tipo de defeito que passa despercebido
+    // por semanas: nada quebra, o clique só não faz nada.
+    expect(hrefs).toEqual(['/portfolio', '/products', '/tools', '/about']);
+  });
+
   it('o toggle de idioma continua presente', () => {
     render(<MemoryRouter><LanguageProvider><Layout><div /></Layout></LanguageProvider></MemoryRouter>);
     expect(screen.getByLabelText('Toggle language')).toBeDefined();

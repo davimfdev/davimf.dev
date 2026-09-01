@@ -28,7 +28,7 @@ const About = () => {
 
   return (
     <div className="max-w-content mx-auto py-10">
-      <div className="flex items-center gap-4 mb-12">
+      <div className="flex items-center gap-4 mb-8 md:mb-12">
         <Eyebrow>{t.about.heading}</Eyebrow>
         <span className="h-px flex-1 bg-line" aria-hidden="true" />
         <Eyebrow>{t.systemId}</Eyebrow>
@@ -38,7 +38,7 @@ const About = () => {
         {t.about.intro}
       </p>
 
-      <section className="mt-16">
+      <section className="mt-12 md:mt-16">
         <div className="flex items-center gap-4 mb-8">
           <Eyebrow>{t.about.buildHeading}</Eyebrow>
           <span className="h-px flex-1 bg-line" aria-hidden="true" />
@@ -107,7 +107,7 @@ const About = () => {
 
       <Link
         to="/contact"
-        className="inline-flex items-center gap-2 mt-16 text-sm text-fg hover:text-accent transition-colors duration-fast group"
+        className="inline-flex items-center gap-2 mt-12 md:mt-16 text-sm text-fg hover:text-accent transition-colors duration-fast group"
       >
         {t.contact.cta}
         <ArrowRight size={15} className="transition-transform duration-fast group-hover:translate-x-1" />

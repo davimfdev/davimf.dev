@@ -23,13 +23,13 @@ export function Hero() {
 
   return (
     <section className="pt-10 md:pt-16">
-      <div className="flex items-center gap-4 mb-12">
+      <div className="flex items-center gap-4 mb-8 md:mb-12">
         <Eyebrow>{t.systemLabel}</Eyebrow>
         <span className="h-px flex-1 bg-line" aria-hidden="true" />
         <Eyebrow>{t.systemId}</Eyebrow>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-12 lg:gap-16 items-center">
         <div className="lg:col-span-7">
           <Reveal>
             <h1 className="text-display-1 font-display font-bold text-fg text-balance">
@@ -44,7 +44,7 @@ export function Hero() {
           </Reveal>
 
           <Reveal delay={160}>
-            <div className="mt-10 flex flex-col sm:flex-row gap-3">
+            <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-3">
               <Button as={Link} to="/products">
                 {t.ctaProducts}
                 <ArrowRight size={16} />

@@ -24,7 +24,7 @@ export function ContactClose() {
         </p>
         <Link
           to="/contact"
-          className="inline-flex items-center gap-2 mt-10 text-sm text-fg hover:text-accent transition-colors duration-fast group"
+          className="inline-flex items-center gap-2 mt-8 md:mt-10 text-sm text-fg hover:text-accent transition-colors duration-fast group"
         >
           {t.cta}
           <ArrowRight size={15} className="transition-transform duration-fast group-hover:translate-x-1" />

@@ -35,7 +35,7 @@ const Tools = () => {
 
   return (
     <div className="max-w-content mx-auto py-10">
-      <div className="flex items-center gap-4 mb-12">
+      <div className="flex items-center gap-4 mb-8 md:mb-12">
         <Eyebrow>{t.tools.heading}</Eyebrow>
         <span className="h-px flex-1 bg-line" aria-hidden="true" />
         <Eyebrow>{String(TOOLS_ALL.length).padStart(2, '0')}</Eyebrow>
@@ -46,7 +46,7 @@ const Tools = () => {
       </h1>
       <p className="mt-6 text-fg-soft max-w-prose leading-relaxed">{t.toolsPage.intro}</p>
 
-      <ul className="mt-14 border-t border-line">
+      <ul className="mt-11 md:mt-14 border-t border-line">
         {TOOLS_ALL.map((tool, index) => {
           const copy = t.tools[tool.key];
           const Icon = ICONS[tool.key];

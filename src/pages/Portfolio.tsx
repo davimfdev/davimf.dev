@@ -44,7 +44,7 @@ const Portfolio = () => {
 
   return (
     <div className="max-w-content mx-auto py-10 animate-fade-in">
-      <div className="flex items-center gap-4 mb-12">
+      <div className="flex items-center gap-4 mb-8 md:mb-12">
         <Eyebrow>{port.title}</Eyebrow>
         <span className="h-px flex-1 bg-line" aria-hidden="true" />
       </div>
@@ -53,7 +53,7 @@ const Portfolio = () => {
         {port.intro}
       </p>
 
-      <section className="mt-16">
+      <section className="mt-12 md:mt-16">
         <div className="flex items-center gap-4 mb-4">
           <Eyebrow>{port.filterLabel}</Eyebrow>
           <span className="h-px flex-1 bg-line" aria-hidden="true" />

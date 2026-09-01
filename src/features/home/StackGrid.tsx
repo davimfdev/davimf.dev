@@ -14,7 +14,7 @@ export function StackGrid() {
   const t = translations.home.stack;
 
   return (
-    <section className="mt-16">
+    <section className="mt-12 md:mt-16">
       <div className="flex items-center gap-4 mb-8">
         <Eyebrow>{t.heading}</Eyebrow>
         <span className="h-px flex-1 bg-line" aria-hidden="true" />

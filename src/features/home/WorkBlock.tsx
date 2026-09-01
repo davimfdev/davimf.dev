@@ -71,7 +71,7 @@ export function WorkBlock({ kicker, title, description, tags, link, href, shots,
   const [primary, secondary] = shots;
 
   return (
-    <article className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center py-section">
+    <article className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10 lg:gap-14 items-center py-section">
       <div
         data-work-media
         className={`lg:col-span-7 ${mirrored ? 'lg:order-1' : 'lg:order-2'}`}

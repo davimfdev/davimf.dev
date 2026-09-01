@@ -93,6 +93,81 @@ const FmmPlans = () => {
 
   const [basicPlan, proPlan] = t.fmmPlans;
 
+  // One entry per stacked mobile card, in table-column order (Free → Básico
+  // → Pro). Reuses the exact copy, prices and CTAs the desktop table uses —
+  // only the layout differs.
+  const mobilePlans = [
+    {
+      key: 'free',
+      icon: Package,
+      name: 'Free',
+      price: 'R$0',
+      priceNote: t.fmmForever,
+      surfaceClass: 'bg-surface-1 border-line',
+      iconWrapClass: 'bg-surface-1 border-line',
+      iconClass: 'text-fg-muted',
+      nameClass: 'text-fg-muted',
+      recommended: false,
+      hasFeature: (row: FeatureRow) => row.free,
+      cta: (
+        <a
+          href="https://github.com/davimfdev/FMM-Releases/releases/latest/download/FMM.exe"
+          download
+          className="flex items-center justify-center gap-1.5 w-full px-3 py-2.5 rounded-lg text-sm font-semibold text-fg-muted border border-line hover:border-line-strong hover:text-fg transition-all"
+        >
+          <Download size={13} />
+          {t.fmmDownloadFree}
+        </a>
+      ),
+    },
+    {
+      key: 'basic',
+      icon: Zap,
+      name: basicPlan.title,
+      price: `R$${basicPlan.prices[period]}`,
+      priceNote: priceSuffix() ?? t.fmmOneTimePayment,
+      surfaceClass: 'bg-surface-2 border-line-strong',
+      iconWrapClass: 'bg-surface-2 border-line-strong',
+      iconClass: 'text-fg',
+      nameClass: 'text-fg',
+      recommended: false,
+      hasFeature: (row: FeatureRow) => row.basic,
+      cta: (
+        <button
+          onClick={() => handleBuy('basic')}
+          disabled={catalog.length === 0}
+          className="w-full px-3 py-2.5 rounded-lg text-sm font-semibold text-accent border border-accent/50 hover:bg-accent-bright/10 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {t.subscribe}
+        </button>
+      ),
+    },
+    {
+      key: 'pro',
+      icon: Layers,
+      name: proPlan.title,
+      price: `R$${proPlan.prices[period]}`,
+      priceNote: priceSuffix() ?? t.fmmOneTimePayment,
+      // Recommended by composition, not new colour — same surface-3 + accent
+      // border the desktop Pro column uses.
+      surfaceClass: 'bg-surface-3 border-accent',
+      iconWrapClass: 'bg-surface-3 border-accent',
+      iconClass: 'text-accent',
+      nameClass: 'text-accent',
+      recommended: true,
+      hasFeature: (row: FeatureRow) => row.pro,
+      cta: (
+        <button
+          onClick={() => handleBuy('pro')}
+          disabled={catalog.length === 0}
+          className="w-full px-3 py-2.5 rounded-lg text-sm font-bold text-bg bg-accent transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {t.subscribe}
+        </button>
+      ),
+    },
+  ];
+
   return (
     <div className="container mx-auto px-4 py-12 animate-fade-in relative z-10">
 
@@ -102,7 +177,8 @@ const FmmPlans = () => {
           {t.fmmModManagerPlans}
         </h1>
 
-        <div className="flex justify-center mt-8">
+        {/* Pill row — fits on tablet/desktop, where three labels have room. */}
+        <div className="hidden md:flex justify-center mt-8">
           <div className="flex glass-panel p-1 rounded-full gap-1">
             {periods.map(({ key, label }) => (
               <button
@@ -118,6 +194,23 @@ const FmmPlans = () => {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Full-width 3-part control — a pill row clips "Vitalício" below md. */}
+        <div className="grid grid-cols-3 md:hidden glass-panel p-1 rounded-full gap-1 max-w-sm mx-auto mt-8">
+          {periods.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setPeriod(key)}
+              className={`px-2 py-2 rounded-full text-sm font-medium text-center transition-all duration-200 ${
+                period === key
+                  ? 'bg-accent text-bg shadow-lg'
+                  : 'text-fg-muted hover:text-fg'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         {period === 'quarterly' && (
@@ -138,8 +231,9 @@ const FmmPlans = () => {
         </p>
       )}
 
-      {/* Comparison table */}
-      <div className="max-w-5xl mx-auto overflow-x-auto">
+      {/* Comparison table — the right shape from md up; below that it forced
+          horizontal scroll and hid both paid plans, so it is desktop-only. */}
+      <div className="hidden md:block max-w-5xl mx-auto overflow-x-auto">
         <div style={{ minWidth: 620 }}>
 
           {/* ── Plan header cards ── */}
@@ -285,6 +379,74 @@ const FmmPlans = () => {
           </div>
 
         </div>
+      </div>
+
+      {/* Stacked plan cards — the native mobile shape for a 3-way comparison
+          is one plan after another, compared by scrolling down rather than
+          dragging sideways. Reads the same FEATURE_ROWS as the table above,
+          so the matrix has one source of truth. */}
+      <div className="md:hidden max-w-md mx-auto space-y-5">
+        {mobilePlans.map((plan) => (
+          <div
+            key={plan.key}
+            className={`rounded-panel border p-5 ${plan.surfaceClass}`}
+          >
+            {plan.recommended && (
+              <div className="mb-3">
+                <Badge tone="accent">{t.fmmRecommended}</Badge>
+              </div>
+            )}
+
+            {/* Plan identity + price */}
+            <div className="flex items-center gap-3 mb-5">
+              <div
+                className={`w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 border ${plan.iconWrapClass}`}
+              >
+                <plan.icon size={20} className={plan.iconClass} />
+              </div>
+              <div>
+                <div className={`text-eyebrow font-bold uppercase ${plan.nameClass}`}>
+                  {plan.name}
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-xl font-extrabold text-fg">{plan.price}</span>
+                  <span className="text-xs text-fg-muted">{plan.priceNote}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature list — every row from FEATURE_ROWS, owned or not.
+                A plan that lacks a feature still shows the row, de-emphasised,
+                rather than omitting it silently. */}
+            <ul className="space-y-2.5 mb-5">
+              {FEATURE_ROWS.map((row) => {
+                const has = plan.hasFeature(row);
+                return (
+                  <li key={row.key} className="flex items-center gap-3 py-0.5">
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ background: 'rgb(var(--surface-3))' }}
+                    >
+                      <row.Icon size={15} className="text-fg-muted" />
+                    </div>
+                    <span
+                      className={`flex-1 text-sm font-medium leading-tight ${
+                        has ? 'text-fg' : 'text-fg-muted/60'
+                      }`}
+                    >
+                      {t.fmmPlanFeatures[row.key]}
+                    </span>
+                    {has
+                      ? <Check size={18} strokeWidth={2.5} className="text-accent flex-shrink-0" />
+                      : <Minus size={14} className="text-fg-muted/50 flex-shrink-0" />}
+                  </li>
+                );
+              })}
+            </ul>
+
+            {plan.cta}
+          </div>
+        ))}
       </div>
 
       {checkoutProduct && (

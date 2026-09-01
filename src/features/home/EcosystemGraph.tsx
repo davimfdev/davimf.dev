@@ -24,18 +24,26 @@ const byId = (id: string) => ECOSYSTEM_NODES.find((node) => node.id === id)!;
  * - Desktop: o SVG renderiza a ~440px de largura, escala ≈ 440/320 = 1.375,
  *   então 9px viram ~12.4px efetivos.
  * - Mobile (`compact`): `Hero.tsx` trava o wrapper em `max-w-[320px]`, e o
- *   `compact` só remove dois nós — o viewBox continua 320 de largura. Escala
- *   vira 320/320 = 1.0. Alvo: ~12px efetivos, iguais ao desktop → 12 / 1.0 = 12px.
+ *   viewBox continua 320 de largura — escala vira 320/320 = 1.0. Alvo: ~12px
+ *   efetivos, iguais ao desktop → 12 / 1.0 = 12px.
  */
 const LABEL_FONT_SIZE = 9;
 const LABEL_FONT_SIZE_COMPACT = 12;
 
+// Largura do viewBox (ver <svg> abaixo). Um rótulo cujo nó fica perto de uma
+// borda vertical precisa ancorar para dentro em vez de centralizar no nó —
+// senão o texto vaza pela borda do SVG. A margem de segurança é a mesma dos
+// dois lados: um nó a menos de VIEWBOX_MARGIN da esquerda ancora em `start`
+// no x=0, um nó a menos de VIEWBOX_MARGIN da direita ancora em `end` no
+// x=VIEWBOX_WIDTH.
+const VIEWBOX_WIDTH = 320;
+const VIEWBOX_MARGIN = 80;
+
 export function EcosystemGraph({ compact = false }: { compact?: boolean }) {
-  // No mobile o grafo perde os dois nós horizontais: cinco nós numa coluna
-  // estreita viram sopa de letras.
-  const nodes = compact
-    ? ECOSYSTEM_NODES.filter((node) => node.y !== 130 || node.kind === 'core')
-    : ECOSYSTEM_NODES;
+  // Os cinco nós sempre aparecem — inclusive no mobile compacto, que hoje
+  // cabe a cruz inteira (320px de largura a escala 1.0). `compact` só ajusta
+  // o tamanho do rótulo (ver LABEL_FONT_SIZE_COMPACT).
+  const nodes = ECOSYSTEM_NODES;
   const edges = ECOSYSTEM_EDGES.filter((edge) => nodes.some((node) => node.id === edge.to));
 
   return (
@@ -68,6 +76,16 @@ export function EcosystemGraph({ compact = false }: { compact?: boolean }) {
 
       {nodes.map((node, index) => {
         const core = node.kind === 'core';
+        // Nós perto de uma borda vertical (POSTGRESQL à esquerda, BASEBOT à
+        // direita) ancoram para dentro em vez de centralizar no próprio x —
+        // senão o rótulo vaza pela borda do viewBox. Ver VIEWBOX_MARGIN.
+        const labelAnchor: 'start' | 'middle' | 'end' =
+          node.x < VIEWBOX_MARGIN
+            ? 'start'
+            : node.x > VIEWBOX_WIDTH - VIEWBOX_MARGIN
+              ? 'end'
+              : 'middle';
+        const labelX = labelAnchor === 'start' ? 0 : labelAnchor === 'end' ? VIEWBOX_WIDTH : node.x;
         return (
           <g
             key={node.id}
@@ -83,9 +101,9 @@ export function EcosystemGraph({ compact = false }: { compact?: boolean }) {
               strokeWidth="1"
             />
             <text
-              x={node.x}
+              x={labelX}
               y={core ? node.y + 26 : node.y + (node.y > 130 ? 22 : -14)}
-              textAnchor="middle"
+              textAnchor={labelAnchor}
               className="text-eyebrow"
               fill={core ? 'rgb(var(--accent))' : 'rgb(var(--fg-muted))'}
               style={{

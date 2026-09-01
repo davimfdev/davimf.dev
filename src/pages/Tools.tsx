@@ -62,7 +62,7 @@ const Tools = () => {
                   aria-hidden="true"
                   className="absolute left-0 top-2 bottom-2 w-0.5 bg-accent scale-y-0 origin-center transition-transform duration-fast group-hover:scale-y-100"
                 />
-                <div className="flex items-center gap-4 sm:gap-8 w-full transition-transform duration-fast group-hover:translate-x-1">
+                <div className="flex items-start sm:items-center gap-4 sm:gap-8 w-full transition-transform duration-fast group-hover:translate-x-1">
                   <span className="text-display-4 tabular-nums text-fg-muted shrink-0">
                     {String(index + 1).padStart(2, '0')}
                   </span>
@@ -70,8 +70,10 @@ const Tools = () => {
                     size={18}
                     className="text-fg-muted shrink-0 transition-colors duration-fast group-hover:text-accent"
                   />
-                  <span className="text-fg w-32 shrink-0">{copy.name}</span>
-                  <span className="text-sm text-fg-muted flex-1">{copy.description}</span>
+                  <span className="flex-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                    <span className="text-fg sm:w-32 sm:shrink-0">{copy.name}</span>
+                    <span className="text-sm text-fg-muted">{copy.description}</span>
+                  </span>
                   <ArrowRight
                     size={15}
                     className="text-fg-muted shrink-0 transition-colors duration-fast group-hover:text-accent"

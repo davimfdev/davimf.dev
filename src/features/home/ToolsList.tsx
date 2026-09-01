@@ -31,13 +31,15 @@ export function ToolsList() {
               <Reveal delay={index * 50}>
                 <Link
                   to={tool.href}
-                  className="group flex items-baseline gap-4 sm:gap-8 py-5 px-2 -mx-2 hover:bg-surface-1 transition-colors duration-fast"
+                  className="group flex items-start sm:items-baseline gap-4 sm:gap-8 py-5 px-2 -mx-2 hover:bg-surface-1 transition-colors duration-fast"
                 >
                   <span className="text-eyebrow text-fg-muted tabular-nums">
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <span className="text-fg w-28 shrink-0">{copy.name}</span>
-                  <span className="text-sm text-fg-muted flex-1">{copy.description}</span>
+                  <span className="flex-1 flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+                    <span className="text-fg sm:w-28 sm:shrink-0">{copy.name}</span>
+                    <span className="text-sm text-fg-muted">{copy.description}</span>
+                  </span>
                   <ArrowRight
                     size={15}
                     className="text-fg-muted shrink-0 transition-transform duration-fast group-hover:translate-x-1 group-hover:text-accent"

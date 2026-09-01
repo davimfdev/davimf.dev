@@ -263,7 +263,7 @@ const FmmPlans = () => {
               >
                 <Zap size={36} className="text-fg" />
               </div>
-              <span className="text-eyebrow font-bold uppercase text-fg">Básico</span>
+              <span className="text-eyebrow font-bold uppercase text-fg">{basicPlan.title}</span>
               <span className="text-xl font-extrabold text-fg mt-0.5">R${basicPlan.prices[period]}</span>
               <span className="text-xs text-fg-muted">{priceSuffix() ?? t.fmmOneTimePayment}</span>
             </div>
@@ -279,7 +279,7 @@ const FmmPlans = () => {
               >
                 <Layers size={36} className="text-accent" />
               </div>
-              <span className="text-eyebrow font-bold uppercase text-accent">Pro</span>
+              <span className="text-eyebrow font-bold uppercase text-accent">{proPlan.title}</span>
               <span className="text-2xl font-extrabold text-fg mt-0.5">R${proPlan.prices[period]}</span>
               <span className="text-xs text-fg-muted">{priceSuffix() ?? t.fmmOneTimePayment}</span>
             </div>

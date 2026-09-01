@@ -14,3 +14,19 @@ describe('FmmPlans — badge do Pro', () => {
     expect((source.match(/h-7 flex items-end pb-1/g) ?? []).length).toBe(3);
   });
 });
+
+describe('FmmPlans — nomes dos planos', () => {
+  it('os nomes vêm das traduções (basicPlan.title e proPlan.title), não de literais cravados', () => {
+    // Testa que os nomes "Básico" e "Pro" usam basicPlan.title e proPlan.title
+    // da desestruturação (linha 94). Se estivessem cravados, apareceriam como
+    // strings literais em vez de expressões JSX.
+    // Um teste de renderização com language switching não é prático aqui porque:
+    // - FmmPlans não renderiza o toggle de idioma (está em Layout)
+    // - LanguageContext não responde a mudanças de localStorage após mount
+    // Portanto, o melhor é verificar no source que o código usa as variáveis.
+    const source = readFileSync(resolve(__dirname, '../FmmPlans.tsx'), 'utf8');
+    // Verifica que não há literais cravados "Básico" ou "Pro" (em quotes) na markup
+    expect(source).not.toMatch(/>Básico</);
+    expect(source).not.toMatch(/>Pro</);
+  });
+});

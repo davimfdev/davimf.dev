@@ -3,6 +3,7 @@ import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotesProvider } from './context/NotesContext';
 import Layout from './components/Layout';
+import { ScrollToTop } from './components/ScrollToTop';
 import Home from './pages/Home';
 import Portfolio from './pages/Portfolio';
 import Resume from './pages/Resume';
@@ -50,6 +51,7 @@ function App() {
       <AuthProvider>
         <NotesProvider>
         <Router>
+          <ScrollToTop />
           <NotesFloatingLayer />
           <Layout>
             <Routes>

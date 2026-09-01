@@ -315,60 +315,69 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </button>
             </div>
           </div>
+        </nav>
 
-          {/*
-            Mobile: painel de tela cheia, não dropdown. Os links ganham escala
-            de display porque numa tela pequena eles SÃO a página enquanto o
-            menu está aberto.
-          */}
-          {isMenuOpen && (
-            <div
-              ref={mobilePanelRef}
-              tabIndex={-1}
-              role="dialog"
-              aria-modal="true"
-              aria-label={translations.home.nav.menu}
-              className="md:hidden fixed inset-0 top-14 bg-bg z-40 px-gutter pt-10 flex flex-col"
-            >
-              {navigation.map((item) => (
-                <Link key={item.name} to={item.href} onClick={() => setIsMenuOpen(false)} className="text-display-3 text-fg py-3 border-b border-line">
-                  {item.name}
-                </Link>
-              ))}
+        {/*
+          Mobile: painel de tela cheia, não dropdown. Os links ganham escala
+          de display porque numa tela pequena eles SÃO a página enquanto o
+          menu está aberto.
 
-              {/*
-                Os quatro destinos da conta viviam só no dropdown do avatar,
-                que fica em `hidden md:flex` — no celular esse botão nem
-                existe. Sem este bloco, quem comprou uma licença FMM pelo
-                telefone não tinha como chegar em /my-keys pela navegação.
-              */}
-              {discordUser && (
-                <div className="pt-4 flex flex-col">
-                  <p className="text-eyebrow text-fg-muted pb-2">
-                    Identificado como {discordUser.global_name || discordUser.username}
-                  </p>
-                  <Link to="/dashboard" onClick={() => setIsMenuOpen(false)} className="text-lg text-fg-muted py-2.5 border-b border-line">Painel do Bot</Link>
-                  <Link to="/my-keys" onClick={() => setIsMenuOpen(false)} className="text-lg text-fg-muted py-2.5 border-b border-line">Minhas Chaves</Link>
-                  <Link to="/my-orders" onClick={() => setIsMenuOpen(false)} className="text-lg text-fg-muted py-2.5 border-b border-line">Meus Pedidos</Link>
-                  {ADMIN_DISCORD_IDS.includes(discordUser?.id) && (
-                    <Link to="/fmm-admin" onClick={() => setIsMenuOpen(false)} className="text-lg text-accent py-2.5 border-b border-line">Admin FMM</Link>
-                  )}
-                </div>
-              )}
+          Fica FORA da <nav> de propósito — irmão, não filho. A <nav> tem
+          `backdrop-blur-xl`, e `backdrop-filter` num ancestral vira containing
+          block para descendentes `position: fixed`. Como filho, `inset-0`
+          deste painel resolvia contra a caixa da nav (56px de altura) em vez
+          da viewport, e com `top-14` (também 56px) a altura resultante
+          colapsava a ~0 — painel sem área para pintar o fundo, texto
+          flutuando por cima da página. Como irmão, `fixed` volta a resolver
+          contra a viewport.
+        */}
+        {isMenuOpen && (
+          <div
+            ref={mobilePanelRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label={translations.home.nav.menu}
+            className="md:hidden fixed inset-0 top-14 bg-bg z-40 px-gutter pt-10 flex flex-col"
+          >
+            {navigation.map((item) => (
+              <Link key={item.name} to={item.href} onClick={() => setIsMenuOpen(false)} className="text-display-3 text-fg py-3 border-b border-line">
+                {item.name}
+              </Link>
+            ))}
 
-              <div className="mt-auto pb-10 flex items-center justify-between">
-                <button onClick={toggleLanguage} className="text-eyebrow text-fg-muted" aria-label="Toggle language">
-                  {language === 'pt' ? 'PT' : 'EN'}
-                </button>
-                {discordUser ? (
-                  <button onClick={handleLogout} className="text-sm text-danger">Sair</button>
-                ) : (
-                  <button onClick={handleLogin} className="text-sm text-fg-muted">Entrar com Discord</button>
+            {/*
+              Os quatro destinos da conta viviam só no dropdown do avatar,
+              que fica em `hidden md:flex` — no celular esse botão nem
+              existe. Sem este bloco, quem comprou uma licença FMM pelo
+              telefone não tinha como chegar em /my-keys pela navegação.
+            */}
+            {discordUser && (
+              <div className="pt-4 flex flex-col">
+                <p className="text-eyebrow text-fg-muted pb-2">
+                  Identificado como {discordUser.global_name || discordUser.username}
+                </p>
+                <Link to="/dashboard" onClick={() => setIsMenuOpen(false)} className="text-lg text-fg-muted py-2.5 border-b border-line">Painel do Bot</Link>
+                <Link to="/my-keys" onClick={() => setIsMenuOpen(false)} className="text-lg text-fg-muted py-2.5 border-b border-line">Minhas Chaves</Link>
+                <Link to="/my-orders" onClick={() => setIsMenuOpen(false)} className="text-lg text-fg-muted py-2.5 border-b border-line">Meus Pedidos</Link>
+                {ADMIN_DISCORD_IDS.includes(discordUser?.id) && (
+                  <Link to="/fmm-admin" onClick={() => setIsMenuOpen(false)} className="text-lg text-accent py-2.5 border-b border-line">Admin FMM</Link>
                 )}
               </div>
+            )}
+
+            <div className="mt-auto pb-10 flex items-center justify-between">
+              <button onClick={toggleLanguage} className="text-eyebrow text-fg-muted" aria-label="Toggle language">
+                {language === 'pt' ? 'PT' : 'EN'}
+              </button>
+              {discordUser ? (
+                <button onClick={handleLogout} className="text-sm text-danger">Sair</button>
+              ) : (
+                <button onClick={handleLogin} className="text-sm text-fg-muted">Entrar com Discord</button>
+              )}
             </div>
-          )}
-        </nav>
+          </div>
+        )}
 
         <main aria-hidden={isMenuOpen || undefined} className="flex-grow max-w-wide mx-auto px-gutter pt-20 pb-0 w-full relative z-20">
           {children}

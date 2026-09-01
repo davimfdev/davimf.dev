@@ -4,6 +4,10 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
+// IDs Discord com acesso ao Admin FMM. Usado tanto no dropdown do avatar
+// (desktop) quanto no painel mobile — mesmo portão, uma fonte só.
+const ADMIN_DISCORD_IDS = ['956985471332937778', '344214477069221888'];
+
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -292,7 +296,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         <Link to="/dashboard" onClick={() => setIsUserMenuOpen(false)} className="block px-3 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-3 transition-colors">Painel do Bot</Link>
                         <Link to="/my-keys" onClick={() => setIsUserMenuOpen(false)} className="block px-3 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-3 transition-colors">Minhas Chaves</Link>
                         <Link to="/my-orders" onClick={() => setIsUserMenuOpen(false)} className="block px-3 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-3 transition-colors">Meus Pedidos</Link>
-                        {['956985471332937778', '344214477069221888'].includes(discordUser?.id) && (
+                        {ADMIN_DISCORD_IDS.includes(discordUser?.id) && (
                           <Link to="/fmm-admin" onClick={() => setIsUserMenuOpen(false)} className="block px-3 py-2 text-sm text-accent hover:bg-surface-3 transition-colors">Admin FMM</Link>
                         )}
                         <button onClick={handleLogout} className="flex items-center w-full text-left px-3 py-2 text-sm text-danger hover:bg-surface-3 transition-colors">
@@ -331,6 +335,27 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   {item.name}
                 </Link>
               ))}
+
+              {/*
+                Os quatro destinos da conta viviam só no dropdown do avatar,
+                que fica em `hidden md:flex` — no celular esse botão nem
+                existe. Sem este bloco, quem comprou uma licença FMM pelo
+                telefone não tinha como chegar em /my-keys pela navegação.
+              */}
+              {discordUser && (
+                <div className="pt-4 flex flex-col">
+                  <p className="text-eyebrow text-fg-muted pb-2">
+                    Identificado como {discordUser.global_name || discordUser.username}
+                  </p>
+                  <Link to="/dashboard" onClick={() => setIsMenuOpen(false)} className="text-lg text-fg-muted py-2.5 border-b border-line">Painel do Bot</Link>
+                  <Link to="/my-keys" onClick={() => setIsMenuOpen(false)} className="text-lg text-fg-muted py-2.5 border-b border-line">Minhas Chaves</Link>
+                  <Link to="/my-orders" onClick={() => setIsMenuOpen(false)} className="text-lg text-fg-muted py-2.5 border-b border-line">Meus Pedidos</Link>
+                  {ADMIN_DISCORD_IDS.includes(discordUser?.id) && (
+                    <Link to="/fmm-admin" onClick={() => setIsMenuOpen(false)} className="text-lg text-accent py-2.5 border-b border-line">Admin FMM</Link>
+                  )}
+                </div>
+              )}
+
               <div className="mt-auto pb-10 flex items-center justify-between">
                 <button onClick={toggleLanguage} className="text-eyebrow text-fg-muted" aria-label="Toggle language">
                   {language === 'pt' ? 'PT' : 'EN'}

@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import Layout from '../Layout';
@@ -193,5 +193,26 @@ describe('Layout — navbar como régua', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.querySelector('main')?.getAttribute('aria-hidden')).toBeNull();
     expect(document.querySelector('footer')?.getAttribute('aria-hidden')).toBeNull();
+  });
+
+  it('o painel mobile dá a um usuário logado uma rota até /my-keys e /my-orders', async () => {
+    // Regressão real: esses links só existiam no dropdown do avatar, que é
+    // `hidden md:flex` — inexistente no celular. A query fica presa ao
+    // `dialog`: os mesmos hrefs também existem no dropdown desktop, que o
+    // jsdom continua renderizando (não aplica media query), então uma busca
+    // sem escopo passaria mesmo sem o painel mobile ter o bloco.
+    const user = userEvent.setup();
+    localStorage.setItem('discord_token', 'discord-access-token');
+    renderLayout('/');
+
+    await waitFor(() => expect(screen.getAllByText('Painel do Bot').length).toBeGreaterThan(0));
+    await user.click(screen.getByLabelText('Menu'));
+
+    const dialog = screen.getByRole('dialog');
+    const myKeysLink = within(dialog).getByRole('link', { name: 'Minhas Chaves' });
+    const myOrdersLink = within(dialog).getByRole('link', { name: 'Meus Pedidos' });
+
+    expect(myKeysLink.getAttribute('href')).toBe('/my-keys');
+    expect(myOrdersLink.getAttribute('href')).toBe('/my-orders');
   });
 });

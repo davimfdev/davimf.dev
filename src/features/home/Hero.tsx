@@ -60,7 +60,7 @@ export function Hero() {
           <div className="hidden md:block">
             <EcosystemGraph />
           </div>
-          <div className="md:hidden max-w-[240px] mx-auto">
+          <div className="md:hidden max-w-[320px] mx-auto">
             <EcosystemGraph compact />
           </div>
         </div>

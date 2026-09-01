@@ -50,11 +50,16 @@
   --r-lg:   16px;     /* painel, card, modal */
   --r-full: 9999px;   /* pílula, avatar */
 
-  /* --- tipografia nova (a escala padrão do Tailwind NÃO é redefinida) -- */
-  --t-display-1: clamp(2.75rem, 6vw, 3.75rem);
-  --t-display-2: clamp(2rem, 4.2vw, 2.75rem);
-  --t-display-3: 1.75rem;
-  --t-display-4: 1.25rem;
+  /* --- tipografia nova (a escala padrão do Tailwind NÃO é redefinida) --
+     Os quatro tamanhos são `clamp(piso, fluido, teto)`: o piso é o tamanho de
+     celular, o teto é o de desktop. Nenhum dos quatro pode virar valor fixo —
+     foi exatamente isso (`--t-display-3`/`4` sem piso, e o `vw` de 1/2 caindo
+     abaixo do piso em telas pequenas) que deixava todo título com tamanho de
+     desktop no mobile. Não "simplificar" de volta para fixo. */
+  --t-display-1: clamp(2.25rem, 6vw, 3.75rem);      /* 36px → 60px */
+  --t-display-2: clamp(1.75rem, 4.2vw, 2.75rem);    /* 28px → 44px */
+  --t-display-3: clamp(1.375rem, 3vw, 1.75rem);     /* 22px → 28px */
+  --t-display-4: clamp(1.125rem, 2vw, 1.25rem);     /* 18px → 20px */
   --t-eyebrow:   0.6875rem;
 
   /* --- movimento ------------------------------------------------------ */

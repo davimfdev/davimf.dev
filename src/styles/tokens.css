@@ -55,12 +55,17 @@
      celular, o teto é o de desktop. Nenhum dos quatro pode virar valor fixo —
      foi exatamente isso (`--t-display-3`/`4` sem piso, e o `vw` de 1/2 caindo
      abaixo do piso em telas pequenas) que deixava todo título com tamanho de
-     desktop no mobile. Não "simplificar" de volta para fixo. */
-  --t-display-1: clamp(2.25rem, 6vw, 3.75rem);      /* 36px → 60px */
-  --t-display-2: clamp(1.75rem, 4.2vw, 2.75rem);    /* 28px → 44px */
-  --t-display-3: clamp(1.375rem, 3vw, 1.75rem);     /* 22px → 28px */
-  --t-display-4: clamp(1.125rem, 2vw, 1.25rem);     /* 18px → 20px */
-  --t-eyebrow:   0.6875rem;
+     desktop no mobile. Não "simplificar" de volta para fixo.
+
+     Os comentários de px abaixo já contam com `html { font-size }` de
+     `index.css`: 18px abaixo de 768px, 16px dali para cima. O piso (rem) é
+     avaliado a 18px, o teto a 16px — por isso o piso do display-4 (20,25px)
+     supera o próprio teto de desktop (20px): esperado, não é bug. */
+  --t-display-1: clamp(2.25rem, 6vw, 3.75rem);      /* 40.5px → 60px */
+  --t-display-2: clamp(1.75rem, 4.2vw, 2.75rem);    /* 31.5px → 44px */
+  --t-display-3: clamp(1.375rem, 3vw, 1.75rem);     /* 24.75px → 28px */
+  --t-display-4: clamp(1.125rem, 2vw, 1.25rem);     /* 20.25px → 20px */
+  --t-eyebrow:   0.6875rem;                          /* 12.375px → 11px */
 
   /* --- movimento ------------------------------------------------------ */
   --ease-out:    cubic-bezier(.22, 1, .36, 1);

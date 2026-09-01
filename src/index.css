@@ -5,6 +5,28 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Base tipográfica por dispositivo.
+   *
+   * A escala de corpo do Tailwind é relativa ao root, então subir o root no
+   * celular aumenta de uma vez texto, espaçamento e os pisos em `rem` das escalas
+   * de display — sem tocar em ~380 call sites nem criar uma segunda escala para
+   * manter. Num telefone, `text-sm` deixa de ser 14px e vira ~15,8px, `text-xs`
+   * vai a ~13,5px e o eyebrow a ~12,4px.
+   *
+   * 768px é o breakpoint `md` do Tailwind: acima dele o desktop volta ao 16px
+   * para o qual a escala foi desenhada.
+   */
+  html {
+    font-size: 18px;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      font-size: 16px;
+    }
+  }
+
   body {
     @apply bg-bg text-fg font-sans antialiased overflow-x-hidden selection:bg-accent/25 selection:text-fg;
   }

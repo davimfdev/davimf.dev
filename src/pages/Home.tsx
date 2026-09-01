@@ -32,7 +32,7 @@ const Home = () => {
         description={t.work.fmm.description}
         tags={t.work.fmm.tags}
         link={t.work.fmm.link}
-        href="/products"
+        href="/fmm"
         shots={[
           { ...WORK_IMAGES.fmmPrimary, label: t.work.fmm.shots.primary.label, alt: t.work.fmm.shots.primary.alt },
           { ...WORK_IMAGES.fmmSecondary, label: t.work.fmm.shots.secondary.label, alt: t.work.fmm.shots.secondary.alt },

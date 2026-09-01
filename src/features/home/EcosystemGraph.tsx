@@ -16,6 +16,21 @@ import { ECOSYSTEM_EDGES, ECOSYSTEM_NODES } from './homeData';
 
 const byId = (id: string) => ECOSYSTEM_NODES.find((node) => node.id === id)!;
 
+/**
+ * Tamanho do rótulo em user units do viewBox (320×260 fixo — ver `compact`
+ * abaixo). O que chega ao olho é `fontSize × escala`, e a escala muda com o
+ * layout, não com o SVG:
+ *
+ * - Desktop: o SVG renderiza a ~440px de largura, escala ≈ 440/320 = 1.375,
+ *   então 9px viram ~12.4px efetivos.
+ * - Mobile (`compact`): `Hero.tsx` trava o wrapper em `max-w-[240px]`, e o
+ *   `compact` só remove dois nós — o viewBox continua 320 de largura. Escala
+ *   cai para 240/320 = 0.75. Os mesmos 9px virariam ~6.75px (textura, não
+ *   texto). Alvo: ~12px efetivos, iguais ao desktop → 12 / 0.75 = 16px.
+ */
+const LABEL_FONT_SIZE = 9;
+const LABEL_FONT_SIZE_COMPACT = 16;
+
 export function EcosystemGraph({ compact = false }: { compact?: boolean }) {
   // No mobile o grafo perde os dois nós horizontais: cinco nós numa coluna
   // estreita viram sopa de letras.
@@ -74,7 +89,10 @@ export function EcosystemGraph({ compact = false }: { compact?: boolean }) {
               textAnchor="middle"
               className="text-eyebrow"
               fill={core ? 'rgb(var(--accent))' : 'rgb(var(--fg-muted))'}
-              style={{ fontSize: '9px', letterSpacing: '0.08em' }}
+              style={{
+                fontSize: compact ? `${LABEL_FONT_SIZE_COMPACT}px` : `${LABEL_FONT_SIZE}px`,
+                letterSpacing: '0.08em',
+              }}
             >
               {node.id}
             </text>

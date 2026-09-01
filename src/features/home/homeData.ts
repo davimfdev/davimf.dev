@@ -59,13 +59,16 @@ export const STACK_GROUPS = [
  * posicionado por um único fator de escala uniforme, a janela visível dentro
  * da moldura tem SEMPRE a proporção da moldura (16/10) em pixels de origem —
  * só o tamanho dela muda com `scale`, e `offsetX`/`offsetY` só a movem. Os
- * valores abaixo foram calculados resolvendo essa proporção para as regiões
- * reais do app (ver task-5-report.md para a derivação e para os recortes de
- * verificação usados), não chutados: `fmmPrimary` enquadra a grade de mods
- * (rótulos ESTRADAS e GRÁFICOS, duas fileiras completas). `fmmSecondary`
- * enquadra CPU + GPU da tela de Otimização — mostrar as quatro colunas (CPU/
- * GPU/RAM/ANÁLISE GERAL) exigiria reduzir a imagem a ponto de o texto ficar
- * ilegível, já que a fileira é larga e baixa demais para a proporção 16/10.
+ * valores abaixo enquadram uma região real do screenshot da janela cheia:
+ * foram derivados calculando, para cada `scale`/`offset`, o retângulo em
+ * pixels de origem que ele mapeia dentro da moldura 16/10 — não chutados.
+ * `fmmPrimary` enquadra a grade de mods (rótulos ESTRADAS e GRÁFICOS, duas
+ * fileiras completas). `fmmSecondary` enquadra CPU + GPU da tela de
+ * Otimização — mostrar as quatro colunas (CPU/GPU/RAM/ANÁLISE GERAL) exigiria
+ * reduzir a imagem a ponto de o texto ficar ilegível, já que a fileira é
+ * larga e baixa demais para a proporção 16/10. Se os PNGs forem substituídos
+ * por versões já recortadas, os três campos zeram: `scale: 1, offsetX: 0,
+ * offsetY: 0`.
  */
 export const WORK_IMAGES = {
   fmmPrimary: { src: '/work/fmm-mods.png', scale: 3.32, offsetX: -36.6, offsetY: -108.4 },

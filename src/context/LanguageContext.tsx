@@ -345,8 +345,8 @@ const translations = {
     home: {
       systemLabel: 'DAVIMF / SYS',
       systemId: 'DVM-001',
-      headline: 'Eu construo sistemas que fazem coisas.',
-      sub: 'Backend, bots, automações e infraestrutura — de FiveM a Discord, do banco ao deploy.',
+      headline: 'Ideias viram sistemas.\nSistemas geram resultados.',
+      sub: 'Software, automações e produtos digitais — da arquitetura à produção.',
       ctaProducts: 'Ver produtos',
       ctaWork: 'Conhecer meu trabalho',
       evidence: {
@@ -784,8 +784,8 @@ const translations = {
     home: {
       systemLabel: 'DAVIMF / SYS',
       systemId: 'DVM-001',
-      headline: 'I build systems that do things.',
-      sub: 'Backend, bots, automation and infrastructure — from FiveM to Discord, from the database to the deploy.',
+      headline: 'Ideas become systems.\nSystems deliver results.',
+      sub: 'Software, automation, and digital products — from architecture to production.',
       ctaProducts: 'See products',
       ctaWork: 'See my work',
       evidence: {

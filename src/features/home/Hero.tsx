@@ -32,7 +32,7 @@ export function Hero() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-12 lg:gap-16 items-center">
         <div className="lg:col-span-7">
           <Reveal>
-            <h1 className="text-display-1 font-display font-bold text-fg text-balance">
+            <h1 className="text-display-1 font-display font-bold text-fg text-balance whitespace-pre-line">
               {t.headline}
             </h1>
           </Reveal>

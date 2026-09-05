@@ -1,9 +1,9 @@
-# Davimf.dev — bots personalizados, bot de facção FiveM, gerenciador de mods FiveM
+# Davimf.dev - bots personalizados, bot de facção FiveM, gerenciador de mods FiveM
 
 User-agent: *
 Allow: /
 
-# AI crawlers / agents — explicitly welcome
+# AI crawlers / agents - explicitly welcome
 User-agent: GPTBot
 Allow: /
 

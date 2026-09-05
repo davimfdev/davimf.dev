@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-describe('FmmPlans — badge do Pro', () => {
+describe('FmmPlans - badge do Pro', () => {
   it('o badge do Pro ocupa espaço real, em vez de flutuar sobre o card', () => {
     // A causa do corte era posicionamento absoluto: elemento absoluto não
     // reserva espaço, então o badge se sobrepunha ao topo do card e a borda
@@ -15,7 +15,7 @@ describe('FmmPlans — badge do Pro', () => {
   });
 });
 
-describe('FmmPlans — nomes dos planos', () => {
+describe('FmmPlans - nomes dos planos', () => {
   it('os nomes vêm das traduções (basicPlan.title e proPlan.title), não de literais cravados', () => {
     // Testa que os nomes "Básico" e "Pro" usam basicPlan.title e proPlan.title
     // da desestruturação (linha 94). Se estivessem cravados, apareceriam como

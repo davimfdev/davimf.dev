@@ -1,5 +1,5 @@
 /**
- * MercadoPagoPaymentProvider — a ÚNICA classe do projeto que conhece o
+ * MercadoPagoPaymentProvider - a ÚNICA classe do projeto que conhece o
  * Mercado Pago.
  *
  * Nunca gera licença FMM, nunca manda e-mail, nunca decide preço. Só traduz
@@ -35,7 +35,7 @@ const DEFAULT_BOLETO_EXPIRY_DAYS = 3;
 
 /**
  * Nome exibido na fatura do cartão. Na Orders API ele vive em
- * `transactions.payments[].payment_method.statement_descriptor` — NÃO no topo
+ * `transactions.payments[].payment_method.statement_descriptor` - NÃO no topo
  * da Order, que é onde uma tentativa anterior o colocou e por isso foi
  * rejeitada. Documentado apenas no contrato de cartão.
  *
@@ -43,12 +43,12 @@ const DEFAULT_BOLETO_EXPIRY_DAYS = 3;
  * pagamento é aprovado normalmente e o requisito "Fatura do cartão" do
  * relatório de qualidade fecha (91 → 98). Um `processing_error` observado uma
  * única vez com o campo ligado era instabilidade do ambiente de teste, não o
- * campo — não desligue por causa daquele episódio.
+ * campo - não desligue por causa daquele episódio.
  *
  * O valor fica em env porque é a marca do negócio, não constante de código.
  * **Mantenha a variável definida**: sem ela o campo some do payload e o
  * requisito volta a ficar pendente. O "Nome para faturas" da conta NÃO
- * substitui para efeito de medição — está configurado nas duas contas e o
+ * substitui para efeito de medição - está configurado nas duas contas e o
  * medidor não o lê.
  */
 function statementDescriptor(): Record<string, string> {
@@ -74,7 +74,7 @@ type OrderPayer = {
  *
  * Só devolve algo quando o DDD é DERIVÁVEL do que o cliente digitou: 10/11
  * dígitos, ou 12/13 com o código do país 55. Qualquer outro formato vira
- * `null` — é melhor omitir o telefone do que enviar um DDD inventado.
+ * `null` - é melhor omitir o telefone do que enviar um DDD inventado.
  */
 function buildPhone(phone: string | undefined): OrderPhone | null {
   if (!phone) return null;
@@ -86,7 +86,7 @@ function buildPhone(phone: string | undefined): OrderPhone | null {
   return { area_code: national.slice(0, 2), number: national.slice(2) };
 }
 
-/** Endereço só com os campos REALMENTE preenchidos — sem string vazia. */
+/** Endereço só com os campos REALMENTE preenchidos - sem string vazia. */
 function buildAddress(address: NonNullable<Payer['address']>): Record<string, string> {
   const out: Record<string, string> = {
     zip_code: address.zipCode,
@@ -172,7 +172,7 @@ function isoDuration(minutes: number): string {
  */
 type WebhookIdentity = {
   applicationId: string | null;
-  /** Conta do Mercado Pago dona do recurso — separa conta real de usuário de teste. */
+  /** Conta do Mercado Pago dona do recurso - separa conta real de usuário de teste. */
   userId: string | null;
   liveMode: boolean | null;
   type: string | null;
@@ -198,7 +198,7 @@ function webhookIdentity(body: Record<string, unknown>): WebhookIdentity {
 
 /**
  * Classifica a aplicação de origem quando `MERCADOPAGO_APPLICATION_ID` está
- * configurada. É rótulo de LOG apenas — nunca aceita nem recusa nada por si:
+ * configurada. É rótulo de LOG apenas - nunca aceita nem recusa nada por si:
  * uma notificação de aplicação conhecida com assinatura inválida continua
  * sendo recusada, e uma de aplicação desconhecida com assinatura válida
  * continua sendo processada.
@@ -277,7 +277,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
   /**
    * Campos COMUNS a toda Order avulsa.
    *
-   * Nada específico de método entra aqui — em especial `capture_mode`, que é
+   * Nada específico de método entra aqui - em especial `capture_mode`, que é
    * contrato de cartão e não pode vazar para Pix/boleto.
    */
   private baseOrder(input: BaseChargeInput, method: 'pix' | 'card' | 'boleto'): Record<string, unknown> {
@@ -295,7 +295,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
   /**
    * `baseOrder` + o contrato EXCLUSIVO de cartão.
    *
-   * Toda Order de cartão passa por aqui — cartão novo e cartão salvo — para que
+   * Toda Order de cartão passa por aqui - cartão novo e cartão salvo - para que
    * nenhuma delas fique sem `capture_mode` nem sem o 3DS completo.
    */
   private cardOrder(input: BaseChargeInput): Record<string, unknown> {

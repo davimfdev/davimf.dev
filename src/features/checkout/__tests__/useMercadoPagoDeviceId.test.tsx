@@ -2,7 +2,7 @@
 /**
  * Device ID do MercadoPago.js: leitura DEFENSIVA e limitada.
  *
- * O contrato é estreito de propósito — só o valor real que o SDK publicou em
+ * O contrato é estreito de propósito - só o valor real que o SDK publicou em
  * `window.MP_DEVICE_SESSION_ID` pode ser devolvido. UUID, localStorage ou
  * qualquer "fingerprint" caseiro seriam mentira ao provider.
  */

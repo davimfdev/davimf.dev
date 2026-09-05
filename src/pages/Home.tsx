@@ -2,7 +2,7 @@
  * A Home compõe seções; ela não desenha nada por conta própria.
  *
  * Cada seção mora em `src/features/home/` e é responsável pelo próprio
- * comportamento em mobile — mobile não é um passe de correção no fim.
+ * comportamento em mobile - mobile não é um passe de correção no fim.
  */
 
 import { useLanguage } from '../context/LanguageContext';

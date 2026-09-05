@@ -1,5 +1,5 @@
 /**
- * Catálogo. O BANCO é a fonte de verdade de preço — o frontend nunca envia
+ * Catálogo. O BANCO é a fonte de verdade de preço - o frontend nunca envia
  * valor, só o código do produto.
  */
 

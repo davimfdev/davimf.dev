@@ -21,7 +21,7 @@ export interface EmailProvider {
   send(message: EmailMessage): Promise<EmailSendResult>;
 }
 
-/** Identidade do remetente — todos os endereços são @davimf.dev. */
+/** Identidade do remetente - todos os endereços são @davimf.dev. */
 export const EMAIL_FROM = process.env.PAYMENTS_EMAIL_FROM ?? 'DAVIMF <noreply@davimf.dev>';
 export const EMAIL_REPLY_TO = process.env.PAYMENTS_EMAIL_REPLY_TO ?? 'financeiro@davimf.dev';
 export const EMAIL_SUPPORT = process.env.PAYMENTS_EMAIL_SUPPORT ?? 'contato@davimf.dev';

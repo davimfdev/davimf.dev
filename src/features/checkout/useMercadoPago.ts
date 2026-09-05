@@ -3,7 +3,7 @@
  *
  * A tokenização acontece INTEIRAMENTE aqui, no navegador, dentro dos iframes
  * do Mercado Pago (Secure Fields). Nem o número do cartão nem o CVV tocam o
- * nosso React state, nossa rede ou nosso backend — só o token resultante.
+ * nosso React state, nossa rede ou nosso backend - só o token resultante.
  */
 
 import { useEffect, useState } from 'react';

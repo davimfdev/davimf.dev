@@ -11,7 +11,7 @@ import { CURRENT_LEGAL_VERSION } from '../../content/legal';
 /**
  * O idioma vive só dentro do LanguageProvider (useState interno, sem prop de
  * idioma inicial), então para testar a versão em inglês do painel é preciso
- * um componente que chame setLanguage ao montar — não há outro jeito de
+ * um componente que chame setLanguage ao montar - não há outro jeito de
  * alcançar o estado a partir de fora.
  */
 function LanguageSetter({ language }: { language: 'pt' | 'en' }) {
@@ -53,7 +53,7 @@ describe('rotas versionadas dos documentos', () => {
   it('versão desconhecida não renderiza um documento inventado', () => {
     renderAt('/legal/1999-01-01-v1/terms-of-service');
     // Uma versão que nunca existiu tem de dizer isso, e não cair
-    // silenciosamente no texto atual — que seria afirmar um contrato falso.
+    // silenciosamente no texto atual - que seria afirmar um contrato falso.
     expect(screen.queryByRole('heading', { level: 1, name: 'Termos de Uso' })).toBeNull();
     expect(screen.getByText(/não encontrada/i)).toBeTruthy();
   });

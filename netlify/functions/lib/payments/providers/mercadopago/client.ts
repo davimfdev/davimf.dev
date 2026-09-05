@@ -3,7 +3,7 @@
  *
  * Fala direto com a API REST oficial (mesma superfície que o SDK Node cobre),
  * o que evita divergência de dependência entre package.json da raiz (testes) e
- * de server/ (runtime do container) — os handlers em netlify/functions/ são
+ * de server/ (runtime do container) - os handlers em netlify/functions/ são
  * compilados nos dois.
  *
  * Endpoints usados (Checkout Transparente via Orders API + Assinaturas):
@@ -31,7 +31,7 @@ export type MpRequest = {
   timeoutMs?: number;
   /**
    * Device ID real do MercadoPago.js. ESTA classe é o único lugar que o
-   * traduz — e só em header. Ele nunca vira corpo JSON, nunca é persistido e
+   * traduz - e só em header. Ele nunca vira corpo JSON, nunca é persistido e
    * nunca entra em mensagem de erro/log.
    */
   meliSessionId?: string;
@@ -43,7 +43,7 @@ const MELI_SESSION_ID_MAX_LENGTH = 300;
 /**
  * Fronteira HTTP do Device ID: string não vazia, limitada e sem caracteres de
  * controle (que permitiriam injeção de header). Qualquer outra coisa é
- * descartada em silêncio — o pagamento continua, apenas sem o header opcional.
+ * descartada em silêncio - o pagamento continua, apenas sem o header opcional.
  */
 function meliSessionHeader(value: unknown): string | null {
   if (typeof value !== 'string') return null;
@@ -116,7 +116,7 @@ export class MercadoPagoClient {
     // devolve a MESMA cobrança em vez de criar outra.
     if (input.idempotencyKey) headers['X-Idempotency-Key'] = input.idempotencyKey;
     // Device ID: entra SÓ aqui, SÓ como header. Se o SDK não gerou um valor
-    // válido, a cobrança segue sem ele — nada bloqueia por causa disso.
+    // válido, a cobrança segue sem ele - nada bloqueia por causa disso.
     const meliSessionId = meliSessionHeader(input.meliSessionId);
     if (meliSessionId) headers['X-meli-session-id'] = meliSessionId;
 

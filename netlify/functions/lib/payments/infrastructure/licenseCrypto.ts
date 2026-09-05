@@ -2,7 +2,7 @@
  * Cifra da cópia recuperável da chave de licença.
  *
  * A tabela `fmm_license_keys` guarda o HASH da chave (é ele que valida a
- * ativação) — hash não volta atrás, então a chave não poderia ser reexibida no
+ * ativação) - hash não volta atrás, então a chave não poderia ser reexibida no
  * painel. Guardamos também uma cópia cifrada com AES-256-GCM reutilizando o
  * mesmo mecanismo de lib/dashboard/crypto.ts, para que o e-mail não seja o
  * único lugar onde a licença existe.
@@ -27,7 +27,7 @@ function withKeyEnv<T>(run: () => T): T {
   }
 }
 
-/** `null` quando não há chave de cifra configurada — a venda não pode parar por isso. */
+/** `null` quando não há chave de cifra configurada - a venda não pode parar por isso. */
 export function encryptLicenseKey(rawKey: string): string | null {
   try {
     return withKeyEnv(() => encryptToken(rawKey));

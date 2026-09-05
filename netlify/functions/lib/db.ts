@@ -1,5 +1,5 @@
 /**
- * Acesso a PostgreSQL por TCP, com pool — substitui o driver HTTP da Neon
+ * Acesso a PostgreSQL por TCP, com pool - substitui o driver HTTP da Neon
  * (`@neondatabase/serverless` / `@netlify/neon`), que fazia `fetch` para um
  * endpoint da Neon e passou a falhar com ECONNREFUSED depois da migração para
  * o VPS, onde o banco é um Postgres 17 comum em `postgres:5432`.
@@ -19,7 +19,7 @@
  *
  * ### Compatibilidade de comportamento com o driver antigo
  *
- * - `transform: { undefined: null }` — o driver da Neon (via `pg`) mandava
+ * - `transform: { undefined: null }` - o driver da Neon (via `pg`) mandava
  *   `undefined` como NULL; o postgres.js, sem isso, lança `UNDEFINED_VALUE`.
  *   Há queries que dependem disso (ex.: `accounts.ts` interpola `${body.type}`
  *   direto do corpo da requisição).
@@ -111,7 +111,7 @@ export function sqlFor(envNames: readonly string[]): SqlClient {
 // São bancos SEPARADOS e não devem ser unificados.
 
 /**
- * Banco do site (`davimf_dev`) — todo, notas, encurtador, contas.
+ * Banco do site (`davimf_dev`) - todo, notas, encurtador, contas.
  * Precedência histórica destes handlers: `DATABASE_URL` primeiro.
  */
 export const SITE_DB_ENV = ['DATABASE_URL', 'NETLIFY_DATABASE_URL'] as const;
@@ -123,7 +123,7 @@ export const SITE_DB_ENV = ['DATABASE_URL', 'NETLIFY_DATABASE_URL'] as const;
  * As duas listas existem de propósito: se as duas variáveis apontarem para a
  * MESMA URL (o caso normal hoje), o pool é literalmente o mesmo objeto. Se
  * apontarem para bancos diferentes, cada handler continua indo para o banco em
- * que os dados dele estão — unificar aqui poderia fazer tabela "sumir".
+ * que os dados dele estão - unificar aqui poderia fazer tabela "sumir".
  */
 export const AUTH_DB_ENV = ['NETLIFY_DATABASE_URL', 'DATABASE_URL'] as const;
 
@@ -148,7 +148,7 @@ export type DatabaseTarget = {
 };
 
 /**
- * Para onde cada acessor aponta, SEM credencial — só host, porta e nome do
+ * Para onde cada acessor aponta, SEM credencial - só host, porta e nome do
  * banco. Existe porque "relation ... does not exist" quase sempre significa
  * que a migração foi aplicada num banco e a aplicação está lendo outro; sem
  * isto impresso no arranque, descobrir isso é adivinhação.

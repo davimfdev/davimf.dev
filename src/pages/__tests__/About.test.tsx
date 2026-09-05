@@ -12,7 +12,7 @@ const renderAbout = () =>
 
 /**
  * A seção de projetos e a seção de Stack (STACK_GROUPS) compartilham nomes de
- * tecnologia — "Java", "Nginx" e "Mercado Pago" existem nas duas. As
+ * tecnologia - "Java", "Nginx" e "Mercado Pago" existem nas duas. As
  * asserções sobre tags de projeto precisam ficar restritas à primeira
  * `<section>` (projetos); a Stack é a segunda.
  */

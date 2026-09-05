@@ -2,13 +2,13 @@
  * Validação da assinatura `x-signature` das notificações do Mercado Pago.
  *
  * Manifesto oficial: `id:[data.id_url];request-id:[x-request-id_header];ts:[ts_header];`
- * — `data.id` vem da QUERY STRING (nunca do corpo);
- * — a documentação manda usar o `data.id` em MINÚSCULAS quando ele é
+ * - `data.id` vem da QUERY STRING (nunca do corpo);
+ * - a documentação manda usar o `data.id` em MINÚSCULAS quando ele é
  *   alfanumérico (`ORD01...` → `ord01...`); o simulador do painel, porém,
  *   assina preservando o case. As duas formas são testadas, e ambas continuam
  *   exigindo HMAC-SHA256 válido com um segredo configurado;
- * — partes ausentes são OMITIDAS do manifesto (inclusive o rótulo);
- * — HMAC-SHA256 hex comparado a `v1` em tempo constante.
+ * - partes ausentes são OMITIDAS do manifesto (inclusive o rótulo);
+ * - HMAC-SHA256 hex comparado a `v1` em tempo constante.
  *
  * Diagnóstico: falhas devolvem `diagnostics` com dados NÃO sensíveis
  * (rótulos lógicos e fingerprints irreversíveis dos segredos, idade do `ts`,
@@ -86,7 +86,7 @@ function configuredSecrets(explicit?: string): SecretSource[] {
 /**
  * Agrupa os segredos por VALOR: rótulos com o mesmo fingerprint viram
  * `test+production:ac346080`, deixando explícito no log que ali existe UMA
- * assinatura sob dois nomes. Isso é o esperado — o painel gera a assinatura
+ * assinatura sob dois nomes. Isso é o esperado - o painel gera a assinatura
  * secreta vinculada à APLICAÇÃO, não ao modo, então teste e produção
  * legitimamente compartilham o mesmo valor. Fingerprints diferentes só
  * aparecem em conta com mais de uma aplicação configurada aqui.
@@ -102,7 +102,7 @@ function describeSecrets(secrets: SecretSource[]): string[] {
 
 /** Tudo aqui é seguro de registrar: nenhum campo deriva do segredo ou da assinatura. */
 export type SignatureDiagnostics = {
-  /** Conjunto lógico tentado, como `test:1a2b3c4d` — rótulo + fingerprint. */
+  /** Conjunto lógico tentado, como `test:1a2b3c4d` - rótulo + fingerprint. */
   secrets: string[];
   /** Idade da assinatura em segundos (negativa = relógio do servidor atrasado). */
   tsAgeSeconds: number | null;
@@ -118,7 +118,7 @@ export type SignatureDiagnostics = {
    * delas é segredo: `data.id` e `x-request-id` são identificadores de
    * requisição, `ts` é público no cabeçalho, e 8 hex de um HMAC-SHA256 não
    * permitem forjar assinatura. Ainda assim, quem decide registrar isto é o
-   * chamador — ver `MERCADOPAGO_WEBHOOK_DEBUG`.
+   * chamador - ver `MERCADOPAGO_WEBHOOK_DEBUG`.
    */
   manifestInputs: {
     dataId: string | null;
@@ -181,7 +181,7 @@ export function verifyWebhookSignature(input: VerifyInput): VerifyResult {
   let legacyId: string | null = null;
   try {
     const parsed = new URL(input.url, 'https://davimf.dev');
-    // Só `data.id` entra no manifesto — é o que a documentação define. O `id`
+    // Só `data.id` entra no manifesto - é o que a documentação define. O `id`
     // das notificações legadas serve apenas para localizar o recurso depois.
     dataId = parsed.searchParams.get('data.id');
     legacyId = parsed.searchParams.get('id');

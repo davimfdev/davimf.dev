@@ -11,7 +11,7 @@ export default defineConfig({
   test: {
     // O vitest 4 não exclui `dist/` sozinho. Sem isto, uma build antiga em
     // server/dist ou dist/ é coletada como suíte e roda o mesmo teste
-    // recompilado para CommonJS — que o vitest não consegue importar.
+    // recompilado para CommonJS - que o vitest não consegue importar.
     exclude: ['**/node_modules/**', '**/dist/**', '**/.git/**'],
   },
   optimizeDeps: {

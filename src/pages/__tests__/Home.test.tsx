@@ -14,12 +14,12 @@ describe('Home', () => {
   /**
    * A Stack saiu da Home (ver About.test.tsx, "traz a stack, que saiu da
    * Home"): a Home é a landing, /about é a página completa. Não há marco
-   * STACK aqui — testá-lo faria a suíte exigir algo que a própria produto
+   * STACK aqui - testá-lo faria a suíte exigir algo que a própria produto
    * decidiu remover.
    *
    * A ordem é lida do DOM, não de uma busca textual: `indexOf` sobre
    * `document.body.textContent` acharia a primeira ocorrência TEXTUAL do
-   * rótulo em qualquer lugar da página, não a posição do elemento — um rótulo
+   * rótulo em qualquer lugar da página, não a posição do elemento - um rótulo
    * repetido (ex.: em copy ou aria-label) faria o teste mentir sobre a ordem
    * real. `compareDocumentPosition` compara os nós de fato.
    */
@@ -59,7 +59,7 @@ describe('Home', () => {
 
   /**
    * `/fmm` existe e é a página do produto (App.tsx); `/products` é a vitrine
-   * genérica. O link "Ver FMM" já apontou para `/products` por engano — a
+   * genérica. O link "Ver FMM" já apontou para `/products` por engano - a
    * mesma seção-mais-forte da Home levando para o lugar errado. Trava aqui
    * para as duas rotas não voltarem a divergir.
    */

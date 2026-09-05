@@ -1,12 +1,12 @@
 /**
- * NotificationService — decide QUANDO notificar; EmailProvider decide COMO.
+ * NotificationService - decide QUANDO notificar; EmailProvider decide COMO.
  *
  * Regras invioláveis:
  *  - todo evento financeiro relevante gera e-mail ao comprador;
  *  - a deduplicação é feita ANTES do envio, por chave estável do evento;
  *  - polling pode confirmar pagamento; a chave de deduplicação impede que um
  *    webhook posterior envie o mesmo e-mail novamente;
- *  - falha de e-mail NUNCA invalida pedido ou licença — só marca FAILED.
+ *  - falha de e-mail NUNCA invalida pedido ou licença - só marca FAILED.
  */
 
 import { getEmailProvider } from '../email/ResendEmailProvider';

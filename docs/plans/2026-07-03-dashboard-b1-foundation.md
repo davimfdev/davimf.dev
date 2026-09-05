@@ -1,10 +1,10 @@
-# Parte B1 (site) — Fundação segura do dashboard de config Implementation Plan
+# Parte B1 (site) - Fundação segura do dashboard de config Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or executing-plans. Steps use `- [ ]` checkboxes.
 
-**Goal:** Construir a base de backend (Netlify Functions) que fala com o **Neon de config do bot** com **autorização owner-first + bot presente** e **proteção de Origin**, de forma **aditiva e não-quebra** — funções novas guardadas; funções/frontend antigos (stub Supabase) ficam intactos até a fase do frontend.
+**Goal:** Construir a base de backend (Netlify Functions) que fala com o **Neon de config do bot** com **autorização owner-first + bot presente** e **proteção de Origin**, de forma **aditiva e não-quebra** - funções novas guardadas; funções/frontend antigos (stub Supabase) ficam intactos até a fase do frontend.
 
-**Architecture:** Libs compartilhadas em `netlify/functions/lib/` — `botDb` (conexão Neon do bot via `BOT_CONFIG_DATABASE_URL`), `requireGuildAccess` (owner-first + `bot_guilds.bot_present`), `cors` (Origin/Referer em métodos mutantes), `guildConfig` (leitura + escrita **merge por chave** dos mapas JSONB, preservando `dashboard_access`). Três funções novas usam essas libs: `guild-config-get`, `guild-config-set`, `bot-guilds-list`. Vitest cobre a lógica pura (Origin, merge, authz) com `fetch`/`sql` mockados.
+**Architecture:** Libs compartilhadas em `netlify/functions/lib/` - `botDb` (conexão Neon do bot via `BOT_CONFIG_DATABASE_URL`), `requireGuildAccess` (owner-first + `bot_guilds.bot_present`), `cors` (Origin/Referer em métodos mutantes), `guildConfig` (leitura + escrita **merge por chave** dos mapas JSONB, preservando `dashboard_access`). Três funções novas usam essas libs: `guild-config-get`, `guild-config-set`, `bot-guilds-list`. Vitest cobre a lógica pura (Origin, merge, authz) com `fetch`/`sql` mockados.
 
 **Tech Stack:** Vite/React SPA + Netlify Functions (TypeScript), `@neondatabase/serverless`, vitest. Repo: `davimf.dev` (branch `main` limpo → commits por task).
 
@@ -27,18 +27,18 @@
 
 ## Pré-requisito de infra (manual, antes do deploy)
 
-Adicionar `BOT_CONFIG_DATABASE_URL` nas env vars do Netlify = string de conexão do **Neon de config do bot** (o mesmo que o bot usa; `sslmode=require`). Sem ela as funções novas retornam 500 em runtime — mas o código e os testes (com `sql`/`fetch` mockados) não precisam dela.
+Adicionar `BOT_CONFIG_DATABASE_URL` nas env vars do Netlify = string de conexão do **Neon de config do bot** (o mesmo que o bot usa; `sslmode=require`). Sem ela as funções novas retornam 500 em runtime - mas o código e os testes (com `sql`/`fetch` mockados) não precisam dela.
 
 ## File Structure
 
-- `netlify/functions/lib/botDb.ts` — **novo**: `export const botSql = neon(process.env.BOT_CONFIG_DATABASE_URL!)`.
-- `netlify/functions/lib/cors.ts` — **novo**: `allowedOrigin(event)`.
-- `netlify/functions/lib/requireGuildAccess.ts` — **novo**: authz owner-first + bot_present.
-- `netlify/functions/lib/guildConfig.ts` — **novo**: read + merge-write dos mapas.
-- `netlify/functions/guild-config-get.ts` — **novo**.
-- `netlify/functions/guild-config-set.ts` — **novo**.
-- `netlify/functions/bot-guilds-list.ts` — **novo**.
-- `netlify/functions/lib/__tests__/*.test.ts` — **novos**: vitest.
+- `netlify/functions/lib/botDb.ts` - **novo**: `export const botSql = neon(process.env.BOT_CONFIG_DATABASE_URL!)`.
+- `netlify/functions/lib/cors.ts` - **novo**: `allowedOrigin(event)`.
+- `netlify/functions/lib/requireGuildAccess.ts` - **novo**: authz owner-first + bot_present.
+- `netlify/functions/lib/guildConfig.ts` - **novo**: read + merge-write dos mapas.
+- `netlify/functions/guild-config-get.ts` - **novo**.
+- `netlify/functions/guild-config-set.ts` - **novo**.
+- `netlify/functions/bot-guilds-list.ts` - **novo**.
+- `netlify/functions/lib/__tests__/*.test.ts` - **novos**: vitest.
 
 ---
 
@@ -56,7 +56,7 @@ Adicionar `BOT_CONFIG_DATABASE_URL` nas env vars do Netlify = string de conexão
 ```ts
 import { neon } from '@neondatabase/serverless';
 
-// Neon de CONFIG DO BOT — projeto separado do banco do site (DATABASE_URL). Só server-side.
+// Neon de CONFIG DO BOT - projeto separado do banco do site (DATABASE_URL). Só server-side.
 export const botSql = neon(process.env.BOT_CONFIG_DATABASE_URL!);
 ```
 
@@ -477,7 +477,7 @@ git commit -m "feat(dashboard): guarded config get/set + owner-first guild list 
 ## Pré-requisitos de schema/infra (dependências desta B1)
 
 1. **`BOT_CONFIG_DATABASE_URL`** nas env vars do Netlify (Neon do bot). *(deploy)*
-2. **Coluna `guild_config.updated_by`** no Neon do bot — migração no repo do bot (`007_updated_by.sql`: `ALTER TABLE guild_config ADD COLUMN IF NOT EXISTS updated_by TEXT`), aplicada via `ApplyPostgresSchema`. *(a `patchMap` grava `updated_by`.)*
+2. **Coluna `guild_config.updated_by`** no Neon do bot - migração no repo do bot (`007_updated_by.sql`: `ALTER TABLE guild_config ADD COLUMN IF NOT EXISTS updated_by TEXT`), aplicada via `ApplyPostgresSchema`. *(a `patchMap` grava `updated_by`.)*
 
 ## Smoke (após o deploy + env var + coluna)
 
@@ -495,4 +495,4 @@ git commit -m "feat(dashboard): guarded config get/set + owner-first guild list 
 
 **Cobertura (spec Parte B, fatia de fundação):** conexão Neon do bot → T1; owner-first + bot_present → T2/T4; merge por chave + allowlist + preserva dashboard_access → T3; Origin/CORS → T1/T4; funções guardadas → T4. Cookie/validação-snapshot/CRUDs/frontend → fases seguintes (documentado). ✅
 **Placeholders:** nenhum; todo passo traz código. Dependências (env var, coluna `updated_by`) explícitas.
-**Consistência:** `Access`/`requireGuildAccess(event, guildId, deps)`, `patchMap(guildId, column, patch, updatedBy, sql?)`, `sanitizePatch(column, patch)`, `MAP_COLUMNS` — usados igual nos testes e nas funções.
+**Consistência:** `Access`/`requireGuildAccess(event, guildId, deps)`, `patchMap(guildId, column, patch, updatedBy, sql?)`, `sanitizePatch(column, patch)`, `MAP_COLUMNS` - usados igual nos testes e nas funções.

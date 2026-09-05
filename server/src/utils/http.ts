@@ -24,7 +24,7 @@ const HOP_BY_HOP = new Set([
  * URL absoluta da requisição como o cliente a viu.
  *
  * Atrás do Nginx Proxy Manager o backend recebe http://davimf-api:3000, mas os
- * handlers precisam enxergar https://davimf.dev/... — daí `trust proxy` no app
+ * handlers precisam enxergar https://davimf.dev/... - daí `trust proxy` no app
  * (que faz `req.protocol` ler o X-Forwarded-Proto) somado ao Host repassado.
  */
 export function absoluteUrl(req: ExpressRequest): string {
@@ -68,7 +68,7 @@ export function toWebHeaders(req: ExpressRequest): Headers {
 /**
  * O middleware de corpo cru sempre entrega um Buffer. Métodos sem corpo e
  * corpos vazios viram `null`, que é exatamente o que a Netlify entregava em
- * `event.body` — os handlers já tratam esse caso (`event.body ?? '{}'`).
+ * `event.body` - os handlers já tratam esse caso (`event.body ?? '{}'`).
  */
 export function rawBodyOf(req: ExpressRequest): Buffer {
   const body: unknown = req.body;

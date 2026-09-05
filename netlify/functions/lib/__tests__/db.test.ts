@@ -3,7 +3,7 @@
  *
  * Estes testes não conectam em banco nenhum: exercitam a resolução de env var,
  * a memoização do pool e a compatibilidade da template tag. O que importa aqui
- * é justamente o que mudou de HTTP para TCP — criar um cliente por requisição
+ * é justamente o que mudou de HTTP para TCP - criar um cliente por requisição
  * era grátis antes e vazaria conexões agora.
  */
 
@@ -55,7 +55,7 @@ describe('resolução de connection string', () => {
 
   it('só falha quando a query é realmente executada', () => {
     const sql = sqlFor(SITE_DB_ENV);
-    // Lança de forma síncrona, como o driver antigo fazia — o `await` dentro do
+    // Lança de forma síncrona, como o driver antigo fazia - o `await` dentro do
     // try/catch de cada handler captura igual.
     expect(() => sql`SELECT 1`).toThrow(/DATABASE_URL/);
   });
@@ -97,7 +97,7 @@ describe('resolução de connection string', () => {
 });
 
 describe('memoização do pool', () => {
-  it('reaproveita o pool entre chamadas — um handler não abre conexão por requisição', () => {
+  it('reaproveita o pool entre chamadas - um handler não abre conexão por requisição', () => {
     process.env.DATABASE_URL = SITE;
     const sql = sqlFor(SITE_DB_ENV);
 
@@ -115,7 +115,7 @@ describe('memoização do pool', () => {
     expect(openPoolCount()).toBe(1);
   });
 
-  it('bancos diferentes não compartilham pool — davimf_dev e bot_configs ficam separados', () => {
+  it('bancos diferentes não compartilham pool - davimf_dev e bot_configs ficam separados', () => {
     process.env.DATABASE_URL = SITE;
     process.env.POSTGRES_URL = BOT;
 
@@ -139,7 +139,7 @@ describe('memoização do pool', () => {
   it('URLs distintas para site e auth mantêm pools distintos', () => {
     // Cenário de segurança: se as duas variáveis apontarem para bancos
     // diferentes, cada handler continua indo para o banco em que os dados dele
-    // estão — unificar faria tabela "sumir".
+    // estão - unificar faria tabela "sumir".
     process.env.DATABASE_URL = SITE;
     process.env.NETLIFY_DATABASE_URL = 'postgres://u:p@postgres:5432/outro_banco';
 

@@ -18,7 +18,7 @@ export default async (req: Request, _context: Context) => {
   const adminId = await getDiscordId(req);
   if (!adminId) return errorResponse('Acesso negado', 403);
 
-  // GET — list all keys with activation status
+  // GET - list all keys with activation status
   if (req.method === 'GET') {
     const keys = await sql`
       SELECT

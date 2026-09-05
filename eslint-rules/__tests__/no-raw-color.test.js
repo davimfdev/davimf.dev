@@ -1,6 +1,6 @@
 /**
  * Uma regra de lint que não reporta nada parece verde e passa despercebida.
- * O caso negativo — o hex dentro de DATA_PALETTE_* que NÃO deve ser reportado —
+ * O caso negativo - o hex dentro de DATA_PALETTE_* que NÃO deve ser reportado -
  * é o que protege a decisão do spec §6.3 de virar uma isenção larga por
  * descuido.
  */

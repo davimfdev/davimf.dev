@@ -2,7 +2,7 @@
  * Acesso ao banco do módulo de pagamentos.
  *
  * Usa o MESMO banco do site (NETLIFY_DATABASE_URL/DATABASE_URL) que
- * lib/fmm-license.ts e lib/dashboard/siteDb.ts já usam — orders/payments e
+ * lib/fmm-license.ts e lib/dashboard/siteDb.ts já usam - orders/payments e
  * fmm_license_keys precisam viver juntos para a entrega ser transacional.
  *
  * Conexão TCP com pool via lib/db.ts. A inicialização segue PREGUIÇOSA (mesmo

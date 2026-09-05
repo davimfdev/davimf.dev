@@ -1,4 +1,4 @@
--- db/001_tickets.sql — run once in the Neon SQL console for the tickets database.
+-- db/001_tickets.sql - run once in the Neon SQL console for the tickets database.
 CREATE TABLE IF NOT EXISTS tickets (
   id            TEXT PRIMARY KEY,
   source        TEXT        NOT NULL,

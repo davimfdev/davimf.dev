@@ -3,7 +3,7 @@
  *
  * Substitui o dropdown "Funcionalidades" da navbar antiga, que era uma lista
  * solta sem hierarquia. Aqui as ferramentas são linhas numeradas com hairline
- * entre elas — mesma linguagem da seção da Home, em escala de página.
+ * entre elas - mesma linguagem da seção da Home, em escala de página.
  *
  * Sem cards: seis caixas iguais leriam como um catálogo de SaaS, e o revamp
  * trata "evitar card em tudo" como requisito.
@@ -18,7 +18,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { Eyebrow } from '../components/ui';
 import { TOOLS_ALL } from '../features/home/homeData';
 
-// Um ícone por ferramenta — mapeado aqui, não em homeData.ts, que fica puro
+// Um ícone por ferramenta - mapeado aqui, não em homeData.ts, que fica puro
 // dado (sem componentes React nem dependência de lucide).
 const ICONS: Record<string, LucideIcon> = {
   notes: StickyNote,
@@ -56,7 +56,7 @@ const Tools = () => {
                 to={tool.href}
                 className="group relative flex py-5 px-2 -mx-2 hover:bg-surface-1 transition-colors duration-fast"
               >
-                {/* Barra de 2px na borda esquerda — sinaliza hover sem virar
+                {/* Barra de 2px na borda esquerda - sinaliza hover sem virar
                     card: nenhuma borda ao redor da linha, só esse traço. */}
                 <span
                   aria-hidden="true"

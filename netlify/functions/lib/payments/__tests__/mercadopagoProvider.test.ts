@@ -50,7 +50,7 @@ const BASE = {
   reference: 'DVMF-1',
   amountCents: 3500,
   currency: 'BRL',
-  description: 'FMM Pro — Mensal',
+  description: 'FMM Pro - Mensal',
   payer: PAYER,
   idempotencyKey: 'idem-1',
   // Valores comerciais: vêm do Product/Order do banco, nunca do request HTTP.
@@ -188,7 +188,7 @@ describe('MercadoPagoPaymentProvider', () => {
     for (const forbidden of ['card_number', 'security_code', 'cvv', 'cardNumber']) {
       expect(raw).not.toContain(forbidden);
     }
-    // O meio de pagamento carrega SÓ a referência segura — nada do cartão em si.
+    // O meio de pagamento carrega SÓ a referência segura - nada do cartão em si.
     // (`number` existe no corpo apenas como o CPF do pagador.)
     const sent = JSON.parse(raw);
     expect(Object.keys(sent.transactions.payments[0].payment_method).sort())
@@ -271,7 +271,7 @@ describe('MercadoPagoPaymentProvider', () => {
       reference: 'DVMF-1',
       amountCents: 3500,
       currency: 'BRL',
-      reason: 'FMM Pro — Mensal',
+      reason: 'FMM Pro - Mensal',
       payer: PAYER,
       cardToken: 'tok_recorrente',
       intervalUnit: 'months',
@@ -299,7 +299,7 @@ describe('MercadoPagoPaymentProvider', () => {
       reference: 'DVMF-1',
       amountCents: 3500,
       currency: 'BRL',
-      reason: 'FMM Pro — Mensal',
+      reason: 'FMM Pro - Mensal',
       payer: PAYER,
       cardToken: 'tok_recorrente',
       intervalUnit: 'months',
@@ -524,16 +524,16 @@ describe('dados comerciais da Order', () => {
     for (const call of calls) {
       const body = JSON.parse(String(call.init.body));
       expect(body.items).toEqual([{
-        title: 'FMM Pro — Mensal',
-        description: 'FMM Pro — Mensal',
+        title: 'FMM Pro - Mensal',
+        description: 'FMM Pro - Mensal',
         quantity: 1,
         unit_price: '35.00',
         external_code: 'fmm-pro-monthly',
         category_id: 'software',
       }]);
-      expect(body.description).toBe('FMM Pro — Mensal');
+      expect(body.description).toBe('FMM Pro - Mensal');
       // No TOPO da Order o campo é rejeitado: o lugar dele na Orders API é
-      // `transactions.payments[].payment_method` — ver o teste dedicado.
+      // `transactions.payments[].payment_method` - ver o teste dedicado.
       expect(body).not.toHaveProperty('statement_descriptor');
       expect(body).not.toHaveProperty('additional_info');
       expect(body).toMatchObject({
@@ -594,7 +594,7 @@ describe('dados comerciais da Order', () => {
 
     const body = JSON.parse(String(calls[0].init.body));
     expect(body.items[0]).toMatchObject({
-      title: 'FMM Pro — Mensal', quantity: 1, unit_price: '35.00',
+      title: 'FMM Pro - Mensal', quantity: 1, unit_price: '35.00',
       external_code: 'fmm-pro-monthly', category_id: 'software',
     });
     expect(body).not.toHaveProperty('statement_descriptor');
@@ -652,7 +652,7 @@ describe('dados comerciais da Order', () => {
     // dois. No nível do pagamento a mensagem é explícita:
     //   HTTP 400 unsupported_properties
     //   '$.transactions.payments[0]' - additionalProperties 'additional_info' not allowed
-    // Logo `registration_date` não tem como ser enviado por esta API — o
+    // Logo `registration_date` não tem como ser enviado por esta API - o
     // metadado continua existindo no domínio, só não vai para o Mercado Pago.
     await target.createPixPayment({
       ...BASE,
@@ -742,7 +742,7 @@ describe('dados comerciais da Order', () => {
     // O cartão salvo continua amarrado ao cliente do provider.
     expect(body.payer).toMatchObject({ email: PAYER.email, customer_id: 'CUS-1' });
 
-    // Device ID: só header, nunca corpo — igual ao caminho do cartão novo.
+    // Device ID: só header, nunca corpo - igual ao caminho do cartão novo.
     expect((calls[0].init.headers as Record<string, string>)['X-meli-session-id']).toBe('saved-card-device-id');
     expect(String(calls[0].init.body)).not.toContain('saved-card-device-id');
   });

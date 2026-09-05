@@ -5,7 +5,7 @@ import LegalVersionNotFound from '../components/LegalVersionNotFound';
 
 /**
  * Rota de captura para qualquer caminho sob /legal/ que não bata com as três
- * rotas versionadas específicas — por exemplo um segmento de versão vazio,
+ * rotas versionadas específicas - por exemplo um segmento de versão vazio,
  * como em "/legal//terms-of-service". Sem isso o React Router não casa
  * nenhuma rota e o visitante vê uma página em branco: sem afirmar um
  * contrato falso, mas também sem dizer nada.

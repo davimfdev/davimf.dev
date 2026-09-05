@@ -37,7 +37,7 @@ No login required.
 |---|---|
 | `/calc` | Calculator |
 | `/roulette` | Random choice roulette wheel |
-| `/encurtador` | URL shortener — shorten any link and get a copyable short URL instantly, no account needed |
+| `/encurtador` | URL shortener - shorten any link and get a copyable short URL instantly, no account needed |
 | `/r/:code` | Short URL redirect handler |
 
 ---
@@ -50,26 +50,26 @@ Authenticate via Discord OAuth at the top-right corner.
 - Full history of created links
 - Delete links
 
-### Todo List — `/todo`
+### Todo List - `/todo`
 - Create, edit, complete and delete tasks
 - Due dates and times
 - Priority levels (Low / Medium / High)
 - Recurrence (Daily / Weekly / Monthly)
 - Synced to your account
 
-### Finance Manager — `/finances`
+### Finance Manager - `/finances`
 - Multiple accounts (bank, wallet, etc.)
 - Income and expense transactions
 - Transfers between accounts
 - Expense category chart
 - Payment type tracking (PIX, Card)
 
-### Bot Dashboard — `/dashboard`
+### Bot Dashboard - `/dashboard`
 - Lists all Discord servers where you have Admin / Manage Server permission
 - Shows which servers already have the bot installed
 - One-click invite to add the bot to a server
 
-### Bot Config — `/dashboard/:guildId`
+### Bot Config - `/dashboard/:guildId`
 - **Personalization:** command prefix, embed color, auto-role on member join
 - **Commands:** enable/disable individual bot commands per server
 - **Security:** toggle the entry verification module
@@ -78,4 +78,4 @@ Authenticate via Discord OAuth at the top-right corner.
 
 ## License
 
-Private — all rights reserved.
+Private - all rights reserved.

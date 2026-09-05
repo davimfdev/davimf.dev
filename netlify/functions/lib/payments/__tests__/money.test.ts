@@ -8,7 +8,7 @@ import {
 } from '../domain/money';
 
 describe('dinheiro em centavos', () => {
-  it('recusa valor fracionário — nenhum float entra no domínio', () => {
+  it('recusa valor fracionário - nenhum float entra no domínio', () => {
     expect(() => assertCents(15.5)).toThrow(RangeError);
     expect(() => assertCents(-1)).toThrow(RangeError);
     expect(() => assertCents('1500' as unknown as number)).toThrow(RangeError);

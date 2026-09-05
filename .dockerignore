@@ -1,7 +1,7 @@
 # O contexto de build do backend é a raiz do repositório (o Dockerfile precisa
 # de netlify/ e de server/). Aqui fica de fora tudo que não entra na imagem.
 #
-# Os padrões com "/" na frente são ancorados na raiz do contexto — importante
+# Os padrões com "/" na frente são ancorados na raiz do contexto - importante
 # para não excluir server/src junto com o src/ do frontend.
 .git
 .github

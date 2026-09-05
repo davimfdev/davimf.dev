@@ -103,7 +103,7 @@ export function mapMethod(methodId: string | null, methodType: string | null): P
   return METHOD_BY_TYPE[(methodType ?? '').toLowerCase()] ?? 'card';
 }
 
-/** Primeiro pagamento de uma Order — é o modelo de compra única do projeto. */
+/** Primeiro pagamento de uma Order - é o modelo de compra única do projeto. */
 function firstPayment(order: unknown): unknown {
   const list = pick(order, 'transactions', 'payments');
   if (Array.isArray(list) && list.length > 0) return list[0];

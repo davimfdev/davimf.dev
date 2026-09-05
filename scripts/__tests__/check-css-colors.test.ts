@@ -25,7 +25,7 @@ describe('checkCssColors', () => {
   });
 
   /** Sem isto, o dashboard.css não poderia usar as 14 variações de alfa do accent. */
-  it('ACEITA rgb(var(--token) / alfa) — é uso de token, não cor crua', () => {
+  it('ACEITA rgb(var(--token) / alfa) - é uso de token, não cor crua', () => {
     expect(checkCssColors(file('.a { color: rgb(var(--accent) / .07); }'))).toHaveLength(0);
     expect(checkCssColors(file('.a { background: rgb(var(--surface-1)); }'))).toHaveLength(0);
   });
@@ -40,7 +40,7 @@ describe('checkCssColors', () => {
 
   /**
    * O `index.css` documenta num comentário que o hover era `#F5F3EF` antes da
-   * migração. Hex em comentário é documentação, não valor de cor — e um checker
+   * migração. Hex em comentário é documentação, não valor de cor - e um checker
    * que não distingue os dois vira gerador de falso positivo, que é como uma
    * regra acaba desligada.
    */

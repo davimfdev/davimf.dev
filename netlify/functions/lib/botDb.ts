@@ -1,4 +1,4 @@
-// Banco de CONFIG DO BOT (`bot_configs`) — projeto separado do banco do site
+// Banco de CONFIG DO BOT (`bot_configs`) - projeto separado do banco do site
 // (`davimf_dev`). Só server-side.
 //
 // Conexão TCP com pool via lib/db.ts. A inicialização continua PREGUIÇOSA: o

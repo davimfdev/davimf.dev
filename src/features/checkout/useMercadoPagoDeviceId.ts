@@ -9,7 +9,7 @@
  *
  * REGRAS INEGOCIÁVEIS:
  *  - só um valor real, string e não vazio, do SDK pode ser devolvido;
- *  - NUNCA inventar substituto (UUID, localStorage, fingerprint) — isso seria
+ *  - NUNCA inventar substituto (UUID, localStorage, fingerprint) - isso seria
  *    mentir ao antifraude do provider;
  *  - o Device ID é request-scoped: nunca é logado, nunca é persistido;
  *  - nenhuma ação do checkout espera por ele; a cobrança segue sem o valor.

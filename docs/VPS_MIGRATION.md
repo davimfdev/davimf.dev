@@ -40,7 +40,7 @@ existentes válidos e o comportamento idêntico.
 
 O driver da Neon fala com o banco por **HTTP** (`fetch` para um endpoint da
 Neon). Depois da mudança para o VPS, o Postgres passou a ser um servidor comum
-em `postgres:5432` e não existe endpoint HTTP nenhum — daí o erro visto em
+em `postgres:5432` e não existe endpoint HTTP nenhum - daí o erro visto em
 produção:
 
 ```
@@ -55,7 +55,7 @@ O mesmo atingia `/api/bot-guilds`, `/api/notes`, `/api/tasks`,
 **Driver escolhido: `postgres.js`.** A API é a mesma template tag que os ~25
 handlers já usavam (``await sql`SELECT ...` `` devolve array de linhas), então
 nenhuma query precisou ser reescrita. Com `pg` seria preciso converter toda
-query para `$1` + `.rows` — diff enorme, inclusive sobre o código financeiro.
+query para `$1` + `.rows` - diff enorme, inclusive sobre o código financeiro.
 
 Tudo passa por `netlify/functions/lib/db.ts`:
 
@@ -68,7 +68,7 @@ Tudo passa por `netlify/functions/lib/db.ts`:
 
 `siteDbSql` e `authDbSql` existem separados de propósito: os handlers antigos
 liam variáveis diferentes para o mesmo banco. Apontando as duas para a mesma
-URL — o caso normal — o **pool é o mesmo objeto**; apontando para bancos
+URL - o caso normal - o **pool é o mesmo objeto**; apontando para bancos
 diferentes, cada handler continua indo aonde os dados dele estão. Unificar as
 duas listas poderia fazer tabela "sumir".
 
@@ -80,7 +80,7 @@ criar um cliente por requisição vazaria conexões até esgotar o
 
 **Compatibilidade de comportamento** (o que foi conferido antes de trocar):
 
-- `transform: { undefined: null }` — o driver antigo (via `pg`) mandava
+- `transform: { undefined: null }` - o driver antigo (via `pg`) mandava
   `undefined` como NULL; sem essa opção o `postgres.js` lança
   `UNDEFINED_VALUE`, e handlers que interpolam campos crus do corpo da
   requisição (`accounts.ts`) quebrariam;
@@ -98,7 +98,7 @@ PgBouncer em modo `transaction`, desligue prepared statements com
 
 `server/src/index.ts` executa, nesta ordem:
 
-1. **`loadEnvFileIfPresent()`** — procura um `.env` subindo até 4 níveis a
+1. **`loadEnvFileIfPresent()`** - procura um `.env` subindo até 4 níveis a
    partir do CWD (e, se preciso, do diretório do módulo). Antes, só
    `npm run dev` lia o arquivo, via `tsx --env-file-if-exists=../.env`;
    `npm start` e o `CMD` do Docker não liam nada, então uma variável definida
@@ -108,7 +108,7 @@ PgBouncer em modo `transaction`, desligue prepared statements com
    (`.dockerignore`) e a função vira no-op. `ENV_FILE=/caminho/para/.env`
    força um arquivo específico.
 
-2. **`applyCompatibilityEnv()`** — resolve a URL pública e grava o valor
+2. **`applyCompatibilityEnv()`** - resolve a URL pública e grava o valor
    normalizado em `process.env.URL`, que é o nome lido por `shorten`,
    `abacate-checkout` e pelo módulo de pagamentos. Ordem de precedência:
 
@@ -116,14 +116,14 @@ PgBouncer em modo `transaction`, desligue prepared statements com
    `COOLIFY_FQDN` › `SERVICE_FQDN_*`
 
    A normalização acrescenta `https://` quando a plataforma expõe só o host
-   (é o caso dos `SERVICE_FQDN_*` do Coolify) e remove a barra final — os
+   (é o caso dos `SERVICE_FQDN_*` do Coolify) e remove a barra final - os
    consumidores concatenam direto (`${URL}/r/${code}`), então
    `https://davimf.dev/` geraria `//r/...`.
 
    **O domínio não está embutido no código**: sai sempre do ambiente. Um valor
    presente porém inválido é descartado, para não propagar link quebrado.
 
-3. **`warnMissingEnv()`** — separa obrigatórias de opcionais. `ABACATEPAY_KEY`
+3. **`warnMissingEnv()`** - separa obrigatórias de opcionais. `ABACATEPAY_KEY`
    (checkout legado) e `PAYMENTS_PROVIDER`/`PAYMENTS_ENV` (têm padrão no
    código) saíram da lista de ausentes e viraram uma linha informativa.
 
@@ -148,7 +148,7 @@ Dois detalhes que sustentam o resto:
 - **O corpo nunca é desserializado pelo Express.** O middleware é
   `express.raw({ type: () => true })`, então cada handler continua fazendo o
   próprio `JSON.parse(event.body)` / `await req.json()`. Além de preservar o
-  comportamento, isso mantém o corpo íntegro byte a byte — é o pré-requisito
+  comportamento, isso mantém o corpo íntegro byte a byte - é o pré-requisito
   para validar assinatura de webhook, caso um dia entre algum.
 - **`app.set('trust proxy', true)`.** Atrás do Nginx Proxy Manager o backend
   recebe `http://davimf-api:3000`, mas os handlers precisam enxergar
@@ -157,7 +157,7 @@ Dois detalhes que sustentam o resto:
 
 Os módulos são carregados **sob demanda** (`await import()` dentro da rota).
 Várias funções abrem conexão com o Neon no escopo do módulo; o carregamento
-tardio preserva o isolamento serverless — uma env var ausente derruba só aquele
+tardio preserva o isolamento serverless - uma env var ausente derruba só aquele
 endpoint, não o servidor inteiro.
 
 ---
@@ -166,16 +166,16 @@ endpoint, não o servidor inteiro.
 
 44 funções. Todas continuam acessíveis nas **mesmas URLs** de antes.
 
-> `Auth` — `discord`: `Authorization: Bearer <access token do Discord>`;
+> `Auth` - `discord`: `Authorization: Bearer <access token do Discord>`;
 > `cookie`: cookie de sessão `bot_dashboard_session`; `jwt`: `JWT_SECRET` próprio;
-> `segredo`: header dedicado; `hmac`: assinatura HMAC-SHA256; `—`: público.
+> `segredo`: header dedicado; `hmac`: assinatura HMAC-SHA256; `-`: público.
 
 ### Dashboard do bot / Discord OAuth
 
 | Função | Endpoint | Métodos | Auth | Env | Observações |
 | --- | --- | --- | --- | --- | --- |
-| `dashboard-login` | `/api/dashboard-login` | GET | — | `DISCORD_CLIENT_ID`, `DISCORD_REDIRECT_URI`, `DASHBOARD_SESSION_SECRET` | **302** para o Discord. Grava cookie `bot_dashboard_oauth_state` (`HttpOnly`, `SameSite=Lax`, `Path=/api/callback`, 600s). `Secure` só quando o Host não é localhost. Aceita `?returnTo=` |
-| `callback` | `/api/callback` | GET | — | `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DISCORD_REDIRECT_URI`, `DASHBOARD_SESSION_SECRET`, `DASHBOARD_TOKEN_ENCRYPTION_KEY`, `NETLIFY_DATABASE_URL` | **302** para `returnTo`. Emite **dois** `Set-Cookie` (limpa o state + grava a sessão, 7 dias). Fora de `/dashboard*`, devolve o token do Discord na querystring (auth legada das outras páginas) |
+| `dashboard-login` | `/api/dashboard-login` | GET | - | `DISCORD_CLIENT_ID`, `DISCORD_REDIRECT_URI`, `DASHBOARD_SESSION_SECRET` | **302** para o Discord. Grava cookie `bot_dashboard_oauth_state` (`HttpOnly`, `SameSite=Lax`, `Path=/api/callback`, 600s). `Secure` só quando o Host não é localhost. Aceita `?returnTo=` |
+| `callback` | `/api/callback` | GET | - | `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DISCORD_REDIRECT_URI`, `DASHBOARD_SESSION_SECRET`, `DASHBOARD_TOKEN_ENCRYPTION_KEY`, `NETLIFY_DATABASE_URL` | **302** para `returnTo`. Emite **dois** `Set-Cookie` (limpa o state + grava a sessão, 7 dias). Fora de `/dashboard*`, devolve o token do Discord na querystring (auth legada das outras páginas) |
 | `dashboard-session` | `/api/dashboard-session` | GET | cookie | sessão + `NETLIFY_DATABASE_URL` | Renova o token do Discord automaticamente quando falta <2min |
 | `dashboard-logout` | `/api/dashboard-logout` | POST | cookie | `NETLIFY_DATABASE_URL`, `NODE_ENV` | Revoga a sessão e expira o cookie |
 | `bot-guilds` | `/api/bot-guilds` | GET | cookie | `BOT_CONFIG_DATABASE_URL`, `BOT_SUPPORT_USER_IDS` | |
@@ -200,18 +200,18 @@ endpoint, não o servidor inteiro.
 | `getmyurls` | `/api/getmyurls` | GET | discord | `DATABASE_URL` |
 | `create-short-url` | `/api/create-short-url` | POST | discord (opcional) | `DATABASE_URL` |
 | `deleteUrl` | `/api/deleteUrl`, `/api/deleteurl`, `/api/delete-url` | DELETE | discord | `DATABASE_URL` |
-| `get-url` | `/api/get-url` | GET | — | `DATABASE_URL` |
-| `shorten` | `/api/shorten` | POST | — | `DATABASE_URL`, `URL` |
+| `get-url` | `/api/get-url` | GET | - | `DATABASE_URL` |
+| `shorten` | `/api/shorten` | POST | - | `DATABASE_URL`, `URL` |
 
 ### Auth JWT legada
 
 | Função | Endpoint | Métodos | Auth | Env | Observações |
 | --- | --- | --- | --- | --- | --- |
-| `register` | `/api/register` | POST | — | `NETLIFY_DATABASE_URL` | bcrypt |
+| `register` | `/api/register` | POST | - | `NETLIFY_DATABASE_URL` | bcrypt |
 | `refresh` | `/api/refresh` | POST | cookie `refresh_token` | `NETLIFY_DATABASE_URL`, `JWT_SECRET` | |
 | `logout` | `/api/logout` | POST | jwt | `NETLIFY_DATABASE_URL`, `JWT_SECRET`, `NODE_ENV` | expira `refresh_token` |
-| `request-password-reset` | `/api/request-password-reset` | POST | — | `NETLIFY_DATABASE_URL` | envio de e-mail está **comentado** no código |
-| `reset-password` | `/api/reset-password` | POST | — | `NETLIFY_DATABASE_URL` | |
+| `request-password-reset` | `/api/request-password-reset` | POST | - | `NETLIFY_DATABASE_URL` | envio de e-mail está **comentado** no código |
+| `reset-password` | `/api/reset-password` | POST | - | `NETLIFY_DATABASE_URL` | |
 | `expenses` | `/api/expenses` | GET, POST, DELETE | jwt | `NETLIFY_DATABASE_URL`, `JWT_SECRET` | |
 | `transactions` | `/api/transactions` | GET, POST, DELETE | jwt | `NETLIFY_DATABASE_URL`, `JWT_SECRET` | checa blacklist de `jti` |
 | `transfer` | `/api/transfer` | POST | jwt | `NETLIFY_DATABASE_URL`, `JWT_SECRET` | |
@@ -229,14 +229,14 @@ endpoint, não o servidor inteiro.
 | `fmm-admin-keys` | `/api/fmm-admin-keys` | GET, POST | discord (allowlist de IDs no código) | `NETLIFY_DATABASE_URL` | |
 | `fmm-admin-generate` | `/api/fmm-admin-generate` | POST | discord (allowlist de IDs no código) | `NETLIFY_DATABASE_URL` | |
 | `fmm-my-keys` | `/api/fmm-my-keys` | GET | discord | `NETLIFY_DATABASE_URL` | |
-| `abacate-checkout` | `/api/abacate-checkout` | POST | — | `ABACATEPAY_KEY`, `FMM_*_PRODUCT_ID`, `URL`, `NETLIFY_DATABASE_URL` | cria checkout, grava `fmm_orders` |
+| `abacate-checkout` | `/api/abacate-checkout` | POST | - | `ABACATEPAY_KEY`, `FMM_*_PRODUCT_ID`, `URL`, `NETLIFY_DATABASE_URL` | cria checkout, grava `fmm_orders` |
 | `fmm-claim` | `/api/fmm-claim` | GET | discord (opcional) | `ABACATEPAY_KEY`, `NETLIFY_DATABASE_URL` | **confirma pagamento por polling**, não por webhook |
 
 ### Tickets
 
 | Função | Endpoint | Métodos | Auth | Env |
 | --- | --- | --- | --- | --- |
-| `ticket-get` | `/api/ticket`, `/api/ticket-get` | GET | — (payload é cifrado) | `TICKETS_NEON` |
+| `ticket-get` | `/api/ticket`, `/api/ticket-get` | GET | - (payload é cifrado) | `TICKETS_NEON` |
 | `ticket-store` | `/api/ticket-store` | POST | segredo `x-ticket-secret` | `TICKETS_NEON`, `TICKET_INGEST_SECRET` |
 
 ### Rotas novas do backend
@@ -249,14 +249,14 @@ endpoint, não o servidor inteiro.
 
 ### Stripe e webhooks
 
-**Não existe integração Stripe neste projeto** — a busca por `stripe` em `src/`,
+**Não existe integração Stripe neste projeto** - a busca por `stripe` em `src/`,
 `netlify/` e `package.json` não retorna nada. O gateway é o **AbacatePay**, e a
 confirmação de pagamento é feita por **polling** em `fmm-claim` (`GET
 /checkouts/list`), não por webhook. Portanto **não há nenhum endpoint que exija
 corpo cru para validar assinatura**.
 
 Mesmo assim o backend já lê o corpo como `Buffer` cru e nunca faz `JSON.parse`
-antes do handler — se um webhook assinado entrar depois (AbacatePay ou Stripe),
+antes do handler - se um webhook assinado entrar depois (AbacatePay ou Stripe),
 a verificação de assinatura funciona sem mudar a infraestrutura.
 
 ---
@@ -300,7 +300,7 @@ npm run dev        # http://localhost:5173
 
 O dev server do Vite faz proxy de `/api` para `http://localhost:3000`
 (`vite.config.ts`). Isso mantém tudo **same-origin** no desenvolvimento, do
-mesmo jeito que em produção — sem CORS e sem `localhost` hardcoded no código.
+mesmo jeito que em produção - sem CORS e sem `localhost` hardcoded no código.
 
 Para apontar para outro backend:
 
@@ -344,7 +344,7 @@ do que precisa ser cadastrado em cada recurso do Coolify:
 
 ### Frontend (`davimf-site`)
 
-Nenhuma variável é obrigatória. Só variáveis `VITE_*` chegam ao bundle — e
+Nenhuma variável é obrigatória. Só variáveis `VITE_*` chegam ao bundle - e
 **qualquer `VITE_*` é pública**, visível para qualquer visitante. Nunca coloque
 segredo com esse prefixo.
 
@@ -393,7 +393,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"     
 
 ## 5. Deploy no Coolify
 
-### 5.1 Frontend — `davimf-site`
+### 5.1 Frontend - `davimf-site`
 
 | Campo | Valor |
 | --- | --- |
@@ -407,10 +407,10 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"     
 | Network Alias | `davimf-site` |
 | Custom Nginx Configuration | conteúdo de [`nginx.conf`](../nginx.conf) |
 
-O SPA fallback (`try_files $uri $uri/ /index.html`) é **obrigatório** — sem ele,
+O SPA fallback (`try_files $uri $uri/ /index.html`) é **obrigatório** - sem ele,
 recarregar `/dashboard`, `/todo` ou `/r/<code>` devolve 404.
 
-### 5.2 Backend — `davimf-api`
+### 5.2 Backend - `davimf-api`
 
 | Campo | Valor |
 | --- | --- |
@@ -473,7 +473,7 @@ Passo a passo na interface:
    - HSTS: opcional
 5. **Save**
 
-O backend recebe o caminho **completo**, começando com `/api/` — é assim que as
+O backend recebe o caminho **completo**, começando com `/api/` - é assim que as
 rotas estão registradas. Não configure `strip prefix` nem `proxy_pass` com URI
 final; isso quebraria todos os endpoints.
 
@@ -514,7 +514,7 @@ guilds.members.read`.
 
 ### 7.2 AbacatePay
 
-Não há webhook para cadastrar — a confirmação é por polling. O que muda é a
+Não há webhook para cadastrar - a confirmação é por polling. O que muda é a
 `completionUrl`, montada a partir de `URL`:
 
 ```
@@ -530,7 +530,7 @@ Nada a fazer: **o projeto não usa Stripe**. Se um dia entrar, o webhook deve se
 registrado em `https://davimf.dev/api/<nome-do-endpoint>` e o corpo cru já está
 disponível (`express.raw`), sem `JSON.parse` prévio.
 
-### 7.4 Mercado Pago — perfil e webhook
+### 7.4 Mercado Pago - perfil e webhook
 
 Antes do deploy, aplique `db/006_payer_profiles.sql` no mesmo banco usado pela
 API. Gere uma única chave de 32 bytes em base64 e configure-a como
@@ -587,7 +587,7 @@ deixadas como estavam para não misturar correção de produto com migração.
    `src/pages/RegisterPage.tsx` chamam `POST /api/login`, mas
    `netlify/functions/login.ts` foi removida no commit `f26d6a5` ("Revamped the
    login system, changed for discord auth"). O login por e-mail/senha está
-   inoperante desde então — só o `/api/register` sobrevive.
+   inoperante desde então - só o `/api/register` sobrevive.
 
 2. **`src/components/Navbar.tsx` monta a URL do OAuth sem `state`.** O
    `/api/callback` exige o par state-querystring/state-cookie e responde 400 sem
@@ -596,11 +596,11 @@ deixadas como estavam para não misturar correção de produto com migração.
    `/api/dashboard-login?returnTo=...`.
 
 3. **`src/pages/Test.tsx`** (rota `/test`) tem `client_id` hardcoded e o mesmo
-   problema de `state` — é página de rascunho.
+   problema de `state` - é página de rascunho.
 
 O único desses pontos que foi mexido: `/api/delete-url`. O `UrlShortener.tsx`
 sempre chamou esse caminho, enquanto `deleteUrl.ts` declarava
-`path: "/api/deleteurl"` — 404 garantido. O backend novo registra os dois (mais
+`path: "/api/deleteurl"` - 404 garantido. O backend novo registra os dois (mais
 `/api/deleteUrl`), o que restaura o botão de excluir link sem tocar no handler.
 
 ---
@@ -619,5 +619,5 @@ não depende mais deles**:
 `public/_redirects` também é inofensivo: o nginx não o interpreta.
 
 Podem ser removidos quando você tiver certeza de que não vai voltar. O diretório
-`netlify/functions/` **não** pode ser removido — é onde os handlers vivem e de
+`netlify/functions/` **não** pode ser removido - é onde os handlers vivem e de
 onde o backend os importa.

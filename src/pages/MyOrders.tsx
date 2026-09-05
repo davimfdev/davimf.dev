@@ -1,15 +1,15 @@
 /**
- * Meus Pedidos — de onde o cliente pede reembolso sozinho.
+ * Meus Pedidos - de onde o cliente pede reembolso sozinho.
  *
  * A política de reembolso manda o cliente vir para cá, então esta tela
  * precisa existir e ser alcançável (link em Minhas Chaves e no menu do
  * usuário).
  *
- * A ação de cada linha vem do STATUS primeiro, depois das datas — um botão
+ * A ação de cada linha vem do STATUS primeiro, depois das datas - um botão
  * cujo único desfecho possível é 409 não deveria ser desenhado. Dentro da
  * janela de 7 dias o pedido é um reembolso de verdade: a licença é revogada,
- * e a confirmação avisa isso. Fora da janela, nada é revogado — o caso vai
- * para uma pessoa analisar — e reaproveitar o aviso de revogação ali
+ * e a confirmação avisa isso. Fora da janela, nada é revogado - o caso vai
+ * para uma pessoa analisar - e reaproveitar o aviso de revogação ali
  * assustaria um cliente de um pedido que não custa nada. A checagem da
  * janela aqui é só apresentação; quem decide de verdade é o servidor.
  */
@@ -49,7 +49,7 @@ const OUTCOME_MESSAGE: Record<RefundOutcome, string> = {
 };
 
 const formatDate = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleDateString('pt-BR') : '—';
+  iso ? new Date(iso).toLocaleDateString('pt-BR') : '-';
 
 const formatMoney = (cents: number, currency: string) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency }).format(cents / 100);
@@ -70,7 +70,7 @@ function actionFor(order: OrderSummary): Action {
   const days = (Date.now() - Math.max(...delivered)) / 86_400_000;
   // `days` NEGATIVO é um pagamento datado no futuro (relógio dessincronizado):
   // `days <= 7` sozinho oferecia reembolso para um pedido que o servidor manda
-  // para análise humana — o cliente confirmava "sua licença será revogada" e
+  // para análise humana - o cliente confirmava "sua licença será revogada" e
   // recebia "enviada para análise". Mesma anomalia, mesma saída que o servidor.
   return days >= 0 && days <= 7 ? 'refund' : 'review';
 }

@@ -1,9 +1,9 @@
-# Integração dashboard ↔ bot — Parte B (lado do site): dashboard de config no Neon + segurança — design
+# Integração dashboard ↔ bot - Parte B (lado do site): dashboard de config no Neon + segurança - design
 
 **Data:** 2026-07-02 (revisado: modelo 1-bot-por-cliente + snapshots + CSRF)
-**Repo:** `davimf.dev` — **Vite/React SPA** com backend via **Netlify Functions**. As functions fazem OAuth, autorização, validação e escrita **server-side** no Neon. (Não é Next.js.)
+**Repo:** `davimf.dev` - **Vite/React SPA** com backend via **Netlify Functions**. As functions fazem OAuth, autorização, validação e escrita **server-side** no Neon. (Não é Next.js.)
 **Parte A (lado do bot):** `BaseBot/docs/superpowers/specs/2026-07-02-dashboard-config-integration-design.md`.
-**Contrato de schema (fonte-verdade):** `BaseBot/docs/superpowers/dashboard-config-schema-contract.md` — tabelas, colunas, chaves JSONB permitidas, enums, merge/delete, ownership. Vale ele em caso de divergência.
+**Contrato de schema (fonte-verdade):** `BaseBot/docs/superpowers/dashboard-config-schema-contract.md` - tabelas, colunas, chaves JSONB permitidas, enums, merge/delete, ownership. Vale ele em caso de divergência.
 
 ## Objetivo
 
@@ -12,19 +12,19 @@ Fazer o dashboard **realmente configurar o bot**, lendo/escrevendo o **mesmo Neo
 ## Estado atual (2026-07-02)
 
 - **Stack:** Vite/React SPA no Netlify; backend = Netlify Functions (`netlify/functions/*.ts`); rotas `/api/*`.
-- **Neon já plugado (banco do site):** 25 functions usam `neon(process.env.DATABASE_URL)` — accounts, tickets, notes… Esse `DATABASE_URL` é o **banco do próprio site** e **não muda**.
+- **Neon já plugado (banco do site):** 25 functions usam `neon(process.env.DATABASE_URL)` - accounts, tickets, notes… Esse `DATABASE_URL` é o **banco do próprio site** e **não muda**.
 - **Identidade já boa:** funções usam `getDiscordId(authHeader)` → `GET /users/@me`.
 - **Config do bot ainda no Supabase (stub desconectado):** `getGuildConfig`/`updateGuild`/`getSecurityConfig`/`updateSecurityConfig`/`getGuilds` batem no Supabase (`guilds`, `guild_verificacao`) com schema **≠** do bot → hoje o dashboard **não** afeta o bot.
 - **Auth OAuth:** `callback.ts` troca `code` → redireciona pra `/dashboard?token=<access_token>` (token na URL).
 
 ### 🔴 Buracos de segurança a fechar
-1. **Escrita sem autorização (IDOR):** `updateGuild`/`updateSecurityConfig` só checam que `userToken` **existe** — não verificam dono da `guildId`. Qualquer logado escreve qualquer servidor.
+1. **Escrita sem autorização (IDOR):** `updateGuild`/`updateSecurityConfig` só checam que `userToken` **existe** - não verificam dono da `guildId`. Qualquer logado escreve qualquer servidor.
 2. **Token do Discord na URL:** `callback.ts` → `/dashboard?token=…` (vaza em histórico/`Referer`/logs).
 3. **Autorização ampla demais:** `getGuilds` aceita owner **ou** admin **ou** manage-guild. A decisão é **owner-first**.
 
 ## Modelo do produto: 1 bot por cliente
 
-Existe **1 bot por cliente**, cada um com **seu próprio token local**. O dashboard **não conhece nem armazena** tokens de bots. Portanto a validação de canais/cargos/permissões **não** chama a API do Discord com token de bot — usa os **snapshots** que cada bot publica no Neon (`bot_guilds`, `guild_channels_snapshot`, `guild_roles_snapshot`; ver contrato).
+Existe **1 bot por cliente**, cada um com **seu próprio token local**. O dashboard **não conhece nem armazena** tokens de bots. Portanto a validação de canais/cargos/permissões **não** chama a API do Discord com token de bot - usa os **snapshots** que cada bot publica no Neon (`bot_guilds`, `guild_channels_snapshot`, `guild_roles_snapshot`; ver contrato).
 
 ## Arquitetura-alvo
 
@@ -43,12 +43,12 @@ Navegador ──OAuth──▶ callback (seta sessão httpOnly) ──▶ SPA ch
 ## 1. Banco: Neon central + menos-privilégio
 
 Modelo **1 bot por cliente** → duas opções de topologia:
-- **Recomendado v1 — Neon central de config:** todos os bots escrevem só suas guilds/configs num único Neon; o dashboard usa **um** `BOT_CONFIG_DATABASE_URL`. Separação por cliente via `bot_instance_id`/`guild_id` nas linhas. Simples.
-- **Mais isolado (futuro) — Neon por cliente:** o dashboard resolve `guild_id → tenant → connection string`; exige guardar secrets por cliente. Mais complexo; fora da v1.
+- **Recomendado v1 - Neon central de config:** todos os bots escrevem só suas guilds/configs num único Neon; o dashboard usa **um** `BOT_CONFIG_DATABASE_URL`. Separação por cliente via `bot_instance_id`/`guild_id` nas linhas. Simples.
+- **Mais isolado (futuro) - Neon por cliente:** o dashboard resolve `guild_id → tenant → connection string`; exige guardar secrets por cliente. Mais complexo; fora da v1.
 
 **Role do dashboard no Neon:** acesso **só** às tabelas de config/snapshot necessárias. Garantir: sem gameplay (nem está no Neon); sem `DROP`/`ALTER`; secrets só server-side.
 
-**Isolamento multi-tenant (Neon central):** cada **bot** escreve só linhas do seu `bot_instance_id` (guard do lado do bot — Parte A + contrato §*Segurança multi-tenant*). Do lado do **dashboard**, o isolamento por-cliente vem do `requireGuildAccess` (§3): só escreve config de guild que o usuário **é dono** e que tem bot presente (`bot_guilds`). A role do dashboard é ampla nas tabelas de config, mas toda rota é gateada por essa autorização.
+**Isolamento multi-tenant (Neon central):** cada **bot** escreve só linhas do seu `bot_instance_id` (guard do lado do bot - Parte A + contrato §*Segurança multi-tenant*). Do lado do **dashboard**, o isolamento por-cliente vem do `requireGuildAccess` (§3): só escreve config de guild que o usuário **é dono** e que tem bot presente (`bot_guilds`). A role do dashboard é ampla nas tabelas de config, mas toda rota é gateada por essa autorização.
 
 ## 2. Modelo de dados: do Supabase pro `guild_config`
 
@@ -60,9 +60,9 @@ As functions passam a ler/gravar o schema real do bot (contrato). Destaques:
 
 Grupos de UI (inventário): Logs (24 canais), Cargos lógicos, Moderação (`mod:*`), Segurança (`sec:*`), Boas-vindas (`welcome:*`), Nível (`level:*`+`level_rewards`), Economia (`eco:*`+`shop_items`), Eventos (`event:*`), Tickets (`ticket_categories`), Facs (`perm:*`/farm/`action_types`), Auto-cargos (`self_roles`), Quiz (`quiz`).
 
-## 3. Autorização owner-first — `requireGuildAccess(event, guildId)`
+## 3. Autorização owner-first - `requireGuildAccess(event, guildId)`
 
-Assinatura recebe o **evento/request inteiro** (não só o header) — hoje lê Bearer; amanhã cookie httpOnly; depois sessão própria — **sem reescrever as functions**. Passos:
+Assinatura recebe o **evento/request inteiro** (não só o header) - hoje lê Bearer; amanhã cookie httpOnly; depois sessão própria - **sem reescrever as functions**. Passos:
 1. Resolve a identidade do usuário (Bearer → cookie → sessão, nessa ordem de suporte).
 2. Valida sessão/token.
 3. Busca guilds do usuário: `GET /users/@me/guilds` (scopes `identify + guilds`).
@@ -86,7 +86,7 @@ channels = channels || $patch::jsonb
 -- remover chave
 channels = channels - $key
 ```
-`null` **não** é remoção (a não ser que o contrato marque `null` como valor válido). **Allowlist de chaves:** validar contra a lista do contrato antes de gravar — o dashboard **não** grava chave arbitrária em `channels`/`roles`/`toggles`/`settings`. Toda gravação seta `updated_by`/`updated_at`.
+`null` **não** é remoção (a não ser que o contrato marque `null` como valor válido). **Allowlist de chaves:** validar contra a lista do contrato antes de gravar - o dashboard **não** grava chave arbitrária em `channels`/`roles`/`toggles`/`settings`. Toda gravação seta `updated_by`/`updated_at`.
 
 ## 5. Validação via snapshot (`lib/validate.ts`)
 
@@ -98,7 +98,7 @@ Antes de gravar canal/cargo, validar contra os snapshots (não contra a API do D
 - cargo configurável exige `bot_can_assign = true` quando aplicável → senão **400**;
 - enums/limites do contrato (`level:notify`, `mod:escalation`, ≤25, números em faixa).
 
-**Frescor (limiares padrão, do contrato — ajustáveis):** snapshot fresco se `updated_at`/`last_seen_at` < **10 min**.
+**Frescor (limiares padrão, do contrato - ajustáveis):** snapshot fresco se `updated_at`/`last_seen_at` < **10 min**.
 - **Selects no frontend:** mostrar aviso se > **10 min**:
   > As informações de canais/cargos podem estar desatualizadas. O bot precisa estar online para sincronizar.
 - **Writes críticos de canal/cargo:** **bloquear** (400/409) se > **15 min**.
@@ -116,7 +116,7 @@ Antes de gravar canal/cargo, validar contra os snapshots (não contra a API do D
   - **Curto prazo aceito:** cookie httpOnly contendo o access token do Discord.
   - **Longo prazo recomendado:** sessão própria assinada com `JWT_SECRET` (guarda `discord_id` + expiração; refresh via `refresh.ts` existente); **não** expor o access token do Discord ao frontend.
 - **Authz em toda escrita** (§3): mata o IDOR.
-- **CSRF/Origin:** toda function mutante (`POST/PUT/PATCH/DELETE`) valida `Origin` e/ou `Referer` — permitir **só** o domínio oficial do dashboard. Revisar CORS: **nada** de `Access-Control-Allow-Origin: *` em rotas autenticadas; permitir só o domínio correto; `credentials` só quando necessário.
+- **CSRF/Origin:** toda function mutante (`POST/PUT/PATCH/DELETE`) valida `Origin` e/ou `Referer` - permitir **só** o domínio oficial do dashboard. Revisar CORS: **nada** de `Access-Control-Allow-Origin: *` em rotas autenticadas; permitir só o domínio correto; `credentials` só quando necessário.
 - **Validação de entrada** via snapshot (§5).
 - **Auditoria:** `updated_by = userId`, `updated_at = now()` em toda gravação.
 - **Segredos:** `BOT_CONFIG_DATABASE_URL` e secrets OAuth só server-side; `SUPABASE_SERVICE_KEY` deixa de ser usado por config.
@@ -157,5 +157,5 @@ Script único (uma vez): pra cada linha de `guilds`/`guild_verificacao` no Supab
 - **Ligar o Neon do bot no site:** criar `BOT_CONFIG_DATABASE_URL` (Neon central de config, projeto separado do banco do site), role de menos-privilégio. Sem isso a Parte B não roda.
 - Scope `guilds.members.read` só é preciso pra `dashboard_access` por cargo (v2).
 - `pix_keys` e gameplay ficam no SQLite do bot.
-- Reescrever a auth geral do site (Google/JWT/etc.) — só a parte do dashboard de config muda.
-- Neon-por-cliente (multi-tenant isolado) — futuro.
+- Reescrever a auth geral do site (Google/JWT/etc.) - só a parte do dashboard de config muda.
+- Neon-por-cliente (multi-tenant isolado) - futuro.

@@ -2,7 +2,7 @@
  * Dinheiro SEMPRE em centavos inteiros. Nenhum float atravessa o domínio.
  *
  * O Mercado Pago recebe/devolve valores decimais em string ("50.00"), então a
- * conversão fica confinada aqui e no provider — nunca em regra de negócio.
+ * conversão fica confinada aqui e no provider - nunca em regra de negócio.
  */
 
 export type Cents = number;

@@ -1,10 +1,10 @@
 /**
- * ResendEmailProvider — implementação de EmailProvider sobre a API REST do
+ * ResendEmailProvider - implementação de EmailProvider sobre a API REST do
  * Resend (POST https://api.resend.com/emails).
  *
  * Usa fetch direto em vez do pacote `resend` porque os handlers de
  * netlify/functions/ são compilados tanto pelo package.json da raiz quanto pelo
- * de server/ (imagem Docker), e `resend` só existe no primeiro — uma
+ * de server/ (imagem Docker), e `resend` só existe no primeiro - uma
  * dependência a mais aqui derrubaria o container em runtime.
  */
 
@@ -104,7 +104,7 @@ export class NoopEmailProvider implements EmailProvider {
 
   async send(message: EmailMessage): Promise<EmailSendResult> {
     this.sent.push(message);
-    console.warn(`[payments] RESEND_API_KEY ausente — e-mail "${message.subject}" não enviado.`);
+    console.warn(`[payments] RESEND_API_KEY ausente - e-mail "${message.subject}" não enviado.`);
     return { id: null };
   }
 }

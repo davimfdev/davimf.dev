@@ -165,7 +165,7 @@ describe('recorrência', () => {
 
     expect(subscription.status).toBe('ACTIVE');
     expect(subscription.autoRenew).toBe(true);
-    expect(world.emails).toContain('Renovação automática ativada — FMM Pro — Mensal');
+    expect(world.emails).toContain('Renovação automática ativada - FMM Pro - Mensal');
   });
 
   it('produto VITALÍCIO nunca vira assinatura', async () => {
@@ -189,7 +189,7 @@ describe('recorrência', () => {
 
     expect(result?.extended).toBe(true);
     expect(world.state.extendedDays).toEqual([30]);
-    expect(world.emails).toContain('Renovação aprovada — FMM Pro — Mensal');
+    expect(world.emails).toContain('Renovação aprovada - FMM Pro - Mensal');
   });
 
   it('renovação repetida NÃO estende duas vezes (dedup de e-mail cobre o evento)', async () => {

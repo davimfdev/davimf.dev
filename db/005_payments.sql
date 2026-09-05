@@ -1,4 +1,4 @@
--- db/005_payments.sql — Módulo de pagamentos (Mercado Pago) + licenças FMM.
+-- db/005_payments.sql - Módulo de pagamentos (Mercado Pago) + licenças FMM.
 --
 -- Aplicar no BANCO DO SITE (NETLIFY_DATABASE_URL / DATABASE_URL), que é o mesmo
 -- usado por lib/fmm-license.ts e lib/dashboard/siteDb.ts.
@@ -253,10 +253,10 @@ INSERT INTO products (
   code, family, name, price_cents, currency, is_lifetime, recurring_eligible,
   recurring_interval, recurring_frequency, duration_days, fulfillment_kind, fulfillment_ref
 ) VALUES
-  ('fmm-basic-monthly',   'fmm', 'FMM Básico — Mensal',      1500,  'BRL', false, true,  'months', 1,  30,    'fmm_license', 'basic'),
-  ('fmm-basic-quarterly', 'fmm', 'FMM Básico — Trimestral',  4000,  'BRL', false, true,  'months', 3,  90,    'fmm_license', 'basic'),
-  ('fmm-basic-lifetime',  'fmm', 'FMM Básico — Vitalício',   8000,  'BRL', true,  false, NULL,     NULL, 36500, 'fmm_license', 'basic'),
-  ('fmm-pro-monthly',     'fmm', 'FMM Pro — Mensal',         3500,  'BRL', false, true,  'months', 1,  30,    'fmm_license', 'pro'),
-  ('fmm-pro-quarterly',   'fmm', 'FMM Pro — Trimestral',     10000, 'BRL', false, true,  'months', 3,  90,    'fmm_license', 'pro'),
-  ('fmm-pro-lifetime',    'fmm', 'FMM Pro — Vitalício',      20000, 'BRL', true,  false, NULL,     NULL, 36500, 'fmm_license', 'pro')
+  ('fmm-basic-monthly',   'fmm', 'FMM Básico - Mensal',      1500,  'BRL', false, true,  'months', 1,  30,    'fmm_license', 'basic'),
+  ('fmm-basic-quarterly', 'fmm', 'FMM Básico - Trimestral',  4000,  'BRL', false, true,  'months', 3,  90,    'fmm_license', 'basic'),
+  ('fmm-basic-lifetime',  'fmm', 'FMM Básico - Vitalício',   8000,  'BRL', true,  false, NULL,     NULL, 36500, 'fmm_license', 'basic'),
+  ('fmm-pro-monthly',     'fmm', 'FMM Pro - Mensal',         3500,  'BRL', false, true,  'months', 1,  30,    'fmm_license', 'pro'),
+  ('fmm-pro-quarterly',   'fmm', 'FMM Pro - Trimestral',     10000, 'BRL', false, true,  'months', 3,  90,    'fmm_license', 'pro'),
+  ('fmm-pro-lifetime',    'fmm', 'FMM Pro - Vitalício',      20000, 'BRL', true,  false, NULL,     NULL, 36500, 'fmm_license', 'pro')
 ON CONFLICT (code) DO NOTHING;

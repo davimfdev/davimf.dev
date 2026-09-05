@@ -5,11 +5,11 @@
  * Todo conteúdo aqui ou é verificável no repositório ou foi dito pelo dono.
  *
  * A Home tem um teaser de três linhas que aponta para cá. As duas páginas não
- * podem repetir texto — foi exatamente esse o defeito que originou esta versão.
+ * podem repetir texto - foi exatamente esse o defeito que originou esta versão.
  *
  * Os projetos vêm de `projectsData.ts`, fonte compartilhada com o `/portfolio`.
  * Aqui mostramos só as três primeiras tags de cada um (resumo); o `/portfolio`
- * é o índice completo e filtrável — sem filtro aqui de propósito.
+ * é o índice completo e filtrável - sem filtro aqui de propósito.
  */
 
 import { Link } from 'react-router-dom';

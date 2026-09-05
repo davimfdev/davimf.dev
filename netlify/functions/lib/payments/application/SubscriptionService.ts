@@ -1,5 +1,5 @@
 /**
- * SubscriptionService — recorrência.
+ * SubscriptionService - recorrência.
  *
  * Só produtos elegíveis (catálogo) e pagos com CARTÃO oferecem renovação
  * automática. Vitalício nunca. Nenhum dado bruto de cartão é armazenado: o

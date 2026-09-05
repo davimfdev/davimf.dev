@@ -33,7 +33,7 @@ export function headersOf(request: Request): Record<string, string | undefined> 
   return out;
 }
 
-/** Mutação só do domínio oficial (Origin, senão Referer) — mesmo critério de lib/cors.ts. */
+/** Mutação só do domínio oficial (Origin, senão Referer) - mesmo critério de lib/cors.ts. */
 export function originAllowed(request: Request): boolean {
   if (!MUTATING.has(request.method.toUpperCase())) return true;
   const source = request.headers.get('origin') ?? request.headers.get('referer') ?? '';
@@ -179,7 +179,7 @@ export function optionalInt(body: Record<string, unknown>, field: string): numbe
 
 /**
  * Só CPF/CNPJ com dígitos. Nenhum campo de cartão é aceito em lugar nenhum da
- * API — se aparecer, é erro explícito, não silêncio.
+ * API - se aparecer, é erro explícito, não silêncio.
  */
 const FORBIDDEN_CARD_FIELDS = [
   'card_number', 'cardNumber', 'pan', 'number',
@@ -189,7 +189,7 @@ const FORBIDDEN_CARD_FIELDS = [
 export function rejectRawCardData(body: Record<string, unknown>): void {
   for (const field of FORBIDDEN_CARD_FIELDS) {
     if (field in body) {
-      // Não logamos o valor — só o nome do campo.
+      // Não logamos o valor - só o nome do campo.
       console.error(`[payments] requisição rejeitada: campo sensível "${field}" enviado ao backend`);
       throw new ValidationError(
         'Dados de cartão não devem ser enviados ao servidor. Use a tokenização do checkout.',
@@ -326,7 +326,7 @@ export function parsePayerProfile(body: Record<string, unknown>): PayerProfileDa
  * perdido por causa disso. Campo opcional e SÓ-DE-PERFIL: é consumido aqui e
  * nunca entra no payload do provider.
  *
- * Sem `payerProfile`, o perfil continua saindo do próprio `payer` — a
+ * Sem `payerProfile`, o perfil continua saindo do próprio `payer` - a
  * validação estrita de `parsePayerProfile` é a mesma nos dois caminhos.
  */
 export function parseConsentedPayerProfile(body: Record<string, unknown>): PayerProfileData {
@@ -335,14 +335,14 @@ export function parseConsentedPayerProfile(body: Record<string, unknown>): Payer
   if (typeof raw !== 'object' || Array.isArray(raw)) {
     throw new ValidationError('Campo "payerProfile" inválido.', 'FIELD_INVALID');
   }
-  // Reembrulhado como `payer` para reusar exatamente o mesmo parser — cada
+  // Reembrulhado como `payer` para reusar exatamente o mesmo parser - cada
   // campo segue limitado em tipo e tamanho, e dados de cartão seguem recusados.
   return parsePayerProfile({ payer: raw as Record<string, unknown> });
 }
 
 /**
  * Limite defensivo do Device ID na fronteira pública. O SDK gera um
- * identificador curto — nada além disso é aceito aqui.
+ * identificador curto - nada além disso é aceito aqui.
  */
 const DEVICE_ID_MAX_LENGTH = 300;
 
@@ -350,7 +350,7 @@ const DEVICE_ID_MAX_LENGTH = 300;
  * Device ID opcional do MercadoPago.js.
  *
  * REQUEST-SCOPED: o valor só atravessa a requisição até o header do provider.
- * Nunca é persistido, nunca é logado e nunca volta na resposta — por isso a
+ * Nunca é persistido, nunca é logado e nunca volta na resposta - por isso a
  * mensagem de erro também não repete o valor recebido.
  */
 export function parseDeviceId(body: Record<string, unknown>): string | undefined {

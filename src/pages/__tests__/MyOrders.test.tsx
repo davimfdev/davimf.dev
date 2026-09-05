@@ -3,12 +3,12 @@
  * O que este arquivo protege:
  *  - dentro da janela de 7 dias o botão é "Solicitar reembolso" e sua
  *    confirmação avisa, de forma explícita, que a licença será revogada;
- *  - fora da janela o botão é "Solicitar análise" — um pedido diferente, que
+ *  - fora da janela o botão é "Solicitar análise" - um pedido diferente, que
  *    NUNCA deve mencionar revogação (nada é revogado, o caso vai para uma
  *    pessoa analisar) nem reaproveitar o diálogo de reembolso;
  *  - a API só é chamada depois da confirmação, nunca ao simples clique;
  *  - quando nenhuma ação se aplica (pedido já reembolsado, por exemplo),
- *    nenhum botão é desenhado — só o motivo, como texto.
+ *    nenhum botão é desenhado - só o motivo, como texto.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -19,7 +19,7 @@ import { ApiError, paymentsApi } from '../../features/checkout/api';
 
 // `ApiError` precisa ser uma classe de verdade no mock: o componente faz
 // `caught instanceof ApiError` para decidir se mostra a mensagem do servidor
-// ou uma mensagem genérica — sem isso o `instanceof` quebraria no teste.
+// ou uma mensagem genérica - sem isso o `instanceof` quebraria no teste.
 vi.mock('../../features/checkout/api', () => {
   class ApiError extends Error {
     code: string;
@@ -127,7 +127,7 @@ describe('Meus pedidos', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
 
     // A mensagem de resultado aparece e o botão que dispararia um novo
-    // pedido (agora sem sentido — o pedido já foi reembolsado) some.
+    // pedido (agora sem sentido - o pedido já foi reembolsado) some.
     expect(await screen.findByText(/Reembolso confirmado/)).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Solicitar reembolso' })).toBeNull();
   });

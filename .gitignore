@@ -23,7 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Secrets — .env.example é o único arquivo de env versionado
+# Secrets - .env.example é o único arquivo de env versionado
 .env
 .env.*
 !.env.example

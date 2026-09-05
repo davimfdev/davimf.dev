@@ -3,7 +3,7 @@
  *
  * A dedup é feita pelo INSERT: o índice único (provider, event_key) faz o
  * segundo INSERT do MESMO evento não retornar linha nenhuma. Nenhuma leitura
- * prévia — duas requisições simultâneas com o mesmo evento não passam as duas.
+ * prévia - duas requisições simultâneas com o mesmo evento não passam as duas.
  */
 
 import { json, paymentsSql, requiredIsoDate, str } from '../infrastructure/db';
@@ -29,7 +29,7 @@ export type RecordEventInput = {
 };
 
 /**
- * Registra o evento. Retorna `null` quando ele JÁ existia — o caller deve
+ * Registra o evento. Retorna `null` quando ele JÁ existia - o caller deve
  * então parar: não liberar produto, não gerar licença, não renovar, não
  * reembolsar e não mandar e-mail de novo.
  */
@@ -77,7 +77,7 @@ export async function markEventFailed(id: number, error: string): Promise<void> 
 
 /**
  * Libera o evento para reprocessamento. Usado quando o handler falhou por
- * causa transitória — sem isso o retry do provider cairia na dedup e o
+ * causa transitória - sem isso o retry do provider cairia na dedup e o
  * pagamento ficaria sem entrega.
  */
 export async function releaseEvent(id: number): Promise<void> {

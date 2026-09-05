@@ -147,7 +147,7 @@ const translations = {
     annualDiscount: "Economize 16% com o plano anual!",
     fmmModManagerPlans: "Planos do Gerenciador de Mods FiveM",
     fmmQuarterlySavings: "Economize ~11% vs mensal",
-    fmmLifetimeNote: "Pagamento único — acesso para sempre",
+    fmmLifetimeNote: "Pagamento único - acesso para sempre",
     fmmForever: "para sempre",
     fmmRecommended: "Recomendado",
     fmmOneTimePayment: "pagamento único",
@@ -294,7 +294,7 @@ const translations = {
     privacyPolicy: "Política de Privacidade",
     termsOfService: "Termos de Serviço",
     // Copy do painel "versão não encontrada" (rotas /legal/:version/...). Não é
-    // conteúdo versionado — é UI do site, por isso vive aqui e não em
+    // conteúdo versionado - é UI do site, por isso vive aqui e não em
     // src/content/legal, que só guarda snapshots imutáveis de cada versão.
     legalVersionNotFoundTitle: "Versão não encontrada",
     legalVersionNotFoundPrefix: "A versão",
@@ -346,7 +346,7 @@ const translations = {
       systemLabel: 'DAVIMF / SYS',
       systemId: 'DVM-001',
       headline: 'Ideias viram sistemas.\nSistemas geram resultados.',
-      sub: 'Software, automações e produtos digitais — da arquitetura à produção.',
+      sub: 'Software, automações e produtos digitais - da arquitetura à produção.',
       ctaProducts: 'Ver produtos',
       ctaWork: 'Conhecer meu trabalho',
       evidence: {
@@ -409,7 +409,7 @@ const translations = {
         heading: 'ABOUT',
         teaser: 'Eu construo backend, bots, ferramentas e automações. Comecei resolvendo problemas meus e continuei transformando essas soluções em produtos.',
         link: 'Sobre mim',
-        intro: 'Eu construo backend, bots, ferramentas e automações — e também soluções sob medida: watchdogs, aplicações personalizadas e integrações. O que eu faço é pegar uma ideia solta e trazer para a realidade de forma estruturada.',
+        intro: 'Eu construo backend, bots, ferramentas e automações - e também soluções sob medida: watchdogs, aplicações personalizadas e integrações. O que eu faço é pegar uma ideia solta e trazer para a realidade de forma estruturada.',
         buildHeading: 'O QUE EU CONSTRUO',
       },
       projects: {
@@ -586,7 +586,7 @@ const translations = {
     annualDiscount: "Save 16% with the annual plan!",
     fmmModManagerPlans: "FiveM Mod Manager Plans",
     fmmQuarterlySavings: "Save ~11% vs monthly",
-    fmmLifetimeNote: "One-time payment — lifetime access",
+    fmmLifetimeNote: "One-time payment - lifetime access",
     fmmForever: "forever",
     fmmRecommended: "Recommended",
     fmmOneTimePayment: "one-time payment",
@@ -733,7 +733,7 @@ const translations = {
     privacyPolicy: "Privacy Policy",
     termsOfService: "Terms of Service",
     // "Version not found" panel copy (/legal/:version/... routes). Not
-    // versioned content — it's site UI, so it lives here rather than in
+    // versioned content - it's site UI, so it lives here rather than in
     // src/content/legal, which only holds immutable per-version snapshots.
     legalVersionNotFoundTitle: "Version not found",
     legalVersionNotFoundPrefix: "Version",
@@ -785,7 +785,7 @@ const translations = {
       systemLabel: 'DAVIMF / SYS',
       systemId: 'DVM-001',
       headline: 'Ideas become systems.\nSystems deliver results.',
-      sub: 'Software, automation, and digital products — from architecture to production.',
+      sub: 'Software, automation, and digital products - from architecture to production.',
       ctaProducts: 'See products',
       ctaWork: 'See my work',
       evidence: {
@@ -848,7 +848,7 @@ const translations = {
         heading: 'ABOUT',
         teaser: 'I build backend, bots, tools and automation. I started by solving my own problems and kept turning those solutions into products.',
         link: 'About me',
-        intro: 'I build backend, bots, tools and automation — and bespoke solutions too: watchdogs, custom applications and integrations. What I do is take a loose idea and bring it into reality in a structured way.',
+        intro: 'I build backend, bots, tools and automation - and bespoke solutions too: watchdogs, custom applications and integrations. What I do is take a loose idea and bring it into reality in a structured way.',
         buildHeading: 'WHAT I BUILD',
       },
       projects: {

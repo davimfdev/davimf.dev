@@ -22,7 +22,7 @@ export function sha256Hex(input: string): string {
   return createHash('sha256').update(input).digest('hex');
 }
 
-/** "FMM-XXXXXXXX" — o que já era exibido nas listagens administrativas. */
+/** "FMM-XXXXXXXX" - o que já era exibido nas listagens administrativas. */
 export function keyPrefixOf(rawKey: string): string {
   return rawKey.substring(0, 12);
 }

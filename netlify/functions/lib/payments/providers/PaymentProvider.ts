@@ -193,7 +193,7 @@ export type RefundResult = {
 
 /** O que o provider extrai de uma notificação, já normalizado. */
 export type NormalizedWebhook = {
-  /** Chave estável do evento — base da deduplicação. */
+  /** Chave estável do evento - base da deduplicação. */
   eventKey: string;
   eventType: string;
   /** 'payment' | 'subscription' | 'chargeback' | 'fraud' | 'claim' | 'unknown' */
@@ -206,7 +206,7 @@ export type NormalizedWebhook = {
 };
 
 export type WebhookRequest = {
-  /** Corpo CRU, byte a byte — assinaturas são calculadas sobre ele ou sobre headers. */
+  /** Corpo CRU, byte a byte - assinaturas são calculadas sobre ele ou sobre headers. */
   rawBody: string;
   headers: Record<string, string | undefined>;
   url: string;
@@ -227,7 +227,7 @@ export interface PaymentProvider {
   getSubscription(providerSubscriptionId: string): Promise<ProviderSubscriptionResult>;
   /**
    * Valida a assinatura da notificação e devolve o evento normalizado.
-   * Retorna `null` quando a assinatura é inválida — o caller responde 401.
+   * Retorna `null` quando a assinatura é inválida - o caller responde 401.
    */
   processWebhook(request: WebhookRequest): Promise<NormalizedWebhook | null>;
 }

@@ -5,7 +5,7 @@
  * verificação, a garantia anti-hardcode cobriria só metade do código.
  *
  * Stylelint faria o mesmo trabalho, mas traria uma dependência, um arquivo de
- * configuração e um segundo conceito de "regra" para manter — em troca de
+ * configuração e um segundo conceito de "regra" para manter - em troca de
  * cobrir quatro arquivos num projeto que quase não escreve CSS novo.
  *
  * `rgb(var(--accent) / .07)` é uso de token e passa: só recusamos as funções de
@@ -22,7 +22,7 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const ALLOWED = 'src/styles/tokens.css';
 
 const HEX = /#[0-9a-fA-F]{3,8}\b/;
-/** `rgb(` / `hsl(` seguidos de número — `rgb(var(…))` não casa. */
+/** `rgb(` / `hsl(` seguidos de número - `rgb(var(…))` não casa. */
 const NUMERIC_FUNCTION = /\b(?:rgba?|hsla?)\(\s*[\d.]/;
 /** Nome de cor só conta em posição de valor de propriedade de cor. */
 const NAMED_COLOR =
@@ -38,7 +38,7 @@ const ESCAPE = /\/\*\s*allow-raw-color:\s*(.+?)\s*\*\//;
  * checker que reclamasse disso geraria falso positivo, e falso positivo é como
  * uma regra acaba desligada.
  *
- * Preservar `\n` é o que mantém os números de linha corretos — remover o
+ * Preservar `\n` é o que mantém os números de linha corretos - remover o
  * comentário inteiro deslocaria todo o relatório.
  */
 function blankComments(content) {
@@ -57,7 +57,7 @@ export function checkCssColors(files) {
 
     const lines = content.split('\n');
     // Detecta sobre o código sem comentários, mas reporta e procura o escape
-    // nas linhas originais — o próprio escape é um comentário.
+    // nas linhas originais - o próprio escape é um comentário.
     const code = blankComments(content).split('\n');
 
     code.forEach((line, index) => {

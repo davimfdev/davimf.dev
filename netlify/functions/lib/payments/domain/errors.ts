@@ -54,7 +54,7 @@ export class ConflictError extends PaymentError {
   }
 }
 
-/** Falha de comunicação com o provider — o pagamento pode ou não ter ocorrido. */
+/** Falha de comunicação com o provider - o pagamento pode ou não ter ocorrido. */
 export class ProviderError extends PaymentError {
   readonly providerDetail?: string;
 

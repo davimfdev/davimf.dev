@@ -52,7 +52,7 @@ export type ReservePaymentInput = {
  * Reserva a tentativa ANTES de chamar o provider.
  *
  * A chave de idempotência é única: duplo clique, refresh ou retry caem no
- * `ON CONFLICT` e recuperam a MESMA linha — nunca uma segunda cobrança.
+ * `ON CONFLICT` e recuperam a MESMA linha - nunca uma segunda cobrança.
  */
 export async function reservePayment(input: ReservePaymentInput): Promise<Payment> {
   const rows = await paymentsSql`

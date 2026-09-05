@@ -90,7 +90,7 @@ function App() {
               <Route path="/legal/:version/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/legal/:version/refund-policy" element={<RefundPolicy />} />
               {/* Captura qualquer outro caminho sob /legal/ (ex.: segmento de versão
-                  vazio) — escopo só desta feature, não um 404 da aplicação inteira. */}
+                  vazio) - escopo só desta feature, não um 404 da aplicação inteira. */}
               <Route path="/legal/*" element={<LegalCatchAll />} />
               <Route path="/fmm" element={<FmmPlans />} />
               <Route path="/fmm-activated" element={<FmmActivated />} />

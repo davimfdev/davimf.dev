@@ -6,7 +6,7 @@
  *
  * A isenção é por DECLARAÇÃO, nunca por arquivo: um literal só é aceito dentro
  * de uma variável cujo nome case /^DATA_PALETTE(_|$)/. Isentar um arquivo
- * inteiro deixaria passar cromo de interface no mesmo arquivo — o padrão que
+ * inteiro deixaria passar cromo de interface no mesmo arquivo - o padrão que
  * `src/lib/palettes/dataPalettes.ts` isola de propósito.
  */
 
@@ -64,7 +64,7 @@ export default {
       arbitraryColor:
         'Valor de cor arbitrário em "{{value}}"{{hint}}. Use um token do design system.',
       rawFunction:
-        'Função de cor com valores crus em "{{value}}". Use um token do design system — `rgb(var(--token) / alfa)` compõe alfa a partir do token.',
+        'Função de cor com valores crus em "{{value}}". Use um token do design system - `rgb(var(--token) / alfa)` compõe alfa a partir do token.',
     },
   },
 
@@ -74,7 +74,7 @@ export default {
 
       const value = text.length > 60 ? `${text.slice(0, 57)}…` : text;
       const token = suggest(text);
-      const hint = token ? ` — use ${token}` : '';
+      const hint = token ? ` - use ${token}` : '';
 
       if (TAILWIND_PALETTE.test(text)) {
         context.report({ node, messageId: 'tailwindPalette', data: { value, hint } });

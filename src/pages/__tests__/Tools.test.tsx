@@ -30,7 +30,7 @@ describe('página /tools', () => {
   it('cada uma das seis ferramentas aponta para uma rota registrada no App', () => {
     // Mesma falha que o teste da navbar tinha: comparar hrefs com um array
     // escrito à mão só prova que a lista bate com ela mesma. Aqui a fonte é
-    // o App — apagar uma rota de lá quebra este teste.
+    // o App - apagar uma rota de lá quebra este teste.
     const app = readFileSync(resolve(__dirname, '../../App.tsx'), 'utf8');
     const registered = new Set(
       [...app.matchAll(/path="([^"]+)"/g)].map((match) => match[1]),

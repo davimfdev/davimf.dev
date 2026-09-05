@@ -1,11 +1,11 @@
 /**
- * WebhookService — porta de entrada das notificações do provider.
+ * WebhookService - porta de entrada das notificações do provider.
  *
  * Garantias:
  *  - assinatura inválida => 401, nada é processado;
  *  - o payload NUNCA é fonte de verdade: o provider é reconsultado;
  *  - deduplicação por `payment_events(provider, event_key)` ANTES de qualquer
- *    efeito — um evento repetido não libera produto, não gera outra licença,
+ *    efeito - um evento repetido não libera produto, não gera outra licença,
  *    não renova duas vezes, não reembolsa duas vezes e não manda e-mail
  *    financeiro duplicado;
  *  - falha transitória libera o evento para o retry do provider.
@@ -38,7 +38,7 @@ export class WebhookService {
       event = await this.provider.processWebhook(request);
     } catch (error) {
       console.error('[payments] webhook: falha ao consultar o provedor:', (error as Error).message);
-      // 500 faz o provider reenviar — melhor que engolir um pagamento.
+      // 500 faz o provider reenviar - melhor que engolir um pagamento.
       return { status: 500, result: 'error' };
     }
 

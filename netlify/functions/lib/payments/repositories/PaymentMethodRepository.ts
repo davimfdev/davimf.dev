@@ -1,7 +1,7 @@
 /**
  * Meios de pagamento salvos.
  *
- * NUNCA armazena PAN completo nem CVV — só bandeira, últimos 4, validade e a
+ * NUNCA armazena PAN completo nem CVV - só bandeira, últimos 4, validade e a
  * referência opaca do provider.
  */
 

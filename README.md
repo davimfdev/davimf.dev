@@ -10,16 +10,16 @@ PostgreSQL on the back, self-hosted on a VPS with Coolify.
 
 ## Stack
 
-| Layer | Tech |
-|---|---|
-| Frontend | React 18, TypeScript, Vite 6, Tailwind CSS, React Router 6 |
-| Backend | Node 22, Express 4, TypeScript (`server/`) |
-| Database | PostgreSQL over TCP via `postgres.js` (pooled) |
-| Auth | Discord OAuth2 (signed session cookie) + a legacy JWT stack |
+| Layer    | Tech                                                              |
+| -------- | ----------------------------------------------------------------- |
+| Frontend | React 18, TypeScript, Vite 6, Tailwind CSS, React Router 6        |
+| Backend  | Node 22, Express 4, TypeScript (`server/`)                        |
+| Database | PostgreSQL over TCP via `postgres.js` (pooled)                    |
+| Auth     | Discord OAuth2 (signed session cookie) + a legacy JWT stack       |
 | Payments | Mercado Pago, transparent checkout (Orders API) and subscriptions |
-| E-mail | Resend |
-| Tests | Vitest + Testing Library (81 test files) |
-| Deploy | Docker + Coolify behind Nginx Proxy Manager |
+| E-mail   | Resend                                                            |
+| Tests    | Vitest + Testing Library (81 test files)                          |
+| Deploy   | Docker + Coolify behind Nginx Proxy Manager                       |
 
 Site and API share the origin `https://davimf.dev`. The browser always calls
 `/api/...` on the same host, so there is **no CORS anywhere**.
@@ -44,34 +44,37 @@ Internet
 No login required.
 
 ### Portfolio & profile
-| Route | Description |
-|---|---|
-| `/` | Landing page with the ecosystem graph hero, work blocks, stack and tools |
-| `/about` | About, with the project/tech breakdown |
-| `/portfolio` | Project showcase, filterable by technology |
-| `/resume` | CV / résumé (PDF export via jsPDF + html2canvas) |
-| `/products` | Services and products offered |
-| `/plans` | Pricing for Discord bots and FiveM factions |
-| `/contact` | Contact form |
+
+| Route        | Description                                                              |
+| ------------ | ------------------------------------------------------------------------ |
+| `/`          | Landing page with the ecosystem graph hero, work blocks, stack and tools |
+| `/about`     | About, with the project/tech breakdown                                   |
+| `/portfolio` | Project showcase, filterable by technology                               |
+| `/resume`    | CV / résumé (PDF export via jsPDF + html2canvas)                         |
+| `/products`  | Services and products offered                                            |
+| `/plans`     | Pricing for Discord bots and FiveM factions                              |
+| `/contact`   | Contact form                                                             |
 
 ### Tools
-| Route | Description |
-|---|---|
-| `/tools` | Index of every tool |
-| `/calc` | Calculator |
-| `/roulette` | Random-choice roulette wheel |
+
+| Route                 | Description                                                   |
+| --------------------- | ------------------------------------------------------------- |
+| `/tools`              | Index of every tool                                           |
+| `/calc`               | Calculator                                                    |
+| `/roulette`           | Random-choice roulette wheel                                  |
 | `/password-generator` | Password generator; config and history kept in `localStorage` |
-| `/encurtador` | URL shortener; shorten any link, no account needed |
-| `/r/:shortCode` | Short-URL redirect handler |
+| `/encurtador`         | URL shortener; shorten any link, no account needed            |
+| `/r/:shortCode`       | Short-URL redirect handler                                    |
 
 ### Store & legal
-| Route | Description |
-|---|---|
-| `/fmm` | FMM (FiveM Mod Manager) plans and checkout |
-| `/fmm-activated` | Post-activation landing for an FMM license |
-| `/ticket/:id` | Read-only view of a Discord ticket transcript (payload is encrypted) |
-| `/privacy-policy`, `/terms-of-service`, `/refund-policy` | Current legal documents |
-| `/legal/:version/<doc>` | Any published legal snapshot, addressed by version |
+
+| Route                                                    | Description                                                          |
+| -------------------------------------------------------- | -------------------------------------------------------------------- |
+| `/fmm`                                                   | FMM (FiveM Mod Manager) plans and checkout                           |
+| `/fmm-activated`                                         | Post-activation landing for an FMM license                           |
+| `/ticket/:id`                                            | Read-only view of a Discord ticket transcript (payload is encrypted) |
+| `/privacy-policy`, `/terms-of-service`, `/refund-policy` | Current legal documents                                              |
+| `/legal/:version/<doc>`                                  | Any published legal snapshot, addressed by version                   |
 
 Legal text is versioned and content-hashed (`src/content/legal/`). Every order
 records which version the customer accepted plus the hash of the exact text, so a
@@ -87,22 +90,24 @@ translation type forces both languages to stay in sync.
 
 Authenticate through Discord OAuth from the top-right corner.
 
-| Route | Description |
-|---|---|
-| `/todo` | Tasks with due date/time, priority (Low/Medium/High) and recurrence (Daily/Weekly/Monthly) |
-| `/notes` | Notes, plus a floating layer available across the site |
-| `/finances` | Multiple accounts, income/expense transactions, transfers, category chart, payment type (PIX, card) |
-| `/encurtador` | Extended: full link history and deletion |
-| `/my-orders` | Order history, payment status and self-service refund requests |
-| `/my-keys` | FMM licenses, with the full key recoverable |
-| `/fmm-admin` | License administration (Discord ID allowlist) |
+| Route         | Description                                                                                         |
+| ------------- | --------------------------------------------------------------------------------------------------- |
+| `/todo`       | Tasks with due date/time, priority (Low/Medium/High) and recurrence (Daily/Weekly/Monthly)          |
+| `/notes`      | Notes, plus a floating layer available across the site                                              |
+| `/finances`   | Multiple accounts, income/expense transactions, transfers, category chart, payment type (PIX, card) |
+| `/encurtador` | Extended: full link history and deletion                                                            |
+| `/my-orders`  | Order history, payment status and self-service refund requests                                      |
+| `/my-keys`    | FMM licenses, with the full key recoverable                                                         |
+| `/fmm-admin`  | License administration (Discord ID allowlist)                                                       |
 
 ### Bot dashboard: `/dashboard`
+
 - Lists every Discord server where you hold Admin / Manage Server
 - Shows which of them already have BaseBot installed
 - One-click invite to add the bot
 
 ### Bot config: `/dashboard/:guildId/<section>`
+
 Six sections, each backed by a snapshot of the real guild (channels, roles) so
 configuration never means typing raw Discord IDs:
 
@@ -217,18 +222,18 @@ curl http://localhost:3000/api/_routes  # every registered route
 
 ### Scripts
 
-| Command | Where | What |
-|---|---|---|
-| `npm run dev` | root | Vite dev server |
-| `npm run build` | root | Production build → `dist/` |
-| `npm run preview` | root | Serve the production build |
-| `npm test` | root | Vitest suite |
-| `npm run lint` | root | ESLint + the CSS color check |
-| `npm run typecheck:functions` | root | `tsc` over `netlify/functions/` |
-| `npm run dev` | `server/` | Express with watch mode |
-| `npm run build` | `server/` | `tsc` → `server/dist/` |
-| `npm run typecheck` | `server/` | Type-check only |
-| `npm start` | `server/` | Run the compiled server |
+| Command                       | Where     | What                            |
+| ----------------------------- | --------- | ------------------------------- |
+| `npm run dev`                 | root      | Vite dev server                 |
+| `npm run build`               | root      | Production build → `dist/`      |
+| `npm run preview`             | root      | Serve the production build      |
+| `npm test`                    | root      | Vitest suite                    |
+| `npm run lint`                | root      | ESLint + the CSS color check    |
+| `npm run typecheck:functions` | root      | `tsc` over `netlify/functions/` |
+| `npm run dev`                 | `server/` | Express with watch mode         |
+| `npm run build`               | `server/` | `tsc` → `server/dist/`          |
+| `npm run typecheck`           | `server/` | Type-check only                 |
+| `npm start`                   | `server/` | Run the compiled server         |
 
 ### Database
 
@@ -265,19 +270,19 @@ Coolify orchestrates production.
 Every variable is documented in [`.env.example`](.env.example); the deployment
 matrix is in [`docs/VPS_MIGRATION.md`](docs/VPS_MIGRATION.md). The essentials:
 
-| Variable | For |
-|---|---|
-| `URL` | Public base URL for short links, e-mail links and payment return URLs |
-| `DATABASE_URL` | Site database: urls, tasks, notes, accounts, transactions |
-| `NETLIFY_DATABASE_URL` | Users/JWT, expenses, dashboard sessions, FMM licenses |
-| `BOT_CONFIG_DATABASE_URL` / `POSTGRES_URL` | BaseBot configuration database |
-| `TICKETS_NEON` | Ticket transcripts |
-| `DISCORD_CLIENT_ID` / `_SECRET` / `_REDIRECT_URI` | Discord OAuth |
-| `DASHBOARD_SESSION_SECRET`, `DASHBOARD_TOKEN_ENCRYPTION_KEY` | Session signing and token encryption |
-| `BOT_SUPPORT_USER_IDS` | Support/admin allowlist (also gates refunds) |
-| `MERCADOPAGO_*`, `PAYMENTS_*`, `RESEND_API_KEY` | Payments and e-mail |
-| `FMM_APP_SECRET`, `FMM_ADMIN_SECRET`, `TICKET_INGEST_SECRET` | Machine-to-machine secrets |
-| `JWT_SECRET`, `EXCHANGERATE_API_KEY` | Legacy JWT stack and the exchange-rate proxy |
+| Variable                                                     | For                                                                   |
+| ------------------------------------------------------------ | --------------------------------------------------------------------- |
+| `URL`                                                        | Public base URL for short links, e-mail links and payment return URLs |
+| `DATABASE_URL`                                               | Site database: urls, tasks, notes, accounts, transactions             |
+| `NETLIFY_DATABASE_URL`                                       | Users/JWT, expenses, dashboard sessions, FMM licenses                 |
+| `BOT_CONFIG_DATABASE_URL` / `POSTGRES_URL`                   | BaseBot configuration database                                        |
+| `TICKETS_NEON`                                               | Ticket transcripts                                                    |
+| `DISCORD_CLIENT_ID` / `_SECRET` / `_REDIRECT_URI`            | Discord OAuth                                                         |
+| `DASHBOARD_SESSION_SECRET`, `DASHBOARD_TOKEN_ENCRYPTION_KEY` | Session signing and token encryption                                  |
+| `BOT_SUPPORT_USER_IDS`                                       | Support/admin allowlist (also gates refunds)                          |
+| `MERCADOPAGO_*`, `PAYMENTS_*`, `RESEND_API_KEY`              | Payments and e-mail                                                   |
+| `FMM_APP_SECRET`, `FMM_ADMIN_SECRET`, `TICKET_INGEST_SECRET` | Machine-to-machine secrets                                            |
+| `JWT_SECRET`, `EXCHANGERATE_API_KEY`                         | Legacy JWT stack and the exchange-rate proxy                          |
 
 `URL` also accepts the platform aliases `PUBLIC_SITE_URL`, `SITE_URL`, `APP_URL`,
 `COOLIFY_URL`, `COOLIFY_FQDN` and `SERVICE_FQDN_*`, normalized at boot by
@@ -307,15 +312,15 @@ Step-by-step, including the proxy hosts and the external services to reconfigure
 
 ## Docs
 
-| File | Content |
-|---|---|
+| File                                             | Content                                                                                                |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
 | [`docs/VPS_MIGRATION.md`](docs/VPS_MIGRATION.md) | Architecture, full inventory of the 44 endpoints, env matrix, Coolify and Nginx setup, troubleshooting |
-| [`docs/PAYMENTS.md`](docs/PAYMENTS.md) | Payment module architecture, schema, endpoints, Mercado Pago integration, webhook validation |
-| [`PRODUCT.md`](PRODUCT.md) | Product brief and design principles for the dashboard |
-| `docs/superpowers/` | Dated design specs and implementation plans |
+| [`docs/PAYMENTS.md`](docs/PAYMENTS.md)           | Payment module architecture, schema, endpoints, Mercado Pago integration, webhook validation           |
+| [`PRODUCT.md`](PRODUCT.md)                       | Product brief and design principles for the dashboard                                                  |
+| `docs/superpowers/`                              | Dated design specs and implementation plans                                                            |
 
 ---
 
-## License
+#### License
 
-Private, all rights reserved.
+Copyright © 2026 Davi Monteiro Fonseca. All rights reserved.

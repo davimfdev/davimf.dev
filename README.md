@@ -1,6 +1,6 @@
 # davimf.dev
 
-Personal developer portfolio and tooling platform. Built with React + TypeScript, deployed on Netlify.
+Personal developer portfolio and tooling platform. Built with React + TypeScript, deployed on own VPS using Coolify.
 
 **Live:** https://davimf.dev
 

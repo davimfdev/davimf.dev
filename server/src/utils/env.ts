@@ -25,7 +25,7 @@ type EnvGroup = {
 const REQUIRED: EnvGroup[] = [
   // Conexões PostgreSQL por TCP (postgres.js). `NETLIFY_DATABASE_URL`,
   // `BOT_CONFIG_DATABASE_URL` e `TICKETS_NEON` são os nomes herdados da Netlify
-  // e continuam aceitos como alternativa — ver netlify/functions/lib/db.ts.
+  // e continuam aceitos como alternativa - ver netlify/functions/lib/db.ts.
   { label: 'Banco do site davimf_dev', vars: ['DATABASE_URL'], alternatives: ['NETLIFY_DATABASE_URL'] },
   { label: 'Banco de config do bot bot_configs', vars: ['POSTGRES_URL'], alternatives: ['BOT_CONFIG_DATABASE_URL'] },
   { label: 'Banco de tickets', vars: ['TICKETS_NEON'], alternatives: ['TICKETS_DATABASE_URL'] },
@@ -50,16 +50,16 @@ const REQUIRED: EnvGroup[] = [
 const OPTIONAL: EnvGroup[] = [
   // Fluxo antigo de checkout, mantido só enquanto houver pedido em aberto.
   // Têm padrão no código (mercadopago / sandbox).
-  { label: 'Pagamentos — ajustes com padrão', vars: ['PAYMENTS_PROVIDER', 'PAYMENTS_ENV'], optional: true },
+  { label: 'Pagamentos - ajustes com padrão', vars: ['PAYMENTS_PROVIDER', 'PAYMENTS_ENV'], optional: true },
   {
-    label: 'Pagamentos — perfil de cobrança criptografado',
+    label: 'Pagamentos - perfil de cobrança criptografado',
     vars: ['PAYMENTS_PAYER_ENCRYPTION_KEY'],
     optional: true,
   },
   // Só rotula o log do webhook (`application=match/foreign`) para separar
   // notificações de outra aplicação do Mercado Pago. Não autentica nada.
   {
-    label: 'Pagamentos — aplicação dona do webhook (diagnóstico)',
+    label: 'Pagamentos - aplicação dona do webhook (diagnóstico)',
     vars: ['MERCADOPAGO_APPLICATION_ID'],
     optional: true,
   },
@@ -91,7 +91,7 @@ function findEnvFile(startDir: string, levels = 4): string | null {
  *
  * Antes, só `npm run dev` lia o arquivo (`tsx --env-file-if-exists`);
  * `npm start` e o `CMD` do Docker não liam nada, então uma variável definida
- * apenas no `.env` sumia fora do dev — era esse o caso de `URL`.
+ * apenas no `.env` sumia fora do dev - era esse o caso de `URL`.
  *
  * `process.loadEnvFile` NÃO sobrescreve o que já está no ambiente, então a env
  * real da plataforma (Coolify) continua tendo precedência sobre o arquivo.
@@ -128,7 +128,7 @@ export function loadEnvFileIfPresent(): string | null {
  * Apelidos aceitos para a URL pública, em ordem de precedência.
  *
  * `URL` é o nome canônico (é o que os handlers leem). Os demais existem porque
- * painéis de deploy costumam expor o domínio com outro nome — o Coolify, por
+ * painéis de deploy costumam expor o domínio com outro nome - o Coolify, por
  * exemplo, gera `SERVICE_FQDN_*` e `COOLIFY_FQDN` como host puro, sem esquema.
  */
 const SITE_URL_ALIASES = [
@@ -203,7 +203,7 @@ function missingFrom(groups: EnvGroup[]): string[] {
     if (group.alternatives?.some((name) => process.env[name])) continue;
     for (const name of group.vars) {
       if (!process.env[name]) {
-        const also = group.alternatives?.length ? ` — ou ${group.alternatives.join('/')}` : '';
+        const also = group.alternatives?.length ? ` - ou ${group.alternatives.join('/')}` : '';
         missing.push(`${name} (${group.label}${also})`);
       }
     }

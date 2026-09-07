@@ -62,7 +62,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
       if (!isDragging.current || !cardRef.current) return;
       const dx = ev.clientX - startClientX;
       const dy = ev.clientY - startClientY;
-      // Direct DOM — transform not declared in JSX style so React never resets it
+      // Direct DOM - transform not declared in JSX style so React never resets it
       cardRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
     };
 
@@ -104,16 +104,16 @@ export const NoteCard: React.FC<NoteCardProps> = ({
   if (note.is_maximized && !isFloating) {
     return (
       <>
-        <div className="fixed inset-0 bg-bg/60 z-[9998]" onClick={() => onUpdate({ id: note.id, is_maximized: false })} />
+        <div className="fixed inset-0 bg-black/60 z-[9998]" onClick={() => onUpdate({ id: note.id, is_maximized: false })} />
         <div
           className="fixed top-[88px] left-4 right-4 bottom-4 z-[9999] glass-panel flex flex-col overflow-hidden"
           style={{ ...bgStyle, borderColor: `rgba(${rgb}, 0.4)` }}
         >
-          <div className="flex items-center justify-between px-4 py-2 border-b border-line">
-            <span className="font-semibold text-fg truncate">{note.title}</span>
+          <div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
+            <span className="font-semibold text-white truncate">{note.title}</span>
             <button
               onClick={() => onUpdate({ id: note.id, is_maximized: false })}
-              className="p-1 rounded hover:bg-surface-2 text-fg-muted hover:text-fg transition-colors text-xs"
+              className="p-1 rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors text-xs"
             >
               Restaurar
             </button>
@@ -150,7 +150,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
         style={{ ...bgStyle, borderColor: `rgba(${rgb}, 0.35)` }}
       >
         <div
-          className="flex items-center gap-2 px-3 py-2 group cursor-grab active:cursor-grabbing border-b border-line"
+          className="flex items-center gap-2 px-3 py-2 group cursor-grab active:cursor-grabbing border-b border-white/10"
           style={{ background: `rgba(${rgb}, 0.15)` }}
           onMouseDown={handleMouseDown}
           onDoubleClick={handleDoubleClickHeader}
@@ -163,7 +163,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
             value={note.title}
             onChange={e => onUpdate({ id: note.id, title: e.target.value }, 500)}
             onMouseDown={e => e.stopPropagation()}
-            className="flex-1 bg-transparent text-fg text-sm font-medium outline-none truncate min-w-0"
+            className="flex-1 bg-transparent text-white text-sm font-medium outline-none truncate min-w-0"
             placeholder="Título..."
           />
           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
@@ -199,18 +199,18 @@ export const NoteCard: React.FC<NoteCardProps> = ({
         )}
 
         {showDeleteConfirm && (
-          <div className="p-3 border-t border-line bg-danger/10 flex items-center justify-between gap-2">
-            <span className="text-xs text-danger">Tem certeza?</span>
+          <div className="p-3 border-t border-white/10 bg-red-500/10 flex items-center justify-between gap-2">
+            <span className="text-xs text-red-300">Tem certeza?</span>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="text-xs px-2 py-1 rounded hover:bg-surface-2 text-fg-muted transition-colors"
+                className="text-xs px-2 py-1 rounded hover:bg-white/10 text-gray-300 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleDelete}
-                className="text-xs px-2 py-1 rounded bg-danger/30 hover:bg-danger/50 text-fg transition-colors"
+                className="text-xs px-2 py-1 rounded bg-red-500/30 hover:bg-red-500/50 text-red-200 transition-colors"
               >
                 Deletar
               </button>

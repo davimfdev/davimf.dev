@@ -1,4 +1,4 @@
-# davimf.dev
+﻿# davimf.dev
 
 Personal developer portfolio, tooling platform and storefront for the BaseBot
 (Discord) and FMM (FiveM) products. React + TypeScript on the front, Express +
@@ -26,9 +26,9 @@ Site and API share the origin `https://davimf.dev`. The browser always calls
 
 ```
 Internet
-  └── Nginx Proxy Manager (TLS, HTTP/2)
-        ├── /      ──► davimf-site : 80    nginx serving the Vite build
-        └── /api/  ──► davimf-api  : 3000  Node/Express container
+  â””â”€â”€ Nginx Proxy Manager (TLS, HTTP/2)
+        â”œâ”€â”€ /      â”€â”€â–º davimf-site : 80    nginx serving the Vite build
+        â””â”€â”€ /api/  â”€â”€â–º davimf-api  : 3000  Node/Express container
 ```
 
 > **Netlify heritage:** the 44 HTTP handlers still live in `netlify/functions/*.ts`
@@ -50,7 +50,7 @@ No login required.
 | `/`          | Landing page with the ecosystem graph hero, work blocks, stack and tools |
 | `/about`     | About, with the project/tech breakdown                                   |
 | `/portfolio` | Project showcase, filterable by technology                               |
-| `/resume`    | CV / résumé (PDF export via jsPDF + html2canvas)                         |
+| `/resume`    | CV / rÃ©sumÃ© (PDF export via jsPDF + html2canvas)                         |
 | `/products`  | Services and products offered                                            |
 | `/plans`     | Pricing for Discord bots and FiveM factions                              |
 | `/contact`   | Contact form                                                             |
@@ -111,7 +111,7 @@ Authenticate through Discord OAuth from the top-right corner.
 Six sections, each backed by a snapshot of the real guild (channels, roles) so
 configuration never means typing raw Discord IDs:
 
-`overview` · `channels` · `roles` · `moderation` · `security` · `modules`
+`overview` Â· `channels` Â· `roles` Â· `moderation` Â· `security` Â· `modules`
 
 Access levels are `owner`, `delegate` and `support`; every mutation is written to
 an audit trail (`db/003_dashboard_config_audit.sql`), and mutating endpoints check
@@ -148,7 +148,7 @@ Full reference, including sandbox test cards and webhook diagnostics:
 
 ```
 src/                      React app
-  components/ui/          Design-system primitives (Button, Surface, Field, Badge…)
+  components/ui/          Design-system primitives (Button, Surface, Field, Badgeâ€¦)
   features/               home, projects, checkout, bot-dashboard, notes
   pages/                  One file per route
   content/legal/          Versioned, hashed legal documents (pt/en)
@@ -164,7 +164,7 @@ server/                   Express host that mounts those handlers
   src/utils/              netlifyAdapter, webAdapter, env resolution
 
 db/                       Idempotent SQL migrations, applied with psql
-docs/                     VPS_MIGRATION.md, PAYMENTS.md, plans & specs
+docs/                     Architecture, deployment and payment documentation
 eslint-rules/             Custom `local/no-raw-color` rule
 scripts/                  check-css-colors.mjs (the CSS half of the same rule)
 ```
@@ -225,13 +225,13 @@ curl http://localhost:3000/api/_routes  # every registered route
 | Command                       | Where     | What                            |
 | ----------------------------- | --------- | ------------------------------- |
 | `npm run dev`                 | root      | Vite dev server                 |
-| `npm run build`               | root      | Production build → `dist/`      |
+| `npm run build`               | root      | Production build â†’ `dist/`      |
 | `npm run preview`             | root      | Serve the production build      |
 | `npm test`                    | root      | Vitest suite                    |
 | `npm run lint`                | root      | ESLint + the CSS color check    |
 | `npm run typecheck:functions` | root      | `tsc` over `netlify/functions/` |
 | `npm run dev`                 | `server/` | Express with watch mode         |
-| `npm run build`               | `server/` | `tsc` → `server/dist/`          |
+| `npm run build`               | `server/` | `tsc` â†’ `server/dist/`          |
 | `npm run typecheck`           | `server/` | Type-check only                 |
 | `npm start`                   | `server/` | Run the compiled server         |
 
@@ -317,11 +317,11 @@ Step-by-step, including the proxy hosts and the external services to reconfigure
 | [`docs/VPS_MIGRATION.md`](docs/VPS_MIGRATION.md) | Architecture, full inventory of the 44 endpoints, env matrix, Coolify and Nginx setup, troubleshooting |
 | [`docs/PAYMENTS.md`](docs/PAYMENTS.md)           | Payment module architecture, schema, endpoints, Mercado Pago integration, webhook validation           |
 | [`PRODUCT.md`](PRODUCT.md)                       | Product brief and design principles for the dashboard                                                  |
-| `docs/superpowers/`                              | Dated design specs and implementation plans                                                            |
 
 ---
 
 ## License
 
-Copyright © 2026 Davi Monteiro Fonseca. All rights reserved.  
+Copyright Â© 2026 Davi Monteiro Fonseca. All rights reserved.  
 See [LICENSE](LICENSE) for details.
+

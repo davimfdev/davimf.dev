@@ -16,13 +16,13 @@ PostgreSQL on the back, self-hosted on a VPS with Coolify.
 | Backend | Node 22, Express 4, TypeScript (`server/`) |
 | Database | PostgreSQL over TCP via `postgres.js` (pooled) |
 | Auth | Discord OAuth2 (signed session cookie) + a legacy JWT stack |
-| Payments | Mercado Pago — transparent checkout (Orders API) and subscriptions |
+| Payments | Mercado Pago, transparent checkout (Orders API) and subscriptions |
 | E-mail | Resend |
 | Tests | Vitest + Testing Library (81 test files) |
 | Deploy | Docker + Coolify behind Nginx Proxy Manager |
 
-Site and API share the origin `https://davimf.dev`, so the browser always calls
-`/api/...` on the same host — **no CORS anywhere**.
+Site and API share the origin `https://davimf.dev`. The browser always calls
+`/api/...` on the same host, so there is **no CORS anywhere**.
 
 ```
 Internet
@@ -46,7 +46,7 @@ No login required.
 ### Portfolio & profile
 | Route | Description |
 |---|---|
-| `/` | Landing page — hero with the ecosystem graph, work blocks, stack, tools |
+| `/` | Landing page with the ecosystem graph hero, work blocks, stack and tools |
 | `/about` | About, with the project/tech breakdown |
 | `/portfolio` | Project showcase, filterable by technology |
 | `/resume` | CV / résumé (PDF export via jsPDF + html2canvas) |
@@ -60,8 +60,8 @@ No login required.
 | `/tools` | Index of every tool |
 | `/calc` | Calculator |
 | `/roulette` | Random-choice roulette wheel |
-| `/password-generator` | Password generator — config and history kept in `localStorage` |
-| `/encurtador` | URL shortener — shorten any link, no account needed |
+| `/password-generator` | Password generator; config and history kept in `localStorage` |
+| `/encurtador` | URL shortener; shorten any link, no account needed |
 | `/r/:shortCode` | Short-URL redirect handler |
 
 ### Store & legal
@@ -97,12 +97,12 @@ Authenticate through Discord OAuth from the top-right corner.
 | `/my-keys` | FMM licenses, with the full key recoverable |
 | `/fmm-admin` | License administration (Discord ID allowlist) |
 
-### Bot dashboard — `/dashboard`
+### Bot dashboard: `/dashboard`
 - Lists every Discord server where you hold Admin / Manage Server
 - Shows which of them already have BaseBot installed
 - One-click invite to add the bot
 
-### Bot config — `/dashboard/:guildId/<section>`
+### Bot config: `/dashboard/:guildId/<section>`
 Six sections, each backed by a snapshot of the real guild (channels, roles) so
 configuration never means typing raw Discord IDs:
 
@@ -119,11 +119,11 @@ for this surface lives in [`PRODUCT.md`](PRODUCT.md).
 
 Transparent Mercado Pago checkout inside the site, with automatic FMM license
 delivery and transactional e-mail. Provider-agnostic by construction: orders,
-products and the license system never import anything from the provider — only
+products and the license system never import anything from the provider. Only
 `lib/payments/providers/mercadopago/` knows Mercado Pago exists.
 
 - Pix, card (optional saved card and 3-D Secure), boleto and subscriptions
-- Price is read from the `products` table in integer cents — never from the client
+- Price is read from the `products` table in integer cents, never from the client
 - Idempotency keys on order and payment creation; webhook events deduplicated by
   `payment_events(provider, event_key)`, so a repeat notification never issues a
   second license or a second e-mail
@@ -155,7 +155,7 @@ netlify/functions/        44 HTTP handlers (unchanged since the Netlify era)
   lib/payments/           domain / application / providers / repositories / email
 
 server/                   Express host that mounts those handlers
-  src/routes/functions.ts Explicit route inventory — no wildcards
+  src/routes/functions.ts Explicit route inventory, no wildcards
   src/utils/              netlifyAdapter, webAdapter, env resolution
 
 db/                       Idempotent SQL migrations, applied with psql
@@ -191,12 +191,12 @@ cp .env.example .env      # then fill in the values
 The same `.env` serves both halves in development.
 
 ```bash
-# terminal 1 — backend
+# terminal 1: backend
 cd server
 npm install
 npm run dev               # http://localhost:3000 (loads ../.env)
 
-# terminal 2 — frontend
+# terminal 2: frontend
 npm install
 npm run dev               # http://localhost:5173
 ```
@@ -238,7 +238,7 @@ Migrations are plain, idempotent SQL applied by hand:
 psql "$NETLIFY_DATABASE_URL" -f db/005_payments.sql
 ```
 
-`db/001`–`008` cover tickets, dashboard sessions, the config audit trail, role
+`db/001` to `db/008` cover tickets, dashboard sessions, the config audit trail, role
 colors, payments, payer profiles, refund requests and legal acceptance. Note that
 `003` and `004` target the **bot** database, the rest the **site** database.
 
@@ -267,7 +267,7 @@ matrix is in [`docs/VPS_MIGRATION.md`](docs/VPS_MIGRATION.md). The essentials:
 
 | Variable | For |
 |---|---|
-| `URL` | Public base URL — short links, e-mail links, payment return URLs |
+| `URL` | Public base URL for short links, e-mail links and payment return URLs |
 | `DATABASE_URL` | Site database: urls, tasks, notes, accounts, transactions |
 | `NETLIFY_DATABASE_URL` | Users/JWT, expenses, dashboard sessions, FMM licenses |
 | `BOT_CONFIG_DATABASE_URL` / `POSTGRES_URL` | BaseBot configuration database |
@@ -281,7 +281,7 @@ matrix is in [`docs/VPS_MIGRATION.md`](docs/VPS_MIGRATION.md). The essentials:
 
 `URL` also accepts the platform aliases `PUBLIC_SITE_URL`, `SITE_URL`, `APP_URL`,
 `COOLIFY_URL`, `COOLIFY_FQDN` and `SERVICE_FQDN_*`, normalized at boot by
-`server/src/utils/env.ts` — the domain is never hardcoded.
+`server/src/utils/env.ts`. The domain is never hardcoded.
 
 **No secret is versioned.** `.env` is gitignored; `.env.example` carries names and
 comments only. Only `VITE_*` variables reach the bundle, and anything with that
@@ -293,10 +293,10 @@ prefix is public.
 
 Two Coolify resources behind Nginx Proxy Manager:
 
-- **`davimf-site`** — static. `npm ci` + `npm run build`, publish `dist/`. Paste
+- **`davimf-site`**: static. `npm ci` + `npm run build`, publish `dist/`. Paste
   [`nginx.conf`](nginx.conf) into "Custom Nginx Configuration" for the SPA
   fallback, cache headers and the basic security headers.
-- **`davimf-api`** — Docker. Base directory `/`, dockerfile `/server/Dockerfile`.
+- **`davimf-api`**: Docker. Base directory `/`, dockerfile `/server/Dockerfile`.
   Exposes `:3000` with a `/health` healthcheck.
 
 Step-by-step, including the proxy hosts and the external services to reconfigure
@@ -318,4 +318,4 @@ Step-by-step, including the proxy hosts and the external services to reconfigure
 
 ## License
 
-Private — all rights reserved.
+Private, all rights reserved.

@@ -1,7 +1,5 @@
 # davimf.dev
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/11d24c7c-591e-4c78-add0-df0c989e6e53/deploy-status)](https://app.netlify.com/projects/davimfdev/deploys)
-
 Personal developer portfolio and tooling platform. Built with React + TypeScript, deployed on Netlify.
 
 **Live:** https://davimf.dev

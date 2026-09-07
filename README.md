@@ -321,6 +321,7 @@ Step-by-step, including the proxy hosts and the external services to reconfigure
 
 ---
 
-#### License
+## License
 
-Copyright © 2026 Davi Monteiro Fonseca. All rights reserved.
+Copyright © 2026 Davi Monteiro Fonseca. All rights reserved.  
+See [LICENSE](LICENSE) for details.

@@ -34,3 +34,6 @@ dist-ssr
 .gitignore.worktrees/
 
 .superpowers/".env" 
+
+.claude/
+.impeccable/

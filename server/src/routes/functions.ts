@@ -88,6 +88,7 @@ export const WEB_STYLE_ROUTES: WebStyleRoute[] = [
   { name: 'fmm-generate', paths: ['/api/fmm-generate'], load: () => import('../../../netlify/functions/fmm-generate') },
   { name: 'fmm-keys', paths: ['/api/fmm-keys'], load: () => import('../../../netlify/functions/fmm-keys') },
   { name: 'fmm-my-keys', paths: ['/api/fmm-my-keys'], load: () => import('../../../netlify/functions/fmm-my-keys') },
+  { name: 'fmm-ping', paths: ['/api/fmm-ping'], load: () => import('../../../netlify/functions/fmm-ping') },
   { name: 'fmm-revoke', paths: ['/api/fmm-revoke'], load: () => import('../../../netlify/functions/fmm-revoke') },
   { name: 'fmm-validate', paths: ['/api/fmm-validate'], load: () => import('../../../netlify/functions/fmm-validate') },
   { name: 'get-url', paths: ['/api/get-url'], load: () => import('../../../netlify/functions/get-url') },

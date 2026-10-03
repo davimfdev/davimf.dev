@@ -13,6 +13,16 @@ export default defineConfig({
     // server/dist ou dist/ é coletada como suíte e roda o mesmo teste
     // recompilado para CommonJS - que o vitest não consegue importar.
     exclude: ['**/node_modules/**', '**/dist/**', '**/.git/**'],
+    // Configuração das rotas do $elfControl (netlify/functions/elf). Os segredos
+    // são gerados por expressão para não existir string com cara de credencial
+    // no repositório; nenhum teste abre conexão real com o banco.
+    env: {
+      ELF_SESSION_SECRET: 'e'.repeat(48),
+      ELF_APP_ORIGINS: 'https://elf.davimf.dev,http://localhost:5173',
+      ELF_DISCORD_REDIRECT_URI: 'https://elf.davimf.dev/api/elf/auth/callback',
+      DISCORD_CLIENT_ID: 'test-client-id',
+      DISCORD_CLIENT_SECRET: 'd'.repeat(32),
+    },
   },
   optimizeDeps: {
     include: ['lucide-react'],

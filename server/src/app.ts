@@ -1,5 +1,6 @@
 import express, { type NextFunction, type Request as ExpressRequest, type Response as ExpressResponse } from 'express';
 import { allowedOriginsFromEnv, corsMiddleware } from './middleware/cors';
+import { securityHeadersMiddleware } from './middleware/securityHeaders';
 import {
   NETLIFY_STYLE_ROUTES,
   WEB_STYLE_ROUTES,
@@ -20,6 +21,10 @@ export function createApp() {
   // Atrás do Nginx Proxy Manager: faz req.protocol/req.ip lerem X-Forwarded-*,
   // o que mantém as URLs absolutas em https://davimf.dev e os cookies Secure.
   app.set('trust proxy', true);
+
+  // Antes do CORS: vale para TODA resposta, inclusive o 204 do preflight e os
+  // 404/500 dos handlers de erro lá embaixo.
+  app.use(securityHeadersMiddleware());
 
   app.use(corsMiddleware(allowedOriginsFromEnv()));
 

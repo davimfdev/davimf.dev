@@ -125,7 +125,7 @@ const MyKeys = () => {
       <div className="flex items-center justify-between gap-3 mb-8 flex-wrap">
         <div className="flex items-center gap-3">
           <Key size={26} className="text-accent" />
-          <h1 className="text-3xl font-display font-extrabold text-fg">Minhas Chaves FMM</h1>
+          <h1 className="text-3xl font-display font-extrabold text-fg">Minhas Chaves Cizet</h1>
         </div>
         <Link to="/my-orders" className="text-sm text-accent hover:underline">Meus pedidos</Link>
       </div>
@@ -148,7 +148,7 @@ const MyKeys = () => {
                   {license.level === 'pro'
                     ? <ShieldCheck size={15} className="text-accent" />
                     : <Zap size={15} className="text-accent" />}
-                  <span className="text-xs font-bold uppercase tracking-widest text-accent">FMM {license.level}</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-accent">Cizet {license.level}</span>
                   <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${status.className}`}>
                     {status.label}
                   </span>
@@ -187,7 +187,7 @@ const MyKeys = () => {
 
                 <div className="flex flex-wrap gap-2 mt-4">
                   <a href={downloadUrl} download className="btn-secondary text-sm py-2 px-4">
-                    <Download size={14} className="mr-1.5" /> Baixar FMM
+                    <Download size={14} className="mr-1.5" /> Baixar Cizet
                   </a>
                   {license.orderId && (
                     <Link to={`/fmm-activated?order=${license.orderId}`} className="btn-secondary text-sm py-2 px-4">

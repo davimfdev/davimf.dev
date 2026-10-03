@@ -25,7 +25,7 @@ describe('página /portfolio', () => {
     renderPortfolio();
     const list = within(getList());
     expect(list.getAllByRole('listitem')).toHaveLength(5);
-    expect(list.getByText('FiveM Mod Manager')).toBeDefined();
+    expect(list.getByText('Cizet')).toBeDefined();
     expect(list.getByText('BaseBot')).toBeDefined();
     expect(list.getByText('davimf.dev')).toBeDefined();
     expect(list.getByText('boasvindas.online')).toBeDefined();
@@ -39,7 +39,7 @@ describe('página /portfolio', () => {
     fireEvent.click(goChip);
     let list = within(getList());
     expect(list.getAllByRole('listitem')).toHaveLength(1);
-    expect(list.getByText('FiveM Mod Manager')).toBeDefined();
+    expect(list.getByText('Cizet')).toBeDefined();
 
     fireEvent.click(goChip);
     list = within(getList());
@@ -53,7 +53,7 @@ describe('página /portfolio', () => {
 
     const list = within(getList());
     expect(list.getAllByRole('listitem')).toHaveLength(2);
-    expect(list.getByText('FiveM Mod Manager')).toBeDefined();
+    expect(list.getByText('Cizet')).toBeDefined();
     expect(list.getByText('BaseBot')).toBeDefined();
   });
 

@@ -40,7 +40,7 @@ describe('página /about', () => {
   it('mostra cada projeto com suas tecnologias principais', () => {
     const { container } = renderAbout();
     const projects = getProjectsSection(container);
-    expect(projects.getByText('FiveM Mod Manager')).toBeDefined();
+    expect(projects.getByText('Cizet')).toBeDefined();
     // O FMM é Go; o BaseBot é Java. Se as tags viessem de um lugar só, ou se o
     // slice pegasse as três erradas, isto quebra.
     expect(projects.getByText('Go')).toBeDefined();

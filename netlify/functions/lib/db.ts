@@ -93,17 +93,35 @@ function connectionStringFrom(envNames: readonly string[]): string {
  */
 export function sqlFor(envNames: readonly string[]): SqlClient {
   return (strings, ...values) => {
-    const connectionString = connectionStringFrom(envNames);
-    let pool = pools.get(connectionString);
-    if (!pool) {
-      pool = createPool(connectionString);
-      pools.set(connectionString, pool);
-    }
     // O tipo público do postgres.js é paramétrico no schema; aqui a assinatura
     // é a genérica que todos os handlers já usavam.
-    const tagged = pool as unknown as SqlClient;
+    const tagged = poolFor(envNames) as unknown as SqlClient;
     return tagged(strings, ...values);
   };
+}
+
+export type SqlTransaction = <T>(fn: (tx: SqlClient) => Promise<T>) => Promise<T>;
+
+/**
+ * Transação interativa no mesmo pool de `sqlFor`. O postgres.js reserva uma
+ * conexão, faz BEGIN, e dá COMMIT se `fn` resolver ou ROLLBACK se lançar.
+ * Necessária quando a operação lê antes de escrever ou toma advisory lock.
+ */
+export function transactionFor(envNames: readonly string[]): SqlTransaction {
+  return async <T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> => {
+    const result = await poolFor(envNames).begin((tx) => fn(tx as unknown as SqlClient));
+    return result as T;
+  };
+}
+
+function poolFor(envNames: readonly string[]): PostgresClient {
+  const connectionString = connectionStringFrom(envNames);
+  let pool = pools.get(connectionString);
+  if (!pool) {
+    pool = createPool(connectionString);
+    pools.set(connectionString, pool);
+  }
+  return pool;
 }
 
 // ------------------------------------------------------------- bancos ------
@@ -133,6 +151,12 @@ export const BOT_DB_ENV = ['POSTGRES_URL', 'BOT_CONFIG_DATABASE_URL'] as const;
 /** Banco de tickets. */
 export const TICKETS_DB_ENV = ['TICKETS_NEON', 'TICKETS_DATABASE_URL'] as const;
 
+/**
+ * Banco do $elfControl (`selfcontrol`). Sem nome alternativo de propósito: cair
+ * no banco do site por engano misturaria dados financeiros de dois sistemas.
+ */
+export const ELF_DB_ENV = ['ELF_DATABASE_URL'] as const;
+
 export const siteDbSql = sqlFor(SITE_DB_ENV);
 export const authDbSql = sqlFor(AUTH_DB_ENV);
 export const botDbSql = sqlFor(BOT_DB_ENV);
@@ -159,6 +183,7 @@ export function describeDatabases(): DatabaseTarget[] {
     ['auth/FMM/pagamentos', AUTH_DB_ENV],
     ['bot (bot_configs)', BOT_DB_ENV],
     ['tickets', TICKETS_DB_ENV],
+    ['selfcontrol', ELF_DB_ENV],
   ];
 
   return targets.map(([label, envNames]) => {

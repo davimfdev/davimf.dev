@@ -94,7 +94,7 @@ const translations = {
     viewProject: "Ver projeto",
     productList: [
       { id: 1, name: "Conhecer os bots do discord", description: "Um bot completamente personálizavel, focado em moderação e segurança.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" },
-      { id: 2, name: "FiveM Mod Manager", description: "Gerencie seus mods do FiveM com apenas um clique. Instale, ative e desative mods de som, RPF e Citizens com backup automático e otimizações de desempenho.", image: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/270123807/original/2e13089eeeef09bbb2a04d238dce1f419b5a7268/install-gta-fivem-server-with-qbcore-linux-or-windows.png", link: "/fmm" }
+      { id: 2, name: "Cizet", description: "Gerencie seus mods do FiveM com apenas um clique. Instale, ative e desative mods de som, RPF e Citizens com backup automático e otimizações de desempenho.", image: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/270123807/original/2e13089eeeef09bbb2a04d238dce1f419b5a7268/install-gta-fivem-server-with-qbcore-linux-or-windows.png", link: "/fmm" }
     ],
     downloadPDF: "Baixar PDF",
     personalInfo: "Dados Pessoais",
@@ -145,7 +145,7 @@ const translations = {
     quarterly: "Trimestral",
     lifetime: "Vitalício",
     annualDiscount: "Economize 16% com o plano anual!",
-    fmmModManagerPlans: "Planos do Gerenciador de Mods FiveM",
+    fmmModManagerPlans: "Planos do Cizet",
     fmmQuarterlySavings: "Economize ~11% vs mensal",
     fmmLifetimeNote: "Pagamento único - acesso para sempre",
     fmmForever: "para sempre",
@@ -358,18 +358,18 @@ const translations = {
         heading: 'SELECTED WORK',
         fmm: {
           kicker: '01 / PRODUCT',
-          title: 'FiveM Mod Manager',
+          title: 'Cizet',
           description: 'Ative e desative mods com um clique. Perfis salvam mods, citizens e configuração de uma vez.',
           tags: 'WINDOWS · MODS · PERFIS · OTIMIZAÇÃO · LICENSING',
-          link: 'Ver FMM',
+          link: 'Ver Cizet',
           shots: {
             primary: {
               label: 'MODS',
-              alt: 'Grade de mods do FiveM Mod Manager, com as seções Estradas e Gráficos e mods ativos e inativos.',
+              alt: 'Grade de mods do Cizet, com as seções Estradas e Gráficos e mods ativos e inativos.',
             },
             secondary: {
               label: 'OTIMIZAÇÃO',
-              alt: 'Painel de otimização do FiveM Mod Manager mostrando CPU, GPU e serviços do Windows relevantes para o FiveM.',
+              alt: 'Painel de otimização do Cizet mostrando CPU, GPU e serviços do Windows relevantes para o FiveM.',
             },
           },
         },
@@ -415,7 +415,7 @@ const translations = {
       projects: {
         kinds: { product: 'PRODUTOS', site: 'SITES', tools: 'FERRAMENTAS' },
         custom: { label: 'SOB MEDIDA', value: 'Watchdogs, aplicações personalizadas, integrações e automações.' },
-        fmm: { name: 'FiveM Mod Manager', description: 'Gerenciador de mods, perfis e otimização para FiveM.' },
+        fmm: { name: 'Cizet', description: 'Central do jogador de FiveM: mods, citizens, sons, servidores, perfis, otimização e diagnóstico.' },
         basebot: { name: 'BaseBot', description: 'Bots modulares e painel de configuração para Discord.' },
         davimfdev: { name: 'davimf.dev', description: 'Este site: produtos, pagamentos, licenciamento e ferramentas.' },
         boasvindas: { name: 'boasvindas.online', description: 'Landing pages para hospedagem, com editor e QR para hóspedes.' },
@@ -533,7 +533,7 @@ const translations = {
     viewProject: "View project",
     productList: [
         { id: 1, name: "Discover the discord bots", description: "A fully customizable bot focused on moderation and security.", image: "https://bs-uploads.toptal.io/blackfish-uploads/components/blog_post_page/4088758/cover_image/retina_1708x683/cover-how-to-make-a-discord-bot-0afaa27d630de8c4b711f5cd5abbf01f.png", link: "/plans" },
-        { id: 2, name: "FiveM Mod Manager", description: "Manage your FiveM mods with just one click. Safely install, enable, and disable sound, RPF, and Citizens mods with automatic backups and performance optimizations.", image: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/270123807/original/2e13089eeeef09bbb2a04d238dce1f419b5a7268/install-gta-fivem-server-with-qbcore-linux-or-windows.png", link: "/fmm" }
+        { id: 2, name: "Cizet", description: "Manage your FiveM mods with just one click. Safely install, enable, and disable sound, RPF, and Citizens mods with automatic backups and performance optimizations.", image: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/270123807/original/2e13089eeeef09bbb2a04d238dce1f419b5a7268/install-gta-fivem-server-with-qbcore-linux-or-windows.png", link: "/fmm" }
     ],
     downloadPDF: "Download PDF",
     personalInfo: "Personal Information",
@@ -584,7 +584,7 @@ const translations = {
     quarterly: "Quarterly",
     lifetime: "Lifetime",
     annualDiscount: "Save 16% with the annual plan!",
-    fmmModManagerPlans: "FiveM Mod Manager Plans",
+    fmmModManagerPlans: "Cizet Plans",
     fmmQuarterlySavings: "Save ~11% vs monthly",
     fmmLifetimeNote: "One-time payment - lifetime access",
     fmmForever: "forever",
@@ -797,18 +797,18 @@ const translations = {
         heading: 'SELECTED WORK',
         fmm: {
           kicker: '01 / PRODUCT',
-          title: 'FiveM Mod Manager',
+          title: 'Cizet',
           description: 'Toggle mods with one click. Profiles save mods, citizens and configuration all at once.',
           tags: 'WINDOWS · MODS · PROFILES · OPTIMIZATION · LICENSING',
-          link: 'See FMM',
+          link: 'See Cizet',
           shots: {
             primary: {
               label: 'MODS',
-              alt: "FiveM Mod Manager's mods grid, showing the Roads and Graphics sections with active and inactive mods.",
+              alt: "Cizet's mods grid, showing the Roads and Graphics sections with active and inactive mods.",
             },
             secondary: {
               label: 'OPTIMIZATION',
-              alt: "FiveM Mod Manager's optimization panel showing CPU, GPU and Windows services relevant to FiveM.",
+              alt: "Cizet's optimization panel showing CPU, GPU and Windows services relevant to FiveM.",
             },
           },
         },
@@ -854,7 +854,7 @@ const translations = {
       projects: {
         kinds: { product: 'PRODUCTS', site: 'SITES', tools: 'TOOLS' },
         custom: { label: 'BESPOKE', value: 'Watchdogs, custom applications, integrations and automation.' },
-        fmm: { name: 'FiveM Mod Manager', description: 'Mod, profile and optimization manager for FiveM.' },
+        fmm: { name: 'Cizet', description: 'Your FiveM player hub: mods, citizens, sounds, servers, profiles, optimization and diagnostics.' },
         basebot: { name: 'BaseBot', description: 'Modular bots and a configuration panel for Discord.' },
         davimfdev: { name: 'davimf.dev', description: 'This site: products, payments, licensing and tools.' },
         boasvindas: { name: 'boasvindas.online', description: 'Landing pages for hospitality, with an editor and guest QR codes.' },

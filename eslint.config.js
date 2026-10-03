@@ -40,5 +40,23 @@ export default tseslint.config(
     // de cor-que-é-dado em código de produção continua sendo por declaração.
     files: ['**/*.test.{ts,tsx}', '**/__tests__/**'],
     rules: { 'local/no-raw-color': 'off' },
+  },
+  {
+    // $elfControl: dinheiro é inteiro em centavos. O postgres.js entrega BIGINT
+    // como string, e Number() cru sobre um valor grande erra em silêncio.
+    files: ['netlify/functions/elf/**/*.ts'],
+    ignores: ['netlify/functions/elf/lib/money.ts'],
+    rules: {
+      'no-restricted-syntax': ['error',
+        {
+          selector: "CallExpression[callee.name='Number']",
+          message: 'Use parseDatabaseCents de elf/lib/money.ts. Number() cru perde precisão em BIGINT.',
+        },
+        {
+          selector: "CallExpression[callee.name='parseFloat']",
+          message: 'parseFloat nunca é usado em valor monetário.',
+        },
+      ],
+    },
   }
 );

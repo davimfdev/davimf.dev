@@ -12,7 +12,7 @@ export const ECOSYSTEM_NODES = [
   { id: 'POSTGRESQL', x: 34, y: 130, kind: 'satellite' },
   { id: 'DAVIMF', x: 160, y: 130, kind: 'core' },
   { id: 'BASEBOT', x: 286, y: 130, kind: 'satellite' },
-  { id: 'FMM', x: 160, y: 226, kind: 'satellite' },
+  { id: 'Cizet', x: 160, y: 226, kind: 'satellite' },
 ] as const;
 
 /** Só os satélites ligam ao core: o grafo é uma estrela, não uma malha. */

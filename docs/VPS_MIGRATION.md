@@ -621,3 +621,75 @@ não depende mais deles**:
 Podem ser removidos quando você tiver certeza de que não vai voltar. O diretório
 `netlify/functions/` **não** pode ser removido - é onde os handlers vivem e de
 onde o backend os importa.
+
+---
+
+## 11. Cabeçalhos de segurança
+
+Um scan (ZAP) em `https://davimf.dev/products` apontou CSP ausente, proteção
+anti-clickjacking ausente, CORS aberto no CSS do Fontshare e `integrity`
+ausente em tag externa. O que mudou:
+
+| Onde | Quem responde | Arquivo |
+| --- | --- | --- |
+| páginas e assets do site | nginx do container `davimf-site` | `nginx.conf` |
+| `/api/*` | Express, antes do CORS | `server/src/middleware/securityHeaders.ts` |
+| fontes | passaram a ser servidas pela própria origem | `src/styles/fonts.css` |
+
+### A CSP vai em duas etapas
+
+A política **aplicada** fecha só o que não depende de terceiros: framing,
+`<object>`, `<base>`, `form-action` e conteúdo misto. Script, frame e connect
+seguem liberados para qualquer `https:` — de propósito. O checkout carrega o
+MercadoPago.js, monta os iframes de Secure Fields e, no 3DS, embute uma página
+do **emissor do cartão**, cujo domínio é imprevisível. Fechar isso às cegas
+derruba pagamento.
+
+A política **report-only**, no mesmo arquivo, é a versão estreita real. Para
+promovê-la:
+
+1. abra o DevTools e faça um checkout completo (cartão + 3DS) em produção;
+2. se nenhuma violação aparecer no console, renomeie o cabeçalho
+   `Content-Security-Policy-Report-Only` para `Content-Security-Policy` e
+   apague a versão frouxa;
+3. se aparecer violação, acrescente **a origem** que faltou — nunca
+   `'unsafe-inline'` em `script-src`, que anula a proteção inteira.
+
+O MercadoPago não publica lista oficial de origens para CSP e o
+`sdk.mercadopago.com/js/v2` muda sem aviso, então essa verificação precisa ser
+refeita depois de qualquer mudança no checkout.
+
+### Por que não tem `integrity` em tag nenhuma
+
+Sobraram duas tags externas e nenhuma aceita SRI:
+
+- **Fontshare** — resolvido na raiz: as fontes agora são auto-hospedadas
+  (`src/styles/fonts.css`), então a tag sumiu junto com o achado de CORS. SRI
+  ali era impossível: a resposta varia por User-Agent e por encoding;
+- **`sdk.mercadopago.com/js/v2`** — é um arquivo rolante (o `Last-Modified`
+  anda sozinho). Fixar um hash faria o checkout morrer silenciosamente na
+  próxima publicação deles. **Não fixe.** A proteção aqui é o `frame-ancestors`
+  e a CSP estreita, não o SRI.
+
+### `add_header` não é herdado
+
+`add_header` dentro de um `location` **descarta todos os do bloco `server`**.
+Como os dois blocos de cache definem `Cache-Control`, a lista de cabeçalhos
+está repetida nos três `location` do `nginx.conf`. Ao mexer em um, mexa nos
+outros.
+
+### Verificação
+
+```bash
+curl -sSI https://davimf.dev/products | grep -iE 'content-security|x-frame|x-content-type|referrer|permissions|strict-transport'
+curl -sSI https://davimf.dev/api/health | grep -iE 'content-security|x-frame'
+```
+
+Em 19/09/2026 esse `curl` na rota do site voltava **sem nenhum** desses
+cabeçalhos, embora o `nginx.conf` já trouxesse `X-Frame-Options` — sinal de que
+o "Custom Nginx Configuration" do Coolify não estava aplicado ao container.
+Depois do deploy, confira o `curl` acima: se continuar vazio, o caminho é
+colar os `add_header` na aba **Advanced** do proxy host no Nginx Proxy Manager
+(seção 6), que fica acima do container.
+
+No servidor, antes de recarregar: `nginx -t`.

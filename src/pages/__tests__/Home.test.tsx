@@ -59,12 +59,12 @@ describe('Home', () => {
 
   /**
    * `/fmm` existe e é a página do produto (App.tsx); `/products` é a vitrine
-   * genérica. O link "Ver FMM" já apontou para `/products` por engano - a
+   * genérica. O link "Ver Cizet" já apontou para `/products` por engano - a
    * mesma seção-mais-forte da Home levando para o lugar errado. Trava aqui
    * para as duas rotas não voltarem a divergir.
    */
   it('a seção FMM aponta para /fmm, não /products', () => {
     renderHome();
-    expect(screen.getByRole('link', { name: 'Ver FMM' }).getAttribute('href')).toBe('/fmm');
+    expect(screen.getByRole('link', { name: 'Ver Cizet' }).getAttribute('href')).toBe('/fmm');
   });
 });

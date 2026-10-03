@@ -209,19 +209,19 @@ export type FmmLicenseEmailInput = OrderSummary & {
 export function fmmLicenseEmail(input: FmmLicenseEmailInput): RenderedEmail {
   const validity = input.isLifetime ? 'Vitalícia' : formatDate(input.expiresAt);
   return {
-    subject: 'FMM — Pagamento aprovado e sua chave',
+    subject: 'Cizet — Pagamento aprovado e sua chave',
     html: renderLayout({
       title: 'Pagamento aprovado',
-      preheader: `Sua chave do FMM (${input.planName}) está pronta.`,
+      preheader: `Sua chave do Cizet (${input.planName}) está pronta.`,
       body:
-        paragraph(`Seu pagamento foi confirmado e a licença do <strong style="color:${BRAND.text};">FiveM Mod Manager — ${escapeHtml(input.planName)}</strong> já está ativa.`) +
+        paragraph(`Seu pagamento foi confirmado e a licença do <strong style="color:${BRAND.text};">Cizet — ${escapeHtml(input.planName)}</strong> já está ativa.`) +
         `<p style="margin:0 0 8px;font-size:13px;font-weight:600;color:${BRAND.muted};text-transform:uppercase;letter-spacing:1px;">Sua chave de licença</p>` +
         codeBlock(input.licenseKey, { accent: true }) +
-        button('Baixar FMM', input.downloadUrl) +
+        button('Baixar Cizet', input.downloadUrl) +
         detailsTable(baseRows(input, [{ label: 'Validade', value: validity }])) +
         `<p style="margin:0 0 10px;font-size:14px;font-weight:600;color:${BRAND.accent};">Como ativar</p>
          <ol style="margin:0 0 16px;padding-left:20px;font-size:14px;line-height:1.7;color:${BRAND.muted};">
-           <li>Baixe e abra o FiveM Mod Manager.</li>
+           <li>Baixe e abra o Cizet.</li>
            <li>Vá em <span style="color:${BRAND.text};">Configurações → Ativar Licença</span>.</li>
            <li>Cole a chave acima e confirme.</li>
          </ol>` +
@@ -231,7 +231,7 @@ export function fmmLicenseEmail(input: FmmLicenseEmailInput): RenderedEmail {
         legalAcceptanceBlock(input.legalAcceptance),
     }),
     text: renderText([
-      'Pagamento aprovado — sua chave do FMM',
+      'Pagamento aprovado — sua chave do Cizet',
       `Plano: ${input.planName}`,
       `Pedido: ${input.reference}`,
       `Valor: ${formatMoney(input.amountCents, input.currency)}`,
@@ -242,7 +242,7 @@ export function fmmLicenseEmail(input: FmmLicenseEmailInput): RenderedEmail {
       `Download: ${input.downloadUrl}`,
       `Minhas chaves: ${input.keysUrl}`,
       '',
-      'Como ativar: abra o FMM, vá em Configurações > Ativar Licença e cole a chave.',
+      'Como ativar: abra o Cizet, vá em Configurações > Ativar Licença e cole a chave.',
       ...legalAcceptanceLines(input.legalAcceptance),
     ]),
   };

@@ -4,7 +4,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-// IDs Discord com acesso ao Admin FMM. Usado tanto no dropdown do avatar
+// IDs Discord com acesso ao Admin Cizet. Usado tanto no dropdown do avatar
 // (desktop) quanto no painel mobile — mesmo portão, uma fonte só.
 const ADMIN_DISCORD_IDS = ['956985471332937778', '344214477069221888'];
 
@@ -297,7 +297,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         <Link to="/my-keys" onClick={() => setIsUserMenuOpen(false)} className="block px-3 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-3 transition-colors">Minhas Chaves</Link>
                         <Link to="/my-orders" onClick={() => setIsUserMenuOpen(false)} className="block px-3 py-2 text-sm text-fg-muted hover:text-fg hover:bg-surface-3 transition-colors">Meus Pedidos</Link>
                         {ADMIN_DISCORD_IDS.includes(discordUser?.id) && (
-                          <Link to="/fmm-admin" onClick={() => setIsUserMenuOpen(false)} className="block px-3 py-2 text-sm text-accent hover:bg-surface-3 transition-colors">Admin FMM</Link>
+                          <Link to="/fmm-admin" onClick={() => setIsUserMenuOpen(false)} className="block px-3 py-2 text-sm text-accent hover:bg-surface-3 transition-colors">Admin Cizet</Link>
                         )}
                         <button onClick={handleLogout} className="flex items-center w-full text-left px-3 py-2 text-sm text-danger hover:bg-surface-3 transition-colors">
                           <LogOut size={13} className="mr-2" />Sair
@@ -361,7 +361,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 <Link to="/my-keys" onClick={() => setIsMenuOpen(false)} className="text-lg text-fg-muted py-2.5 border-b border-line">Minhas Chaves</Link>
                 <Link to="/my-orders" onClick={() => setIsMenuOpen(false)} className="text-lg text-fg-muted py-2.5 border-b border-line">Meus Pedidos</Link>
                 {ADMIN_DISCORD_IDS.includes(discordUser?.id) && (
-                  <Link to="/fmm-admin" onClick={() => setIsMenuOpen(false)} className="text-lg text-accent py-2.5 border-b border-line">Admin FMM</Link>
+                  <Link to="/fmm-admin" onClick={() => setIsMenuOpen(false)} className="text-lg text-accent py-2.5 border-b border-line">Admin Cizet</Link>
                 )}
               </div>
             )}

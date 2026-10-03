@@ -189,7 +189,7 @@ const FmmAdmin = () => {
     <div className="container mx-auto px-4 py-12 animate-fade-in relative z-10 max-w-5xl">
       <div className="flex items-center gap-3 mb-8">
         <ShieldCheck size={28} className="text-accent" />
-        <h1 className="text-3xl font-extrabold text-fg">Admin FMM</h1>
+        <h1 className="text-3xl font-extrabold text-fg">Admin Cizet</h1>
         <span className="text-xs text-fg-muted font-mono ml-auto">{userId}</span>
       </div>
 

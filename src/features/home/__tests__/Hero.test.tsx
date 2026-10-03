@@ -52,6 +52,6 @@ describe('Hero', () => {
     expect(svg).not.toBeNull();
     expect(svg?.getAttribute('aria-hidden')).toBe('true');
     expect(svg?.textContent).toContain('BASEBOT');
-    expect(svg?.textContent).toContain('FMM');
+    expect(svg?.textContent).toContain('Cizet');
   });
 });

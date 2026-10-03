@@ -16,10 +16,10 @@ const renderBlock = (mirrored = false) =>
     <MemoryRouter>
       <WorkBlock
         kicker="01 / PRODUCT"
-        title="FiveM Mod Manager"
+        title="Cizet"
         description="Ative e desative mods com um clique."
         tags="WINDOWS · MODS"
-        link="Ver FMM"
+        link="Ver Cizet"
         href="/products"
         shots={shots}
         mirrored={mirrored}
@@ -31,7 +31,7 @@ describe('WorkBlock', () => {
   it('mostra numeração, título e link', () => {
     renderBlock();
     expect(screen.getByText('01 / PRODUCT')).toBeDefined();
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('FiveM Mod Manager');
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Cizet');
     expect(screen.getByRole('link').getAttribute('href')).toBe('/products');
   });
 

@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   AUTH_DB_ENV,
   BOT_DB_ENV,
+  ELF_DB_ENV,
   SITE_DB_ENV,
   TICKETS_DB_ENV,
   describeDatabases,
@@ -19,12 +20,13 @@ import {
   poolOptions,
   resetPoolsForTesting,
   sqlFor,
+  transactionFor,
 } from '../db';
 
 const TOUCHED = [
   'DATABASE_URL', 'NETLIFY_DATABASE_URL', 'POSTGRES_URL',
   'BOT_CONFIG_DATABASE_URL', 'TICKETS_NEON', 'TICKETS_DATABASE_URL',
-  'DB_POOL_MAX', 'PGBOUNCER',
+  'ELF_DATABASE_URL', 'DB_POOL_MAX', 'PGBOUNCER',
 ];
 
 const SITE = 'postgres://u:p@postgres:5432/davimf_dev';
@@ -92,6 +94,22 @@ describe('resolução de connection string', () => {
     process.env.BOT_CONFIG_DATABASE_URL = 'postgres://u:p@antigo:5432/outro';
     void sqlFor(BOT_DB_ENV)`SELECT 1`.catch(() => undefined);
     // Um único pool, e é o da URL nova.
+    expect(openPoolCount()).toBe(1);
+  });
+});
+
+describe('banco do $elfControl', () => {
+  it('nunca cai para o banco do site', () => {
+    process.env.DATABASE_URL = SITE;
+    process.env.NETLIFY_DATABASE_URL = SITE;
+    expect(() => sqlFor(ELF_DB_ENV)`SELECT 1`).toThrow(/ELF_DATABASE_URL/);
+    expect(openPoolCount()).toBe(0);
+  });
+
+  it('a transação usa o mesmo pool das queries avulsas', () => {
+    process.env.ELF_DATABASE_URL = 'postgres://postgres:5432/selfcontrol';
+    void sqlFor(ELF_DB_ENV)`SELECT 1`.catch(() => undefined);
+    void transactionFor(ELF_DB_ENV)(async () => undefined).catch(() => undefined);
     expect(openPoolCount()).toBe(1);
   });
 });

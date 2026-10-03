@@ -1,0 +1,78 @@
+/*
+ * Fontes auto-hospedadas — Satoshi e Cabinet Grotesk (Indian Type Foundry).
+ *
+ * POR QUE NÃO O CDN DO FONTSHARE (api.fontshare.com):
+ *
+ *  - o <link> para lá era a única origem de terceiros no caminho crítico de
+ *    renderização: uma conexão a mais (DNS + TLS) antes de descobrir sequer
+ *    QUAIS arquivos de fonte baixar, porque o CSS é que aponta para o
+ *    cdn.fontshare.com. Auto-hospedado, o texto pinta uma ida e volta antes;
+ *  - o scan de segurança apontou dois itens ali: o `Access-Control-Allow-Origin: *`
+ *    do servidor deles e a ausência de `integrity` na tag. SRI era inviável
+ *    naquele endpoint — a resposta VARIA por User-Agent (woff2/woff/ttf) e por
+ *    encoding, então qualquer hash fixo quebraria em parte dos navegadores.
+ *    Servindo da mesma origem, os dois deixam de existir;
+ *  - os arquivos ficam em `src/styles/fonts/`, não em `public/`, para o Vite
+ *    colocar hash de conteúdo no nome. É isso que autoriza o
+ *    `Cache-Control: public, immutable` de 1 ano do `nginx.conf`.
+ *
+ * Só woff2: suportado por todo navegador que também roda este site (Chrome 36+,
+ * Firefox 39+, Safari 12+, Edge 14+). woff/ttf seriam ~3x o peso para navegador
+ * nenhum. Quem não tiver woff2 cai no fallback do `tailwind.config.js`.
+ *
+ * `font-display: swap` mantém o texto visível durante o download — mesmo
+ * comportamento que o CSS do Fontshare pedia.
+ *
+ * Os pesos aqui são exatamente os que o `tailwind.config.js` usa: Satoshi
+ * 400/500/700 (`font-sans`) e Cabinet Grotesk 700/800/900 (`font-display`).
+ * Acrescentar um peso no Tailwind sem acrescentar o arquivo aqui faz o
+ * navegador sintetizar o traço — mais grosso e borrado.
+ */
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('./fonts/satoshi-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('./fonts/satoshi-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('./fonts/satoshi-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('./fonts/cabinet-grotesk-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('./fonts/cabinet-grotesk-800.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('./fonts/cabinet-grotesk-900.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}

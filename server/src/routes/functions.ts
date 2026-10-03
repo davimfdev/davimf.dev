@@ -102,6 +102,12 @@ export const WEB_STYLE_ROUTES: WebStyleRoute[] = [
   { name: 'ticket-store', paths: ['/api/ticket-store'], load: () => import('../../../netlify/functions/ticket-store') },
   { name: 'transactions', paths: ['/api/transactions'], load: () => import('../../../netlify/functions/transactions') },
   { name: 'transfer', paths: ['/api/transfer'], load: () => import('../../../netlify/functions/transfer') },
+  // $elfControl: API do app financeiro, servido em elf.davimf.dev. Ver docs/ELFCONTROL.md.
+  { name: 'elf-health', paths: ['/api/elf/health'], load: () => import('../../../netlify/functions/elf/health') },
+  { name: 'elf-auth-start', paths: ['/api/elf/auth/start'], load: () => import('../../../netlify/functions/elf/auth-start') },
+  { name: 'elf-auth-callback', paths: ['/api/elf/auth/callback'], load: () => import('../../../netlify/functions/elf/auth-callback') },
+  { name: 'elf-auth-me', paths: ['/api/elf/auth/me'], load: () => import('../../../netlify/functions/elf/auth-me') },
+  { name: 'elf-auth-logout', paths: ['/api/elf/auth/logout'], load: () => import('../../../netlify/functions/elf/auth-logout') },
 ];
 
 export function asNetlifyHandler(module: { handler: unknown }, name: string): NetlifyHandler {

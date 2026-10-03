@@ -40,6 +40,11 @@ RUN npm ci --omit=dev && npm cache clean --force
 # dist/netlify/functions/* (handlers migrados).
 COPY --from=build /app/server/dist ./dist
 
+# Migrations do $elfControl, aplicadas de dentro do container:
+#   node scripts/elf-migrate.mjs
+COPY db/elf /app/db/elf
+COPY server/scripts ./scripts
+
 USER node
 
 EXPOSE 3000

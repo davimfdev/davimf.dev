@@ -105,14 +105,14 @@ export function PaymentResult({ payment }: { payment: PaymentView }) {
                 className="btn-primary w-full text-sm py-2.5"
                 download
               >
-                <Download size={15} className="mr-2" /> Baixar FMM
+                <Download size={15} className="mr-2" /> Baixar Cizet
               </a>
             </div>
 
             <div className="mt-4 rounded-lg border-l-2 border-accent bg-accent/[0.06] px-4 py-3">
               <p className="text-xs font-semibold text-accent mb-1.5">Como ativar</p>
               <ol className="list-decimal list-inside space-y-0.5 text-xs text-fg-soft leading-relaxed">
-                <li>Baixe e abra o FiveM Mod Manager.</li>
+                <li>Baixe e abra o Cizet.</li>
                 <li>Vá em <span className="text-fg">Configurações → Ativar Licença</span>.</li>
                 <li>Cole a chave acima e confirme.</li>
               </ol>

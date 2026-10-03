@@ -126,11 +126,11 @@
     }
     </script>
 
-    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
-    <link
-      href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=cabinet-grotesk@700,800,900&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Satoshi e Cabinet Grotesk são AUTO-HOSPEDADAS: as declarações @font-face
+         vivem em src/styles/fonts.css e os .woff2 saem do build com hash no
+         nome. Não há mais <link> para api.fontshare.com — ver o cabeçalho
+         daquele arquivo para o porquê (origem de terceiros no caminho crítico,
+         CORS aberto e integrity impossível de fixar). -->
 
     <!-- Nenhum script de análise de audiência aqui, de propósito. O site não
          usa rastreamento de terceiros: só cookies estritamente necessários para

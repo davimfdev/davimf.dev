@@ -70,10 +70,14 @@ export function jsonResponse(
 }
 
 export function errorResponse(error: ApiError, req: Request): Response {
+  const retryAfter = error.extra?.retryAfterSeconds;
+  const extraHeaders: Record<string, string> =
+    typeof retryAfter === 'number' ? { 'Retry-After': String(retryAfter) } : {};
   return jsonResponse(
     { error: { code: error.code, message: error.message, ...(error.extra ?? {}) } },
     error.status,
     req,
+    extraHeaders,
   );
 }
 

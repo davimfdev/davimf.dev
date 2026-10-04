@@ -1,9 +1,17 @@
 import cookie from 'cookie';
 import { ApiError, errorResponse, shouldUseSecureCookies, withElf } from './lib/http';
 import { ELF_OAUTH_STATE_COOKIE, createOAuthState } from './lib/oauth-state';
+import { clientIp, enforceRateLimit as defaultEnforce, RATE_LIMITS } from './lib/rate-limit';
+
+type Deps = { enforceRateLimit?: typeof defaultEnforce };
 
 /** GET /api/elf/auth/start?returnTo=/caminho — redireciona para o Discord. */
-export async function handleAuthStart(req: Request): Promise<Response> {
+export async function handleAuthStart(req: Request, deps: Deps = {}): Promise<Response> {
+  await (deps.enforceRateLimit ?? defaultEnforce)({
+    scope: 'auth_start',
+    identifier: clientIp(req),
+    ...RATE_LIMITS.authStart,
+  });
   const clientId = process.env.DISCORD_CLIENT_ID;
   const redirectUri = process.env.ELF_DISCORD_REDIRECT_URI;
   if (!clientId || !redirectUri) {

@@ -55,6 +55,17 @@ describe('errorResponse', () => {
       error: { code: 'ACCOUNT_NOT_FOUND', message: 'Conta não encontrada.' },
     });
   });
+  it('inclui Retry-After quando o erro traz retryAfterSeconds', () => {
+    const res = errorResponse(
+      new ApiError('RATE_LIMITED', 'Muitas requisições.', 429, { retryAfterSeconds: 42 }),
+      req(),
+    );
+    expect(res.headers.get('Retry-After')).toBe('42');
+  });
+  it('omite Retry-After nos demais erros', () => {
+    const res = errorResponse(new ApiError('ACCOUNT_NOT_FOUND', 'Não achou.', 404), req());
+    expect(res.headers.get('Retry-After')).toBeNull();
+  });
   it('inclui campos extras quando houver', async () => {
     const res = errorResponse(
       new ApiError('VERSION_CONFLICT', 'Alterado em outro dispositivo.', 409, { current: { id: 'x' } }),

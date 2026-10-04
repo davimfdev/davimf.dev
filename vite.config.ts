@@ -22,6 +22,8 @@ export default defineConfig({
       ELF_DISCORD_REDIRECT_URI: 'https://elf.davimf.dev/api/elf/auth/callback',
       DISCORD_CLIENT_ID: 'test-client-id',
       DISCORD_CLIENT_SECRET: 'd'.repeat(32),
+      ELF_PAIRING_SIGNING_SECRET: 'p'.repeat(48),
+      ELF_PAIRING_ENCRYPTION_SECRET: 'q'.repeat(48),
     },
   },
   optimizeDeps: {

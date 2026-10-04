@@ -108,6 +108,11 @@ export const WEB_STYLE_ROUTES: WebStyleRoute[] = [
   { name: 'elf-auth-callback', paths: ['/api/elf/auth/callback'], load: () => import('../../../netlify/functions/elf/auth-callback') },
   { name: 'elf-auth-me', paths: ['/api/elf/auth/me'], load: () => import('../../../netlify/functions/elf/auth-me') },
   { name: 'elf-auth-logout', paths: ['/api/elf/auth/logout'], load: () => import('../../../netlify/functions/elf/auth-logout') },
+  { name: 'elf-auth-device-start', paths: ['/api/elf/auth/device/start'], load: () => import('../../../netlify/functions/elf/auth-device-start') },
+  { name: 'elf-auth-device-approve', paths: ['/api/elf/auth/device/approve'], load: () => import('../../../netlify/functions/elf/auth-device-approve') },
+  { name: 'elf-auth-device-poll', paths: ['/api/elf/auth/device/poll'], load: () => import('../../../netlify/functions/elf/auth-device-poll') },
+  { name: 'elf-auth-sessions', paths: ['/api/elf/auth/sessions', '/api/elf/auth/sessions/:id'], load: () => import('../../../netlify/functions/elf/auth-sessions') },
+  { name: 'elf-auth-devices', paths: ['/api/elf/auth/devices', '/api/elf/auth/devices/:id'], load: () => import('../../../netlify/functions/elf/auth-devices') },
 ];
 
 export function asNetlifyHandler(module: { handler: unknown }, name: string): NetlifyHandler {

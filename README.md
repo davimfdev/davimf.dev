@@ -27,8 +27,8 @@ Site and API share the origin `https://davimf.dev`. The browser always calls
 ```
 Internet
    Nginx Proxy Manager (TLS, HTTP/2)
-         /      â”€â”€â–º davimf-site : 80    nginx serving the Vite build
-         /api/  â”€â”€â–º davimf-api  : 3000  Node/Express container
+         /davimf-site : 80    nginx serving the Vite build
+         /api/ davimf-api  : 3000  Node/Express container
 ```
 
 > **Netlify heritage:** the 44 HTTP handlers still live in `netlify/functions/*.ts`
@@ -50,7 +50,7 @@ No login required.
 | `/`          | Landing page with the ecosystem graph hero, work blocks, stack and tools |
 | `/about`     | About, with the project/tech breakdown                                   |
 | `/portfolio` | Project showcase, filterable by technology                               |
-| `/resume`    | CV / rÃ©sumÃ© (PDF export via jsPDF + html2canvas)                         |
+| `/resume`    | CV / resume (PDF export via jsPDF + html2canvas)                         |
 | `/products`  | Services and products offered                                            |
 | `/plans`     | Pricing for Discord bots and FiveM factions                              |
 | `/contact`   | Contact form                                                             |
@@ -111,7 +111,7 @@ Authenticate through Discord OAuth from the top-right corner.
 Six sections, each backed by a snapshot of the real guild (channels, roles) so
 configuration never means typing raw Discord IDs:
 
-`overview` Â· `channels` Â· `roles` Â· `moderation` Â· `security` Â· `modules`
+`overview` · `channels` · `roles` · `moderation` · `security` · `modules`
 
 Access levels are `owner`, `delegate` and `support`; every mutation is written to
 an audit trail (`db/003_dashboard_config_audit.sql`), and mutating endpoints check

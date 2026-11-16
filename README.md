@@ -26,9 +26,9 @@ Site and API share the origin `https://davimf.dev`. The browser always calls
 
 ```
 Internet
-  â””â”€â”€ Nginx Proxy Manager (TLS, HTTP/2)
-        â”œâ”€â”€ /      â”€â”€â–º davimf-site : 80    nginx serving the Vite build
-        â””â”€â”€ /api/  â”€â”€â–º davimf-api  : 3000  Node/Express container
+   Nginx Proxy Manager (TLS, HTTP/2)
+         /      â”€â”€â–º davimf-site : 80    nginx serving the Vite build
+         /api/  â”€â”€â–º davimf-api  : 3000  Node/Express container
 ```
 
 > **Netlify heritage:** the 44 HTTP handlers still live in `netlify/functions/*.ts`
